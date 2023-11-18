@@ -1,0 +1,135 @@
+.login_page {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('../../public/img/background.png');
+  background-size: cover;
+  background-position: center;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Jockey One', sans-serif;
+  color: #3b2826;
+}
+
+.panel {
+  display: flex;
+  padding: 24px;
+  width: 600px;
+  height: 720px;
+  background-image: url('../../public/img/panel.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.title {
+  padding: 12px 0px;
+  margin: 0px;
+  top: 30%;
+  text-align: center;
+  font-size: 48px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.container {
+  display: flex;
+  margin: 48px 0px;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  flex-wrap: wrap;
+}
+
+.input_container {
+  border-bottom: 1px solid #3b2826;
+  text-align: center;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.input {
+  margin: 5px;
+  border: none;
+  outline: none;
+  color: var(--heavy, #875d50);
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  background: none;
+}
+
+.text_link {
+  text-align: right;
+  color: #1373cc;
+}
+
+.text_link:hover {
+  color: #4b98de;
+}
+
+.text_link:active {
+  color: #0f63b0;
+}
+
+.button {
+  width: 150px;
+  padding: 0px 12px;
+  border: none;
+  border-radius: 4px;
+  background: linear-gradient(123deg, #946342 -1.86%, #62251d 74.55%);
+  box-shadow: 0px 2px 2px 0px #3b2826;
+  color: #f1e3d5;
+  text-shadow: 0px 2px 2px #3b2826;
+  font-family: Jockey One;
+  font-size: 36px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  transition: all 0.2s linear;
+}
+
+.button:hover {
+  background: linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.1) 100%
+    ),
+    linear-gradient(123deg, #946342 -1.86%, #62251d 74.55%);
+
+  box-shadow: 0px 2px 6px 0px #3b2826;
+}
+
+.button:active {
+  background: linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.2) 0%,
+      rgba(0, 0, 0, 0.2) 100%
+    ),
+    linear-gradient(123deg, #946342 -1.86%, #62251d 74.55%);
+  box-shadow: 0px 2px 8px 0px #3b2826;
+}
+
+.button_hollow {
+  border: 2px solid #62251d;
+  background: transparent;
+  color: #62251d;
+  text-shadow: none;
+}
+
+.button_hollow:hover {
+  background: rgba(98, 37, 29, 0.1);
+  box-shadow: 0px 2px 6px 0px #3b2826;
+}
+
+.button_hollow:active {
+  background: rgba(98, 37, 29, 0.2);
+  box-shadow: 0px 2px 8px 0px #3b2826;
+}
