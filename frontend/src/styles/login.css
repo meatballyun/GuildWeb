@@ -7,11 +7,10 @@
   background-position: center;
   justify-content: center;
   align-items: center;
-  font-family: 'Jockey One', sans-serif;
   color: #3b2826;
 }
 
-.panel {
+.login_page .panel {
   display: flex;
   padding: 24px;
   width: 600px;
@@ -25,7 +24,7 @@
   align-items: center;
 }
 
-.title {
+.login_page .title {
   padding: 12px 0px;
   margin: 0px;
   top: 30%;
@@ -36,7 +35,7 @@
   line-height: normal;
 }
 
-.container {
+.login_page .container {
   display: flex;
   margin: 48px 0px;
   flex-direction: column;
@@ -45,7 +44,7 @@
   flex-wrap: wrap;
 }
 
-.input_container {
+.login_page .input_container {
   border-bottom: 1px solid #3b2826;
   text-align: center;
   font-size: 18px;
@@ -54,7 +53,7 @@
   line-height: normal;
 }
 
-.input {
+.login_page .input {
   margin: 5px;
   border: none;
   outline: none;
@@ -66,20 +65,20 @@
   background: none;
 }
 
-.text_link {
+.login_page .text_link {
   text-align: right;
   color: #1373cc;
 }
 
-.text_link:hover {
+.login_page .text_link:hover {
   color: #4b98de;
 }
 
-.text_link:active {
+.login_page .text_link:active {
   color: #0f63b0;
 }
 
-.button {
+.login_page .button {
   width: 150px;
   padding: 0px 12px;
   border: none;
@@ -96,7 +95,7 @@
   transition: all 0.2s linear;
 }
 
-.button:hover {
+.login_page .button:hover {
   background: linear-gradient(
       0deg,
       rgba(255, 255, 255, 0.1) 0%,
@@ -107,7 +106,7 @@
   box-shadow: 0px 2px 6px 0px #3b2826;
 }
 
-.button:active {
+.login_page .button:active {
   background: linear-gradient(
       0deg,
       rgba(0, 0, 0, 0.2) 0%,
@@ -117,19 +116,19 @@
   box-shadow: 0px 2px 8px 0px #3b2826;
 }
 
-.button_hollow {
+.login_page .button_hollow {
   border: 2px solid #62251d;
   background: transparent;
   color: #62251d;
   text-shadow: none;
 }
 
-.button_hollow:hover {
+.login_page .button_hollow:hover {
   background: rgba(98, 37, 29, 0.1);
   box-shadow: 0px 2px 6px 0px #3b2826;
 }
 
-.button_hollow:active {
+.login_page .button_hollow:active {
   background: rgba(98, 37, 29, 0.2);
   box-shadow: 0px 2px 8px 0px #3b2826;
 }

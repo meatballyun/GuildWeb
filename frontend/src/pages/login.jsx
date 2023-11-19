@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import '../styles/login.css';
 
 function Login() {
@@ -55,7 +56,9 @@ function Login() {
             Log In
           </button>
           <h3 style={{ margin: '12px', fontSize: '28px' }}>or</h3>
-          <button className="button_hollow button">Sign Up</button>
+          <Link to="/signup">
+            <button className="button_hollow button">Sign Up</button>
+          </Link>
         </div>
       </div>
     </>
