@@ -1,34 +1,31 @@
 const express = require('express');
 const path = require('path');
 const logger = require('morgan');
+const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const passport = require('passport');
 const bodyParser = require('body-parser');
 // Setting routes
 const routes = require('./routes/index');
-
 const app = express();
+require('./verification/passport')(passport);
 
 app.use(logger('dev'));
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-//app.use(cookieParser('880725'));
-app.use(express.static(path.join(__dirname, '../frontend/public')));
+//app.use(express.static(path.join(__dirname, '../frontend/public')));
 
+app.use(session({
+    secret: 'ThisIsMySecret',
+    resave: false,
+    saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 app.use('/', routes);
-
-app.use(cookieParser('74nj686416354ab64n433564k76455k84143623367l5146e5676534a346n5343486'));
-
-app.use(function (req, res, next) {
-    console.log(req.cookies.nick); // chyingp
-    console.log(req.signedCookies.nick); // chyingp
-    next();
-});
-
-app.use(function (req, res, next) {
-    // 传入第三个参数 {signed: true}，表示要对cookie进行摘要计算
-    res.cookie('nick', 'chyingp', { signed: true });
-    res.end('ok');
-});
 
 //404
 app.use((req, res, next) => {
