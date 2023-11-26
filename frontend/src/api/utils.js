@@ -7,6 +7,7 @@ export const fetchJson = async ({ url, body, method = 'GET' }) => {
     },
     body: body && JSON.stringify(body),
   });
-  const resData = await res.json();
-  return resData;
+  return res;
+  // const resData = await res.json();
+  // return resData;
 };

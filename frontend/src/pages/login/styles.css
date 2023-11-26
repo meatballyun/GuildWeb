@@ -1,0 +1,51 @@
+.login_page {
+  height: 100vh;
+  background: center / cover url('../../../public/img/background.png');
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #3b2826;
+}
+
+.login_page .panel {
+  display: flex;
+  padding: 24px;
+  width: 600px;
+  height: 720px;
+  background: center / contain no-repeat url('../../../public/img/panel.png');
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  animation: shiny 3s alternate infinite linear;
+}
+
+.login_page .container {
+  display: flex;
+  margin: 48px 0px;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  flex-wrap: wrap;
+}
+
+.login_page .text_link {
+  text-align: right;
+  color: #1373cc;
+}
+
+.login_page .text_link:hover {
+  color: #4b98de;
+}
+
+.login_page .text_link:active {
+  color: #0f63b0;
+}
+
+@keyframes shiny {
+  from {
+    filter: drop-shadow(0 0 0 rgba(255, 228, 175, 0.25));
+  }
+  to {
+    filter: drop-shadow(0 0 48px rgba(255, 228, 175, 0.25));
+  }
+}
