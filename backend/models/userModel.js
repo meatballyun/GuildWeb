@@ -31,7 +31,7 @@ class UserModel {
 				if (err) {
 					reject(err);
 				} else {
-					resolve('signUp success!!');
+					resolve('');
 				}
 			});
 		});
