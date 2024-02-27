@@ -1,7 +1,10 @@
-module.exports = {
-    authenticated: (req, res, next) => {
+const authenticated = (req, res, next) => {
+    if (req.isAuthenticated()) {
         console.log('authenticated');
-        if (req.isAuthenticated()) { return next() }
-        res.status(401).json({ error: 'Unauthorized', message: 'User is not logged in' });
+        return next();
+    } else {
+        return res.status(401).json({ data: 'Unauthorized' });
     }
-}
+};
+
+module.exports = authenticated;

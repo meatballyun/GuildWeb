@@ -21,11 +21,13 @@ function Login() {
       console.log('err: ', err);
       return;
     }
-    if(succ.status===200){
-      
+    if (succ.status === 200) {
+      const json = await succ.json();
+      console.log('token ', json.token);
+      localStorage.setItem('token', json.token);
     }
-    console.log('succ ', succ);
-    //navigate('/');
+
+    navigate('/');
   };
 
   return (

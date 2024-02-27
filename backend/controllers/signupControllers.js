@@ -1,7 +1,6 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/userModel');
 
-
 class SignUpController {
     async signup(req, res) {
         try {
@@ -17,6 +16,7 @@ class SignUpController {
                     }
                 });
             });
+
             const temp = await User.signUp(req.body.name, req.body.email, password);
             if (!temp) res.status(200).json({
                 "status": "success",
@@ -33,16 +33,6 @@ class SignUpController {
             console.log('signup Error!!!');
         }
     }
-
-    // async findUser(req, res) {
-    //     try {
-    //         const temp = User.getUser(req.body.email);
-    //         if ()
-    //     } catch (error) {
-    //         console.error(error);
-    //         console.log('not find!');
-    //     }
-    // }
 }
 
 module.exports = SignUpController;

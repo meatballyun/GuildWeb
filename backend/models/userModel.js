@@ -3,7 +3,7 @@ const connection = require('../lib/db');
 class UserModel {
 	static getUser(email) {
 		return new Promise((resolve, reject) => {
-			connection.query('SELECT * FROM user WHERE email = ?', email, function (err, rows) {
+			connection.query('SELECT * FROM Users WHERE email = ?', email, function (err, rows) {
 				if (err) {
 					reject(err);
 				} else {
@@ -15,7 +15,7 @@ class UserModel {
 
 	static getUserNum(email) {
 		return new Promise((resolve, reject) => {
-			connection.query('SELECT COUNT(1) AS num FROM user WHERE email = ?', email, function (err, rows) {
+			connection.query('SELECT COUNT(1) AS num FROM Users WHERE email = ?', email, function (err, rows) {
 				if (err) {
 					reject(err);
 				} else {
@@ -27,7 +27,7 @@ class UserModel {
 
 	static signUp(name, email, password) {
 		return new Promise((resolve, reject) => {
-			connection.query('INSERT INTO user(name, email, password) VALUES (?,?,?)', [name, email, password], function (err, user) {
+			connection.query('INSERT INTO Users(name, email, password) VALUES (?,?,?)', [name, email, password], function (err, user) {
 				if (err) {
 					reject(err);
 				} else {

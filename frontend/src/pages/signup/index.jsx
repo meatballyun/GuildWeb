@@ -20,7 +20,7 @@ const SignUp = () => {
       console.log(error);
       return;
     }
-    navigate('/');
+    navigate('/login');
   };
 
   return (
