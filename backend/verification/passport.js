@@ -1,12 +1,14 @@
-const passport = require('passport')
+const passport = require('passport');
+const bcrypt = require('bcrypt');
 const LocalStrategy = require('passport-local').Strategy;
 const JwtStrategy = require('passport-jwt').Strategy;
+const ExtractJwt = require('passport-jwt').ExtractJwt;
 const connection = require('../lib/db');
-const bcrypt = require('bcrypt');
+const jwtConfig = require('../config/jwt');
 
 passport.serializeUser(function (user, done) {
     console.log('serializeUser');
-    done(null, user);
+    done(null, user.user_id);
 })
 
 passport.deserializeUser(function (id, done) {
@@ -16,8 +18,29 @@ passport.deserializeUser(function (id, done) {
         if (err) {
             return done(err, null);
         }
+        console.log(JSON.parse(JSON.stringify(rows[0])));
         done(null, JSON.parse(JSON.stringify(rows[0])));
     });
+})
+
+const jwtStrategy = new JwtStrategy({
+    secretOrKey: jwtConfig.secret,
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
+}, function (payload, done) {
+    console.log(payload);
+    connection.query('SELECT * FROM Users WHERE email = ?', payload.email, function (err, user, fields) {
+        if (err) return done(err)
+        if (!user) return done(null, false, { message: 'Wrong JWT Token' })
+        if (payload.name !== user.name) return done(null, false, { message: 'Wrong JWT Token' })
+
+        const exp = payload.exp
+        const iat = payload.iat
+        const curr = Math.floor(Date.now()/1000);
+        if (curr > exp || curr < iat) {
+            return done(null, false, 'Token Expired')
+        }
+        return done(null, user)
+    })
 })
 
 const loginStrategy = new LocalStrategy({
@@ -25,7 +48,7 @@ const loginStrategy = new LocalStrategy({
     passwordField: 'password',
     passReqToCallback: true
 }, function (req, email, password, done) {
-    console.log('============\n', email, password, '\n------------');
+    console.log('============\n', email, password, '\n============');
     connection.query('SELECT * FROM Users WHERE email = ?', email, function (err, user, fields) {
         if (err) { return done(err); }
         if (!user || user.length === 0) {
@@ -45,28 +68,6 @@ const loginStrategy = new LocalStrategy({
             }
         }
     });
-})
-
-const jwtStrategy = new JwtStrategy({
-    secretOrKey: jwtConfig.secret,
-    jwtFromRequest: ExtractJwt.fromExtractors([
-        ExtractJwt.versionOneCompatibility({ authScheme: 'Bearer' }),
-        ExtractJwt.fromAuthHeader()
-    ])
-}, function (payload, done) {
-    connection.query('SELECT * FROM Users WHERE email = ?', payload.email, function (err, user, fields) {
-        if (err) return done(err)
-        if (!user) return done(null, false, { message: 'Wrong JWT Token' })
-        if (payload.name !== user.name) return done(null, false, { message: 'Wrong JWT Token' })
-
-        const exp = payload.exp
-        const iat = payload.iat
-        const curr = Math.floor(Date.now() / 1000);
-        if (curr > exp || curr < iat) {
-            return done(null, false, 'Token Expired')
-        }
-        return done(null, user)
-    })
 })
 
 passport.use('login', loginStrategy);
