@@ -37,6 +37,5 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
     res.status(500).send("500 施工中！");
 });
-//s%3Aro9k7ln3AGX5FUEVZO1G7yGxzbfDhdjR.o2G4WxjfAgQGC42y%2FZhuggn3CILQqn%2BcRo3sLD%2FTk04
 
 module.exports = app;

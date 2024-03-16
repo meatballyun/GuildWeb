@@ -25,9 +25,10 @@ function Login() {
       const json = await succ.json();
       console.log('token ', json.token);
       localStorage.setItem('token', json.token);
+      navigate('/');
     }
 
-    navigate('/');
+    
   };
 
   return (

@@ -27,16 +27,25 @@ const jwtStrategy = new JwtStrategy({
     secretOrKey: jwtConfig.secret,
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
 }, function (payload, done) {
-    console.log(payload);
     connection.query('SELECT * FROM Users WHERE email = ?', payload.email, function (err, user, fields) {
-        if (err) return done(err)
-        if (!user) return done(null, false, { message: 'Wrong JWT Token' })
-        if (payload.name !== user.name) return done(null, false, { message: 'Wrong JWT Token' })
+        if (err) {
+            console.log('Wrong JWT Token');
+            return done(err);
+        }
+        if (!user) {
+            console.log('Wrong JWT Token (!user)');
+            return done(null, false, { message: 'Wrong JWT Token' });
+        }
+        if (payload.name !== user[0].name) {
+            console.log('Wrong JWT Token (payload.name !== user.name)');
+            return done(null, false, { message: 'Wrong JWT Token' });
+        }
 
         const exp = payload.exp
         const iat = payload.iat
         const curr = Math.floor(Date.now()/1000);
         if (curr > exp || curr < iat) {
+            console.log('Token Expired');
             return done(null, false, 'Token Expired')
         }
         return done(null, user)

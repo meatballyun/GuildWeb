@@ -20,7 +20,6 @@ router.post('/api/login', function (req, res, next) {
         };
         req.login(user, function (err) {            
             if (err) return next(err);
-            //console.log("------------------\n", req.session);
             const currentTimestamp = Math.floor(Date.now()/1000);
             const payload = {
                 id: user.user_id,
@@ -28,17 +27,17 @@ router.post('/api/login', function (req, res, next) {
                 name: user.name,
                 iat: currentTimestamp,
             }
-            const token = "Bearer " + jwt.sign(payload, jwtConfig.secret , { expiresIn: '600s' });
-            return res.status(200).json({ data: 'ok', token });
-        });
-    })(req, res, next)
-}, () => {
-    console.log();
-}
-);
+            const token = jwt.sign(payload, jwtConfig.secret , { expiresIn: '600s' });
+            res.status(200).json({ data: 'ok', token });
 
-router.get('/api/checkAuth', authenticated, (req, res) => {
-    console.log("Success!");
+            console.log('User authenticated successfully.');
+        });
+    })(req, res, next);
+});
+
+router.get('/api/checkAuth', passport.authenticate('jwt', { session: false }), (req, res) => {
+    res.status(200).json({ data: 'ok' });
+    console.log("Success!!!!!");
 });
 
 
