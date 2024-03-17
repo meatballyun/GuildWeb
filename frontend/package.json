@@ -16,6 +16,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "dev": "react-scripts start",
+    "dev:mock": "MOCK_API=msw react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -39,6 +41,11 @@
     ]
   },
   "devDependencies": {
-    "@svgr/webpack": "^8.1.0"
+    "@svgr/webpack": "^8.1.0",
+    "msw": "^2.0.14",
+    "tailwindcss": "^3.4.1"
+  },
+  "msw": {
+    "workerDirectory": "public"
   }
 }
