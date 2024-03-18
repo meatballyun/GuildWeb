@@ -34,9 +34,9 @@ const UserItem = ({ userMe }) => {
               'center / cover url("https://images.plurk.com/6FEWRrLpdbiTJUZ8Zpemak.png")',
           }}
         />
-        <div className="text-h3">{userMe.name}</div>
+        <div className="text-heading-h3">{userMe.name}</div>
       </div>
-      <div className="text-right text-h4">Lv. {userMe.rank}</div>
+      <div className="text-right text-heading-h4">Lv. {userMe.rank}</div>
       <div className="flex justify-between">
         <span>Exp.</span>
         <span>

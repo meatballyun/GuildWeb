@@ -20,7 +20,9 @@ const SignUp = () => {
 
   return (
     <>
-      <div className="text-h1 text-center mb-8">Become an adventurer!</div>
+      <div className="text-heading-h1 text-center mb-8">
+        Become an adventurer!
+      </div>
       <div className="flex flex-col gap-4 w-[240px]">
         <Input label="name" value={name} onChange={setName} />
         <Input label="email" value={email} onChange={setEmail} />

@@ -28,6 +28,7 @@
 }
 
 .content {
+  @apply p-4;
   flex: 1;
   height: 100%;
   background: center / cover no-repeat url('../../../assets/png/background.png');

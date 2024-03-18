@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import Pages from './pages';
 import './styles/index.css';
-import './styles/font.css';
 import { worker } from './mocks/browser.js';
 
 if (process.env.NODE_ENV === 'development') {

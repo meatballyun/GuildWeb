@@ -21,7 +21,9 @@ function Login() {
 
   return (
     <>
-      <div className="text-h1 text-center mb-8">Welcome back, Adventurer!</div>
+      <div className="text-heading-h1 text-center mb-8">
+        Welcome back, Adventurer!
+      </div>
       <div className="flex flex-col gap-4 w-[240px]">
         <Input label="email" value={email} onChange={setEmail} />
         <Input
