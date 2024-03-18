@@ -22,6 +22,11 @@
   border-radius: 0.25rem;
 }
 
+.button.button-size--md {
+  @apply text-2xl text-center leading-10 px-2 py-1;
+  border-radius: 0.25rem;
+}
+
 /* type--text */
 .button.button-type--text {
   color: #1373cc;

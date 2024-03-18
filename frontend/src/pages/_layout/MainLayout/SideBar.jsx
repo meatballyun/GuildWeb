@@ -1,25 +1,57 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { api } from '../../../api';
 import { useEffect, useState } from 'react';
-import { Button } from '../../../components';
+import { Button, ColumnBar } from '../../../components';
+import { classNames } from '../../../utils';
 
 const SIDEBAR_ITEMS = [
   {
-    label: '公會首頁',
+    label: 'HOME',
     key: 'home',
     route: '/',
   },
   {
-    label: '飲食紀錄',
+    label: 'FOOD',
     key: 'food',
     route: '/food',
   },
   {
-    label: '任務',
+    label: 'MISSION',
     key: 'mission',
     route: '/mission',
+    disabled: true,
   },
 ];
+
+const UserItem = ({ userMe }) => {
+  return (
+    <div>
+      <div className="flex gap-2 items-center">
+        <div
+          className="border border-solid border-primary-200 w-12 h-12 shrink-0 rounded-full"
+          style={{
+            background:
+              'center / cover url("https://images.plurk.com/6FEWRrLpdbiTJUZ8Zpemak.png")',
+          }}
+        />
+        <div className="text-h3">{userMe.name}</div>
+      </div>
+      <div className="text-right text-h4">Lv. {userMe.rank}</div>
+      <div className="flex justify-between">
+        <span>Exp.</span>
+        <span>
+          <span className="text-blue-100 text-base">{userMe.exp}</span>
+          <span className="text-primary-200"> / {userMe.upgradeExp}</span>
+        </span>
+      </div>
+      <ColumnBar
+        total={userMe.upgradeExp}
+        height={12}
+        items={[{ value: userMe.exp, color: '#4C76C7' }]}
+      />
+    </div>
+  );
+};
 
 export const SideBar = () => {
   const [userMe, setUserMe] = useState();
@@ -30,28 +62,28 @@ export const SideBar = () => {
       .then((res) => setUserMe(res));
   }, []);
 
+  const location = useLocation();
+  const { pathname } = location;
+
   return (
     <div className="sidebar">
-      {userMe && (
-        <div>
-          <div></div>
-          <div>
-            <div>{userMe.name}</div>
-            <div>Lv. {userMe.rank}</div>
-            <div>
-              exp: {userMe.exp}/{userMe.upgradeExp}
-            </div>
-          </div>
-        </div>
-      )}
-      <div className="sidebar-main">
-        <ul>
-          {SIDEBAR_ITEMS.map(({ key, label, route }) => (
-            <Link to={route} key={key}>
-              <li>{label}</li>
-            </Link>
-          ))}
-        </ul>
+      {userMe && <UserItem userMe={userMe} />}
+      <div className="sidebar-main flex flex-col gap-2">
+        {SIDEBAR_ITEMS.map(({ key, label, route, ...props }) => (
+          <Link to={route} key={key}>
+            <Button
+              size="md"
+              type="hollow"
+              className={classNames(
+                'w-full',
+                pathname === route ? '!bg-primary-100' : '!bg-primary-200'
+              )}
+              {...props}
+            >
+              {label}
+            </Button>
+          </Link>
+        ))}
       </div>
       <div>
         <Link to="/login">
