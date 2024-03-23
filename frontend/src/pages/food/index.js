@@ -3,12 +3,9 @@ import { FoodPage } from './FoodPage';
 
 const FoodRoute = () => {
   return (
-    <>
-      123
-      <Routes>
-        <Route path="/" element={<FoodPage />} />
-      </Routes>
-    </>
+    <Routes>
+      <Route path="/" element={<FoodPage />} />
+    </Routes>
   );
 };
 
