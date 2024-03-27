@@ -48,7 +48,7 @@ const jwtStrategy = new JwtStrategy({
             console.log('Token Expired');
             return done(null, false, 'Token Expired')
         }
-        return done(null, user)
+        return done(null, user[0])
     })
 })
 

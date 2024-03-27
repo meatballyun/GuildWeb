@@ -5,10 +5,10 @@ const authenticated = require('../verification/auth');
 const jwt = require('jsonwebtoken');
 const SignupController = require('../controllers/signupControllers');
 const IngredientController = require('../controllers/ingredientControllers');
-//const UserInfoController = require('../controllers/userinfoControllers');
+const UserInfoController = require('../controllers/userinfoControllers');
 const signUpController = new SignupController();
 const ingredientController = new IngredientController();
-//const userInfoController = new UserInfoController();
+const userInfoController = new UserInfoController();
 const jwtConfig = require('../config/jwt');
 
 // router.get('/', async (req, res) => {
@@ -46,7 +46,7 @@ router.get('/api/checkAuth', (req, res)=>{
     //res.end();
 });
 
-//router.get('/api/user/me', passport.authenticate('jwt', { session: true }), userInfoController.getUserInfoByUserId);
+router.get('/api/user/me', passport.authenticate('jwt', { session: true }), userInfoController.getUserInfoByUserId);
 
 router.post('/api/signup', signUpController.signup);
 
