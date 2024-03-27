@@ -4,7 +4,6 @@ import { api } from '../../api';
 import { Button, Input } from '../../components';
 
 function HomePage() {
-  const navigate = useNavigate();
   const token = localStorage.token;
 
   const handleLogin = async () => {
@@ -25,9 +24,9 @@ function HomePage() {
 
   return (
     <>
-      <div>HELLO WORLD!!!</div>
+      <div>This is a test_page!</div>
       <Button size="lg" onClick={handleLogin}>
-        Log In
+        start
       </Button>
     </>
   );

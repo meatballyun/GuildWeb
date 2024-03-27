@@ -13,7 +13,6 @@ function Login() {
     const res = await api.auth.login({ email, password });
     if (res.status === 200) {
       const json = await res.json();
-      console.log('token ', json.token);
       localStorage.setItem('token', json.token);
       navigate('/');
     }
