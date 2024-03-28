@@ -4,6 +4,9 @@ import { fetchJson } from './utils';
 export const login = (body) =>
   fetchJson({ url: `${BASE_API_URL}/login`, method: 'POST', body });
 
+export const logout = () =>
+  fetchJson({ url: `${BASE_API_URL}/login`, method: 'DELETE' });
+
 export const checkAuth = (token) =>
   fetchJson({
     url: `${BASE_API_URL}/checkAuth`,

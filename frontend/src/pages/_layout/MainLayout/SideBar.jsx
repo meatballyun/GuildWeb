@@ -3,6 +3,8 @@ import { api } from '../../../api';
 import { useEffect, useState } from 'react';
 import { Button, ColumnBar } from '../../../components';
 import { classNames } from '../../../utils';
+import { useNavigate } from 'react-router-dom';
+
 
 const SIDEBAR_ITEMS = [
   {
@@ -51,6 +53,14 @@ export const SideBar = () => {
 
   const location = useLocation();
   const { pathname } = location;
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    const data = await api.auth.logout();
+    if (data.status === 200) {
+      navigate('/login');
+    }
+  }
 
   return (
     <div className="sidebar">
@@ -73,11 +83,9 @@ export const SideBar = () => {
         ))}
       </div>
       <div>
-        <Link to="/login">
-          <Button size="lg" className="w-full">
-            Logout
-          </Button>
-        </Link>
+        <Button size="lg" className="w-full" onClick={handleLogout}>
+          Logout
+        </Button>
       </div>
     </div>
   );
