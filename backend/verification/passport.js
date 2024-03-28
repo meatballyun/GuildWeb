@@ -13,12 +13,12 @@ passport.serializeUser(function (user, done) {
 
 passport.deserializeUser(function (id, done) {
     console.log('deserializeUser');
-    const query = 'SELECT * FROM Users WHERE id = ?';
+    const query = 'SELECT * FROM Users WHERE user_id = ?';
     connection.query(query, [id], function (err, rows) {
         if (err) {
+            console.log(err);
             return done(err, null);
         }
-        console.log(JSON.parse(JSON.stringify(rows[0])));
         done(null, JSON.parse(JSON.stringify(rows[0])));
     });
 })
@@ -27,6 +27,7 @@ const jwtStrategy = new JwtStrategy({
     secretOrKey: jwtConfig.secret,
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
 }, function (payload, done) {
+    
     connection.query('SELECT * FROM Users WHERE email = ?', payload.email, function (err, user, fields) {
         if (err) {
             console.log('Wrong JWT Token');

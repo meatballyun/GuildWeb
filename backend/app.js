@@ -16,13 +16,12 @@ app.use(cors({
 }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use("/",express.static(path.join(__dirname, '../frontend/build')));
 
 app.use(session({
     secret: 'SessionSecret',
-    // resave: true,
-    // saveUninitialized: false,
-    // cookie: { maxAge: 600 * 1000 }
+    resave: true,
+    saveUninitialized: false,
+    cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 app.set('trust proxy', 1)
 
