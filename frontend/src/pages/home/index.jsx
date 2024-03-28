@@ -13,7 +13,7 @@ function HomePage() {
       .catch((err) => [null, err]);
 
     if (err) {
-      console.log('err: ', err);
+      // console.log('err: ', err);
       return;
     }
     if (succ.status === 200) {
