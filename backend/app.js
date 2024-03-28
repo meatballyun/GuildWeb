@@ -11,20 +11,24 @@ const routes = require('./routes/index');
 const app = express();
 
 app.use(logger('dev'));
-app.use(cors());
+app.use(cors({
+    origin:"*"
+}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-//app.use(express.static(path.join(__dirname, '../frontend/public')));
+app.use("/",express.static(path.join(__dirname, '../frontend/build')));
 
 app.use(session({
     secret: 'SessionSecret',
-    resave: false,
-    saveUninitialized: true,
-    cookie: { maxAge: 600 * 1000 }
+    // resave: true,
+    // saveUninitialized: false,
+    // cookie: { maxAge: 600 * 1000 }
 }));
+app.set('trust proxy', 1)
 
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(cookieParser());
 
 app.use('/', routes);
 

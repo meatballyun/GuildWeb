@@ -5,12 +5,16 @@ const authenticated = require('../verification/auth');
 const jwt = require('jsonwebtoken');
 const SignupController = require('../controllers/signupControllers');
 const IngredientController = require('../controllers/ingredientControllers');
+//const UserInfoController = require('../controllers/userinfoControllers');
 const signUpController = new SignupController();
 const ingredientController = new IngredientController();
+//const userInfoController = new UserInfoController();
 const jwtConfig = require('../config/jwt');
 
-router.get('/', async (req, res) => {
-});
+// router.get('/', async (req, res) => {
+//     console.log(req.session)
+//     console.log(req.sessionID) 
+// });
 
 router.post('/api/login', function (req, res, next) {
     passport.authenticate('login', function (err, user, info) {
@@ -26,20 +30,23 @@ router.post('/api/login', function (req, res, next) {
                 email: user.email,
                 name: user.name,
                 iat: currentTimestamp,
-            }
+            };
             const token = jwt.sign(payload, jwtConfig.secret , { expiresIn: '600s' });
             res.status(200).json({ data: 'ok', token });
-
             console.log('User authenticated successfully.');
         });
     })(req, res, next);
 });
 
-router.get('/api/checkAuth', passport.authenticate('jwt', { session: false }), (req, res) => {
-    res.status(200).json({ data: 'ok' });
-    console.log("Success!!!!!");
+router.get('/api/checkAuth', (req, res)=>{     
+    console.log(req.session.fruit); 
+    req.session.fruit = 'bbb';
+    console.log("=============");
+    res.json({});
+    //res.end();
 });
 
+//router.get('/api/user/me', passport.authenticate('jwt', { session: true }), userInfoController.getUserInfoByUserId);
 
 router.post('/api/signup', signUpController.signup);
 
