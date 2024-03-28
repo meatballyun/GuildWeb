@@ -1,13 +1,10 @@
 .input_container {
-  border-bottom: 1px solid #3b2826;
+  @apply relative;
+  border-bottom: 1px solid currentColor;
   font-size: 1.25rem;
 }
 
 .input_container input {
-  margin: 5px;
-  color: #875d50;
-  font-size: 1.25rem;
-  border: none;
-  outline: none;
+  @apply text-primary-400 w-full border-none outline-none;
   background: transparent;
 }

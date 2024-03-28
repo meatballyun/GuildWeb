@@ -25,8 +25,7 @@ class SignUpController {
                     "email": req.body.email,
                     "name": req.body.name
                 }
-            }
-            );
+            });
 
         } catch (error) {
             console.error(error);

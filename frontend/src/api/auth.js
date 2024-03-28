@@ -4,11 +4,18 @@ import { fetchJson } from './utils';
 export const login = (body) =>
   fetchJson({ url: `${BASE_API_URL}/login`, method: 'POST', body });
 
+export const logout = () =>
+  fetchJson({ url: `${BASE_API_URL}/login`, method: 'DELETE' });
+
 export const checkAuth = (token) =>
-  fetchJson({ url: `${BASE_API_URL}/checkAuth`, headers: { token } });
+  fetchJson({
+    url: `${BASE_API_URL}/checkAuth`,
+    method: 'GET',
+    headers: { Authorization: `Bearer ${token}` },
+  });
 
 export const signUp = (body) =>
   fetchJson({ url: `${BASE_API_URL}/signup`, method: 'POST', body });
 
-export const ingredient = (body) =>
-  fetchJson({ url: `${BASE_API_URL}/ingredient`, method: 'POST', body });
+export const getUserMe = () =>
+  fetchJson({ url: `${BASE_API_URL}/user/me`, method: 'GET' });

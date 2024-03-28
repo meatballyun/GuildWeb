@@ -1,9 +1,9 @@
 const connection = require('../lib/db');
 
 class UserModel {
-	static getUser(email) {
+	static getUser(id) {
 		return new Promise((resolve, reject) => {
-			connection.query('SELECT * FROM Users WHERE email = ?', email, function (err, rows) {
+			connection.query('SELECT * FROM Users WHERE user_id = ?', id, function (err, rows) {
 				if (err) {
 					reject(err);
 				} else {
