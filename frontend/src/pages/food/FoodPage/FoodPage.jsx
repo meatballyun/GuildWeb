@@ -16,7 +16,7 @@ export const FoodPage = () => {
       setdailyFood(data);
       console.log(dailyFood);
     })();
-  }, []);
+  }, [date]);
 
   if (!dailyFood) return <></>;
 
@@ -25,7 +25,12 @@ export const FoodPage = () => {
       <Header date={date} onDateChange={setDate} />
       <div className="food-layout-container">
         <div className="flex w-full justify-center items-center">
-          <NutritionalSummaryChart total={dailyFood.kcal} />
+          <NutritionalSummaryChart
+            total={dailyFood.kcal}
+            carbs={dailyFood.carbs}
+            pro={dailyFood.pro}
+            fats={dailyFood.fats}
+          />
           <div className="flex-grow max-w-[640px]">
             <CalorieBar
               text={'Carbs.'}
