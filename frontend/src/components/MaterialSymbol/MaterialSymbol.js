@@ -10,7 +10,7 @@ export const MaterialSymbol = (props) => {
     type = 'rounded',
     icon,
     fill,
-    weight,
+    weight = 300,
     grade = 0,
     dp,
     size,

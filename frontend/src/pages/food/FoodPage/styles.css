@@ -1,0 +1,7 @@
+.food-layout-container {
+  @apply p-8 mt-4 flex flex-col justify-center items-center;
+  width: 100%;
+  height: 100%;
+  background: center / 100% 100% no-repeat
+    url('../../../assets/png/panel-row.png');
+}
