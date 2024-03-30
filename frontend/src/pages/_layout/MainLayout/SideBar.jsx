@@ -38,6 +38,19 @@ const UserItem = ({ userMe }) => {
         />
         <div className="text-heading-h3">{userMe.name}</div>
       </div>
+      <div className="text-right text-heading-h4">Lv. {userMe.rank}</div>
+      <div className="flex justify-between">
+        <span>Exp.</span>
+        <span>
+          <span className="text-blue-100 text-base">{userMe.exp}</span>
+          <span className="text-primary-200"> / {userMe.upgradeExp}</span>
+        </span>
+      </div>
+      <ColumnBar
+        total={userMe.upgradeExp}
+        height={12}
+        items={[{ value: userMe.exp, color: '#4C76C7' }]}
+      />
     </div>
   );
 };
@@ -57,9 +70,7 @@ export const SideBar = () => {
 
   const handleLogout = async () => {
     const data = await api.auth.logout();
-    if (data.status === 200) {
-      navigate('/login');
-    }
+    navigate('/login');
   }
 
   return (
