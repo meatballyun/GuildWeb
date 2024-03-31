@@ -1,5 +1,6 @@
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
+import { COLORS } from '../../../styles';
 
 export const NutritionalSummaryChart = ({ total, carbs, pro, fats }) => {
   const options = {
@@ -7,9 +8,10 @@ export const NutritionalSummaryChart = ({ total, carbs, pro, fats }) => {
       type: 'pie',
       width: 240,
       height: 240,
-      backgroundColor: 'rgba(0,0,0,0)',
+      backgroundColor: 'transparent',
     },
     title: null,
+    credits: { enabled: false },
     plotOptions: {
       pie: {
         innerSize: '85%',
@@ -17,14 +19,13 @@ export const NutritionalSummaryChart = ({ total, carbs, pro, fats }) => {
         dataLabels: { enabled: false },
       },
     },
-    credits: { enabled: false },
     series: [
       {
         name: 'kcal',
         data: [
-          { name: 'Carbs.', y: carbs, color: '#80A927' },
-          { name: 'Prot.', y: pro, color: '#DA8D32' },
-          { name: 'Fat', y: fats, color: '#4C76C7' },
+          { name: 'Carbs.', y: carbs, color: COLORS.green },
+          { name: 'Prot.', y: pro, color: COLORS.orange },
+          { name: 'Fat', y: fats, color: COLORS.blue },
         ],
       },
     ],
