@@ -6,7 +6,7 @@ import { NutritionalSummaryChart } from './NutritionalSummaryChart';
 import { CalorieBar } from './CalorieBar';
 import { Food } from './Food';
 
-export const FoodPage = () => {
+export const RecordPage = () => {
   const [date, setDate] = useState(new Date());
   const [dailyFood, setdailyFood] = useState();
   useEffect(() => {

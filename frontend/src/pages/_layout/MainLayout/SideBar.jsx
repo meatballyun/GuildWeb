@@ -5,7 +5,6 @@ import { Button, ColumnBar } from '../../../components';
 import { classNames } from '../../../utils';
 import { useNavigate } from 'react-router-dom';
 
-
 const SIDEBAR_ITEMS = [
   {
     label: 'HOME',
@@ -13,9 +12,19 @@ const SIDEBAR_ITEMS = [
     route: '/',
   },
   {
-    label: 'FOOD',
-    key: 'food',
-    route: '/food',
+    label: 'RECORD',
+    key: 'record',
+    route: '/food/record',
+  },
+  {
+    label: 'RECIPE',
+    key: 'recipe',
+    route: '/food/recipe',
+  },
+  {
+    label: 'INGREDIENT',
+    key: 'ingredient',
+    route: '/food/ingredient',
   },
   {
     label: 'MISSION',
@@ -71,7 +80,7 @@ export const SideBar = () => {
   const handleLogout = async () => {
     const data = await api.auth.logout();
     navigate('/login');
-  }
+  };
 
   return (
     <div className="sidebar">

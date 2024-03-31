@@ -15,7 +15,7 @@ function Pages() {
       </Route>
       <Route element={<MainLayout />}>
         <Route path="/" element={<HomePage />} />
-        <Route path="/food" element={<FoodRoute />} />
+        <Route path="/food/*" element={<FoodRoute />} />
       </Route>
     </Routes>
   );
