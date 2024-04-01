@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { api } from '../../../api';
 import { useEffect, useState } from 'react';
-import { Button, ColumnBar } from '../../../components';
+import { Button, CircleImage, ColumnBar } from '../../../components';
 import { classNames } from '../../../utils';
 import { useNavigate } from 'react-router-dom';
 
@@ -37,21 +37,15 @@ const SIDEBAR_ITEMS = [
 const UserItem = ({ userMe }) => {
   return (
     <div>
-      <div className="flex gap-2 items-center">
-        <div
-          className="border border-solid border-primary-200 w-12 h-12 shrink-0 rounded-full"
-          style={{
-            background:
-              'center / cover url("https://images.plurk.com/6FEWRrLpdbiTJUZ8Zpemak.png")',
-          }}
-        />
+      <div className="flex items-center gap-2">
+        <CircleImage size={48} url={userMe.imageUrl} />
         <div className="text-heading-h3">{userMe.name}</div>
       </div>
       <div className="text-right text-heading-h4">Lv. {userMe.rank}</div>
       <div className="flex justify-between">
         <span>Exp.</span>
         <span>
-          <span className="text-blue-100 text-base">{userMe.exp}</span>
+          <span className="text-base text-blue-100">{userMe.exp}</span>
           <span className="text-primary-200"> / {userMe.upgradeExp}</span>
         </span>
       </div>
@@ -78,7 +72,7 @@ export const SideBar = () => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    const data = await api.auth.logout();
+    await api.auth.logout();
     navigate('/login');
   };
 

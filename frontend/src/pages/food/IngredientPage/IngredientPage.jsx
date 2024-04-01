@@ -1,63 +1,57 @@
 import { useEffect, useState } from 'react';
-import './styles.css';
 import { api } from '../../../api';
-
-const Ingredient = ({ name, unit, count, carbs, pro, fats, kcal }) => {
-  return (
-    <div className="flex items-center bg-primary-100 gap-2 w-full p-2 rounded-md text-paragraph-p3 whitespace-nowrap">
-      <div className="w-7 h-7 bg-primary-200 rounded-full flex-shrink-0"></div>
-      <div className="flex flex-[10] justify-between">
-        <div className="flex-[3] text-primary-400">{name}</div>
-        <div className="flex-[1] text-primary-400">{unit}</div>
-        <div className="flex-[1] text-primary-400">x {count}</div>
-      </div>
-      <div className="flex-[1]"></div>
-      <div className="flex flex-[6] justify-between">
-        <div className="flex-1 text-blue">{carbs}</div>
-        <div className="flex-1 text-green">{pro}</div>
-        <div className="flex-1 text-orange">{fats}</div>
-        <div className="flex-1 text-primary-600">{kcal}</div>
-      </div>
-    </div>
-  );
-};
+import { FoodBar } from '../components';
+import { BaseInput, Button, MaterialSymbol } from '../../../components';
+import { Paper } from '../../_layout/components';
+import { Link } from 'react-router-dom';
 
 export const IngredientPage = () => {
-  const [ingredients, setIngredients] = useState();
-  const [date, setDate] = useState(new Date());
-  const [dailyFood, setdailyFood] = useState();
+  const [ingredientList, setIngredientList] = useState();
+  const [search, setSearch] = useState('');
+  const [isFetched, setIsFetched] = useState(false);
+
   useEffect(() => {
     (async () => {
-      const res = await api.food.dietRecords({ date: date.toISOString() });
+      setIsFetched(false);
+      const res = await api.food.getIngredient({ params: { q: search } });
       const data = await res.json();
-      setdailyFood(data);
-      console.log(dailyFood);
+      setIsFetched(true);
+      setIngredientList(data);
     })();
-  }, [date]);
-
-  if (!dailyFood) return <></>;
+  }, [search]);
 
   return (
-    <>
-      <div className="food-layout-container">
-        <div className="mt-4 text-primary-500 text-heading-h1">Ingredient</div>
-        <div>
-          <div className="mt-4 w-72 h-10 pl-2 border border-primary-500 rounded-full input_container">
-            <input placeholder="search with Ingredient name..."></input>
-          </div>
-          <div className="flex bg-primary-100 border-2 border-solid border-primary-100 overflow-hidden items-center rounded-full text-paragraph-p2 px-2 text-primary-500">
-            + Add New
-          </div>
+    <Paper row className="mt-4 flex flex-col items-center justify-center p-8">
+      <div className="my-4 text-heading-h1 text-primary-500">Ingredient</div>
+      <div className="mb-4 flex w-full justify-between">
+        <div className="flex w-full max-w-72 rounded-full border border-primary-500 py-1 pl-3 pr-2 text-paragraph-p2 text-primary-500">
+          <BaseInput
+            value={search}
+            onChange={setSearch}
+            className="w-full"
+            placeholder="Search with Ingredient name..."
+          />
+          <MaterialSymbol icon="search" size={24} />
         </div>
-
-        <div className="h-full w-full">
-          <div className="flex flex-grow flex-col w-full mt-8 gap-2">
-            {dailyFood.foods.map((food, i) => (
-              <Ingredient key={i} {...food} />
-            ))}
-          </div>
-        </div>
+        <Button size="sm" className="!rounded-full">
+          + Add New
+        </Button>
       </div>
-    </>
+      <div className="h-full w-full overflow-auto">
+        {(() => {
+          if (!isFetched) return <>Loading...</>;
+          if (!ingredientList?.length) return <>No Data</>;
+          return (
+            <div className="flex w-full flex-grow flex-col gap-2">
+              {ingredientList.map((ingredient, i) => (
+                <Link key={i} to={`/food/ingredient/${ingredient.id}`}>
+                  <FoodBar {...ingredient} />
+                </Link>
+              ))}
+            </div>
+          );
+        })()}
+      </div>
+    </Paper>
   );
 };

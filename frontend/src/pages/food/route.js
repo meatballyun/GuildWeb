@@ -2,7 +2,7 @@ const food = {
   base: '/',
   record: '/record',
   recipe: '/recipe',
-  ingredient: '/ingredient',
+  ingredient: { base: '/ingredient', id: '/ingredient/:id' },
 };
 
 export default food;

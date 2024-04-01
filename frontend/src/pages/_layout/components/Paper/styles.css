@@ -1,0 +1,7 @@
+.layout-paper {
+  @apply h-full w-full;
+  background: center / 100% 100% no-repeat url('./panel.png');
+}
+.layout-paper.layout-paper--row {
+  background-image: url('./panel-row.png');
+}

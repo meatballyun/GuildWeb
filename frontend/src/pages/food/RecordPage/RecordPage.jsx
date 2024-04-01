@@ -19,7 +19,9 @@ export const RecordPage = () => {
   const [dailyFood, setDailyFood] = useState();
   useEffect(() => {
     (async () => {
-      const res = await api.food.dietRecords({ date: date.toISOString() });
+      const res = await api.food.getDietRecords({
+        params: { date: date.toISOString() },
+      });
       const data = await res.json();
       setDailyFood(data);
     })();
@@ -31,14 +33,14 @@ export const RecordPage = () => {
     <>
       <Header date={date} onDateChange={setDate} />
       <div className="food-layout-container">
-        <div className="flex w-full justify-center items-center">
+        <div className="flex w-full items-center justify-center">
           <NutritionalSummaryChart
             total={dailyFood.kcal}
             carbs={dailyFood.carbs}
             pro={dailyFood.pro}
             fats={dailyFood.fats}
           />
-          <div className="flex-1 max-w-[640px]">
+          <div className="max-w-[640px] flex-1">
             {calories.map(({ key, ...data }) => (
               <CalorieBar
                 value={dailyFood[key]}
@@ -48,7 +50,7 @@ export const RecordPage = () => {
             ))}
           </div>
         </div>
-        <div className="flex flex-grow flex-col w-full mt-8 gap-2">
+        <div className="mt-8 flex w-full flex-grow flex-col gap-2">
           {dailyFood.foods.map((food, i) => (
             <FoodBar key={i} {...food} />
           ))}
