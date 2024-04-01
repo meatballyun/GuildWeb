@@ -4,7 +4,7 @@ const connection = mysql.createConnection({
     host: 'localhost',
     user: 'yun',
     password: '123456',
-    database: 'Web'
+    database: 'GuildWeb'
 });
 
 connection.connect(function (error) {

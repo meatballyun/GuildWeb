@@ -27,7 +27,7 @@ router.get('/api/checkAuth', passport.authenticate('jwt', { session: false }), (
     //res.end();
 });
 
-router.get('/api/user/me', passport.authenticate('jwt', { session: false }), userInfoController.getUserInfoByUserId);
+router.get('/api/user/me', passport.authenticate('jwt', { session: true }), userInfoController.getUserInfoByUserId);
 
 router.post('/api/signup', signUpController.signup);
 

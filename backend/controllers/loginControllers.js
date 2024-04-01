@@ -13,9 +13,9 @@ class LogInController {
                 if (err) return next(err);
                 const currentTimestamp = Math.floor(Date.now()/1000);
                 const payload = {
-                    id: user.user_id,
-                    email: user.email,
-                    name: user.name,
+                    id: user.ID,
+                    email: user.EMAIL,
+                    name: user.NAME,
                     iat: currentTimestamp,
                 };
                 const token = jwt.sign(payload, jwtConfig.secret , { expiresIn: '1d' });
