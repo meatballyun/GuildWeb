@@ -2,6 +2,7 @@ import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { COLORS } from '../../../styles';
 import { CircleImage } from '../../../components';
+import { classNames } from '../../../utils';
 
 const SummaryChart = ({ carbs, pro, fats }) => {
   const options = {
@@ -54,17 +55,27 @@ export const FoodBar = ({
   showChart = true,
   imageUrl,
   onClick,
+  className,
+  suffix,
 }) => {
   return (
     <div
       onClick={onClick}
-      className="flex w-full cursor-pointer items-center gap-2 whitespace-nowrap rounded-md bg-primary-100/75 p-2 text-paragraph-p3 hover:bg-primary-100"
+      className={classNames(
+        'flex w-full cursor-pointer items-center gap-2 whitespace-nowrap rounded-md bg-primary-100/75 p-2 text-paragraph-p3 hover:bg-primary-100',
+        className
+      )}
     >
       <CircleImage size={28} url={imageUrl} />
       <div className="flex flex-[6] justify-between">
         <div className="flex-[2] text-primary-400">{name}</div>
         <div className="flex-[1] text-primary-400">{unit}</div>
-        {count && <div className="flex-[1] text-primary-400">x {count}</div>}
+        {count && (
+          <div className="flex flex-[1] text-primary-400">
+            <span className="mr-1">x</span>
+            {count}
+          </div>
+        )}
       </div>
       <div className="flex flex-[6] justify-between">
         <div className="flex-1 text-blue">{carbs} g</div>
@@ -73,6 +84,7 @@ export const FoodBar = ({
         <div className="flex-1 text-primary-600">{kcal} kcal</div>
       </div>
       {showChart && <SummaryChart carbs={carbs} pro={pro} fats={fats} />}
+      {suffix}
     </div>
   );
 };

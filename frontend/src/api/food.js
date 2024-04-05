@@ -9,8 +9,56 @@ export const getDietRecords = ({ params }) =>
     method: 'GET',
   });
 
+/** Ingredient */
 export const getIngredient = ({ params }) =>
   fetchJson({
     url: `${BASE_URL}/ingredient?q=${params.q}`,
     method: 'GET',
+  });
+
+export const getIngredientDetail = ({ pathParams }) =>
+  fetchJson({
+    url: `${BASE_URL}/ingredient/${pathParams.id}`,
+    method: 'GET',
+  });
+
+export const addNewIngredient = ({ body }) =>
+  fetchJson({
+    url: `${BASE_URL}/ingredient`,
+    method: 'POST',
+    body: body,
+  });
+
+export const editIngredientDetail = ({ body }) =>
+  fetchJson({
+    url: `${BASE_URL}/ingredient`,
+    method: 'PUT',
+    body: body,
+  });
+
+/** Recipe */
+export const getRecipe = ({ params }) =>
+  fetchJson({
+    url: `${BASE_URL}/recipe?q=${params.q}`,
+    method: 'GET',
+  });
+
+export const getRecipeDetail = ({ pathParams }) =>
+  fetchJson({
+    url: `${BASE_URL}/recipe/${pathParams.id}`,
+    method: 'GET',
+  });
+
+export const addNewRecipe = ({ body }) =>
+  fetchJson({
+    url: `${BASE_URL}/recipe`,
+    method: 'POST',
+    body: body,
+  });
+
+export const editRecipeDetail = ({ body }) =>
+  fetchJson({
+    url: `${BASE_URL}/recipe`,
+    method: 'PUT',
+    body: body,
   });

@@ -1,33 +1,14 @@
+import { getNutritionSum } from '../../../../utils';
 import { PROFILE_IMAGE_URL } from '../constants';
 
-const getNutritionSum = (
-  valueList = [
-    {
-      carbs: 0,
-      pro: 0,
-      fats: 0,
-    },
-  ]
-) => {
-  const { carbs, pro, fats } = valueList.reduce(
-    (pre, ingredient) =>
-      Object.entries(pre).reduce(
-        (pre, [key, value]) => ({
-          ...pre,
-          [key]: value + ingredient[key],
-        }),
-        {}
-      ),
-    {
-      carbs: 0,
-      pro: 0,
-      fats: 0,
-    }
-  );
-  return { carbs, pro, fats, kcal: carbs * 4 + pro * 4 + fats * 9 };
+const CREATOR = {
+  name: 'dida_0701',
+  id: 1,
+  imageUrl: PROFILE_IMAGE_URL,
 };
 
 export const INGREDIENT = {
+  creator: CREATOR,
   name: 'Fried shrimp',
   id: 23,
   imageUrl: 'https://images.plurk.com/2M5Cw3v6Az9fU17RRxmIlQ.jpg',
@@ -49,11 +30,7 @@ const INGREDIENTS = [
 ];
 
 export const RECIPE = {
-  creator: {
-    name: 'dida_0701',
-    id: 1,
-    imageUrl: PROFILE_IMAGE_URL,
-  },
+  creator: CREATOR,
   id: 123,
   imageUrl: 'https://images.plurk.com/5urZ6NJeCnSTLyy1w5A27l.jpg',
   updateAt: '2024-03-30T17:34:22.991Z',
@@ -64,6 +41,8 @@ export const RECIPE = {
   ingredients: INGREDIENTS,
   ...getNutritionSum(INGREDIENTS),
 };
+
+export const RECIPE_LIST = [RECIPE, RECIPE, RECIPE];
 
 const FOODS = [
   { ...RECIPE, count: 1 },

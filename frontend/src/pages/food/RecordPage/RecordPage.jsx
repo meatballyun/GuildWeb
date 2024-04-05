@@ -2,10 +2,9 @@ import { useEffect, useState } from 'react';
 import './styles.css';
 import { api } from '../../../api';
 import { Header } from './Header';
-import { NutritionalSummaryChart } from './NutritionalSummaryChart';
 import { CalorieBar } from './CalorieBar';
 import { FOOD_COLOR } from '../constants';
-import { FoodBar } from '../components';
+import { FoodBar, NutritionalSummaryChart } from '../components';
 
 const calories = [
   { key: 'carbs', text: 'Carbs.', color: FOOD_COLOR.carbs },
@@ -35,11 +34,15 @@ export const RecordPage = () => {
       <div className="food-layout-container">
         <div className="flex w-full items-center justify-center">
           <NutritionalSummaryChart
-            total={dailyFood.kcal}
+            size={240}
             carbs={dailyFood.carbs}
             pro={dailyFood.pro}
             fats={dailyFood.fats}
-          />
+          >
+            <div className="text-3xl">total</div>
+            <div className="p-2 text-5xl">{dailyFood.kcal}</div>
+            <div className="text-3xl">kcal</div>
+          </NutritionalSummaryChart>
           <div className="max-w-[640px] flex-1">
             {calories.map(({ key, ...data }) => (
               <CalorieBar

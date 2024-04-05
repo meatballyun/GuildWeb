@@ -79,7 +79,7 @@ export const SideBar = () => {
   return (
     <div className="sidebar">
       {userMe && <UserItem userMe={userMe} />}
-      <div className="sidebar-main flex flex-col gap-2">
+      <div className="sidebar-main flex flex-col gap-2 overflow-auto">
         {SIDEBAR_ITEMS.map(({ key, label, route, ...props }) => (
           <Link to={route} key={key}>
             <Button
