@@ -43,7 +43,7 @@ export const IngredientValue = ({
         <span className={className.text}>g</span>
       </div>
       <div className={classNames('w-full text-center text-sm', className.text)}>
-        {value * multiple} kcal /{' '}
+        {(value * multiple).toFixed(2)} kcal /{' '}
         {((value * multiple * 100) / total).toFixed(2)} %
       </div>
     </div>

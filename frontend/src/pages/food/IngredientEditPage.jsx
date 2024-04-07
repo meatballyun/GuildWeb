@@ -42,14 +42,20 @@ const PublicButton = ({ value, onChange }) => {
 export const IngredientEditPage = () => {
   const navigate = useNavigate();
   const params = useParams();
-  const [ingredientDetail, setIngredientDetail] = useState();
+  const [ingredientDetail, setIngredientDetail] = useState({
+    carbs: 0,
+    pro: 0,
+    fats: 0,
+    unit: '100g',
+  });
   const [isFetched, setIsFetched] = useState(false);
   const form = useFormInstance({ defaultValue: ingredientDetail });
   const { formData } = form;
-  const totalKcal =
+  const totalKcal = (
     (formData?.carbs ?? 0) * 4 +
     (formData?.pro ?? 0) * 4 +
-    (formData?.fats ?? 0) * 9;
+    (formData?.fats ?? 0) * 9
+  ).toFixed(2);
 
   useEffect(() => {
     if (!params.id || params.id === 'new') {
@@ -72,7 +78,13 @@ export const IngredientEditPage = () => {
       params.id === 'new'
         ? api.food.addNewIngredient
         : api.food.editIngredientDetail;
-    const res = await apiUtil({ body: { ...formData, id: params.id } });
+    const res = await apiUtil({
+      body: {
+        ...formData,
+        kcal: totalKcal,
+        id: params.id,
+      },
+    });
     if (res.status === 200) {
       const json = res.json();
       navigate(`/food/ingredient/${json.newId}`);

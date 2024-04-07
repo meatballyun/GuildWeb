@@ -21,6 +21,11 @@ export const getIngredientDetail = ({ pathParams }) =>
     url: `${BASE_URL}/ingredient/${pathParams.id}`,
     method: 'GET',
   });
+export const deleteIngredient = ({ pathParams }) =>
+  fetchJson({
+    url: `${BASE_URL}/ingredient/${pathParams.id}`,
+    method: 'DELETE',
+  });
 
 export const addNewIngredient = ({ body }) =>
   fetchJson({

@@ -31,11 +31,12 @@ router.get('/api/user/me', passport.authenticate('jwt', { session: true }), user
 
 router.post('/api/signup', signUpController.signup);
 
-router.post('/api/ingredient', ingredientController.addIngredient);
+router.post('/api/food/ingredient', passport.authenticate('jwt', { session: true }), ingredientController.addNewIngredient);
 
-router.post('/api/ingredientList', ingredientController.getIngredientsByCreator);
+router.get('/api/food/ingredient', passport.authenticate('jwt', { session: true }), ingredientController.getIngredientsByCreator);
 
-//router.get('/test', authenticated);
+router.get('/api/food/ingredient/:id', passport.authenticate('jwt', { session: true }), ingredientController.getIngredientDetailById);
 
+router.delete('/api/food/ingredient/:id', passport.authenticate('jwt', { session: true }), ingredientController.deleteIngredientsById);
 
 module.exports = router;

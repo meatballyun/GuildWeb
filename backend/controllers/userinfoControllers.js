@@ -3,33 +3,41 @@ const User = require('../models/userModel');
 class UserInfoController {
     async getUserInfoByUserId(req, res) {        
         try {
-            const userid = await new Promise((resolve, reject) => {
-                if (!req.session.passport.user) {
-                    reject('');
-                } else {
-                    resolve(req.session.passport.user);
-                }
-            });
-            const userinfo = await User.getUser(userid);
-            const jsonData = JSON.stringify(userinfo);
-            const jsObject = JSON.parse(jsonData);
-            console.log(jsObject[0]);
-
-            if (jsObject[0]) {
-                const upgradeExp = (jsObject[0].RANK ** 3)*10;
+            const USERID = req.session.passport.user;
+            const userinfo = await User.getUserById(USERID);
+            if (userinfo?.[0]) {
+                const { NAME, ID, IMAGE_URL, RANK, EXP } = userinfo[0];
+                const upgradeExp = (RANK ** 3) * 10;
                 res.status(200).json({
-                    name: jsObject[0].NAME,
-                    id: jsObject[0].ID,
-                    imageUrl: jsObject[0].IMAGE_URL,
-                    rank: jsObject[0].RANK,
-                    exp: jsObject[0].EXP,
-                    upgradeExp: upgradeExp
-                })
-            };
+                    name: NAME,
+                    id: ID,
+                    imageUrl: IMAGE_URL,
+                    rank: RANK,
+                    exp: EXP,
+                    upgradeExp
+                });
+            }
         } catch (error) {
             console.log('getUserInfoByUserId Error!!!');
         }
     }
+
+    async updateUserExp(EXP, ID) { 
+        console.log('updateUserExp');       
+        try {            
+            const query = await User.updateUserExp(EXP, ID);
+            console.log(query);
+            const RANK = await User.getUserRankById(ID);
+            const upgradeExp = (RANK ** 3) * 10;
+            if (EXP > upgradeExp) {
+                await this.updateUserRank(RANK + 1, ID);
+            }
+        } catch (err) {
+            console.log(err);
+            console.log('updateUserExp Error!!!');
+        }
+    }
+
 }
 
 module.exports = UserInfoController;

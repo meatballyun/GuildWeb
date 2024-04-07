@@ -10,17 +10,28 @@ export const FoodListPage = ({ title }) => {
   const [search, setSearch] = useState('');
   const [isFetched, setIsFetched] = useState(false);
 
+  const apiUtil =
+    title === 'Ingredient' ? api.food.getIngredient : api.food.getRecipe;
+  const fetchData = async () => {
+    const res = await apiUtil({ params: { q: search } });
+    const data = await res.json();
+    setFoodList(data.data);
+  };
+
   useEffect(() => {
-    const apiUtil =
-      title === 'Ingredient' ? api.food.getIngredient : api.food.getRecipe;
     (async () => {
       setIsFetched(false);
-      const res = await apiUtil({ params: { q: search } });
-      const data = await res.json();
+      await fetchData();
       setIsFetched(true);
-      setFoodList(data);
     })();
   }, [search, title]);
+
+  const handleDelete = async (id) => {
+    const res = await api.food.deleteIngredient({ pathParams: { id } });
+    if (res.status === 200) {
+      fetchData();
+    }
+  };
 
   return (
     <Paper row className="mt-4 flex flex-col items-center justify-center p-8">
@@ -52,7 +63,21 @@ export const FoodListPage = ({ title }) => {
                   key={i}
                   to={`/food/${title.toLowerCase()}/${foodItem.id}`}
                 >
-                  <FoodBar {...foodItem} />
+                  <FoodBar
+                    {...foodItem}
+                    suffix={
+                      <div
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleDelete(foodItem.id);
+                        }}
+                        className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full border border-primary-600 text-primary-600 hover:bg-primary-600/20"
+                      >
+                        <MaterialSymbol icon="delete" size={20} />
+                      </div>
+                    }
+                  />
                 </Link>
               ))}
             </div>

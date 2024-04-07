@@ -20,6 +20,7 @@
     "express-flash": "^0.0.2",
     "express-session": "^1.17.3",
     "hot-update": "^0.0.4",
+    "http-proxy-middleware": "^3.0.0",
     "https": "^1.0.0",
     "js-sha256": "^0.10.1",
     "jsonwebtoken": "^9.0.2",

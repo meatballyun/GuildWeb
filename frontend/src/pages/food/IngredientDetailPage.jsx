@@ -29,6 +29,7 @@ export const IngredientDetailPage = () => {
         loading
       </Paper>
     );
+
   const { kcal, carbs, pro, fats, unit } = ingredientDetail;
 
   return (

@@ -1,5 +1,5 @@
 .modal-overlay {
-  @apply bg-black/50 fixed inset-0;
+  @apply bg-black/50 fixed inset-0; /**  **/
   z-index: 999;
 }
 .modal-container {

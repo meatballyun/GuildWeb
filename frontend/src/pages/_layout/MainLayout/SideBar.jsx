@@ -60,16 +60,17 @@ const UserItem = ({ userMe }) => {
 
 export const SideBar = () => {
   const [userMe, setUserMe] = useState();
+  const location = useLocation();
+  const { pathname } = location;
+  const navigate = useNavigate();
+
   useEffect(() => {
     api.auth
       .getUserMe()
       .then((res) => res.json())
-      .then((res) => setUserMe(res));
+      .then((res) => setUserMe(res))
+      .catch(()=>navigate('/login'));
   }, []);
-
-  const location = useLocation();
-  const { pathname } = location;
-  const navigate = useNavigate();
 
   const handleLogout = async () => {
     await api.auth.logout();
