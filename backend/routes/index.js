@@ -33,6 +33,8 @@ router.post('/api/signup', signUpController.signup);
 
 router.post('/api/food/ingredient', passport.authenticate('jwt', { session: true }), ingredientController.addNewIngredient);
 
+router.put('/api/food/ingredient', passport.authenticate('jwt', { session: true }), ingredientController.updateIngredient);
+
 router.get('/api/food/ingredient', passport.authenticate('jwt', { session: true }), ingredientController.getIngredientsByCreator);
 
 router.get('/api/food/ingredient/:id', passport.authenticate('jwt', { session: true }), ingredientController.getIngredientDetailById);

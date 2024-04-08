@@ -13,6 +13,18 @@ class IngredientModel {
         });
     }
 
+    static updateIngredient(ID, NAME, DESCRIPTION, CARBS, PRO, FATS, KCAL, UNIT, IMAGE_URL, PUBLISHED) {
+        return new Promise((resolve, reject) => {
+            connection.query('UPDATE ingredients SET NAME = ?, DESCRIPTION = ?, CARBS = ?, PRO = ?, FATS = ?, KCAL = ?, UNIT = ?, IMAGE_URL = ?, PUBLISHED = ? WHERE ID = ?', [NAME, DESCRIPTION, CARBS, PRO, FATS, KCAL, UNIT, IMAGE_URL, PUBLISHED, ID], function (err, rows) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            });
+        });
+    }
+
     static getIngredientsByCreator(CREATOR) {
         return new Promise((resolve, reject) => {
             connection.query('SELECT * FROM ingredients WHERE CREATOR = ?', CREATOR, function (err, rows) {

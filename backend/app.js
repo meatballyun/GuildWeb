@@ -11,6 +11,7 @@ const createProxyMiddleware = require('http-proxy-middleware');
 // Setting routes
 const routes = require('./routes/index');
 const app = express();
+app.use(bodyParser.json({ limit: '5mb' }))
 
 app.use(logger('dev'));
 app.use(cors({

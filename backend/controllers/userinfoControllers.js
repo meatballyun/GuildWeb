@@ -5,9 +5,10 @@ class UserInfoController {
         try {
             const USERID = req.session.passport.user;
             const userinfo = await User.getUserById(USERID);
+            
             if (userinfo?.[0]) {
                 const { NAME, ID, IMAGE_URL, RANK, EXP } = userinfo[0];
-                const upgradeExp = (RANK ** 3) * 10;
+                const upgradeExp = (RANK ** 2) * 10;
                 res.status(200).json({
                     name: NAME,
                     id: ID,
@@ -22,15 +23,16 @@ class UserInfoController {
         }
     }
 
-    async updateUserExp(EXP, ID) { 
-        console.log('updateUserExp');       
-        try {            
-            const query = await User.updateUserExp(EXP, ID);
-            console.log(query);
-            const RANK = await User.getUserRankById(ID);
-            const upgradeExp = (RANK ** 3) * 10;
-            if (EXP > upgradeExp) {
-                await this.updateUserRank(RANK + 1, ID);
+    async updateUserExp(EXP, ID) {     
+        try {  
+            const userInfo = await User.getUserById(ID);
+            const newEXP = EXP + userInfo[0].EXP;
+            await User.updateUserExp(newEXP, ID);
+            console.log('updateUserExp'); 
+            const upgradeExp = (userInfo[0].RANK ** 2) * 10;
+            if (newEXP > upgradeExp) {
+                console.log('updateUserRank');
+                await User.updateUserRank(userInfo[0].RANK + 1, ID);
             }
         } catch (err) {
             console.log(err);

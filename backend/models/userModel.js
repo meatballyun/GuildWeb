@@ -49,21 +49,9 @@ class UserModel {
 		});
 	};
 
-	static getUserRankById(ID) {
+	static updateUserRank(RANK, ID) {
 		return new Promise((resolve, reject) => {
-			connection.query('SELECT `RANK` FROM users WHERE ID = ?', [ID], function (err, RANK) {
-				if (err) {
-					reject(err);
-				} else {
-					resolve(RANK);
-				}
-			});
-		});
-	};
-
-	static updateUserRank(Rank, ID) {
-		return new Promise((resolve, reject) => {
-			connection.query('UPDATE users SET Rank = ? WHERE ID = ?', [Rank, ID], function (err, rows) {
+			connection.query('UPDATE users SET `RANK` = ? WHERE ID = ?', [RANK, ID], function (err, rows) {
 				if (err) {
 					reject(err);
 				} else {

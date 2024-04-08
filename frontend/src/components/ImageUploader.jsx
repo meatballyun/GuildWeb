@@ -2,11 +2,22 @@ import { useRef } from 'react';
 import { MaterialSymbol } from './MaterialSymbol';
 import { classNames } from '../utils';
 
+const MAX_FILE_SIZE_MB = 5;
+
 export const ImageUploader = ({ value, onChange, className }) => {
   const inputElement = useRef();
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
+    if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+      alert(`File size exceeds the maximum limit of ${MAX_FILE_SIZE_MB} MB.`);
+      return;
+    } else if (!file.type.startsWith('image/')) {
+      alert(
+        'Please select an image file (supported formats: JPEG, PNG, GIF, etc.).'
+      );
+      return;
+    }
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {

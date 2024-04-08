@@ -47,6 +47,8 @@ export const IngredientEditPage = () => {
     pro: 0,
     fats: 0,
     unit: '100g',
+    description: '',
+    image_url: 'imagePath',
   });
   const [isFetched, setIsFetched] = useState(false);
   const form = useFormInstance({ defaultValue: ingredientDetail });
@@ -86,7 +88,7 @@ export const IngredientEditPage = () => {
       },
     });
     if (res.status === 200) {
-      const json = res.json();
+      const json = await res.json();
       navigate(`/food/ingredient/${json.newId}`);
     }
   };
