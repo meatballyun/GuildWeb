@@ -25,16 +25,16 @@ export const food = [
     const url = new URL(request.url);
     const q = url.searchParams.get('q');
     await delay(300);
-    return HttpResponse.json(
-      INGREDIENT_LIST.filter(({ name }) =>
+    return HttpResponse.json({
+      data: INGREDIENT_LIST.filter(({ name }) =>
         name.toLocaleLowerCase().includes(q.toLocaleLowerCase())
-      )
-    );
+      ),
+    });
   }),
   http.get(`${BASE_URL}/ingredient/:id`, async ({ params }) => {
     // console.log(params.id);
     await delay(300);
-    return HttpResponse.json(INGREDIENT);
+    return HttpResponse.json({ data: INGREDIENT });
   }),
   http.post(`${BASE_URL}/ingredient`, async () => {
     return HttpResponse.json({ newId: 23 });
@@ -48,11 +48,11 @@ export const food = [
     const url = new URL(request.url);
     const q = url.searchParams.get('q');
     await delay(300);
-    return HttpResponse.json(
-      RECIPE_LIST.filter(({ name }) =>
+    return HttpResponse.json({
+      data: RECIPE_LIST.filter(({ name }) =>
         name.toLocaleLowerCase().includes(q.toLocaleLowerCase())
-      )
-    );
+      ),
+    });
   }),
   http.get(`${BASE_URL}/recipe/:id`, async ({ params }) => {
     // console.log(params.id);

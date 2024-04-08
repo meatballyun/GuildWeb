@@ -17,7 +17,7 @@ export const IngredientDetailPage = () => {
       const res = await api.food.getIngredientDetail({
         pathParams: { id: params.id },
       });
-      const data = await res.json();
+      const { data } = await res.json();
       setIsFetched(true);
       setIngredientDetail(data);
     })();
@@ -47,10 +47,12 @@ export const IngredientDetailPage = () => {
           />
         </div>
         <div className="flex justify-center gap-2">
-          <Button type="hollow" size="md" className="flex items-center gap-1">
-            <MaterialSymbol icon="file_copy" fill />
-            Copy
-          </Button>
+          <Link to="/food/ingredient/edit/new" state={ingredientDetail}>
+            <Button type="hollow" size="md" className="flex items-center gap-1">
+              <MaterialSymbol icon="file_copy" fill />
+              Copy
+            </Button>
+          </Link>
           <Link to={`/food/ingredient/edit/${params.id}`}>
             <Button type="hollow" size="md" className="flex items-center gap-1">
               <MaterialSymbol icon="edit" fill />

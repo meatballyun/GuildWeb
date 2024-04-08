@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../api';
 import { Paper } from '../_layout/components';
-import { useNavigate, useParams } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router';
 import {
   BaseInput,
   Button,
@@ -38,18 +38,24 @@ const PublicButton = ({ value, onChange }) => {
     </Button>
   );
 };
-
+const ingredientDefaultValue = {
+  carbs: 0,
+  pro: 0,
+  fats: 0,
+  unit: '100g',
+  description: '',
+  image_url: 'imagePath',
+};
 export const IngredientEditPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const params = useParams();
-  const [ingredientDetail, setIngredientDetail] = useState({
-    carbs: 0,
-    pro: 0,
-    fats: 0,
-    unit: '100g',
-    description: '',
-    image_url: 'imagePath',
-  });
+  const [ingredientDetail, setIngredientDetail] = useState(
+    location.state
+      ? { ...location.state, name: `${location.state.name}-copy` }
+      : ingredientDefaultValue
+  );
   const [isFetched, setIsFetched] = useState(false);
   const form = useFormInstance({ defaultValue: ingredientDetail });
   const { formData } = form;
@@ -69,7 +75,7 @@ export const IngredientEditPage = () => {
       const res = await api.food.getIngredientDetail({
         pathParams: { id: params.id },
       });
-      const data = await res.json();
+      const { data } = await res.json();
       setIsFetched(true);
       setIngredientDetail(data);
     })();
@@ -89,7 +95,8 @@ export const IngredientEditPage = () => {
     });
     if (res.status === 200) {
       const json = await res.json();
-      navigate(`/food/ingredient/${json.newId}`);
+      const ingredientID = params.id === 'new' ? json.newId : params.id;
+      navigate(`/food/ingredient/${ingredientID}`);
     }
   };
 
@@ -115,7 +122,10 @@ export const IngredientEditPage = () => {
           </div>
           <div className="m-1 flex w-full items-center overflow-hidden border-[20px] border-primary-200">
             <Form.Item valueKey="imageUrl">
-              <ImageUploader className="max-h-[50vh] min-h-20 w-full" />
+              <ImageUploader
+                className="max-h-[50vh] min-h-20 w-full"
+                type="ingredient"
+              />
             </Form.Item>
           </div>
           <div className="flex justify-center gap-2">
@@ -138,10 +148,10 @@ export const IngredientEditPage = () => {
           <Block title="Ingredient" className="mb-2">
             <div className="flex items-center">
               <div className="w-full pr-2">
-                <div className="mb-2 mr-2 flex w-full rounded-sm bg-primary-200 px-4 py-1 text-paragraph-p2 text-primary-100">
+                <div className="mb-2 mr-2 flex w-full justify-between rounded-sm bg-primary-200 px-4 py-1 text-paragraph-p2 text-primary-100">
                   <span className="mr-1">unit:</span>
                   <Form.Item valueKey="unit">
-                    <BaseInput />
+                    <BaseInput inputClassName="text-right" />
                   </Form.Item>
                 </div>
                 <NutritionalSummaryChart
@@ -189,7 +199,7 @@ export const IngredientEditPage = () => {
             <Form.Item valueKey="description">
               <TextArea
                 placeholder="text something..."
-                className="h-full w-full resize-none bg-primary-100 p-2 text-paragraph-p2"
+                className="h-full w-full resize-none bg-primary-100 p-2 text-paragraph-p3"
               />
             </Form.Item>
           </Block>

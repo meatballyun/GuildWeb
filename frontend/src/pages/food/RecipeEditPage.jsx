@@ -119,7 +119,10 @@ export const RecipeEditPage = () => {
             </div>
             <div className="m-1 flex w-full items-center overflow-hidden border-[20px] border-primary-200">
               <Form.Item valueKey="imageUrl">
-                <ImageUploader className="max-h-[50vh] min-h-20 w-full" />
+                <ImageUploader
+                  className="max-h-[50vh] min-h-20 w-full"
+                  type="recipe"
+                />
               </Form.Item>
             </div>
             <div className="flex gap-2">
@@ -199,7 +202,7 @@ export const RecipeEditPage = () => {
               <Form.Item valueKey="description">
                 <TextArea
                   placeholder="text something..."
-                  className="h-full w-full resize-none bg-primary-100 p-2 text-paragraph-p2"
+                  className="h-full w-full resize-none bg-primary-100 p-2 text-paragraph-p3"
                 />
               </Form.Item>
             </Block>

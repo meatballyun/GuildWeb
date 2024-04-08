@@ -1,10 +1,11 @@
 import { useRef } from 'react';
 import { MaterialSymbol } from './MaterialSymbol';
 import { classNames } from '../utils';
+import { api } from '../api';
 
 const MAX_FILE_SIZE_MB = 5;
 
-export const ImageUploader = ({ value, onChange, className }) => {
+export const ImageUploader = ({ value, type, onChange, className }) => {
   const inputElement = useRef();
 
   const handleImageChange = (e) => {
@@ -20,8 +21,17 @@ export const ImageUploader = ({ value, onChange, className }) => {
     }
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        onChange(reader.result);
+      reader.onloadend = async () => {
+        const res = await api.upload.uploadImage({
+          body: {
+            image: reader.result,
+            type,
+          },
+        });
+        if (res.status === 200) {
+          const { imageUrl } = res.json();
+          onChange(imageUrl);
+        }
       };
       reader.readAsDataURL(file);
     }
