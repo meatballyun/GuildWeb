@@ -20,14 +20,17 @@ export const INGREDIENT = {
   kcal: 245,
 };
 
-export const INGREDIENT_LIST = [INGREDIENT, INGREDIENT, INGREDIENT, INGREDIENT];
-
-const INGREDIENTS = [
-  { ...INGREDIENT, count: 1.5 },
-  { ...INGREDIENT, count: 1.5 },
-  { ...INGREDIENT, count: 1.5 },
-  { ...INGREDIENT, count: 1.5 },
+export const INGREDIENT_LIST = [
+  { ...INGREDIENT, name: `${INGREDIENT.name}-1`, id: 1 },
+  { ...INGREDIENT, name: `${INGREDIENT.name}-2`, id: 2 },
+  { ...INGREDIENT, name: `${INGREDIENT.name}-3`, id: 3 },
+  { ...INGREDIENT, name: `${INGREDIENT.name}-4`, id: 4 },
 ];
+
+const INGREDIENTS = INGREDIENT_LIST.map((ingredient) => ({
+  ...ingredient,
+  count: 1.5,
+}));
 
 export const RECIPE = {
   creator: CREATOR,

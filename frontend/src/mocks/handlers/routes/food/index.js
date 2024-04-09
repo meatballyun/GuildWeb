@@ -57,7 +57,7 @@ export const food = [
   http.get(`${BASE_URL}/recipe/:id`, async ({ params }) => {
     // console.log(params.id);
     await delay(300);
-    return HttpResponse.json(RECIPE);
+    return HttpResponse.json({ data: RECIPE });
   }),
   http.post(`${BASE_URL}/recipe`, async () => {
     return HttpResponse.json({ newId: 23 });

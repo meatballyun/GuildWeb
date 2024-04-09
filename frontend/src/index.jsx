@@ -6,7 +6,7 @@ import './styles/index.css';
 import { worker } from './mocks/browser.js';
 
 if (process.env.NODE_ENV === 'development') {
-  //worker.start();
+  worker.start();
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

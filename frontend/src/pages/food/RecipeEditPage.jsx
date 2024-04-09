@@ -22,34 +22,35 @@ import { getNutritionSum } from '../../utils';
 import { AddIngredientModal } from './AddIngredientModal';
 
 const IngredientList = ({ value: valueProp = [], onChange }) => {
-  const handleRemove = (index) => {
-    console.log(
-      index,
-      valueProp.filter((v, i) => i === index)
-    );
-    onChange(valueProp.filter((v, i) => i !== index));
-  };
-
-  const handleCountChange = (index, value) => {
+  const handleCountChange = (id, value) => {
     const newValue = [...valueProp];
-    newValue[index].count = value;
+    const valueIndex = newValue.findIndex((val) => val.id === id);
+    newValue[valueIndex].count = value;
     onChange(newValue);
   };
 
-  return valueProp.map(({ count, ...ingredient }, i) => (
-    <FoodBar
-      {...ingredient}
-      showChart={false}
-      count={
-        <BaseInput
-          className="rounded-sm bg-white pl-1"
-          value={count}
-          onChange={(value) => handleCountChange(i, value)}
-        />
-      }
-      suffix={<MaterialSymbol icon="delete" onClick={() => handleRemove(i)} />}
-    />
-  ));
+  return valueProp
+    .filter(({ count }) => count)
+    .map(({ count, id, ...ingredient }) => (
+      <FoodBar
+        {...ingredient}
+        showChart={false}
+        id={id}
+        count={
+          <BaseInput
+            className="rounded-sm bg-white pl-1"
+            value={count}
+            onChange={(value) => handleCountChange(id, value)}
+          />
+        }
+        suffix={
+          <MaterialSymbol
+            icon="delete"
+            onClick={() => handleCountChange(id, 0)}
+          />
+        }
+      />
+    ));
 };
 
 export const RecipeEditPage = () => {
@@ -97,9 +98,18 @@ export const RecipeEditPage = () => {
   const handleModalClose = (newItem) => {
     setOpenModal(false);
     if (!newItem) return;
+    const newItemIndex = formData.ingredients.findIndex(
+      ({ id }) => id === newItem.id
+    );
     const newIngredients = Array.isArray(formData.ingredients)
       ? [...formData.ingredients]
       : [];
+
+    if (newItemIndex !== -1) {
+      newIngredients[newItemIndex].count++;
+      handleInputChange('ingredients', newIngredients);
+      return;
+    }
 
     handleInputChange('ingredients', [
       ...newIngredients,
