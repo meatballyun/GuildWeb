@@ -42,7 +42,7 @@ const IngredientList = ({ value: valueProp = [], onChange }) => {
       showChart={false}
       count={
         <BaseInput
-          className="bg-white"
+          className="rounded-sm bg-white pl-1"
           value={count}
           onChange={(value) => handleCountChange(i, value)}
         />
@@ -56,9 +56,13 @@ export const RecipeEditPage = () => {
   const navigate = useNavigate();
   const params = useParams();
   const [openModal, setOpenModal] = useState(false);
-  const [ingredientDetail, setIngredientDetail] = useState();
+  const [recipeDetail, setRecipeDetail] = useState({
+    unit: '100 g',
+    description: '',
+    public: false,
+  });
   const [isFetched, setIsFetched] = useState(false);
-  const form = useFormInstance({ defaultValue: ingredientDetail });
+  const form = useFormInstance({ defaultValue: recipeDetail });
   const { formData, handleInputChange } = form;
   const { carbs, pro, fats, kcal } = getNutritionSum(formData.ingredients);
 
@@ -72,26 +76,33 @@ export const RecipeEditPage = () => {
       const res = await api.food.getRecipeDetail({
         pathParams: { id: params.id },
       });
-      const data = await res.json();
+      const { data } = await res.json();
       setIsFetched(true);
-      setIngredientDetail(data);
+      setRecipeDetail(data);
     })();
   }, [params.id]);
 
   const handleSubmit = async () => {
     const apiUtil =
       params.id === 'new' ? api.food.addNewRecipe : api.food.editRecipeDetail;
-    const res = await apiUtil({ body: { ...formData, id: params.id } });
+    const res = await apiUtil({
+      body: { ...formData, carbs, pro, fats, kcal, id: params.id },
+    });
     if (res.status === 200) {
-      const json = res.json();
-      navigate(`/food/recipe/${json.newId ?? json.editId}`);
+      const json = await res.json();
+      navigate(`/food/recipe/${json.newId ?? params.id}`);
     }
   };
+
   const handleModalClose = (newItem) => {
     setOpenModal(false);
     if (!newItem) return;
+    const newIngredients = Array.isArray(formData.ingredients)
+      ? [...formData.ingredients]
+      : [];
+
     handleInputChange('ingredients', [
-      ...formData.ingredients,
+      ...newIngredients,
       { ...newItem, count: 1 },
     ]);
   };
@@ -152,14 +163,22 @@ export const RecipeEditPage = () => {
                 className="mx-auto"
                 size={140}
                 total={kcal}
-                carbs={formData?.carbs}
-                pro={formData?.pro}
-                fats={formData?.fats}
+                carbs={carbs}
+                pro={pro}
+                fats={fats}
               >
                 <div className="text-sm">total</div>
                 <div className="-my-1 text-xl">{kcal}</div>
                 <div className="text-sm">kcal</div>
               </NutritionalSummaryChart>
+              <div className="flex flex-col items-start text-paragraph-p2">
+                <div className="mb-4 rounded-sm bg-primary-300 px-2 py-1 text-primary-100">
+                  Unit:
+                </div>
+                <Form.Item valueKey="unit">
+                  <BaseInput className=" w-24 rounded-sm bg-primary-100 px-2" />
+                </Form.Item>
+              </div>
             </div>
             <div className="flex justify-center gap-2">
               <div className="border-r-2 border-r-primary-300 pr-2">

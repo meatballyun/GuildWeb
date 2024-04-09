@@ -27,14 +27,21 @@ export const FoodListPage = ({ title }) => {
   }, [search, title]);
 
   const handleDelete = async (id) => {
-    const res = await api.food.deleteIngredient({ pathParams: { id } });
+    const apiUtil =
+      title === 'Ingredient'
+        ? api.food.deleteIngredient
+        : api.food.deleteRecipe;
+    const res = await apiUtil({ pathParams: { id } });
     if (res.status === 200) {
       fetchData();
     }
   };
 
   return (
-    <Paper row className="mt-4 flex flex-col items-center justify-center p-8">
+    <Paper
+      row
+      className="mt-4 flex flex-col items-center justify-center p-[5%]"
+    >
       <div className="my-4 text-heading-h1 text-primary-500">{title}</div>
       <div className="mb-4 flex w-full justify-between">
         <div className="flex w-full max-w-72 rounded-full border border-primary-500 py-1 pl-3 pr-2 text-paragraph-p2 text-primary-500">

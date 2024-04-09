@@ -5,13 +5,16 @@ const authenticated = require('../verification/auth');
 const jwt = require('jsonwebtoken');
 const LogInController = require('../controllers/loginControllers');
 const SignupController = require('../controllers/signupControllers');
-const IngredientController = require('../controllers/ingredientControllers');
 const UserInfoController = require('../controllers/userinfoControllers');
+const ImageController = require('../controllers/imageControllers');
+const IngredientController = require('../controllers/ingredientControllers');
+const RecipeController = require('../controllers/recipeControllers');
 const logInController = new LogInController();
 const signUpController = new SignupController();
-const ingredientController = new IngredientController();
 const userInfoController = new UserInfoController();
-
+const imageController = new ImageController();
+const ingredientController = new IngredientController();
+const recipeController = new RecipeController();
 
 router.get('/', passport.authenticate('jwt', { session: false }) );
 
@@ -31,14 +34,28 @@ router.get('/api/user/me', passport.authenticate('jwt', { session: true }), user
 
 router.post('/api/signup', signUpController.signup);
 
-router.post('/api/food/ingredient', passport.authenticate('jwt', { session: true }), ingredientController.addNewIngredient);
+router.post('/api/upload/image', passport.authenticate('jwt', { session: true }), imageController.saveImage);
+
+//ingredient
+router.post('/api/food/ingredient', passport.authenticate('jwt', { session: true }), ingredientController.addIngredient);
 
 router.put('/api/food/ingredient', passport.authenticate('jwt', { session: true }), ingredientController.updateIngredient);
 
-router.get('/api/food/ingredient', passport.authenticate('jwt', { session: true }), ingredientController.getIngredientsByCreator);
+router.get('/api/food/ingredient', passport.authenticate('jwt', { session: true }), ingredientController.getIngredients);
 
 router.get('/api/food/ingredient/:id', passport.authenticate('jwt', { session: true }), ingredientController.getIngredientDetailById);
 
 router.delete('/api/food/ingredient/:id', passport.authenticate('jwt', { session: true }), ingredientController.deleteIngredientsById);
+
+//recipe
+router.post('/api/food/recipe', passport.authenticate('jwt', { session: true }), recipeController.addRecipe);
+
+router.put('/api/food/recipe', passport.authenticate('jwt', { session: true }), recipeController.updateRecipe);
+
+router.get('/api/food/recipe', passport.authenticate('jwt', { session: true }), recipeController.getRecipes);
+
+router.get('/api/food/recipe/:id', passport.authenticate('jwt', { session: true }), recipeController.getRecipeDetailById);
+
+router.delete('/api/food/recipe/:id', passport.authenticate('jwt', { session: true }), recipeController.deleteRecipeById);
 
 module.exports = router;

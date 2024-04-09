@@ -22,7 +22,7 @@ export const RecipeDetailPage = () => {
       const res = await api.food.getRecipeDetail({
         pathParams: { id: params.id },
       });
-      const data = await res.json();
+      const { data } = await res.json();
       setIsFetched(true);
       setRecipeDetail(data);
     })();

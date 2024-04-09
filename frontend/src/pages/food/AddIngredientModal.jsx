@@ -13,7 +13,7 @@ export const AddIngredientModal = ({ onClose, ...props }) => {
     (async () => {
       setIsFetched(false);
       const res = await api.food.getIngredient({ params: { q: search } });
-      const data = await res.json();
+      const { data } = await res.json();
       setIsFetched(true);
       setFoodList(data);
     })();
@@ -38,7 +38,11 @@ export const AddIngredientModal = ({ onClose, ...props }) => {
           return (
             <div className="mt-2 flex w-full flex-1 flex-grow flex-col gap-2 overflow-auto  bg-primary-200 p-2">
               {foodList.map((foodItem, i) => (
-                <FoodBar {...foodItem} onClick={() => onClose(foodItem)} />
+                <FoodBar
+                  {...foodItem}
+                  key={i}
+                  onClick={() => onClose(foodItem)}
+                />
               ))}
             </div>
           );

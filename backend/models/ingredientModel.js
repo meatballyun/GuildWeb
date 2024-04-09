@@ -27,7 +27,7 @@ class IngredientModel {
 
     static getIngredientsByCreator(CREATOR) {
         return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM ingredients WHERE CREATOR = ?', CREATOR, function (err, rows) {
+            connection.query('SELECT * FROM ingredients WHERE CREATOR = ? AND ACTIVE = TRUE', CREATOR, function (err, rows) {
                 if (err) {
                     reject(err);
                 } else {
@@ -39,7 +39,7 @@ class IngredientModel {
 
     static getIngredientsByName(NAME) {
         return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM ingredients WHERE NAME = ?', NAME, function (err, rows) {
+            connection.query('SELECT * FROM ingredients WHERE NAME = ? AND ACTIVE = TRUE', NAME, function (err, rows) {
                 if (err) {
                     reject(err);
                 } else {
@@ -52,7 +52,7 @@ class IngredientModel {
     static getIngredientsByCreatorAndName(CREATOR, NAME) {
         console.log(NAME);
         return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM ingredients WHERE CREATOR = ? AND NAME LIKE ?', [ CREATOR, '%'+ NAME + '%' ], function (err, rows) {
+            connection.query('SELECT * FROM ingredients WHERE CREATOR = ? AND NAME LIKE ? AND ACTIVE = TRUE', [ CREATOR, '%'+ NAME + '%' ], function (err, rows) {
                 if (err) {
                     reject(err);
                 } else {
@@ -64,7 +64,7 @@ class IngredientModel {
 
     static getIngredientsById(ID) {
         return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM ingredients WHERE ID = ?', ID, function (err, rows) {
+            connection.query('SELECT * FROM ingredients WHERE ID = ? AND ACTIVE = TRUE', ID, function (err, rows) {
                 if (err) {
                     reject(err);
                 } else {
@@ -76,7 +76,7 @@ class IngredientModel {
 
     static deleteIngredientsById(ID) {
         return new Promise((resolve, reject) => {
-            connection.query('DELETE FROM ingredients WHERE ID = ?', ID, function (err, rows) {
+            connection.query('UPDATE ingredients SET ACTIVE = FALSE WHERE ID = ?', ID, function (err, rows) {
                 if (err) {
                     reject(err);
                 } else {

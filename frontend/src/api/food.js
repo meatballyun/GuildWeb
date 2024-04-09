@@ -53,6 +53,12 @@ export const getRecipeDetail = ({ pathParams }) =>
     url: `${BASE_URL}/recipe/${pathParams.id}`,
     method: 'GET',
   });
+  
+export const deleteRecipe = ({ pathParams }) =>
+fetchJson({
+  url: `${BASE_URL}/recipe/${pathParams.id}`,
+  method: 'DELETE',
+});
 
 export const addNewRecipe = ({ body }) =>
   fetchJson({

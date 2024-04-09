@@ -29,7 +29,7 @@ export const ImageUploader = ({ value, type, onChange, className }) => {
           },
         });
         if (res.status === 200) {
-          const { imageUrl } = res.json();
+          const { imageUrl } = await res.json();
           onChange(imageUrl);
         }
       };

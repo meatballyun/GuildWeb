@@ -44,7 +44,7 @@ const ingredientDefaultValue = {
   fats: 0,
   unit: '100g',
   description: '',
-  image_url: 'imagePath',
+  image_url: '',
 };
 export const IngredientEditPage = () => {
   const navigate = useNavigate();
