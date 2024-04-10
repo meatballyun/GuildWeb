@@ -8,12 +8,12 @@ const jwtConfig = require('../config/jwt');
 
 passport.serializeUser(function (user, done) {
     console.log('serializeUser');
-    done(null, user.user_id);
+    done(null, user.ID);
 })
 
 passport.deserializeUser(function (id, done) {
     console.log('deserializeUser');
-    const query = 'SELECT * FROM Users WHERE user_id = ?';
+    const query = 'SELECT * FROM users WHERE ID = ?';
     connection.query(query, [id], function (err, rows) {
         if (err) {
             console.log(err);
@@ -27,8 +27,8 @@ const jwtStrategy = new JwtStrategy({
     secretOrKey: jwtConfig.secret,
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
 }, function (payload, done) {
-    
-    connection.query('SELECT * FROM Users WHERE email = ?', payload.email, function (err, user, fields) {
+    const query ='SELECT * FROM users WHERE EMAIL = ?';
+    connection.query(query, payload.email, function (err, user, fields) {
         if (err) {
             console.log('Wrong JWT Token');
             return done(err);
@@ -37,7 +37,7 @@ const jwtStrategy = new JwtStrategy({
             console.log('Wrong JWT Token (!user)');
             return done(null, false, { message: 'Wrong JWT Token' });
         }
-        if (payload.name !== user[0].name) {
+        if (payload.name !== user[0].NAME) {
             console.log('Wrong JWT Token (payload.name !== user.name)');
             return done(null, false, { message: 'Wrong JWT Token' });
         }
@@ -58,15 +58,15 @@ const loginStrategy = new LocalStrategy({
     passwordField: 'password',
     passReqToCallback: true
 }, function (req, email, password, done) {
-    console.log('============\n', email, password, '\n============');
-    connection.query('SELECT * FROM Users WHERE email = ?', email, function (err, user, fields) {
+    console.log('============\n', req.body, '\n============');
+    connection.query('SELECT * FROM users WHERE EMAIL = ?', email, function (err, user, fields) {
         if (err) { return done(err); }
         if (!user || user.length === 0) {
             return done(null, false, { msg: 'User not found.' })
         }
         else {
-            if (user[0].password) {
-                bcrypt.compare(password, user[0].password, (err, isMatch) => {
+            if (user[0]) {
+                bcrypt.compare(password, user[0].PASSWORD, (err, isMatch) => {
                     if (isMatch) {
                         return done(null, JSON.parse(JSON.stringify(user[0])));
                     } else {

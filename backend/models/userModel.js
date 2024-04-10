@@ -1,9 +1,9 @@
 const connection = require('../lib/db');
 
 class UserModel {
-	static getUser(id) {
+	static getUserById(ID) {
 		return new Promise((resolve, reject) => {
-			connection.query('SELECT * FROM Users WHERE user_id = ?', id, function (err, rows) {
+			connection.query('SELECT * FROM users WHERE ID = ?', ID, function (err, rows) {
 				if (err) {
 					reject(err);
 				} else {
@@ -13,29 +13,53 @@ class UserModel {
 		});
 	};
 
-	static getUserNum(email) {
+	static getUserNumByEmail(EMAIL) {
 		return new Promise((resolve, reject) => {
-			connection.query('SELECT COUNT(1) AS num FROM Users WHERE email = ?', email, function (err, rows) {
+			connection.query('SELECT COUNT(1) AS num FROM users WHERE EMAIL = ?', EMAIL, function (err, num) {
 				if (err) {
 					reject(err);
 				} else {
-					resolve(rows);
+					resolve(num);
 				}
 			});
 		});
 	};
 
-	static signUp(name, email, password) {
+	static signUp(NAME, EMAIL, PASSWORD) {
 		return new Promise((resolve, reject) => {
-			connection.query('INSERT INTO Users(name, email, password) VALUES (?,?,?)', [name, email, password], function (err, user) {
+			connection.query('INSERT INTO users(NAME, EMAIL, PASSWORD) VALUES (?,?,?)', [NAME, EMAIL, PASSWORD], function (err, rows) {
 				if (err) {
 					reject(err);
 				} else {
-					resolve('');
+					resolve(rows);
 				}
 			});
 		});
 	}
+
+	static updateUserExp(EXP, ID) {
+		return new Promise((resolve, reject) => {
+			connection.query('UPDATE users SET EXP = ? WHERE ID = ?', [EXP, ID], function (err, rows) {
+				if (err) {
+					reject(err);
+				} else {
+					resolve(rows);
+				}
+			});
+		});
+	};
+
+	static updateUserRank(RANK, ID) {
+		return new Promise((resolve, reject) => {
+			connection.query('UPDATE users SET `RANK` = ? WHERE ID = ?', [RANK, ID], function (err, rows) {
+				if (err) {
+					reject(err);
+				} else {
+					resolve(rows);
+				}
+			});
+		});
+	};
 
 };
 

@@ -6,9 +6,12 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const passport = require('passport');
+const createProxyMiddleware = require('http-proxy-middleware');
+
 // Setting routes
 const routes = require('./routes/index');
 const app = express();
+app.use(bodyParser.json({ limit: '5mb' }))
 
 app.use(logger('dev'));
 app.use(cors({

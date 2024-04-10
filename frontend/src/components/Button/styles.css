@@ -1,12 +1,12 @@
 /* basic */
 .button {
-  @apply border-none transition-all cursor-pointer;
-  box-shadow: 0px 2px 2px 0px #3b2826;
+  @apply cursor-pointer border-none transition-all;
+  box-shadow: 0px 2px 2px 0px #3b282655;
   &:hover {
-    box-shadow: 0px 2px 6px 0px #3b2826;
+    box-shadow: 0px 2px 5px 0px #3b282655;
   }
   &:active {
-    box-shadow: 0px 2px 8px 0px #3b2826;
+    box-shadow: 0px 2px 7px 0px #3b282655;
   }
 }
 
@@ -18,12 +18,12 @@
 }
 
 .button.button-size--lg {
-  @apply text-heading-h2 text-center px-4 py-1;
+  @apply px-4 py-1 text-center text-heading-h2;
   border-radius: 0.25rem;
 }
 
 .button.button-size--md {
-  @apply text-heading-h3 text-center px-2 py-1;
+  @apply px-2 py-1 text-center text-heading-h3;
   border-radius: 0.25rem;
 }
 

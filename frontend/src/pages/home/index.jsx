@@ -1,7 +1,6 @@
-import { useNavigate } from 'react-router-dom';
-import './styles.css';
 import { api } from '../../api';
-import { Button, Input } from '../../components';
+import { Button } from '../../components';
+import './styles.css';
 
 function HomePage() {
   const token = localStorage.token;

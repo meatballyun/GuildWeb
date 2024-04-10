@@ -4,7 +4,9 @@ import './styles.css';
 export const Button = ({
   className,
   children,
-  size,
+  // sm, md, lg
+  size = 'sm',
+  // text, solid, solid
   type = 'solid',
   ...props
 }) => {

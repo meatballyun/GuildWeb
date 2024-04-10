@@ -1,5 +1,6 @@
 import { HttpResponse, http } from 'msw';
 import { BASE_API_URL } from '../../../api';
+import { PROFILE_IMAGE_URL } from './constants';
 
 export const auth = [
   http.post(`${BASE_API_URL}/login`, async ({ request }) => {
@@ -19,7 +20,7 @@ export const auth = [
     return HttpResponse.json({
       name: '天上天下宇宙至尊大大ㄉㄉ醬',
       id: 1,
-      imageUrl: null,
+      imageUrl: PROFILE_IMAGE_URL,
       rank: 999,
       exp: 192873,
       upgradeExp: 200000,

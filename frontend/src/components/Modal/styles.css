@@ -1,0 +1,13 @@
+.modal-overlay {
+  @apply bg-black/50 fixed inset-0; /**  **/
+  z-index: 999;
+}
+.modal-container {
+  @apply flex h-full p-4;
+}
+.modal {
+  @apply m-auto flex h-full w-[500px] flex-col rounded-md bg-primary-100;
+}
+.modal-content {
+  @apply h-full flex-1 p-2;
+}

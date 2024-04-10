@@ -1,10 +1,13 @@
-.input_container {
-  @apply relative;
-  border-bottom: 1px solid currentColor;
-  font-size: 1.25rem;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-.input_container input {
-  @apply text-primary-400 w-full border-none outline-none;
-  background: transparent;
+@layer components {
+  .input_container {
+    @apply relative;
+  }
+  .input_container input {
+    @apply w-full border-none text-primary-400 outline-none placeholder:text-primary-300;
+    background: transparent;
+  }
 }
