@@ -3,18 +3,22 @@ const router = express.Router();
 const passport = require('../verification/passport');
 const authenticated = require('../verification/auth');
 const jwt = require('jsonwebtoken');
+
 const LogInController = require('../controllers/loginControllers');
 const SignupController = require('../controllers/signupControllers');
 const UserInfoController = require('../controllers/userinfoControllers');
 const ImageController = require('../controllers/imageControllers');
 const IngredientController = require('../controllers/ingredientControllers');
 const RecipeController = require('../controllers/recipeControllers');
+const DietRecordController = require('../controllers/dietRecordControllers');
+
 const logInController = new LogInController();
 const signUpController = new SignupController();
 const userInfoController = new UserInfoController();
 const imageController = new ImageController();
 const ingredientController = new IngredientController();
 const recipeController = new RecipeController();
+const dietRecordController = new DietRecordController();
 
 router.get('/', passport.authenticate('jwt', { session: false }) );
 
@@ -30,10 +34,11 @@ router.get('/api/checkAuth', passport.authenticate('jwt', { session: false }), (
     //res.end();
 });
 
-router.get('/api/user/me', passport.authenticate('jwt', { session: true }), userInfoController.getUserInfoByUserId);
-
 router.post('/api/signup', signUpController.signup);
 
+router.get('/api/user/me', passport.authenticate('jwt', { session: true }), userInfoController.getUserInfoByUserId);
+
+//upload
 router.post('/api/upload/image', passport.authenticate('jwt', { session: true }), imageController.saveImage);
 
 //ingredient
@@ -57,5 +62,9 @@ router.get('/api/food/recipe', passport.authenticate('jwt', { session: true }), 
 router.get('/api/food/recipe/:id', passport.authenticate('jwt', { session: true }), recipeController.getRecipeDetailById);
 
 router.delete('/api/food/recipe/:id', passport.authenticate('jwt', { session: true }), recipeController.deleteRecipeById);
+
+//record
+router.get('/api/food/dietRecords', passport.authenticate('jwt', { session: true }), dietRecordController.getDietRecord);
+
 
 module.exports = router;

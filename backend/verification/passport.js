@@ -58,7 +58,7 @@ const loginStrategy = new LocalStrategy({
     passwordField: 'password',
     passReqToCallback: true
 }, function (req, email, password, done) {
-    console.log('============\n', email, '\n============');
+    console.log('============\n', req.body, '\n============');
     connection.query('SELECT * FROM users WHERE EMAIL = ?', email, function (err, user, fields) {
         if (err) { return done(err); }
         if (!user || user.length === 0) {

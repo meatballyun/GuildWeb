@@ -21,7 +21,7 @@ export const RecordPage = () => {
       const res = await api.food.getDietRecords({
         params: { date: date.toISOString() },
       });
-      const data = await res.json();
+      const { data } = await res.json();
       setDailyFood(data);
     })();
   }, [date]);
@@ -54,7 +54,7 @@ export const RecordPage = () => {
           </div>
         </div>
         <div className="mt-8 flex w-full flex-grow flex-col gap-2">
-          {dailyFood.foods.map((food, i) => (
+          {dailyFood.food?.map((food, i) => (
             <FoodBar key={i} {...food} />
           ))}
         </div>
