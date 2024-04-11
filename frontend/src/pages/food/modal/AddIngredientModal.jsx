@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { BaseInput, MaterialSymbol } from '../../components';
-import { Modal } from '../../components/Modal';
-import { api } from '../../api';
-import { FoodBar } from './components';
+import { BaseInput, MaterialSymbol } from '../../../components';
+import { Modal } from '../../../components/Modal';
+import { api } from '../../../api';
+import { FoodBar } from '../components';
 
 export const AddIngredientModal = ({ onClose, ...props }) => {
   const [foodList, setFoodList] = useState();

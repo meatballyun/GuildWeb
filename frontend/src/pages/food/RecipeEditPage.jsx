@@ -19,7 +19,7 @@ import {
 } from './components';
 import { TextArea } from '../../components/Form/TextArea';
 import { getNutritionSum } from '../../utils';
-import { AddIngredientModal } from './AddIngredientModal';
+import { AddIngredientModal } from './modal';
 
 const IngredientList = ({ value: valueProp = [], onChange }) => {
   const handleCountChange = (id, value) => {
