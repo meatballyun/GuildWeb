@@ -20,5 +20,5 @@ export const useFormInstance = ({ defaultValue }) => {
     }));
   };
 
-  return { formData, handleInputChange };
+  return { formData, setFormData, handleInputChange };
 };
