@@ -67,11 +67,11 @@ export const FoodBar = ({
       )}
     >
       <CircleImage size={28} url={imageUrl} />
-      <div className="flex flex-[2] justify-between">
+      <div className="flex flex-[2] justify-between gap-2">
         <div className="flex-1 text-primary-400">{name}</div>
         <div className="flex-1 text-primary-400">{unit}</div>
       </div>
-      <div className="flex flex-[3] justify-between">
+      <div className="flex flex-[3] justify-between gap-2">
         <div className="flex-1 text-blue">{carbs} g</div>
         <div className="flex-1 text-green">{pro} g</div>
         <div className="flex-1 text-orange">{fats} g</div>

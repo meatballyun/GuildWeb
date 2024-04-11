@@ -30,14 +30,14 @@ export const RecipeDetailPage = () => {
 
   if (!isFetched)
     return (
-      <Paper row className="mt-4 flex p-8">
+      <Paper row className="flex">
         loading
       </Paper>
     );
   const { kcal, carbs, pro, fats, ingredients } = recipeDetail;
 
   return (
-    <Paper row className="mt-4 flex p-8">
+    <Paper row className="flex">
       {/* left panel */}
       <div className="flex w-full flex-col items-center justify-center gap-2 p-2">
         <div className="w-full border-b-2 border-b-primary-600 text-center text-heading-h1 text-primary-600">

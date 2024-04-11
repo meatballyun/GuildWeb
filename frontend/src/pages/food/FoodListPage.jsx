@@ -38,11 +38,8 @@ export const FoodListPage = ({ title }) => {
   };
 
   return (
-    <Paper
-      row
-      className="mt-4 flex flex-col items-center justify-center p-[5%]"
-    >
-      <div className="my-4 text-heading-h1 text-primary-500">{title}</div>
+    <Paper row className="flex flex-col items-center justify-center">
+      <div className="mb-4 text-heading-h1 text-primary-500">{title}</div>
       <div className="mb-4 flex w-full justify-between">
         <div className="flex w-full max-w-72 rounded-full border border-primary-500 py-1 pl-3 pr-2 text-paragraph-p2 text-primary-500">
           <BaseInput

@@ -127,7 +127,7 @@ export const RecipeEditPage = () => {
   return (
     <>
       <Form form={form} onSubmit>
-        <Paper row className="mt-4 flex p-8">
+        <Paper row className="flex">
           {/* left panel */}
           <div className="flex w-full flex-col items-center justify-center gap-2 p-2">
             <div className="w-full border-b-2 border-b-primary-600 text-center text-heading-h1 text-primary-600">
@@ -228,7 +228,7 @@ export const RecipeEditPage = () => {
               </div>
             </Block>
             <Block title="Description" className="flex-1">
-              <Form.Item valueKey="description">
+              <Form.Item valueKey="description" noStyle>
                 <TextArea
                   placeholder="text something..."
                   className="h-full w-full resize-none bg-primary-100 p-2 text-paragraph-p3"
