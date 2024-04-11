@@ -37,6 +37,18 @@ class UserModel {
 		});
 	}
 
+	static updateUserTarget(ID, CARBS, PRO, FATS, KCAL) {
+		return new Promise((resolve, reject) => {
+			connection.query('UPDATE users SET CARBS = ?, PRO = ?, FATS = ?, KCAL = ? WHERE ID = ?', [ID, CARBS, PRO, FATS, KCAL], function (err, rows) {
+				if (err) {
+					reject(err);
+				} else {
+					resolve(rows);
+				}
+			});
+		});
+	};
+
 	static updateUserExp(EXP, ID) {
 		return new Promise((resolve, reject) => {
 			connection.query('UPDATE users SET EXP = ? WHERE ID = ?', [EXP, ID], function (err, rows) {

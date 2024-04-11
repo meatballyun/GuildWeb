@@ -13,7 +13,7 @@ class RecipeController {
             const newRecipe = await Recipe.addRecipe(CREATOR, req.body.name, req.body.description, req.body.carbs, req.body.pro, req.body.fats, req.body.kcal, req.body.unit, req.body.imageUrl, req.body.public);
             const ingredients = req.body.ingredients;
             ingredients.map(async (ingredient)=>{
-                await RecipeIngredientRelation.addRecipeIngredientRelation(ingredient.id, newRecipe['insertId'], ingredient.count);
+                await RecipeIngredientRelation.addRecipeIngredientRelation(ingredient.id, newRecipe['insertId'], ingredient.amount);
             });
             await updateUserExp(1, CREATOR);
             console.log(newRecipe);
@@ -32,7 +32,7 @@ class RecipeController {
             const ingredients = req.body.ingredients;
             ingredients.map(async (ingredient)=>{
                 const getIngredient = await RecipeIngredientRelation.getRecipeIngredientRelationByIngredientAndRecipe(ingredient.id, req.body.id);
-                (getIngredient?.length) ? await RecipeIngredientRelation.updateRecipeIngredientRelation(ingredient.id, req.body.id, ingredient.count) : await RecipeIngredientRelation.addRecipeIngredientRelation(ingredient.id, req.body.id, ingredient.count);
+                (getIngredient?.length) ? await RecipeIngredientRelation.updateRecipeIngredientRelation(ingredient.id, req.body.id, ingredient.amount) : await RecipeIngredientRelation.addRecipeIngredientRelation(ingredient.id, req.body.id, ingredient.amount);
             });
             
             res.status(200).json({id: req.body.id});
@@ -84,7 +84,7 @@ class RecipeController {
                     kcal: ingredient.KCAL,
                     unit: ingredient.UNIT,
                     imageUrl: ingredient.IMAGE_URL,
-                    count: item.AMOUNT,
+                    amount: item.AMOUNT,
                 };
             }));
             const data = {

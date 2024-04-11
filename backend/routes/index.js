@@ -64,7 +64,10 @@ router.get('/api/food/recipe/:id', passport.authenticate('jwt', { session: true 
 router.delete('/api/food/recipe/:id', passport.authenticate('jwt', { session: true }), recipeController.deleteRecipeById);
 
 //record
+router.post('/api/food/dietRecords', passport.authenticate('jwt', { session: true }), dietRecordController.addDietRecord);
+
 router.get('/api/food/dietRecords', passport.authenticate('jwt', { session: true }), dietRecordController.getDietRecord);
 
+router.delete('/api/food/dietRecords/:id', passport.authenticate('jwt', { session: true }), dietRecordController.deleteDietRecord);
 
 module.exports = router;

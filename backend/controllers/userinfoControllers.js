@@ -1,5 +1,4 @@
 const User = require('../models/userModel');
-
 class UserInfoController {
     async getUserInfoByUserId(req, res) {        
         try {
@@ -18,6 +17,16 @@ class UserInfoController {
                     upgradeExp
                 });
             }
+        } catch (error) {
+            console.log('getUserInfoByUserId Error!!!');
+        }
+    }
+
+    async updateUserTarget(req, res) {        
+        try {
+            const ID = req.session.passport.user;
+            await User.updateUserTarget(ID, req.body.carbs, req.body.pro, req.body.fats, req.body.kcal);
+            
         } catch (error) {
             console.log('getUserInfoByUserId Error!!!');
         }
