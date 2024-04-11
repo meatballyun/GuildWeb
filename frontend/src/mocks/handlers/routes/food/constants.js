@@ -29,7 +29,7 @@ export const INGREDIENT_LIST = [
 
 const INGREDIENTS = INGREDIENT_LIST.map((ingredient) => ({
   ...ingredient,
-  count: 1.5,
+  amount: 1.5,
 }));
 
 export const RECIPE = {
@@ -45,23 +45,29 @@ export const RECIPE = {
   ...getNutritionSum(INGREDIENTS),
 };
 
-export const RECIPE_LIST = [RECIPE, RECIPE, RECIPE];
-
-const FOODS = [
-  { ...RECIPE, count: 1 },
-  { ...RECIPE, count: 1 },
-  { ...RECIPE, count: 1 },
-  { ...RECIPE, count: 1 },
+export const RECIPE_LIST = [
+  { ...RECIPE, name: `${RECIPE.name}-1`, id: 1 },
+  { ...RECIPE, name: `${RECIPE.name}-2`, id: 2 },
+  { ...RECIPE, name: `${RECIPE.name}-3`, id: 3 },
+  { ...RECIPE, name: `${RECIPE.name}-4`, id: 4 },
 ];
 
+const FOODS = RECIPE_LIST.map((recipe, i) => ({
+  recipe,
+  amount: 1,
+  id: i,
+  category: 'breakfast',
+}));
+
 export const DAILY_FOOD = {
-  target: {
-    carbs: 155,
-    pro: 183,
-    fats: 53,
-    kcal: 2000,
+  data: {
+    target: {
+      carbs: 155,
+      pro: 183,
+      fats: 53,
+      kcal: 2000,
+    },
+    imageUrl: 'https://images.plurk.com/7bNYY08ndWsLYQSHRORr8H.jpg',
+    foods: FOODS,
   },
-  imageUrl: 'https://images.plurk.com/7bNYY08ndWsLYQSHRORr8H.jpg',
-  foods: FOODS,
-  ...getNutritionSum(FOODS),
 };
