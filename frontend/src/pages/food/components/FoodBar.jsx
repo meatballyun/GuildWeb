@@ -47,7 +47,7 @@ const SummaryChart = ({ carbs, pro, fats }) => {
 export const FoodBar = ({
   name,
   unit,
-  count,
+  amount,
   carbs,
   pro,
   fats,
@@ -77,10 +77,10 @@ export const FoodBar = ({
         <div className="flex-1 text-orange">{fats} g</div>
         <div className="flex-1 text-primary-600">{kcal} kcal</div>
       </div>
-      {count && (
+      {amount && (
         <div className="flex flex-[1] text-primary-400">
           <span className="mr-1">x</span>
-          {count}
+          {amount}
         </div>
       )}
       {showChart && <SummaryChart carbs={carbs} pro={pro} fats={fats} />}

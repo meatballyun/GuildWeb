@@ -25,21 +25,21 @@ const IngredientList = ({ value: valueProp = [], onChange }) => {
   const handleCountChange = (id, value) => {
     const newValue = [...valueProp];
     const valueIndex = newValue.findIndex((val) => val.id === id);
-    newValue[valueIndex].count = value;
+    newValue[valueIndex].amount = value;
     onChange(newValue);
   };
 
   return valueProp
-    .filter(({ count }) => count)
-    .map(({ count, id, ...ingredient }) => (
+    .filter(({ amount }) => amount)
+    .map(({ amount, id, ...ingredient }) => (
       <FoodBar
         {...ingredient}
         showChart={false}
         id={id}
-        count={
+        amount={
           <BaseInput
             className="rounded-sm bg-white pl-1"
-            value={count}
+            value={amount}
             onChange={(value) => handleCountChange(id, value)}
           />
         }
@@ -106,14 +106,14 @@ export const RecipeEditPage = () => {
       : [];
 
     if (newItemIndex !== -1) {
-      newIngredients[newItemIndex].count++;
+      newIngredients[newItemIndex].amount++;
       handleInputChange('ingredients', newIngredients);
       return;
     }
 
     handleInputChange('ingredients', [
       ...newIngredients,
-      { ...newItem, count: 1 },
+      { ...newItem, amount: 1 },
     ]);
   };
 
