@@ -1,10 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import './styles.css';
 import { api } from '../../../api';
-import { Header } from './Header';
 import { CalorieBar } from './CalorieBar';
-import { FOOD_COLOR } from '../constants';
+import { CATEGORIES, FOOD_COLOR } from '../constants';
 import { FoodBar, NutritionalSummaryChart } from '../components';
+import { Paper } from '../../_layout/components';
+import { DietRecordModal } from '../modal';
+import { Button, DatePicker, MaterialSymbol } from '../../../components';
+import { formateDate, getNutritionSum } from '../../../utils';
 
 const calories = [
   { key: 'carbs', text: 'Carbs.', color: FOOD_COLOR.carbs },
@@ -13,52 +17,165 @@ const calories = [
   { key: 'kcal', text: 'Total', color: FOOD_COLOR.kcal },
 ];
 
+const Category = ({ category }) => {
+  const { label, color } = CATEGORIES.find(
+    ({ value }) => value === category
+  ) ?? { label: 'uncategorized', color: '#555' };
+  return (
+    <div
+      className="rounded-sm px-2 py-1 text-heading-h5 text-white"
+      style={{ backgroundColor: color }}
+    >
+      {label}
+    </div>
+  );
+};
+
 export const RecordPage = () => {
   const [date, setDate] = useState(new Date());
+  const [isFetched, setIsFetched] = useState(false);
   const [dailyFood, setDailyFood] = useState();
-  useEffect(() => {
-    (async () => {
-      const res = await api.food.getDietRecords({
-        params: { date: date.toISOString() },
-      });
-      const { data } = await res.json();
-      setDailyFood(data);
-    })();
+  const [showModal, setShowModal] = useState(false);
+  const [modalValue, setModalValue] = useState();
+
+  const fetchData = useCallback(async () => {
+    const res = await api.food.getDietRecords({
+      params: { date: formateDate(date) },
+    });
+    const { data } = await res.json();
+    setDailyFood(data);
   }, [date]);
 
-  if (!dailyFood) return <></>;
+  const foodNutritionSum = useMemo(() => {
+    if (!dailyFood) return;
+    return getNutritionSum(
+      dailyFood.foods.map(({ recipe, amount }) => ({ ...recipe, amount }))
+    );
+  }, [dailyFood]);
+
+  const foolGroupByCategory = useMemo(
+    () =>
+      dailyFood?.foods.reduce((pre, { category, ...others }) => {
+        return { ...pre, [category]: [...(pre[category] ?? []), others] };
+      }, {}),
+    [dailyFood]
+  );
+  console.log(foolGroupByCategory);
+
+  useEffect(() => {
+    (async () => {
+      setIsFetched(false);
+      await fetchData();
+      setIsFetched(true);
+    })();
+  }, [fetchData]);
+
+  if (!isFetched) return <Paper row>loading</Paper>;
 
   return (
     <>
-      <Header date={date} onDateChange={setDate} />
-      <div className="food-layout-container">
+      <Paper row>
         <div className="flex w-full items-center justify-center">
           <NutritionalSummaryChart
             size={240}
-            carbs={dailyFood.carbs}
-            pro={dailyFood.pro}
-            fats={dailyFood.fats}
+            carbs={foodNutritionSum.carbs}
+            pro={foodNutritionSum.pro}
+            fats={foodNutritionSum.fats}
           >
             <div className="text-3xl">total</div>
-            <div className="p-2 text-5xl">{dailyFood.kcal}</div>
+            <div className="p-2 text-5xl">{foodNutritionSum.kcal}</div>
             <div className="text-3xl">kcal</div>
           </NutritionalSummaryChart>
           <div className="max-w-[640px] flex-1">
             {calories.map(({ key, ...data }) => (
               <CalorieBar
-                value={dailyFood[key]}
+                value={foodNutritionSum[key]}
                 target={dailyFood.target[key]}
                 {...data}
               />
             ))}
           </div>
         </div>
-        <div className="mt-8 flex w-full flex-grow flex-col gap-2">
-          {dailyFood.food?.map((food, i) => (
-            <FoodBar key={i} {...food} />
-          ))}
+        <div className="mt-8 flex justify-between">
+          <DatePicker value={date} onChange={setDate} />
+          <Button
+            size="sm"
+            className="!rounded-full"
+            onClick={() => {
+              setShowModal(true);
+              setModalValue({ date });
+            }}
+          >
+            + Add DietRecord
+          </Button>
         </div>
-      </div>
+        <div className="mt-4 flex w-full flex-grow flex-col gap-2">
+          {CATEGORIES.map(({ value: category }) => {
+            const foodList = foolGroupByCategory?.[category];
+            if (!foodList?.length) return null;
+            return (
+              <div className="flex flex-col items-start gap-2" key={category}>
+                <Category category={category} />
+                {foodList.map(({ recipe, amount, id }) => (
+                  <Link to={`/food/recipe/${recipe.id}`} className="w-full">
+                    <FoodBar
+                      key={id}
+                      {...recipe}
+                      amount={amount}
+                      suffix={
+                        <>
+                          <div
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setShowModal(true);
+                              setModalValue({
+                                recipe: recipe.id,
+                                amount,
+                                date,
+                              });
+                            }}
+                            className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full border border-primary-600 text-primary-600 hover:bg-primary-600/20"
+                          >
+                            <MaterialSymbol icon="edit" size={20} />
+                          </div>
+                          <div
+                            onClick={async (e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              await api.food.deleteDietRecords({
+                                pathParams: { id },
+                              });
+                              fetchData();
+                            }}
+                            className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full border border-primary-600 text-primary-600 hover:bg-primary-600/20"
+                          >
+                            <MaterialSymbol icon="delete" size={20} />
+                          </div>
+                        </>
+                      }
+                    />
+                  </Link>
+                ))}
+              </div>
+            );
+          })}
+        </div>
+      </Paper>
+      <DietRecordModal
+        isOpen={!!showModal}
+        value={modalValue}
+        onClose={() => setShowModal(false)}
+        onFinish={async (formData) => {
+          await api.food.addDietRecords({
+            body: {
+              ...formData,
+              date: formateDate(formData.date ?? new Date()),
+            },
+          });
+          await fetchData();
+        }}
+      />
     </>
   );
 };
