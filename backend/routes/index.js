@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('../verification/passport');
-const authenticated = require('../verification/auth');
-const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 
 const LogInController = require('../controllers/loginControllers');
 const SignupController = require('../controllers/signupControllers');
@@ -20,23 +19,45 @@ const ingredientController = new IngredientController();
 const recipeController = new RecipeController();
 const dietRecordController = new DietRecordController();
 
-router.get('/', passport.authenticate('jwt', { session: false }) );
-
-router.post('/api/login', logInController.login);
-
-router.delete('/api/login', logInController.logout);
-
-router.get('/api/checkAuth', passport.authenticate('jwt', { session: false }), (req, res)=>{     
-    console.log(req.session); 
-    req.session.fruit = 'bbb';
-    console.log("=============");
-    res.json({});
-    //res.end();
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'yun.tz1114@gmail.com',
+      pass: 'jvgpgkpqohamriki'
+    },
+    socketTimeout: 60000
 });
 
+const mailOptions = {
+    from: 'yun.tz1114@gmail.com',
+    to: 'rex.rex022534@gmail.com',
+    subject: 'Hello User',
+    text: 'Welcome to join the guild.'
+};
+
+router.get('/', passport.authenticate('jwt', { session: false }) );
+
+router.get('/api/checkAuth', async (req, res)=>{     
+  await transporter.sendMail(mailOptions, function(error, info){
+    if(error){
+       console.log(error);
+    }else{
+       console.log("Email sent: " + info.response);
+    }
+  })
+});
+
+//login
+router.post('/api/login', logInController.login);
+
+router.get('/api/logout', logInController.logout);
+
+//signup
 router.post('/api/signup', signUpController.signup);
 
+//user
 router.get('/api/user/me', passport.authenticate('jwt', { session: true }), userInfoController.getUserInfoByUserId);
+router.put('/api/user/setting', passport.authenticate('jwt', { session: true }));
 
 //upload
 router.post('/api/upload/image', passport.authenticate('jwt', { session: true }), imageController.saveImage);

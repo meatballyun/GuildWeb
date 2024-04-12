@@ -148,7 +148,7 @@ export const SideBar = () => {
     api.auth
       .getUserMe()
       .then((res) => res.json())
-      .then((res) => setUserMe(res))
+      .then((res) => setUserMe(res.data))
       .catch(() => navigate('/login'));
   }, []);
 

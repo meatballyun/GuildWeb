@@ -29,8 +29,8 @@ export const ImageUploader = ({ value, type, onChange, className }) => {
           },
         });
         if (res.status === 200) {
-          const { imageUrl } = await res.json();
-          onChange(imageUrl);
+          const { data } = await res.json();
+          onChange(data.imageUrl);
         }
       };
       reader.readAsDataURL(file);

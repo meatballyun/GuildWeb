@@ -4,10 +4,16 @@ const jwtConfig = require('../config/jwt');
 
 class LogInController {
     async login(req, res, next) {
-        passport.authenticate('login', function (err, user, info) {
-            if (err) return next(err);
+        passport.authenticate('login', function (err, user, info) {            
+            if (err) {
+                return next(err);
+            }
             if (!user) {
-                return res.status(401).json({ data: info });
+                return res.status(401).json({
+                    "success": false,
+                    "message": info,
+                    "error": "Unauthorized"
+                  });
             };
             req.login(user, function (err) {            
                 if (err) return next(err);
@@ -19,14 +25,25 @@ class LogInController {
                     iat: currentTimestamp,
                 };
                 const token = jwt.sign(payload, jwtConfig.secret , { expiresIn: '1d' });
-                res.status(200).json({ data: 'ok', token });
-                console.log('User authenticated successfully.');
+                res.status(200).json({
+                    "success": true,
+                    "message": "logged in",
+                    "data": {
+                      "token": token
+                    }
+                  });
             });
         })(req, res, next);
     }
 
     async logout(req, res) {
-        req.logout(() => { res.status(200).json({ data: 'OK' }); });
+        req.logout(() => { 
+            res.status(200).json({
+            "success": true,
+            "message": "log out",
+            "data": "Ok"
+          }); 
+        });
     }
 }
 

@@ -5,7 +5,7 @@ export const login = (body) =>
   fetchJson({ url: `${BASE_API_URL}/login`, method: 'POST', body });
 
 export const logout = () =>
-  fetchJson({ url: `${BASE_API_URL}/login`, method: 'DELETE' });
+  fetchJson({ url: `${BASE_API_URL}/logout`, method: 'GET' });
 
 export const checkAuth = (token) =>
   fetchJson({

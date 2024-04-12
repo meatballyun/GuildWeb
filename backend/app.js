@@ -11,7 +11,7 @@ const createProxyMiddleware = require('http-proxy-middleware');
 // Setting routes
 const routes = require('./routes/index');
 const app = express();
-app.use(bodyParser.json({ limit: '5mb' }))
+app.use(bodyParser.json({ limit: '1mb' }))
 
 app.use(logger('dev'));
 app.use(cors({
@@ -36,12 +36,20 @@ app.use('/', routes);
 
 //404
 app.use((req, res, next) => {
-    res.status(404).send("404! 找不到該網頁！");
+    res.status(404).json({
+        success: false,
+        message: "The requested resource was not found.",
+        data: "Not Found"
+    });
 });
 
 //500
 app.use((err, req, res, next) => {
-    res.status(500).send("500 施工中！");
+    res.status(500).json({
+        "success": false,
+        "message": "Internal Server Error occurred. Please try again later.",
+        "error": "Internal Server Error"
+      });
 });
 
 module.exports = app;

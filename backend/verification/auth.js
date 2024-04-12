@@ -4,11 +4,13 @@ const connection = require('../lib/db');
 
 const authenticated = (req, res, next) => {
     if (req.isAuthenticated()) {
-        console.log('authenticated');
         return next();
     } else {
-        console.log('Unauthorized');
-        return res.status(401).json({ data: 'Unauthorized' });
+        return res.status(401).json({
+            "success": false,
+            "message": "Unauthorized: You do not have permission to access.",
+            "data": "Unauthorized"
+          });
     }
 };
 
