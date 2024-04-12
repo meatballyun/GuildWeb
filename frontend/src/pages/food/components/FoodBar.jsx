@@ -47,7 +47,7 @@ const SummaryChart = ({ carbs, pro, fats }) => {
 export const FoodBar = ({
   name,
   unit,
-  count,
+  amount,
   carbs,
   pro,
   fats,
@@ -67,20 +67,20 @@ export const FoodBar = ({
       )}
     >
       <CircleImage size={28} url={imageUrl} />
-      <div className="flex flex-[2] justify-between">
+      <div className="flex flex-[2] justify-between gap-2">
         <div className="flex-1 text-primary-400">{name}</div>
         <div className="flex-1 text-primary-400">{unit}</div>
       </div>
-      <div className="flex flex-[3] justify-between">
+      <div className="flex flex-[3] justify-between gap-2">
         <div className="flex-1 text-blue">{carbs} g</div>
         <div className="flex-1 text-green">{pro} g</div>
         <div className="flex-1 text-orange">{fats} g</div>
         <div className="flex-1 text-primary-600">{kcal} kcal</div>
       </div>
-      {count && (
+      {amount && (
         <div className="flex flex-[1] text-primary-400">
           <span className="mr-1">x</span>
-          {count}
+          {amount}
         </div>
       )}
       {showChart && <SummaryChart carbs={carbs} pro={pro} fats={fats} />}

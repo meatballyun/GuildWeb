@@ -1,7 +1,13 @@
-.layout-paper {
-  @apply h-full w-full;
-  background: center / 100% 100% no-repeat url('./panel.png');
-}
-.layout-paper.layout-paper--row {
-  background-image: url('./panel-row.png');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .layout-paper {
+    @apply h-full w-full px-[4vw] py-[4vh];
+    background: center / 100% 100% no-repeat url('./panel.png');
+  }
+  .layout-paper.layout-paper--row {
+    background-image: url('./panel-row.png');
+  }
 }

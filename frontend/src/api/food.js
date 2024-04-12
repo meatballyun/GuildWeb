@@ -9,6 +9,18 @@ export const getDietRecords = ({ params }) =>
     method: 'GET',
   });
 
+export const addDietRecords = ({ body }) =>
+  fetchJson({
+    url: `${BASE_URL}/dietRecords`,
+    body,
+    method: 'POST',
+  });
+export const deleteDietRecords = ({ pathParams }) =>
+  fetchJson({
+    url: `${BASE_URL}/dietRecords/${pathParams.id}`,
+    method: 'DELETE',
+  });
+
 /** Ingredient */
 export const getIngredient = ({ params }) =>
   fetchJson({
@@ -53,12 +65,12 @@ export const getRecipeDetail = ({ pathParams }) =>
     url: `${BASE_URL}/recipe/${pathParams.id}`,
     method: 'GET',
   });
-  
+
 export const deleteRecipe = ({ pathParams }) =>
-fetchJson({
-  url: `${BASE_URL}/recipe/${pathParams.id}`,
-  method: 'DELETE',
-});
+  fetchJson({
+    url: `${BASE_URL}/recipe/${pathParams.id}`,
+    method: 'DELETE',
+  });
 
 export const addNewRecipe = ({ body }) =>
   fetchJson({

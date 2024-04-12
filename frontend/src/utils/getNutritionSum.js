@@ -4,7 +4,7 @@ export const getNutritionSum = (
       carbs: 0,
       pro: 0,
       fats: 0,
-      count: 1,
+      amount: 1,
     },
   ]
 ) => {
@@ -15,7 +15,7 @@ export const getNutritionSum = (
         .reduce(
           (pre, [key, value]) => ({
             ...pre,
-            [key]: value + ingredient[key] * (ingredient.count ?? 1),
+            [key]: value + ingredient[key] * (ingredient.amount ?? 1),
           }),
           {}
         ),

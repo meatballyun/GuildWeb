@@ -19,27 +19,27 @@ import {
 } from './components';
 import { TextArea } from '../../components/Form/TextArea';
 import { getNutritionSum } from '../../utils';
-import { AddIngredientModal } from './AddIngredientModal';
+import { AddIngredientModal } from './modal';
 
 const IngredientList = ({ value: valueProp = [], onChange }) => {
   const handleCountChange = (id, value) => {
     const newValue = [...valueProp];
     const valueIndex = newValue.findIndex((val) => val.id === id);
-    newValue[valueIndex].count = value;
+    newValue[valueIndex].amount = value;
     onChange(newValue);
   };
 
   return valueProp
-    .filter(({ count }) => count)
-    .map(({ count, id, ...ingredient }) => (
+    .filter(({ amount }) => amount)
+    .map(({ amount, id, ...ingredient }) => (
       <FoodBar
         {...ingredient}
         showChart={false}
         id={id}
-        count={
+        amount={
           <BaseInput
             className="rounded-sm bg-white pl-1"
-            value={count}
+            value={amount}
             onChange={(value) => handleCountChange(id, value)}
           />
         }
@@ -106,14 +106,14 @@ export const RecipeEditPage = () => {
       : [];
 
     if (newItemIndex !== -1) {
-      newIngredients[newItemIndex].count++;
+      newIngredients[newItemIndex].amount++;
       handleInputChange('ingredients', newIngredients);
       return;
     }
 
     handleInputChange('ingredients', [
       ...newIngredients,
-      { ...newItem, count: 1 },
+      { ...newItem, amount: 1 },
     ]);
   };
 
@@ -127,7 +127,7 @@ export const RecipeEditPage = () => {
   return (
     <>
       <Form form={form} onSubmit>
-        <Paper row className="mt-4 flex p-8">
+        <Paper row className="flex">
           {/* left panel */}
           <div className="flex w-full flex-col items-center justify-center gap-2 p-2">
             <div className="w-full border-b-2 border-b-primary-600 text-center text-heading-h1 text-primary-600">
@@ -228,7 +228,7 @@ export const RecipeEditPage = () => {
               </div>
             </Block>
             <Block title="Description" className="flex-1">
-              <Form.Item valueKey="description">
+              <Form.Item valueKey="description" noStyle>
                 <TextArea
                   placeholder="text something..."
                   className="h-full w-full resize-none bg-primary-100 p-2 text-paragraph-p3"
