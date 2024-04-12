@@ -1,9 +1,9 @@
 const connection = require('../lib/db');
 
 class DietRecordModel {
-    static addDietRecord(CREATOR, DIET_DATE, CATEGORY, RECIPES, CARBS, PRO, FATS, KCAL, AMOUNT) {
+    static addDietRecord(CREATOR, DIET_DATE, CATEGORY, RECIPES, AMOUNT) {
         return new Promise((resolve, reject) => {
-            connection.query('INSERT INTO dietRecords(CREATOR, DIET_DATE, CATEGORY, RECIPES, CARBS, PRO, FATS, KCAL, AMOUNT) VALUES (?,?,?,?,?,?,?,?,?)', [CREATOR, DIET_DATE, CATEGORY, RECIPES, CARBS, PRO, FATS, KCAL, AMOUNT], function (err, rows) {
+            connection.query('INSERT INTO dietRecords(CREATOR, DIET_DATE, CATEGORY, RECIPES, AMOUNT) VALUES (?,?,?,?,?)', [CREATOR, DIET_DATE, CATEGORY, RECIPES, AMOUNT], function (err, rows) {
                 if (err) {
                     reject(err);
                 } else {

@@ -13,17 +13,17 @@ function Login() {
     const res = await api.auth.login({ email, password });
     if (res.status === 200) {
       const json = await res.json();
-      localStorage.setItem('token', json.token);
+      localStorage.setItem('token', json.data.token);
       navigate('/');
     }
   };
 
   return (
     <>
-      <div className="text-heading-h1 text-center mb-8">
+      <div className="mb-8 text-center text-heading-h1">
         Welcome back, Adventurer!
       </div>
-      <div className="flex flex-col gap-4 w-[240px]">
+      <div className="flex w-[240px] flex-col gap-4">
         <Input label="email" value={email} onChange={setEmail} />
         <Input
           label="password"

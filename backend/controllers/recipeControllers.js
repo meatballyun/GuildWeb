@@ -9,37 +9,63 @@ const updateUserExp = userInfoController.updateUserExp;
 class RecipeController {
     async addRecipe(req, res) {
         try {        
-            const CREATOR = req.session.passport.user;      
+            const CREATOR = req.session.passport.user;
             const newRecipe = await Recipe.addRecipe(CREATOR, req.body.name, req.body.description, req.body.carbs, req.body.pro, req.body.fats, req.body.kcal, req.body.unit, req.body.imageUrl, req.body.public);
             const ingredients = req.body.ingredients;
+            if (!ingredients?.length) res.status(404).json({
+                    success: false,
+                    message: "The requested resource was not found.",
+                    data: "Not Found"
+                });
+            
             ingredients.map(async (ingredient)=>{
-                await RecipeIngredientRelation.addRecipeIngredientRelation(ingredient.id, newRecipe['insertId'], ingredient.count);
+                await RecipeIngredientRelation.addRecipeIngredientRelation(ingredient.id, newRecipe['insertId'], ingredient.amount);
             });
+
             await updateUserExp(1, CREATOR);
-            console.log(newRecipe);
-            res.status(200).json({newId: newRecipe['insertId']});
+            res.status(200).json({
+                success: true,
+                message: "Data uploaded successfully.",
+                data: {
+                    id: newRecipe['insertId']
+                }
+            });
+
         } catch (err) {
-            console.log('addIngredient Error!!!', err);
-            res.status(500).json({
-                message: "error"
+            res.status(400).json({
+                success: false,
+                message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
+                data: "Bad Request"
             });
         }
     } 
 
     async updateRecipe(req, res) {
-        try {        
-            await Recipe.updateRecipe(req.body.id, req.body.name, req.body.description, req.body.carbs, req.body.pro, req.body.fats, req.body.kcal, req.body.unit, req.body.imageUrl, req.body.public);
+        try {
+            const query = await Recipe.updateRecipe(req.body.id, req.body.name, req.body.description, req.body.carbs, req.body.pro, req.body.fats, req.body.kcal, req.body.unit, req.body.imageUrl, req.body.public);
+            if (!query?.length) res.status(404).json({
+                success: false,
+                message: "The requested resource was not found.",
+                data: "Not Found"
+            });
             const ingredients = req.body.ingredients;
             ingredients.map(async (ingredient)=>{
                 const getIngredient = await RecipeIngredientRelation.getRecipeIngredientRelationByIngredientAndRecipe(ingredient.id, req.body.id);
-                (getIngredient?.length) ? await RecipeIngredientRelation.updateRecipeIngredientRelation(ingredient.id, req.body.id, ingredient.count) : await RecipeIngredientRelation.addRecipeIngredientRelation(ingredient.id, req.body.id, ingredient.count);
+                (getIngredient?.length) ? await RecipeIngredientRelation.updateRecipeIngredientRelation(ingredient.id, req.body.id, ingredient.amount) : await RecipeIngredientRelation.addRecipeIngredientRelation(ingredient.id, req.body.id, ingredient.amount);
             });
             
-            res.status(200).json({id: req.body.id});
+            res.status(200).json({
+                success: true,
+                message: "Data updated successfully.",
+                data: {
+                    id: req.body.id
+                }
+            });
         } catch (err) {
-            console.log('addIngredient Error!!!', err);
-            res.status(500).json({
-                message: "error"
+            res.status(400).json({
+                success: false,
+                message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
+                data: "Bad Request"
             });
         }
     } 
@@ -51,7 +77,6 @@ class RecipeController {
             const data = recipes.map(row => ({
                 id: row.ID,
                 name: row.NAME,
-                description: row.DESCRIPTION,                
                 carbs: row.CARBS,
                 pro: row.PRO,
                 fats: row.FATS,
@@ -59,20 +84,38 @@ class RecipeController {
                 unit: row.UNIT,
                 imageUrl: row.IMAGE_URL
             }));
+
             if (data) {
-                return res.status(200).json({ data : data });
+                res.status(200).json({
+                    success: true,
+                    message: "Data retrieval successful.",
+                    data : data
+                });
+            } else{
+                res.status(404).json({
+                    success: false,
+                    message: "The requested resource was not found.",
+                    data : "Not Found"
+                });
             }
         } catch (error) {
-            console.error(error);
-            console.log('getRecipe Error!!!');
+            res.status(400).json({
+                success: false,
+                message: "Bad Request: The request cannot be processed due to invalid information.",
+                data: "Bad Request"
+            });
         }
     }
 
     async getRecipeDetailById(req, res) {
         try {
             const [ recipes ] = await Recipe.getRecipesById(req.params.id);
+            if (!recipes?.length) res.status(404).json({
+                success: false,
+                message: "The requested resource was not found.",
+                data: "Not Found"
+            });
             const query = await RecipeIngredientRelation.getRecipeIngredientRelationByRecipe(req.params.id);
-            console.log(query);
             const ingredients = await Promise.all(query.map( async(item)=>{
                 const [ ingredient ] = await Ingredient.getIngredientsById(item.INGREDIENTS);
                 return {
@@ -84,11 +127,11 @@ class RecipeController {
                     kcal: ingredient.KCAL,
                     unit: ingredient.UNIT,
                     imageUrl: ingredient.IMAGE_URL,
-                    count: item.AMOUNT,
+                    amount: item.AMOUNT,
                 };
             }));
+
             const data = {
-                id: recipes.ID,
                 name: recipes.NAME,
                 description: recipes.DESCRIPTION,
                 unit: recipes.UNIT,
@@ -97,21 +140,43 @@ class RecipeController {
             };
 
             if (data) {
-                return res.status(200).json({ data : data});
+                res.status(200).json({ 
+                    success: true,
+		            message: "Data retrieval successful.",
+                    data : data
+                });
             }
         } catch (error) {
-            console.error(error);
-            console.log('getRecipeDetailById Error!!!');
+            res.status(400).json({
+                success: false,
+                message: "Bad Request: The request cannot be processed due to invalid information.",
+                data: "Bad Request"
+            });
         }
     }
 
     async deleteRecipeById(req, res) {
         try {
-            await Recipe.deleteRecipesById(req.params.id);
-            return res.status(200).json({data: 'ok'});
+            const query = await Recipe.deleteRecipesById(req.params.id);
+            if (query?.length) {
+                res.status(200).json({
+                    success: true,
+                    message: "The data with the specified object ID has been successfully deleted.",
+                    data: "OK"
+                });
+            } else{
+                res.status(404).json({
+                success: false,
+                    message: "The requested resource to delete was not found.",
+                    data: "Not Found"
+                })
+            }
         } catch (error) {
-            console.error(error);
-            console.log('deleteRecipeById Error!!!');
+            res.status(400).json({
+                success: false,
+                message: "Bad Request: The request to delete the data was invalid.",
+                data: "Bad Request"
+            });
         }
     }
 

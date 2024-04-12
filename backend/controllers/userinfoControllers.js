@@ -1,23 +1,47 @@
 const User = require('../models/userModel');
-
 class UserInfoController {
     async getUserInfoByUserId(req, res) {        
         try {
             const USERID = req.session.passport.user;
-            const userinfo = await User.getUserById(USERID);
-            
+            const userinfo = await User.getUserById(USERID);            
             if (userinfo?.[0]) {
                 const { NAME, ID, IMAGE_URL, RANK, EXP } = userinfo[0];
+                RANK = (RANK > 99) ? 99 : RANK;
                 const upgradeExp = (RANK ** 2) * 10;
                 res.status(200).json({
-                    name: NAME,
-                    id: ID,
-                    imageUrl: IMAGE_URL,
-                    rank: RANK,
-                    exp: EXP,
-                    upgradeExp
+                    success: true,
+                    message: "User data retrieval successful",
+                    data: {
+                        name: NAME,
+                        id: ID,
+                        imageUrl: IMAGE_URL,
+                        rank: RANK,
+                        exp: EXP,
+                        upgradeExp: upgradeExp
+                    }                    
                 });
             }
+            else {
+                res.status(404).json({
+                    success: false,
+                    message: "Not Found: The requested user was not found in the database.",
+                    data: "Not Found"
+                });
+            }
+        } catch (error) {
+            res.status(400).json({
+                success: false,
+                message: "Bad Request: The request cannot be processed due to invalid information.",
+                data: "Bad Request"
+            });
+        }
+    }
+
+    async updateUserTarget(req, res) {        
+        try {
+            const ID = req.session.passport.user;
+            await User.updateUserTarget(ID, req.body.carbs, req.body.pro, req.body.fats, req.body.kcal);
+            
         } catch (error) {
             console.log('getUserInfoByUserId Error!!!');
         }

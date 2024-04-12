@@ -98,9 +98,8 @@ export const RecipeEditPage = () => {
   const handleModalClose = (newItem) => {
     setOpenModal(false);
     if (!newItem) return;
-    const newItemIndex = formData.ingredients.findIndex(
-      ({ id }) => id === newItem.id
-    );
+    const newItemIndex =
+      formData.ingredients?.findIndex(({ id }) => id === newItem.id) ?? -1;
     const newIngredients = Array.isArray(formData.ingredients)
       ? [...formData.ingredients]
       : [];
