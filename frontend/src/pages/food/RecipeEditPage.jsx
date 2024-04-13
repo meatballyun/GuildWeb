@@ -91,7 +91,7 @@ export const RecipeEditPage = () => {
     });
     if (res.status === 200) {
       const json = await res.json();
-      navigate(`/food/recipe/${json.newId ?? params.id}`);
+      navigate(`/food/recipe/${json.data.id ?? params.id}`);
     }
   };
 
@@ -138,11 +138,8 @@ export const RecipeEditPage = () => {
               </Form.Item>
             </div>
             <div className="m-1 flex w-full items-center overflow-hidden border-[20px] border-primary-200">
-              <Form.Item valueKey="imageUrl">
-                <ImageUploader
-                  className="max-h-[50vh] min-h-20 w-full"
-                  type="recipe"
-                />
+              <Form.Item valueKey="imageUrl" noStyle>
+                <ImageUploader type="recipe" />
               </Form.Item>
             </div>
             <div className="flex gap-2">

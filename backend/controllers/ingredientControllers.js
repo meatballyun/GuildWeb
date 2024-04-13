@@ -10,7 +10,7 @@ class IngredientController {
             const CREATOR = req.session.passport.user;      
             const newIngredient = await Ingredient.addIngredient(CREATOR, req.body.name, req.body.description, req.body.carbs, req.body.pro, req.body.fats, req.body.kcal, req.body.unit, req.body.imageUrl, req.body.public);
             await updateUserExp(1, CREATOR);
-            res.status(200).json(
+            return res.status(200).json(
                 {
                 "success": true,
                 "message": "Data uploaded successfully.",
@@ -19,7 +19,7 @@ class IngredientController {
                 }
             });
         } catch (err) {
-            res.status(400).json(
+            return res.status(400).json(
                 {
                 "success": false,
                 "message": "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
@@ -32,7 +32,7 @@ class IngredientController {
     async updateIngredient(req, res) {
         try {
             const query = await Ingredient.updateIngredient(req.body.id, req.body.name, req.body.description, req.body.carbs, req.body.pro, req.body.fats, req.body.kcal, req.body.unit, req.body.imageUrl, req.body.public);
-            if (query?.length) {
+            if (query.affectedRows) {
                 return res.status(200).json({
                     success: true,
                     message: "Data updated successfully.",
@@ -48,7 +48,7 @@ class IngredientController {
                 });                
             }
         } catch (err) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
                 data: "Bad Request"
@@ -71,20 +71,20 @@ class IngredientController {
 							imageUrl: row.IMAGE_URL,
             }));
             if (data) {
-                res.status(200).json({
+                return res.status(200).json({
                     success: true,
                     message: "Data retrieval successful.",
                     data : data 
                 });
             } else {
-				res.status(404).json({
+				return res.status(404).json({
                     success: false,
                     message: "The requested resource was not found.",
                     data: "Not Found"
                 })
 			}
         } catch (error) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "Bad Request: The request cannot be processed due to invalid information.",
           			data: "Bad Request"
@@ -108,20 +108,20 @@ class IngredientController {
                 imageUrl: ingredients.IMAGE_URL,
             };
             if (data) {
-                res.status(200).json({ 
+                return res.status(200).json({ 
                     success: true,
                     message: "Data retrieval successful.",
                     data : data
                 });
             } else{
-                res.status(404).json({
+                return res.status(404).json({
                     success: false,
                     message: "The requested resource was not found.",
                     data: "Not Found"
                 })
             }
         } catch (error) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "Bad Request: The request cannot be processed due to invalid information.",
           			data: "Bad Request"
@@ -140,8 +140,8 @@ class IngredientController {
                 });
             }
 
-            const query = await Ingredient.deleteIngredientsById(req.params.id);
-            if (query) {
+            const query = await Ingredient.deleteIngredientsById(50);
+            if (query.changedRows) {
                 return res.status(200).json({
                     success: true,
                     message: "The data with the specified object ID has been successfully deleted.",

@@ -23,7 +23,6 @@ export const FormItem = ({
   return (
     <div className={classNames('flex flex-col gap-1', className)}>
       <div className="text-heading-h5 text-primary-500">{label}</div>
-
       {dom}
     </div>
   );

@@ -95,7 +95,7 @@ export const IngredientEditPage = () => {
     });
     if (res.status === 200) {
       const json = await res.json();
-      const ingredientID = params.id === 'new' ? json.newId : params.id;
+      const ingredientID = params.id === 'new' ? json.data.id : params.id;
       navigate(`/food/ingredient/${ingredientID}`);
     }
   };
@@ -116,11 +116,8 @@ export const IngredientEditPage = () => {
             </Form.Item>
           </div>
           <div className="m-1 flex w-full items-center overflow-hidden border-[20px] border-primary-200">
-            <Form.Item valueKey="imageUrl">
-              <ImageUploader
-                className="max-h-[50vh] min-h-20 w-full"
-                type="ingredient"
-              />
+            <Form.Item valueKey="imageUrl" noStyle>
+              <ImageUploader type="ingredient" />
             </Form.Item>
           </div>
           <div className="flex justify-center gap-2">
