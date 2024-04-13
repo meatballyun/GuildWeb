@@ -10,9 +10,9 @@ class DietRecordController {
         try {
             const CREATOR = req.session.passport.user;
             const query = await DietRecord.addDietRecord(CREATOR, req.body.date, req.body.category, req.body.recipe, req.body.amount);
-            if (query?.length) {
+            if (query.affectedRows) {
                 await updateUserExp(1, CREATOR);
-                res.status(200).json({ 
+                return res.status(200).json({ 
                     success: true,
                     message: "Data uploaded successfully.",
                     data : {
@@ -20,7 +20,7 @@ class DietRecordController {
                     } 
                 });
             } else{
-                res.status(404).json({
+                return res.status(404).json({
                     success: false,
                     message: "The requested resource to delete was not found.",
                     data: "Not Found"
@@ -28,7 +28,7 @@ class DietRecordController {
             }
             
         } catch (error) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
                 data: "Bad Request"
@@ -70,7 +70,7 @@ class DietRecordController {
                     foods: dietRecords,
                 }
 
-                res.status(200).json({ 
+                return res.status(200).json({ 
                     success: true,
                     message: "Data retrieval successful.",
                     data : data 
@@ -87,14 +87,14 @@ class DietRecordController {
                     foods: [],
                 };
 
-                res.status(200).json({ 
+                return res.status(200).json({ 
                     success: true,
                     message: "Data retrieval successful.",
                     data : data 
                 });
             }
         } catch (error) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
                 data: "Bad Request"
@@ -105,21 +105,21 @@ class DietRecordController {
     async deleteDietRecord(req, res) {
         try {
             const query = await DietRecord.deleteDietRecord(req.params.id);            
-            if (query?.length) {
-                res.status(200).json({
+            if (query.changedRows) {
+                return res.status(200).json({
                     success: true,
                     message: "The data with the specified object ID has been successfully deleted.",
                     data: "OK"
                 });
             } else{
-                res.status(404).json({
+                return res.status(404).json({
                     success: false,
                     message: "The requested resource to delete was not found.",
                     data: "Not Found"
                 })
             }
         } catch (error) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "Bad Request: The request to delete the data was invalid.",
                 data: "Bad Request"

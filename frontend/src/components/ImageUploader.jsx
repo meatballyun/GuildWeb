@@ -47,9 +47,14 @@ export const ImageUploader = ({ value, type, onChange, className }) => {
         onChange={handleImageChange}
       />
       {value ? (
-        <div>
-          <img src={value} alt="Selected" />
-        </div>
+        <div
+          className="h-[50vh] w-full"
+          style={{
+            backgroundImage: value && `url("${value}")`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
       ) : (
         <div className="h-[50vh] w-full" />
       )}

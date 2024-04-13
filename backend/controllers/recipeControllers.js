@@ -12,7 +12,7 @@ class RecipeController {
             const CREATOR = req.session.passport.user;
             const newRecipe = await Recipe.addRecipe(CREATOR, req.body.name, req.body.description, req.body.carbs, req.body.pro, req.body.fats, req.body.kcal, req.body.unit, req.body.imageUrl, req.body.public);
             const ingredients = req.body.ingredients;
-            if (!ingredients?.length) res.status(404).json({
+            if (!ingredients?.length) return res.status(404).json({
                     success: false,
                     message: "The requested resource was not found.",
                     data: "Not Found"
@@ -23,7 +23,7 @@ class RecipeController {
             });
 
             await updateUserExp(1, CREATOR);
-            res.status(200).json({
+            return res.status(200).json({
                 success: true,
                 message: "Data uploaded successfully.",
                 data: {
@@ -32,7 +32,7 @@ class RecipeController {
             });
 
         } catch (err) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
                 data: "Bad Request"
@@ -43,7 +43,8 @@ class RecipeController {
     async updateRecipe(req, res) {
         try {
             const query = await Recipe.updateRecipe(req.body.id, req.body.name, req.body.description, req.body.carbs, req.body.pro, req.body.fats, req.body.kcal, req.body.unit, req.body.imageUrl, req.body.public);
-            if (!query?.length) res.status(404).json({
+            console.log(query);
+            if (!query.affectedRows) return res.status(404).json({
                 success: false,
                 message: "The requested resource was not found.",
                 data: "Not Found"
@@ -54,7 +55,7 @@ class RecipeController {
                 (getIngredient?.length) ? await RecipeIngredientRelation.updateRecipeIngredientRelation(ingredient.id, req.body.id, ingredient.amount) : await RecipeIngredientRelation.addRecipeIngredientRelation(ingredient.id, req.body.id, ingredient.amount);
             });
             
-            res.status(200).json({
+            return res.status(200).json({
                 success: true,
                 message: "Data updated successfully.",
                 data: {
@@ -62,7 +63,7 @@ class RecipeController {
                 }
             });
         } catch (err) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
                 data: "Bad Request"
@@ -86,20 +87,20 @@ class RecipeController {
             }));
 
             if (data) {
-                res.status(200).json({
+                return res.status(200).json({
                     success: true,
                     message: "Data retrieval successful.",
                     data : data
                 });
             } else{
-                res.status(404).json({
+                return res.status(404).json({
                     success: false,
                     message: "The requested resource was not found.",
                     data : "Not Found"
                 });
             }
-        } catch (error) {
-            res.status(400).json({
+        } catch (err) {
+            return res.status(400).json({
                 success: false,
                 message: "Bad Request: The request cannot be processed due to invalid information.",
                 data: "Bad Request"
@@ -110,11 +111,12 @@ class RecipeController {
     async getRecipeDetailById(req, res) {
         try {
             const [ recipes ] = await Recipe.getRecipesById(req.params.id);
-            if (!recipes?.length) res.status(404).json({
+            if (!recipes) return res.status(404).json({
                 success: false,
                 message: "The requested resource was not found.",
                 data: "Not Found"
             });
+
             const query = await RecipeIngredientRelation.getRecipeIngredientRelationByRecipe(req.params.id);
             const ingredients = await Promise.all(query.map( async(item)=>{
                 const [ ingredient ] = await Ingredient.getIngredientsById(item.INGREDIENTS);
@@ -140,14 +142,14 @@ class RecipeController {
             };
 
             if (data) {
-                res.status(200).json({ 
+                return res.status(200).json({ 
                     success: true,
 		            message: "Data retrieval successful.",
                     data : data
                 });
             }
-        } catch (error) {
-            res.status(400).json({
+        } catch (err) {
+            return res.status(400).json({
                 success: false,
                 message: "Bad Request: The request cannot be processed due to invalid information.",
                 data: "Bad Request"
@@ -158,21 +160,21 @@ class RecipeController {
     async deleteRecipeById(req, res) {
         try {
             const query = await Recipe.deleteRecipesById(req.params.id);
-            if (query?.length) {
-                res.status(200).json({
+            if (query.changedRows) {
+                return res.status(200).json({
                     success: true,
                     message: "The data with the specified object ID has been successfully deleted.",
                     data: "OK"
                 });
             } else{
-                res.status(404).json({
+                return res.status(404).json({
                 success: false,
                     message: "The requested resource to delete was not found.",
                     data: "Not Found"
                 })
             }
         } catch (error) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "Bad Request: The request to delete the data was invalid.",
                 data: "Bad Request"
