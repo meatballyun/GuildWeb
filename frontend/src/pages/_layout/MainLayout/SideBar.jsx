@@ -1,12 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { api } from '../../../api';
 import { useEffect, useState } from 'react';
-import {
-  Button,
-  CircleImage,
-  ColumnBar,
-  MaterialSymbol,
-} from '../../../components';
+import { Button, Avatar, ColumnBar, MaterialSymbol } from '../../../components';
 import { classNames } from '../../../utils';
 import { useNavigate } from 'react-router-dom';
 
@@ -56,9 +51,9 @@ const SIDEBAR_ITEMS = [
 
 const UserItem = ({ userMe }) => {
   return (
-    <div>
+    <div className="p-4">
       <div className="flex items-center gap-2">
-        <CircleImage size={48} url={userMe.imageUrl} />
+        <Avatar size={48} url={userMe.imageUrl} text={userMe.name} />
         <div className="text-heading-h3">{userMe.name}</div>
       </div>
       <div className="text-right text-heading-h4">Lv. {userMe.rank}</div>
@@ -159,7 +154,11 @@ export const SideBar = () => {
 
   return (
     <div className="sidebar">
-      {userMe && <UserItem userMe={userMe} />}
+      {userMe && (
+        <Link to="/settings">
+          <UserItem userMe={userMe} />
+        </Link>
+      )}
       <div className="sidebar-main flex flex-col gap-2 overflow-auto">
         {SIDEBAR_ITEMS.map((props) => (
           <MenuItem {...props} />

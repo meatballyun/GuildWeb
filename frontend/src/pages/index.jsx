@@ -4,10 +4,10 @@ import Login from './login';
 import SignUp from './signup';
 import FoodRoute from './food';
 import { AuthLayout, MainLayout } from './_layout';
+import { SettingsPage } from './settings';
 import { ValidationPage } from './validation';
 
 function Pages() {
-  console.log(process.env.NODE_ENV);
   return (
     <Routes>
       <Route element={<AuthLayout />}>
@@ -17,6 +17,11 @@ function Pages() {
       </Route>
       <Route element={<MainLayout />}>
         <Route path="/" element={<HomePage />} />
+        <Route path="/settings" element={<SettingsPage key="base" />} />
+        <Route
+          path="/settings/edit"
+          element={<SettingsPage key="edit" editMode />}
+        />
         <Route path="/food/*" element={<FoodRoute />} />
       </Route>
     </Routes>
