@@ -1,7 +1,7 @@
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { COLORS } from '../../../styles';
-import { CircleImage } from '../../../components';
+import { Avatar } from '../../../components';
 import { classNames } from '../../../utils';
 
 const SummaryChart = ({ carbs, pro, fats }) => {
@@ -66,7 +66,7 @@ export const FoodBar = ({
         className
       )}
     >
-      <CircleImage size={28} url={imageUrl} />
+      <Avatar size={28} url={imageUrl} text={name} />
       <div className="flex flex-[2] justify-between gap-2">
         <div className="flex-1 text-primary-400">{name}</div>
         <div className="flex-1 text-primary-400">{unit}</div>

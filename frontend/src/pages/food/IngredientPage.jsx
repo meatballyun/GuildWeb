@@ -3,15 +3,17 @@ import { api } from '../../api';
 import { Paper } from '../_layout/components';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import {
-  BaseInput,
   Button,
   Form,
   useFormInstance,
   MaterialSymbol,
   ImageUploader,
+  Input,
 } from '../../components';
 import { Block, IngredientValue, NutritionalSummaryChart } from './components';
 import { TextArea } from '../../components/Form/TextArea';
+import { Link } from 'react-router-dom';
+import { classNames } from '../../utils';
 
 const PublicButton = ({ value, onChange }) => {
   if (value)
@@ -46,7 +48,7 @@ const ingredientDefaultValue = {
   description: '',
   image_url: '',
 };
-export const IngredientEditPage = () => {
+export const IngredientPage = ({ editMode = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -90,7 +92,7 @@ export const IngredientEditPage = () => {
       body: {
         ...formData,
         kcal: totalKcal,
-        id: params.id,
+        id: params.id === 'new' ? undefined : params.id,
       },
     });
     if (res.status === 200) {
@@ -103,35 +105,59 @@ export const IngredientEditPage = () => {
   if (!isFetched) return <Paper row>loading</Paper>;
 
   return (
-    <Form form={form} onSubmit>
-      <Paper row className="flex">
+    <Form form={form} disabled={!editMode}>
+      <Paper row className="flex gap-2">
         {/* left panel */}
         <div className="flex w-full flex-col items-center justify-center gap-2 p-2">
-          <div className="w-full border-b-2 border-b-primary-600 text-center text-heading-h1 text-primary-600">
+          <div className="w-full border-b-2 border-b-primary-600">
             <Form.Item valueKey="name">
-              <BaseInput
-                className="bg-primary-100 px-2 !text-center"
+              <Input
+                inputClassName="text-center text-heading-h1 text-primary-600"
                 placeholder="enter title..."
               />
             </Form.Item>
           </div>
-          <div className="m-1 flex w-full items-center overflow-hidden border-[20px] border-primary-200">
+          <div className="m-1 flex h-[50vh] w-full items-center overflow-hidden border-[20px] border-primary-200">
             <Form.Item valueKey="imageUrl" noStyle>
               <ImageUploader type="ingredient" />
             </Form.Item>
           </div>
+          {/* foot button */}
           <div className="flex justify-center gap-2">
-            <div className="border-r-2 border-r-primary-300 pr-2">
-              <Form.Item valueKey="public">
-                <PublicButton />
-              </Form.Item>
-            </div>
-            <Button onClick={() => navigate(-1)} type="hollow" size="md">
-              Cancel
-            </Button>
-            <Button size="md" onClick={handleSubmit}>
-              Save
-            </Button>
+            {editMode ? (
+              <>
+                <div className="border-r-2 border-r-primary-300 pr-2">
+                  <Form.Item valueKey="public" noStyle>
+                    <PublicButton />
+                  </Form.Item>
+                </div>
+                <Button onClick={() => navigate(-1)} type="hollow" size="md">
+                  Cancel
+                </Button>
+                <Button size="md" onClick={handleSubmit}>
+                  Save
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link to="/food/ingredient/edit/new" state={ingredientDetail}>
+                  <Button
+                    type="hollow"
+                    size="md"
+                    className="flex items-center gap-1"
+                  >
+                    <MaterialSymbol icon="file_copy" fill />
+                    Copy
+                  </Button>
+                </Link>
+                <Link to={`/food/ingredient/edit/${params.id}`}>
+                  <Button size="md" className="flex h-full items-center gap-1">
+                    <MaterialSymbol icon="edit" fill />
+                    Edit
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
 
@@ -140,10 +166,15 @@ export const IngredientEditPage = () => {
           <Block title="Ingredient" className="mb-2">
             <div className="flex items-center">
               <div className="w-full pr-2">
-                <div className="mb-2 mr-2 flex w-full justify-between rounded-sm bg-primary-200 px-4 py-1 text-paragraph-p2 text-primary-100">
+                <div className="mb-2 mr-2 flex w-full items-center rounded-sm bg-primary-200 px-4 py-2 text-paragraph-p2 text-primary-100">
                   <span className="mr-1">unit:</span>
-                  <Form.Item valueKey="unit">
-                    <BaseInput inputClassName="text-right" />
+                  <Form.Item valueKey="unit" noStyle>
+                    <Input
+                      inputClassName={classNames(
+                        'text-right',
+                        !editMode && 'text-primary-100'
+                      )}
+                    />
                   </Form.Item>
                 </div>
                 <NutritionalSummaryChart
@@ -189,10 +220,7 @@ export const IngredientEditPage = () => {
           </Block>
           <Block title="Description" className="flex-1">
             <Form.Item valueKey="description" noStyle>
-              <TextArea
-                placeholder="text something..."
-                className="h-full w-full resize-none bg-primary-100 p-2 text-paragraph-p3"
-              />
+              <TextArea placeholder="text something..." className="p-0" />
             </Form.Item>
           </Block>
         </div>

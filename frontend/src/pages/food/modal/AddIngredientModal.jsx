@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BaseInput, MaterialSymbol } from '../../../components';
+import { Input, MaterialSymbol } from '../../../components';
 import { Modal } from '../../../components/Modal';
 import { api } from '../../../api';
 import { FoodBar } from '../components';
@@ -23,7 +23,7 @@ export const AddIngredientModal = ({ onClose, ...props }) => {
     <Modal {...props} onClose={onClose} header="Add Ingredient">
       <div className="flex h-full w-full flex-col overflow-hidden">
         <div className="flex w-full rounded-md border border-primary-500 py-1 pl-3 pr-2 text-paragraph-p2 text-primary-500">
-          <BaseInput
+          <Input
             value={search}
             onChange={setSearch}
             className="w-full"

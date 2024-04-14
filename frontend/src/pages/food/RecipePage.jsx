@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../api';
 import { Paper } from '../_layout/components';
-import { useNavigate, useParams } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router';
 import {
-  BaseInput,
   Button,
   Form,
   useFormInstance,
   ImageUploader,
   MaterialSymbol,
+  Input,
 } from '../../components';
 import {
   Block,
@@ -20,8 +20,9 @@ import {
 import { TextArea } from '../../components/Form/TextArea';
 import { getNutritionSum } from '../../utils';
 import { AddIngredientModal } from './modal';
+import { Link } from 'react-router-dom';
 
-const IngredientList = ({ value: valueProp = [], onChange }) => {
+const IngredientList = ({ value: valueProp = [], disabled, onChange }) => {
   const handleCountChange = (id, value) => {
     const newValue = [...valueProp];
     const valueIndex = newValue.findIndex((val) => val.id === id);
@@ -35,13 +36,17 @@ const IngredientList = ({ value: valueProp = [], onChange }) => {
       <FoodBar
         {...ingredient}
         showChart={false}
+        key={id}
         id={id}
         amount={
-          <BaseInput
-            className="rounded-sm bg-white pl-1"
-            value={amount}
-            onChange={(value) => handleCountChange(id, value)}
-          />
+          disabled ? (
+            amount
+          ) : (
+            <Input
+              value={amount}
+              onChange={(value) => handleCountChange(id, value)}
+            />
+          )
         }
         suffix={
           <MaterialSymbol
@@ -53,15 +58,20 @@ const IngredientList = ({ value: valueProp = [], onChange }) => {
     ));
 };
 
-export const RecipeEditPage = () => {
+export const RecipePage = ({ editMode }) => {
   const navigate = useNavigate();
   const params = useParams();
   const [openModal, setOpenModal] = useState(false);
-  const [recipeDetail, setRecipeDetail] = useState({
-    unit: '100 g',
-    description: '',
-    public: false,
-  });
+  const location = useLocation();
+  const [recipeDetail, setRecipeDetail] = useState(
+    location.state
+      ? { ...location.state, name: `${location.state.name}-copy` }
+      : {
+          unit: '100 g',
+          description: '',
+          public: false,
+        }
+  );
   const [isFetched, setIsFetched] = useState(false);
   const form = useFormInstance({ defaultValue: recipeDetail });
   const { formData, handleInputChange } = form;
@@ -125,21 +135,21 @@ export const RecipeEditPage = () => {
 
   return (
     <>
-      <Form form={form} onSubmit>
-        <Paper row className="flex">
+      <Form form={form} onSubmit disabled={!editMode}>
+        <Paper row className="flex gap-2">
           {/* left panel */}
           <div className="flex w-full flex-col items-center justify-center gap-2 p-2">
             <div className="w-full border-b-2 border-b-primary-600 text-center text-heading-h1 text-primary-600">
               <Form.Item valueKey="name">
-                <BaseInput
-                  className="bg-primary-100 px-2 !text-center"
+                <Input
+                  inputClassName="text-center text-heading-h1 text-primary-600"
                   placeholder="enter title..."
                 />
               </Form.Item>
             </div>
-            <div className="m-1 flex w-full items-center overflow-hidden border-[20px] border-primary-200">
+            <div className="m-1 flex h-[50vh] w-full items-center overflow-hidden border-[20px] border-primary-200">
               <Form.Item valueKey="imageUrl" noStyle>
-                <ImageUploader type="recipe" />
+                <ImageUploader type="ingredient" />
               </Form.Item>
             </div>
             <div className="flex gap-2">
@@ -182,22 +192,48 @@ export const RecipeEditPage = () => {
                   Unit:
                 </div>
                 <Form.Item valueKey="unit">
-                  <BaseInput className=" w-24 rounded-sm bg-primary-100 px-2" />
+                  <Input className="w-24" />
                 </Form.Item>
               </div>
             </div>
             <div className="flex justify-center gap-2">
-              <div className="border-r-2 border-r-primary-300 pr-2">
-                <Form.Item valueKey="public">
-                  <PublicButton />
-                </Form.Item>
-              </div>
-              <Button onClick={() => navigate(-1)} type="hollow" size="md">
-                Cancel
-              </Button>
-              <Button size="md" onClick={handleSubmit}>
-                Save
-              </Button>
+              {editMode ? (
+                <>
+                  <div className="border-r-2 border-r-primary-300 pr-2">
+                    <Form.Item valueKey="public" noStyle>
+                      <PublicButton />
+                    </Form.Item>
+                  </div>
+                  <Button onClick={() => navigate(-1)} type="hollow" size="md">
+                    Cancel
+                  </Button>
+                  <Button size="md" onClick={handleSubmit}>
+                    Save
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/food/recipe/edit/new" state={recipeDetail}>
+                    <Button
+                      type="hollow"
+                      size="md"
+                      className="flex items-center gap-1"
+                    >
+                      <MaterialSymbol icon="file_copy" fill />
+                      Copy
+                    </Button>
+                  </Link>
+                  <Link to={`/food/recipe/edit/${params.id}`}>
+                    <Button
+                      size="md"
+                      className="flex h-full items-center gap-1"
+                    >
+                      <MaterialSymbol icon="edit" fill />
+                      Edit
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
 
@@ -206,29 +242,28 @@ export const RecipeEditPage = () => {
             <Block
               title={
                 <div>
-                  Ingredient{' '}
-                  <Button
-                    className="float-right"
-                    onClick={() => setOpenModal(true)}
-                  >
-                    + Add
-                  </Button>
+                  Ingredient
+                  {editMode && (
+                    <Button
+                      className="float-right"
+                      onClick={() => setOpenModal(true)}
+                    >
+                      + Add
+                    </Button>
+                  )}
                 </div>
               }
               className="mb-2 flex-1"
             >
-              <div className="flex  flex-col items-center gap-1">
-                <Form.Item valueKey="ingredients">
+              <div className="flex w-full flex-col items-center gap-1">
+                <Form.Item valueKey="ingredients" noStyle>
                   <IngredientList />
                 </Form.Item>
               </div>
             </Block>
-            <Block title="Description" className="flex-1">
+            <Block title="Description" className="flex flex-1">
               <Form.Item valueKey="description" noStyle>
-                <TextArea
-                  placeholder="text something..."
-                  className="h-full w-full resize-none bg-primary-100 p-2 text-paragraph-p3"
-                />
+                <TextArea placeholder="text something..." className="p-0" />
               </Form.Item>
             </Block>
           </div>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../api';
 import { FoodBar } from './components';
-import { BaseInput, Button, MaterialSymbol } from '../../components';
+import { Button, Input, MaterialSymbol } from '../../components';
 import { Paper } from '../_layout/components';
 import { Link } from 'react-router-dom';
 
@@ -42,7 +42,8 @@ export const FoodListPage = ({ title }) => {
       <div className="mb-4 text-heading-h1 text-primary-500">{title}</div>
       <div className="mb-4 flex w-full justify-between">
         <div className="flex w-full max-w-72 rounded-full border border-primary-500 py-1 pl-3 pr-2 text-paragraph-p2 text-primary-500">
-          <BaseInput
+          <Input
+            noFill
             value={search}
             onChange={setSearch}
             className="w-full"
