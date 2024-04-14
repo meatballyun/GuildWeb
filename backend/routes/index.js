@@ -57,7 +57,7 @@ router.post('/api/signup', signUpController.signup);
 
 //user
 router.get('/api/user/me', passport.authenticate('jwt', { session: true }), userInfoController.getUserInfoByUserId);
-router.put('/api/user/setting', passport.authenticate('jwt', { session: true }));
+router.put('/api/user/me', passport.authenticate('jwt', { session: true }), userInfoController.updateUserTarget);
 
 //upload
 router.post('/api/upload/image', passport.authenticate('jwt', { session: true }), imageController.saveImage);

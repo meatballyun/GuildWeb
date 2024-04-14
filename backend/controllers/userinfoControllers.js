@@ -2,21 +2,25 @@ const User = require('../models/userModel');
 class UserInfoController {
     async getUserInfoByUserId(req, res) {        
         try {
-            const USERID = req.session.passport.user;
-            const userinfo = await User.getUserById(USERID);
-            if (userinfo?.[0]) {
-                const { NAME, ID, IMAGE_URL, RANK, EXP } = userinfo[0];
-                const upgradeExp = (RANK ** 2) * 10;
+            const ID = req.session.passport.user;
+            const [ userinfo ] = await User.getUserById(ID);
+            if (userinfo) {
+                const upgradeExp = (userinfo.RANK ** 2) * 10;
                 res.status(200).json({
                     success: true,
                     message: "User data retrieval successful",
                     data: {
-                        name: NAME,
-                        id: ID,
-                        imageUrl: IMAGE_URL,
-                        rank: RANK,
-                        exp: EXP,
-                        upgradeExp: upgradeExp
+                        name: userinfo.NAME,
+                        id: userinfo.ID,
+                        email: userinfo.EMAIL,
+                        imageUrl: userinfo.IMAGE_URL,
+                        rank: userinfo.RANK,
+                        exp: userinfo.EXP,
+                        upgradeExp: upgradeExp,
+                        carbs: userinfo.CARBS,
+                        pro: userinfo.PRO,
+                        fats: userinfo.FATS,
+                        kcal: userinfo.KCAL
                     }                    
                 });
             }
@@ -39,10 +43,27 @@ class UserInfoController {
     async updateUserTarget(req, res) {        
         try {
             const ID = req.session.passport.user;
-            await User.updateUserTarget(ID, req.body.carbs, req.body.pro, req.body.fats, req.body.kcal);
-            
-        } catch (error) {
-            console.log('getUserInfoByUserId Error!!!');
+            const query =  await User.updateUserInfo(ID, req.body.name, req.body.imageUrl, req.body.carbs, req.body.pro, req.body.fats, req.body.kcal);
+            if (query.affectedRows) {
+                return res.status(200).json({
+                    success: true,
+                    message: "Data updated successfully.",
+                    data: "OK"
+                });
+            } else{
+                return res.status(404).json({
+                    success: false,
+                    message: "The requested resource was not found.",
+                    data: "Not Found"
+                });                
+            }
+        } catch (error) {            
+            console.log(error);
+            res.status(400).json({
+                success: false,
+                message: "Bad Request: The request cannot be processed due to invalid information.",
+                data: "Bad Request"
+            });
         }
     }
 
