@@ -4,10 +4,10 @@
 
 @layer components {
   .input_container {
-    @apply relative;
-  }
-  .input_container input {
     @apply w-full border-none text-primary-400 outline-none placeholder:text-primary-300;
     background: transparent;
+  }
+  .textArea_container {
+    @apply h-full resize-none p-2;
   }
 }

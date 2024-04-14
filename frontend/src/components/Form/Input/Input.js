@@ -1,34 +1,42 @@
 import { classNames } from '../../../utils';
-import { MaterialSymbol } from '../../MaterialSymbol';
 import { BaseInput } from './BaseInput';
-import './styles.css';
 
 export const Input = ({
   label,
   value,
   onChange,
+  error = false,
+  noFill = false,
+  disabled,
   type,
-  error,
+  inputType,
   className: classNameProp,
+  inputClassName,
+  placeholder,
   ...props
 }) => {
   return (
     <div
       {...props}
       className={classNames(
-        'border-b border-b-currentColor text-paragraph-p2',
+        'text-paragraph-p2',
         classNameProp,
+        type === 'underline' && 'border-b border-primary-500 pb-1',
         error && 'text-red'
       )}
     >
-      <div className="-ml-2 mb-2 text-heading-h5">{label}</div>
-      <BaseInput type={type} value={value} onChange={onChange} />
-      {typeof error === 'string' && (
-        <div className="absolute top-full flex items-center text-sm">
-          <MaterialSymbol icon="warning" size={14} className="mr-1" fill />
-          {error}
-        </div>
-      )}
+      <BaseInput
+        className={classNames(
+          inputClassName,
+          'rounded-sm px-2',
+          !disabled && !noFill && 'bg-primary-100'
+        )}
+        placeholder={placeholder}
+        type={inputType}
+        value={value}
+        onChange={onChange}
+        disabled={disabled}
+      />
     </div>
   );
 };

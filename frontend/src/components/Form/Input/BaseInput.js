@@ -1,5 +1,5 @@
 import { classNames } from '../../../utils';
-import './styles.css';
+import '../styles.css';
 
 export const BaseInput = ({
   onChange,
@@ -9,13 +9,11 @@ export const BaseInput = ({
   ...props
 }) => {
   return (
-    <div className={classNames('input_container', className)}>
-      <input
-        {...props}
-        className={inputClassName}
-        value={value ?? ''}
-        onChange={(e) => onChange?.(e.target.value)}
-      />
-    </div>
+    <input
+      {...props}
+      className={classNames('input_container', className)}
+      value={value ?? ''}
+      onChange={(e) => onChange?.(e.target.value)}
+    />
   );
 };

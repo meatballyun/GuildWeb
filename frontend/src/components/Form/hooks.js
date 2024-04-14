@@ -7,7 +7,7 @@ export const useForm = () => {
   return { formData, handleInputChange };
 };
 
-export const useFormInstance = ({ defaultValue }) => {
+export const useFormInstance = ({ defaultValue } = {}) => {
   const [formData, setFormData] = useState(defaultValue ?? {});
   useEffect(() => {
     setFormData(defaultValue ?? {});

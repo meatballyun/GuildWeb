@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import './styles.css';
-import { BaseInput } from '../Form';
+import { Input } from '../Form';
 import { MaterialSymbol } from '../MaterialSymbol';
 
 const extractTextFromChildren = (label) => {
@@ -18,13 +18,18 @@ export const DropdownSelect = ({
   placeholder,
   renderValue,
   value: valueProp,
+  disabled,
   onChange: onChangeProp,
 }) => {
+  const inputRef = useRef();
+  const dropdownRef = useRef();
+
   const [searchValue, setSearchValue] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(valueProp);
   const currentValue = valueProp ?? selectedOption;
   const onChange = onChangeProp ?? setSelectedOption;
+
   useEffect(() => {
     setSelectedOption(valueProp);
   }, [valueProp]);
@@ -50,13 +55,26 @@ export const DropdownSelect = ({
     });
   }, [options, searchValue]);
 
+  useEffect(() => {
+    const clickHandler = (e) => {
+      if (!e.target.contains(inputRef.current)) return;
+      setIsOpen(false);
+    };
+    window.addEventListener('click', clickHandler);
+    return () => {
+      window.removeEventListener('click', clickHandler);
+    };
+  });
+
   return (
-    <div className="dropdown-select">
+    <div className="dropdown-select" ref={inputRef}>
       <div
         className="dropdown-select__selected flex text-paragraph-p3"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
       >
-        <BaseInput
+        <Input
+          noFill
+          disabled={disabled}
           value={isOpen ? searchValue : selectValue}
           placeholder={placeholder}
           onChange={setSearchValue}
@@ -65,7 +83,7 @@ export const DropdownSelect = ({
         <MaterialSymbol icon="arrow_drop_down" size={24} />
       </div>
       {isOpen && (
-        <div className="dropdown-select__options">
+        <div className="dropdown-select__options" ref={dropdownRef}>
           {filterOptions.map(({ value, label }) => (
             <div
               key={value}
