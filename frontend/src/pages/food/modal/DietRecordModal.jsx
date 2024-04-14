@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import {
-  BaseInput,
   Button,
   DatePicker,
   DropdownSelect,
   Form,
+  Input,
   MaterialSymbol,
   useFormInstance,
 } from '../../../components';
@@ -38,7 +38,6 @@ export const DietRecordModal = ({
   }, [search]);
 
   useEffect(() => {
-    console.log(value);
     form.setFormData(value ?? {});
   }, [value, isOpen]);
 
@@ -97,7 +96,10 @@ export const DietRecordModal = ({
               className="text-primary-500"
             />
             <Form.Item valueKey="amount" label="Amount" className="w-1/2">
-              <BaseInput className="border-b px-2 py-1 text-paragraph-p3" />
+              <Input
+                type="underline"
+                className="border-b px-2 py-1 text-paragraph-p3"
+              />
             </Form.Item>
           </div>
         </div>

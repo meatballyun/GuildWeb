@@ -1,16 +1,14 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api';
-import { Button, Input } from '../components';
+import { Button, Form, Input, useFormInstance } from '../components';
+import { Paper } from './_layout/components';
 
 function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const form = useFormInstance();
   const navigate = useNavigate();
 
   const handleLogin = async () => {
-    console.log('email: ', email, '\npassword: ', password);
-    const res = await api.auth.login({ email, password });
+    const res = await api.auth.login({ body: form.formData });
     if (res.status === 200) {
       const json = await res.json();
       localStorage.setItem('token', json.data.token);
@@ -19,23 +17,24 @@ function Login() {
   };
 
   return (
-    <>
+    <Paper className="flex h-[720px] w-[600px] flex-col items-center justify-center">
       <div className="mb-8 text-center text-heading-h1">
         Welcome back, Adventurer!
       </div>
-      <div className="flex w-[240px] flex-col gap-4">
-        <Input label="email" value={email} onChange={setEmail} />
-        <Input
-          label="password"
-          type="password"
-          value={password}
-          onChange={setPassword}
-        />
-      </div>
+      <Form form={form}>
+        <div className="flex w-[240px] flex-col gap-4">
+          <Form.Item valueKey="email" label="E-MAIL">
+            <Input type="underline" />
+          </Form.Item>
+          <Form.Item valueKey="password" label="PASSWORD">
+            <Input type="underline" inputType="password" />
+          </Form.Item>
+        </div>
+      </Form>
       <Button size="lg mt-12" onClick={handleLogin}>
         Enter the Realm
       </Button>
-    </>
+    </Paper>
   );
 }
 

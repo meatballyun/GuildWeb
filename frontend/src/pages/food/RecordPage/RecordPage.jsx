@@ -23,7 +23,7 @@ const Category = ({ category }) => {
   ) ?? { label: 'uncategorized', color: '#555' };
   return (
     <div
-      className="rounded-sm px-2 py-1 text-heading-h5 text-white"
+      className="sticky top-0 rounded-sm px-2 py-1 text-heading-h5 text-white"
       style={{ backgroundColor: color }}
     >
       {label}
@@ -74,7 +74,7 @@ export const RecordPage = () => {
 
   return (
     <>
-      <Paper row>
+      <Paper className="flex flex-col" row>
         <div className="flex w-full items-center justify-center">
           <NutritionalSummaryChart
             size={240}
@@ -109,7 +109,7 @@ export const RecordPage = () => {
             + Add DietRecord
           </Button>
         </div>
-        <div className="mt-4 flex w-full flex-grow flex-col gap-2">
+        <div className="mt-4 flex w-full flex-grow flex-col gap-2 overflow-auto">
           {CATEGORIES.map(({ value: category }) => {
             const foodList = foolGroupByCategory?.[category];
             if (!foodList?.length) return null;

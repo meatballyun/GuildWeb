@@ -1,4 +1,4 @@
-import { BaseInput } from '../../../components';
+import { Input } from '../../../components';
 import { classNames } from '../../../utils';
 
 export const IngredientValue = ({
@@ -8,6 +8,7 @@ export const IngredientValue = ({
   multiple,
   total,
   onChange,
+  disabled,
 }) => {
   const className = (() => {
     switch (color) {
@@ -30,15 +31,11 @@ export const IngredientValue = ({
       >
         {title}
       </div>
-      <div className="ml-2 mt-2 flex w-full justify-between border-b-2 px-2 text-paragraph-p1">
+      <div className="ml-2 mt-2 flex w-full justify-between border-b-2 text-paragraph-p1">
         {onChange ? (
-          <BaseInput
-            className="bg-primary-100"
-            value={value}
-            onChange={onChange}
-          />
+          <Input value={value} onChange={onChange} disabled={disabled} />
         ) : (
-          value
+          <span className="px-2">{value}</span>
         )}
         <span className={className.text}>g</span>
       </div>
