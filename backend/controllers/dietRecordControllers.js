@@ -1,5 +1,6 @@
 const DietRecord = require('../models/dietRecordModel.js');
 const Recipe = require('../models/recipeModel.js');
+const User = require('../models/userModel');
 
 const UserInfoController = require('./userinfoControllers');
 const userInfoController = new UserInfoController();
@@ -38,7 +39,8 @@ class DietRecordController {
     
     async getDietRecord(req, res) {
         try {
-            const CREATOR = req.session.passport.user;  
+            const CREATOR = req.session.passport.user;
+            const [ userinfo ] = await User.getUserById(CREATOR);
             const query = await DietRecord.getDietRecord(CREATOR, req.query.date);
             if(query?.length){
                 const dietRecords = await Promise.all(query.map(async (rows) => {
@@ -62,10 +64,10 @@ class DietRecordController {
                 }));
                 const data = {
                     target: {
-                        carbs: 320,
-                        pro: 60,
-                        fats: 55,
-                        kcal: 2000,
+                        carbs: userinfo.CARBS,
+                        pro: userinfo.PRO,
+                        fats: userinfo.FATS,
+                        kcal: userinfo.KCAL,
                     },
                     foods: dietRecords,
                 }
@@ -79,10 +81,10 @@ class DietRecordController {
             } else {
                 const data = {
                     target: {
-                      carbs: 320,
-                      pro: 60,
-                      fats: 55,
-                      kcal: 2000,
+                        carbs: userinfo.CARBS,
+                        pro: userinfo.PRO,
+                        fats: userinfo.FATS,
+                        kcal: userinfo.KCAL,
                     },
                     foods: [],
                 };
