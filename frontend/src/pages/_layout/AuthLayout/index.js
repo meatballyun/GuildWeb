@@ -14,15 +14,15 @@ export const AuthLayout = () => {
 
   return (
     <div className="auth-layout-container">
-      <div className="panel">
-        <Outlet />
-      </div>
-      <Link to={hintContent.to}>
-        <div className="absolute right-0 bottom-0 p-4 bg-primary-100 text-lg">
-          <div className="whitespace-pre">{hintContent.text}</div>
-          <div className="text-right">→</div>
-        </div>
-      </Link>
+      <Outlet />
+      {['/signup', '/login'].includes(location.pathname) && (
+        <Link to={hintContent.to}>
+          <div className="absolute bottom-0 right-0 bg-primary-100 p-4 text-lg">
+            <div className="whitespace-pre">{hintContent.text}</div>
+            <div className="text-right">→</div>
+          </div>
+        </Link>
+      )}
     </div>
   );
 };
