@@ -24,7 +24,7 @@ passport.deserializeUser(function (id, done) {
 })
 
 const jwtStrategy = new JwtStrategy({
-    secretOrKey: jwtConfig.secret,
+    secretOrKey: process.env.JWT_SECRET,
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
 }, function (payload, done) {
     const query ='SELECT * FROM users WHERE EMAIL = ?';

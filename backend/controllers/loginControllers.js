@@ -24,11 +24,11 @@ class LogInController {
                     name: user.NAME,
                     iat: currentTimestamp,
                 };
-                const token = jwt.sign(payload, jwtConfig.secret , { expiresIn: '1d' });
-                res.status(200).json({
-                    "success": true,
-                    "message": "logged in",
-                    "data": {
+                        const token = jwt.sign(payload, process.env.JWT_SECRET , { expiresIn: '1d' });
+                        return res.status(200).json({
+                            success: true,
+                            message: "logged in",
+                            data: {
                       "token": token
                     }
                   });
