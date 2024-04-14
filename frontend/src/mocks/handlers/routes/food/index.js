@@ -15,7 +15,7 @@ export const food = [
     const date = request.url.searchParams.get('date');
     if (!date)
       new HttpResponse.json({ message: 'date required' }, { status: 403 });
-    return new HttpResponse.json(RECIPE);
+    return new HttpResponse.json({ data: RECIPE });
   }),
   http.get(`${BASE_URL}/dietRecords`, async () => {
     return HttpResponse.json(DAILY_FOOD);
@@ -32,15 +32,14 @@ export const food = [
     });
   }),
   http.get(`${BASE_URL}/ingredient/:id`, async ({ params }) => {
-    // console.log(params.id);
     await delay(300);
     return HttpResponse.json({ data: INGREDIENT });
   }),
   http.post(`${BASE_URL}/ingredient`, async () => {
-    return HttpResponse.json({ newId: 23 });
+    return HttpResponse.json({ id: 23 });
   }),
   http.put(`${BASE_URL}/ingredient`, async () => {
-    return HttpResponse.json({ editId: 23 });
+    return new HttpResponse(null, { status: 200 });
   }),
 
   /* ------------ recipe ------------ */
@@ -55,14 +54,13 @@ export const food = [
     });
   }),
   http.get(`${BASE_URL}/recipe/:id`, async ({ params }) => {
-    // console.log(params.id);
     await delay(300);
     return HttpResponse.json({ data: RECIPE });
   }),
   http.post(`${BASE_URL}/recipe`, async () => {
-    return HttpResponse.json({ newId: 23 });
+    return HttpResponse.json({ id: 23 });
   }),
   http.put(`${BASE_URL}/recipe`, async () => {
-    return HttpResponse.json({ editId: 23 });
+    return new HttpResponse(null, { status: 200 });
   }),
 ];
