@@ -1,7 +1,7 @@
 import { BASE_API_URL } from './constants';
 import { fetchJson } from './utils';
 
-export const login = (body) =>
+export const login = ({ body }) =>
   fetchJson({ url: `${BASE_API_URL}/login`, method: 'POST', body });
 
 export const logout = () =>
@@ -14,8 +14,21 @@ export const checkAuth = (token) =>
     headers: { Authorization: `Bearer ${token}` },
   });
 
-export const signUp = (body) =>
-  fetchJson({ url: `${BASE_API_URL}/signup`, method: 'POST', body });
+export const signUp = ({ body }) =>
+  fetchJson({
+    url: `${BASE_API_URL}/signup`,
+    method: 'POST',
+    body,
+  });
+
+export const signUpValidation = ({ pathParams }) =>
+  fetchJson({
+    url: `${BASE_API_URL}/signup?${pathParams}`,
+    method: 'GET',
+  });
 
 export const getUserMe = () =>
   fetchJson({ url: `${BASE_API_URL}/user/me`, method: 'GET' });
+
+export const editUserSetting = ({ body }) =>
+  fetchJson({ url: `${BASE_API_URL}/user/me`, method: 'PUT', body });
