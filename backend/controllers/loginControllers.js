@@ -1,6 +1,5 @@
 const passport = require('../verification/passport');
 const jwt = require('jsonwebtoken');
-const User = require('../models/userModel');
 
 class LogInController {
     async login(req, res, next) {

@@ -25,6 +25,18 @@ class UserModel {
 		});
 	};
 
+	static getUserByName(NAME) {
+		return new Promise((resolve, reject) => {
+			connection.query('SELECT * FROM users WHERE NAME = ?', NAME, function (err, rows) {
+				if (err) {
+					reject(err);
+				} else {
+					resolve(rows);
+				}
+			});
+		});
+	};
+
 	static getUserByEmail(EMAIL) {
 		return new Promise((resolve, reject) => {
 			connection.query('SELECT * FROM users WHERE EMAIL = ?', EMAIL, function (err, num) {
