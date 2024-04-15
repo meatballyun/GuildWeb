@@ -3,7 +3,7 @@ const connection = require('../lib/db');
 class UserFriendModel {
   static addFriend(USER_ID, FRIEND_ID) {
 		return new Promise((resolve, reject) => {
-			connection.query('INSERT INTO userFriends (USER_ID, FRIEND_ID) VALUES (?,?,?)', [USER_ID, FRIEND_ID], function (err, rows) {
+			connection.query('INSERT INTO userFriends (USER_ID, FRIEND_ID) VALUES (?,?)', [USER_ID, FRIEND_ID], function (err, rows) {
 				if (err) {
 					reject(err);
 				} else {
@@ -13,21 +13,9 @@ class UserFriendModel {
 		});
 	}
 
-  static getFriend(USER_ID, STATUS) {
+  static getFriends(USER_ID) {
 		return new Promise((resolve, reject) => {
-			connection.query('SELECT FRIEND_ID FROM userFriends WHERE USER_ID = ? AND STATUS = ?', [USER_ID, STATUS], function (err, rows) {
-				if (err) {
-					reject(err);
-				} else {
-					resolve(rows);
-				}
-			});
-		});
-	}
-
-  static getStatus(USER_ID, FRIEND_ID) {
-		return new Promise((resolve, reject) => {
-			connection.query('SELECT STATUS FROM userFriends WHERE USER_ID = ? AND FRIEND_ID = ?', [USER_ID, FRIEND_ID], function (err, rows) {
+			connection.query(`SELECT u.ID, u.NAME, u.IMAGE_URL, u.RANK FROM users u INNER JOIN userFriends uf ON u.ID = uf.FRIEND_ID WHERE uf.USER_ID = ? AND STATUS = 'Confirmed'`, USER_ID, function (err, rows) {
 				if (err) {
 					reject(err);
 				} else {
