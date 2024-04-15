@@ -13,7 +13,7 @@ const UserListController = require('../controllers/userListControllers');
 const userListController = new UserListController();
 
 //router.get('/', passport.authenticate('jwt', { session: false }) );
-router.get('/checkAuth', userListController.getUsers);
+router.get('/checkAuth', userListController.sendInvitation);
 
 router.post('/login', logInController.login);
 
