@@ -4,14 +4,19 @@ const UserFriend = require('../models/userFriendModel');
 class UserListController {
   async getUsers(req, res) {     
     try {  
-        const query = await User.getUserByName(req.query.q);
+        const query = await User.getUserByName('User');
         if (query?.length){
-          const users = query.map(row =>({
-            id: row.ID,
-            name: row.NAME,
-            imageUrl: row.IMAGE_URL,
-            rank: row.RANK
-          }))
+          const users = await Promise.all( query.map( async (row) => {
+            const [ q ] = await UserFriend.getFriendStatus(2, row.ID);
+            return {
+              id: row.ID,
+              name: row.NAME,
+              imageUrl: row.IMAGE_URL,
+              rank: row.RANK,
+              status: q ? q.STATUS : 'none'
+            }
+            })
+          )
           return res.status(200).json({
             success: true,
             message: "User data retrieval successful",
@@ -37,21 +42,20 @@ class UserListController {
 
   async sendInvitation(req, res) {     
     try {  
-        const query = await UserFriend.addFriend(req.session.passport.user, req.body.userId);
-        if (query['insertId']){
-          return res.status(200).json({
-            success: true,
-            message: "User data retrieval successful",
-            data: "OK"
-          });
-        } else {
-          return res.status(404).json({
-            success: false,
-            message: "The requested resource was not found.",
-            data: "Not Found"
-          });
-        }
-        
+      const query = await UserFriend.addFriend(req.session.passport.user, req.body.userId);
+      if (query['insertId']){
+        return res.status(200).json({
+          success: true,
+          message: "User data retrieval successful",
+          data: "OK"
+        });
+      } else {
+        return res.status(404).json({
+          success: false,
+          message: "The requested resource was not found.",
+          data: "Not Found"
+        });
+      }        
     } catch (err) {
         return res.status(400).json({
           success: false,

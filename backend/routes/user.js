@@ -9,10 +9,10 @@ const userListController = new UserListController();
 router.get('/me', passport.authenticate('jwt', { session: true }), userInfoController.getUserInfoByUserId);
 router.put('/me', passport.authenticate('jwt', { session: true }), userInfoController.updateUserTarget);
 
-router.get('/', passport.authenticate('jwt', { session: true }), userListController.getUsers);
 router.post('/', passport.authenticate('jwt', { session: true }), userListController.sendInvitation);
+router.get('/', passport.authenticate('jwt', { session: true }), userListController.getUsers);
 
-router.post('/friend', passport.authenticate('jwt', { session: true }), userListController.updateFriends);
+router.put('/friend', passport.authenticate('jwt', { session: true }), userListController.updateFriends);
 router.get('/friend', passport.authenticate('jwt', { session: true }), userListController.getFriends);
 router.delete('/friend/:id', passport.authenticate('jwt', { session: true }), userListController.deleteFriend);
 

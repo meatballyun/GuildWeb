@@ -27,7 +27,7 @@ class UserModel {
 
 	static getUserByName(NAME) {
 		return new Promise((resolve, reject) => {
-			connection.query('SELECT * FROM users WHERE NAME = ?', NAME, function (err, rows) {
+			connection.query(`SELECT * FROM users WHERE NAME LIKE ?`, ['%'+NAME+'%'], function (err, rows) {
 				if (err) {
 					reject(err);
 				} else {
