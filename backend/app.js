@@ -32,7 +32,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(cookieParser());
 
-app.use('/', routes);
+app.use('/api', routes);
 
 //404
 app.use((req, res, next) => {
