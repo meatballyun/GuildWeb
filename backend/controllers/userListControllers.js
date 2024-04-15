@@ -119,6 +119,33 @@ class UserListController {
     }
   }
 
+  async deleteFriend(req, res) {     
+    try {  
+        const query = await UserFriend.deleteFriend(req.session.passport.user, req.query.id);
+        console.log(query);
+        if (query.affectedRows){
+          return res.status(200).json({
+            success: true,
+            message: "UserFriend record successfully deleted.",
+            data: "OK"
+          });
+        } else {
+          return res.status(404).json({
+            success: false,
+            message: "The requested resource was not found.",
+            data: "Not Found"
+          });
+        }
+        
+    } catch (err) {
+        return res.status(400).json({
+          success: false,
+          message: "Bad Request: The request cannot be processed due to invalid information.",
+          data: "Bad Request"
+        });
+    }
+  }
+
 }
 
 module.exports = UserListController;

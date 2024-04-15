@@ -37,6 +37,18 @@ class UserFriendModel {
 		});
 	}
 
+  static deleteFriend(USER_ID, FRIEND_ID) {
+		return new Promise((resolve, reject) => {
+			connection.query('DELETE FROM userFriends WHERE USER_ID = ? AND FRIEND_ID = ?', [USER_ID, FRIEND_ID], function (err, rows) {
+				if (err) {
+					reject(err);
+				} else {
+					resolve(rows);
+				}
+			});
+		});
+	}
+
 };
 
 module.exports = UserFriendModel;

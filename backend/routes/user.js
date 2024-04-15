@@ -14,5 +14,6 @@ router.post('/', passport.authenticate('jwt', { session: true }), userListContro
 
 router.post('/friend', passport.authenticate('jwt', { session: true }), userListController.updateFriends);
 router.get('/friend', passport.authenticate('jwt', { session: true }), userListController.getFriends);
+router.delete('/friend/:id', passport.authenticate('jwt', { session: true }), userListController.deleteFriend);
 
 module.exports = router;
