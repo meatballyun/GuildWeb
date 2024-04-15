@@ -14,12 +14,12 @@ const transporter = nodemailer.createTransport({
 
 const mailOptions = (EMAIL, ID, CODE) => ({
   from: process.env.MAIL_USER,
-  to: EMAIL,
+  to: 'rex.rex022534@gmail.com',
   subject: 'Hello User',
   html: `
         <p>This email sincerely invites you to join Guild.</p>
         <p>Brave adventurers, please activate the magic emblem below to join our ranks.</p>
-        <a href="http://192.168.1.120:3000/validation?id=${ID}&code=${CODE}" style="padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Verify Email</a>
+        <a href="${process.env.FE_URL}/validation?id=${ID}&code=${CODE}" style="padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Verify Email</a>
         <p>(If you did not request this verification, please ignore this email.)</p>
     `
 })

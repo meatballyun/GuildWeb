@@ -9,8 +9,11 @@ const passport = require('../verification/passport');
 const LogInController = require('../controllers/loginControllers');
 const logInController = new LogInController();
 
+const UserListController = require('../controllers/userListControllers');
+const userListController = new UserListController();
+
 //router.get('/', passport.authenticate('jwt', { session: false }) );
-//router.get('/checkAuth', userInfoController.getUsers);
+router.get('/checkAuth', userListController.getUsers);
 
 router.post('/login', logInController.login);
 
