@@ -14,7 +14,7 @@ const GuildController = require('../controllers/guildControllers');
 const guildController = new GuildController();
 
 //router.get('/', passport.authenticate('jwt', { session: false }) );
-router.get('/checkAuth', guildController.updateGuild);
+router.get('/checkAuth', guildController.getGuilds);
 
 router.post('/login', logInController.login);
 

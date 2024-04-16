@@ -7,5 +7,6 @@ const guildController = new GuildController();
 
 router.post('/', passport.authenticate('jwt', { session: true }), guildController.addGuild);
 router.put('/', passport.authenticate('jwt', { session: true }), guildController.updateGuild);
+router.get('/', passport.authenticate('jwt', { session: true }), guildController.getGuilds);
 
 module.exports = router;

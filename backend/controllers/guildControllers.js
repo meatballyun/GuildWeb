@@ -57,6 +57,34 @@ class GuildController {
     }
   }
 
+  async getGuilds(req, res) {
+    try {     
+      const query = (req.query.q) ? await Guild.getGuildsByLeaderAndName(req.session.passport.user, req.query.q) : await Guild.getGuildsByLeader(req.session.passport.user);
+      if (query?.length){
+        const guilds = query.map( row => ({
+          id: row.ID,
+          name: row.NAME,
+          imageUrl: row.IMAGE_URL
+        }))
+        console.log(guilds);
+        return res.status(200).json({
+            success: true,
+            message: "Data retrieval successfully.",
+            data: guilds
+        });
+      }
+    } catch (err) {
+      console.log(err);
+      return res.status(400).json(
+          {
+          success: false,
+          message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
+          data: "Bad Request"
+        }
+      );
+    }
+  }
+
 }
 
 module.exports = GuildController;
