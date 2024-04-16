@@ -20,6 +20,7 @@ import { TextArea } from '../../components/Form/TextArea';
 import { getNutritionSum } from '../../utils';
 import { AddIngredientModal } from './modal';
 import { Link } from 'react-router-dom';
+import { useSideBar } from '../_layout/MainLayout/SideBar';
 
 const IngredientList = ({ value: valueProp = [], disabled, onChange }) => {
   const handleCountChange = (id, value) => {
@@ -58,6 +59,7 @@ const IngredientList = ({ value: valueProp = [], disabled, onChange }) => {
 };
 
 export const RecipePage = ({ editMode }) => {
+  useSideBar({ activeKey: ['food', 'recipe'] });
   const navigate = useNavigate();
   const params = useParams();
   const [openModal, setOpenModal] = useState(false);

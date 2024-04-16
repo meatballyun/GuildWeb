@@ -5,8 +5,10 @@ import { api } from '../../api';
 import { Link } from 'react-router-dom';
 import { UserItem } from './UserItem';
 import { UserDetailBlock } from './UserDetailBlock';
+import { useSideBar } from '../_layout/MainLayout/SideBar';
 
 export const UsersPage = ({ friendsMode = false }) => {
+  useSideBar({ activeKey: 'friends' });
   const [friendList, setFriendList] = useState([]);
   const [search, setSearch] = useState('');
   const [isFetched, setIsFetched] = useState(false);

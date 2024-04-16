@@ -9,6 +9,7 @@ import { Paper } from '../../_layout/components';
 import { DietRecordModal } from '../modal';
 import { Button, DatePicker, MaterialSymbol } from '../../../components';
 import { formateDate, getNutritionSum } from '../../../utils';
+import { useSideBar } from '../../_layout/MainLayout/SideBar';
 
 const calories = [
   { key: 'carbs', text: 'Carbs.', color: FOOD_COLOR.carbs },
@@ -32,6 +33,7 @@ const Category = ({ category }) => {
 };
 
 export const RecordPage = () => {
+  useSideBar({ activeKey: ['food', 'record'] });
   const [date, setDate] = useState(new Date());
   const [isFetched, setIsFetched] = useState(false);
   const [dailyFood, setDailyFood] = useState();

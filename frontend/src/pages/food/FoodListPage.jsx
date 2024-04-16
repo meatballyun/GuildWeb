@@ -4,8 +4,10 @@ import { FoodBar } from './components';
 import { Button, Input, MaterialSymbol } from '../../components';
 import { Paper } from '../_layout/components';
 import { Link } from 'react-router-dom';
+import { useSideBar } from '../_layout/MainLayout/SideBar';
 
 export const FoodListPage = ({ title }) => {
+  useSideBar({ activeKey: ['food', title.toLowerCase()] });
   const [foodList, setFoodList] = useState();
   const [search, setSearch] = useState('');
   const [isFetched, setIsFetched] = useState(false);

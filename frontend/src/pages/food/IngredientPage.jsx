@@ -14,6 +14,7 @@ import { IngredientValue, NutritionalSummaryChart } from './components';
 import { TextArea } from '../../components/Form/TextArea';
 import { Link } from 'react-router-dom';
 import { classNames } from '../../utils';
+import { useSideBar } from '../_layout/MainLayout/SideBar';
 
 const PublicButton = ({ value, onChange }) => {
   if (value)
@@ -49,6 +50,7 @@ const ingredientDefaultValue = {
   image_url: '',
 };
 export const IngredientPage = ({ editMode = false }) => {
+  useSideBar({ activeKey: ['food', 'ingredient'] });
   const navigate = useNavigate();
   const location = useLocation();
 
