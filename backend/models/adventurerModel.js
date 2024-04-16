@@ -13,6 +13,8 @@ class AdventurerModel {
     });
   }
 
+  
+
 }
 
 module.exports = AdventurerModel;

@@ -26,6 +26,30 @@ class RepetitiveTaskModel {
     });
   }
 
+  static getRepetitiveTask(TASK_ID) {
+    return new Promise((resolve, reject) => {
+      connection.query('SELECT * FROM repetitiveTasks WHERE TASK_ID = ?', [TASK_ID], function (err, rows) {
+        if (err) {
+            reject(err);
+        } else {
+            resolve(rows);
+        }
+      });
+    });
+  }
+
+  static updateRepetitiveTask(TASK_ID , GENERRATION_TIME, TYPE) {
+    return new Promise((resolve, reject) => {
+      connection.query('UPDATE repetitiveTasks SET GENERRATION_TIME = ?, TYPE = ? WHERE TASK_ID = ?', [GENERRATION_TIME, TYPE, TASK_ID], function (err, rows) {
+        if (err) {
+            reject(err);
+        } else {
+            resolve(rows);
+        }
+      });
+    });
+  }
+
 }
 
 module.exports = RepetitiveTaskModel;
