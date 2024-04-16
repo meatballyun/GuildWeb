@@ -6,5 +6,6 @@ const GuildController = require('../controllers/guildControllers');
 const guildController = new GuildController();
 
 router.post('/', passport.authenticate('jwt', { session: true }), guildController.addGuild);
+router.put('/', passport.authenticate('jwt', { session: true }), guildController.updateGuild);
 
 module.exports = router;
