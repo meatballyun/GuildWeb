@@ -37,6 +37,18 @@ class UserGuildRelationModel {
     });
   }
 
+  static deleteUserGuildRelations(USER_ID, GUILD_ID) {
+    return new Promise((resolve, reject) => {
+      connection.query('DELETE FROM userGuildRelations WHERE USER_ID = ? AND GUILD_ID = ? ', [USER_ID, GUILD_ID], function (err, rows) {
+        if (err) {
+            reject(err);
+        } else {
+            resolve(rows);
+        }
+      });
+    });
+  }
+
 }
 
 module.exports = UserGuildRelationModel;
