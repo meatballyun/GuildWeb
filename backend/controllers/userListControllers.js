@@ -7,15 +7,14 @@ class UserListController {
         const query = await User.getUserByName(req.query.q);
         if (query?.length){
           const users = await Promise.all( query.map( async (row) => {
-            const status = "None";
-            const [ query ] = await UserFriend.getFriendStatus(req.session.passport.user, row.ID);
-            if (query.STATUS === "Confirmed") status = "Confirmed";
-            else if (query.STATUS === "Pending") status = "Pending Response";
+            let status = "None";
+            const query = await UserFriend.getFriendStatus(req.session.passport.user, row.ID);
+            if (query[0]?.STATUS === "Confirmed") status = "Confirmed";
+            else if (query[0]?.STATUS === "Pending") status = "Pending Response";
             else {
-              const [ q ] = await UserFriend.getFriendStatus(row.ID, req.session.passport.user);
-              if (q.STATUS === "Pending") status = "Pending Confirmation";
+              const q = await UserFriend.getFriendStatus(row.ID, req.session.passport.user);
+              if (q[0]?.STATUS === "Pending") status = "Pending Confirmation";
             }
-
             return {
               id: row.ID,
               name: row.NAME,
@@ -39,6 +38,7 @@ class UserListController {
         }
         
     } catch (err) {
+      console.log(err);
         return res.status(400).json({
           success: false,
           message: "Bad Request: The request cannot be processed due to invalid information.",
@@ -50,7 +50,8 @@ class UserListController {
   async sendInvitation(req, res) {     
     try {  
       const query = await UserFriend.addFriend(req.session.passport.user, req.body.userId);
-      if (query['insertId']){
+      console.log(query);
+      if (query['affectedRows']){
         return res.status(200).json({
           success: true,
           message: "User data retrieval successful",
@@ -64,6 +65,7 @@ class UserListController {
         });
       }        
     } catch (err) {
+      console.log(err);
         return res.status(400).json({
           success: false,
           message: "Bad Request: The request cannot be processed due to invalid information.",
@@ -98,28 +100,28 @@ class UserListController {
   }
 
   async getFriends(req, res) {     
-    try {  
-        const query = req.query.q ? await User.getFriend(req.query.q) : await User.getFriend(req.session.passport.user);
-        if (query?.length){
-          const users = query.map(row =>({
-            id: row.ID,
-            name: row.NAME,
-            imageUrl: row.IMAGE_URL,
-            rank: row.RANK
-          }))
-          return res.status(200).json({
-            success: true,
-            message: "User data retrieval successful",
-            data: users
-          });
-        } else {
-          const users = [];
-          return res.status(200).json({
-            success: true,
-            message: "User data retrieval successful",
-            data: users
-          });
-        }
+    try { 
+      const query = req.query.q ? await UserFriend.getFriends(req.query.q) : await UserFriend.getFriends(req.session.passport.user);
+      if (query?.length){
+        const users = query.map(row =>({
+          id: row.ID,
+          name: row.NAME,
+          imageUrl: row.IMAGE_URL,
+          rank: row.RANK
+        }))
+        return res.status(200).json({
+          success: true,
+          message: "User data retrieval successful",
+          data: users
+        });
+      } else {
+        const users = [];
+        return res.status(200).json({
+          success: true,
+          message: "User data retrieval successful",
+          data: users
+        });
+      }
         
     } catch (err) {
         return res.status(400).json({
@@ -133,7 +135,6 @@ class UserListController {
   async deleteFriend(req, res) {     
     try {  
         const query = await UserFriend.deleteFriend(req.session.passport.user, req.query.id);
-        console.log(query);
         if (query.affectedRows){
           return res.status(200).json({
             success: true,

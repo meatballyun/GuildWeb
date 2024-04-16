@@ -20,7 +20,7 @@ const TaskController = require('../controllers/taskControllers');
 const taskController = new TaskController();
 
 //router.get('/', passport.authenticate('jwt', { session: false }) );
-router.get('/checkAuth', taskController.addTask);
+router.get('/checkAuth', taskController.updateTask);
 
 router.post('/login', logInController.login);
 
