@@ -5,6 +5,7 @@ const TaskController = require('../controllers/taskControllers');
 const taskController = new TaskController();
 
 router.post('/', passport.authenticate('jwt', { session: true }), taskController.addTask);
+router.put('/', passport.authenticate('jwt', { session: true }), taskController.updateTask);
 
 
 module.exports = router;

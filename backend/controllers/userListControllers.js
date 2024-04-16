@@ -112,14 +112,14 @@ class UserListController {
         return res.status(200).json({
           success: true,
           message: "User data retrieval successful",
-          data: users
+          data: users.filter((row)=>{ return req.session.passport.user !== row.id })
         });
       } else {
         const users = [];
         return res.status(200).json({
           success: true,
           message: "User data retrieval successful",
-          data: users
+          data: users.filter((row)=>{ return req.session.passport.user !== row.id })
         });
       }
         
