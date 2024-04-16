@@ -1,19 +1,20 @@
 const Guild = require('../models/guildModel');
-
+const UserGuildRelation = require('../models/userGuildRelationModel');
 
 class GuildController {
   async addGuild(req, res) {
     try {     
       const newGuild = await Guild.addGuild(req.session.passport.user, req.body.name, req.body.description, req.body.imageUrl, false);
       if (newGuild['insertId']){
-        return res.status(200).json(
-            {
-            "success": true,
-            "message": "Data uploaded successfully.",
-            "data": {
-                id: newGuild['insertId']
-            }
-        });
+        const newUserGuildRelation = await UserGuildRelation.addUserGuildRelation(req.session.passport.user, newGuild['insertId'], 'Master');
+        if (newUserGuildRelation['affectedRows']){
+          return res.status(200).json(
+              {
+              "success": true,
+              "message": "Data uploaded successfully.",
+              "data": "OK"
+          });
+        }
       }
     } catch (err) {
         return res.status(400).json(
@@ -43,7 +44,7 @@ class GuildController {
             message: "The requested resource was not found.",
             data: "Not Found"
         });                
-    }
+      }
 
     } catch (err) {
       console.log(err);
@@ -73,6 +74,30 @@ class GuildController {
             data: guilds
         });
       }
+    } catch (err) {
+      console.log(err);
+      return res.status(400).json(
+          {
+          success: false,
+          message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
+          data: "Bad Request"
+        }
+      );
+    }
+  }
+
+  async getGuildDetail(req, res) {
+    try {     
+      req.params.id = 2;
+      const [ guild ] = await Guild.getGuild(req.params.id);
+      console.log(guild);
+
+      return res.status(200).json({
+          success: true,
+          message: "Data retrieval successfully.",
+          data: guild
+      })
+      
     } catch (err) {
       console.log(err);
       return res.status(400).json(

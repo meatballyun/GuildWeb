@@ -24,7 +24,19 @@ class GuildModel {
       });
     });
   }
-
+  
+  static getGuild(ID) {
+    return new Promise((resolve, reject) => {
+      connection.query('SELECT * FROM guilds WHERE ID = ?', [ID], function (err, rows) {
+        if (err) {
+            reject(err);
+        } else {
+            resolve(rows);
+        }
+      });
+    });
+  }
+  
   static getGuildsByLeader(LEADER_ID) {
     return new Promise((resolve, reject) => {
       connection.query('SELECT * FROM guilds WHERE LEADER_ID = ?', [LEADER_ID], function (err, rows) {
@@ -48,6 +60,7 @@ class GuildModel {
       });
     });
   }
+
 }
 
 module.exports = GuildModel;

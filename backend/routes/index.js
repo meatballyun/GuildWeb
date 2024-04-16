@@ -12,9 +12,11 @@ const logInController = new LogInController();
 
 const GuildController = require('../controllers/guildControllers');
 const guildController = new GuildController();
+const UserGuildRelationController = require('../controllers/userGuildRelationControllers');
+const userGuildRelationController = new UserGuildRelationController();
 
 //router.get('/', passport.authenticate('jwt', { session: false }) );
-router.get('/checkAuth', guildController.getGuilds);
+router.get('/checkAuth', userGuildRelationController.updateUserGuildRelations);
 
 router.post('/login', logInController.login);
 

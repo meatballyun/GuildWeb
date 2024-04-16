@@ -4,9 +4,16 @@ const passport = require('../verification/passport');
 
 const GuildController = require('../controllers/guildControllers');
 const guildController = new GuildController();
+const UserGuildRelationController = require('../controllers/userGuildRelationControllers');
+const userGuildRelationController = new UserGuildRelationController();
 
 router.post('/', passport.authenticate('jwt', { session: true }), guildController.addGuild);
 router.put('/', passport.authenticate('jwt', { session: true }), guildController.updateGuild);
 router.get('/', passport.authenticate('jwt', { session: true }), guildController.getGuilds);
+router.get('/:id', passport.authenticate('jwt', { session: true }), guildController.getGuildDetail);
+
+router.post('/member', passport.authenticate('jwt', { session: true }), userGuildRelationController.addUserGuildRelations);
+router.put('/member', passport.authenticate('jwt', { session: true }), userGuildRelationController.updateUserGuildRelations);
+
 
 module.exports = router;
