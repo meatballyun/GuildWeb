@@ -14,6 +14,13 @@ const SIDEBAR_ITEMS = [
     activeMatch: /^\/$/,
   },
   {
+    label: 'FRIENDS',
+    key: 'friends',
+    icon: 'group',
+    route: '/friends',
+    activeMatch: /^\/(friends|users)$/,
+  },
+  {
     label: 'FOOD',
     key: 'food',
     activeMatch: /\/food/,

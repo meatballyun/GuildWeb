@@ -6,6 +6,7 @@ import FoodRoute from './food';
 import { AuthLayout, MainLayout } from './_layout';
 import { SettingsPage } from './settings';
 import { ValidationPage } from './validation';
+import { UsersPage } from './users';
 
 function Pages() {
   return (
@@ -22,6 +23,8 @@ function Pages() {
           path="/settings/edit"
           element={<SettingsPage key="edit" editMode />}
         />
+        <Route path="/friends" element={<UsersPage friendsMode />} />
+        <Route path="/users" element={<UsersPage />} />
         <Route path="/food/*" element={<FoodRoute />} />
       </Route>
     </Routes>

@@ -32,3 +32,35 @@ export const getUserMe = () =>
 
 export const editUserSetting = ({ body }) =>
   fetchJson({ url: `${BASE_API_URL}/user/me`, method: 'PUT', body });
+
+export const getUserFriend = ({ params }) =>
+  fetchJson({
+    url: `${BASE_API_URL}/user/friend?q=${params.q}`,
+    method: 'GET',
+  });
+
+export const getUser = ({ params }) =>
+  fetchJson({
+    url: `${BASE_API_URL}/user?q=${params.q}`,
+    method: 'GET',
+  });
+
+export const updateUserFriendStatus = ({ body }) =>
+  fetchJson({
+    url: `${BASE_API_URL}/user/friend`,
+    method: 'PUT',
+    body,
+  });
+
+export const postUserFriend = ({ body }) =>
+  fetchJson({
+    url: `${BASE_API_URL}/user`,
+    method: 'POST',
+    body,
+  });
+
+export const deleteUserFriend = ({ pathParams }) =>
+  fetchJson({
+    url: `${BASE_API_URL}/user/friend/${pathParams.id}`,
+    method: 'DELETE',
+  });
