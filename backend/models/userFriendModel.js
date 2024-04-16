@@ -27,7 +27,7 @@ class UserFriendModel {
 
   static getFriends(USER_ID) {
 		return new Promise((resolve, reject) => {
-			connection.query(`SELECT u.ID, u.NAME, u.IMAGE_URL, u.RANK FROM users u INNER JOIN userFriends uf ON (u.ID = uf.USER1_ID) OR (u.ID = uf.USER2_ID) WHERE STATUS = 'Confirmed' AND (f.USER1_ID = ? OR f.USER2_ID = ?)`, [USER_ID, USER_ID], function (err, rows) {
+			connection.query(`SELECT u.ID, u.NAME, u.IMAGE_URL, u.RANK FROM users u INNER JOIN userFriends uf ON (u.ID = uf.USER1_ID OR u.ID = uf.USER2_ID) WHERE uf.STATUS = 'Confirmed' AND (uf.USER1_ID = ? OR uf.USER2_ID = ?)`, [USER_ID, USER_ID], function (err, rows) {
 				if (err) {
 					reject(err);
 				} else {
@@ -36,6 +36,7 @@ class UserFriendModel {
 			});
 		});
 	}
+	
 
   static updateFriend(USER1_ID, USER2_ID, STATUS) {
 		return new Promise((resolve, reject) => {
