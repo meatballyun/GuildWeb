@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { api } from '../../../api';
 import { useContext, useEffect, useState } from 'react';
 import { Button, Avatar, ColumnBar, MaterialSymbol } from '../../../components';
@@ -6,7 +6,7 @@ import { classNames } from '../../../utils';
 import { useNavigate } from 'react-router-dom';
 import { sideBarContext } from './context';
 
-const SIDEBAR_ITEMS = [
+const SIDEBAR_ITEMS = (guild) => [
   {
     label: 'HOME',
     key: 'home',
@@ -50,10 +50,27 @@ const SIDEBAR_ITEMS = [
   {
     label: 'GUILD',
     key: 'mission',
-    icon: 'point_scan',
-    route: '/guild',
+    icon: 'bath_public_large',
     activeMatch: 'guild',
-    disabled: true,
+    children: [
+      {
+        label: '• overview',
+        key: 'guild',
+        route: '/guild',
+        activeMatch: 'guild',
+      },
+      ...(guild?.map(({ id, name, imageUrl }) => ({
+        label: (
+          <div className="flex items-start gap-1">
+            <Avatar size={20} text={name} className="mt-[2px]" url={imageUrl} />
+            {name}
+          </div>
+        ),
+        key: `guild.${id}`,
+        activeMatch: `guild.${id}`,
+        route: `guild/${id}`,
+      })) ?? []),
+    ],
   },
 ];
 
@@ -68,9 +85,12 @@ export const SideBarProvider = ({ children }) => {
 
 export const useSideBar = ({ activeKey: activeKeyProp }) => {
   const { setActiveKey } = useContext(sideBarContext);
+  const activeKeyChangeCheck = Array.isArray(activeKeyProp)
+    ? activeKeyProp.join('')
+    : activeKeyProp;
   useEffect(() => {
     setActiveKey(activeKeyProp);
-  }, [activeKeyProp, setActiveKey]);
+  }, [activeKeyChangeCheck]);
 };
 
 const UserItem = ({ userMe }) => {
@@ -155,7 +175,7 @@ const MenuItem = ({ children, route, icon, label, ...props }) => {
   return (
     <Link to={route}>
       <MenuLabel {...props}>
-        <MaterialSymbol fill icon={icon} className="mr-1" />
+        {icon && <MaterialSymbol fill icon={icon} className="mr-1" />}
         {label}
       </MenuLabel>
     </Link>
@@ -165,13 +185,20 @@ const MenuItem = ({ children, route, icon, label, ...props }) => {
 export const SideBar = () => {
   const [userMe, setUserMe] = useState();
   const navigate = useNavigate();
+  const [guildList, setGuildList] = useState([]);
 
   useEffect(() => {
-    api.auth
-      .getUserMe()
-      .then((res) => res.json())
-      .then((res) => setUserMe(res.data))
-      .catch(() => navigate('/login'));
+    (async () => {
+      const [userMeData, guildData] = await Promise.all([
+        api.auth
+          .getUserMe()
+          .then((res) => res.json().catch(() => navigate('/login'))),
+        api.guild.getGuild().then((res) => res.json()),
+      ]);
+      console.log(userMeData, guildData);
+      setUserMe(userMeData.data);
+      setGuildList(Array.isArray(guildData.data) ? guildData.data : []);
+    })();
   }, []);
 
   const handleLogout = async () => {
@@ -187,7 +214,7 @@ export const SideBar = () => {
         </Link>
       )}
       <div className="sidebar-main flex flex-col gap-2 overflow-auto">
-        {SIDEBAR_ITEMS.map((props) => (
+        {SIDEBAR_ITEMS(guildList).map((props) => (
           <MenuItem {...props} />
         ))}
       </div>
