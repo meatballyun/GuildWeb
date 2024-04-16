@@ -3,6 +3,8 @@ import './styles.css';
 
 export const Button = ({
   className,
+  prefix,
+  suffix,
   children,
   // sm, md, lg
   size = 'sm',
@@ -18,7 +20,9 @@ export const Button = ({
       )}
       {...props}
     >
+      {prefix}
       {children}
+      {suffix}
     </button>
   );
 };

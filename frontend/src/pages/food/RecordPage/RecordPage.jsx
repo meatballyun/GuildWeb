@@ -60,7 +60,6 @@ export const RecordPage = () => {
       }, {}),
     [dailyFood]
   );
-  console.log(foolGroupByCategory);
 
   useEffect(() => {
     (async () => {

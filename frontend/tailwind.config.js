@@ -10,6 +10,7 @@ module.exports = {
       'primary-200': '#BBAFA2',
       'primary-100': '#F1E3D5',
       white: '#ffffff',
+      warning: '#f5e9b9',
       black: '#000000',
       red: '#D1104A',
       blue: '#4C76C7',
@@ -17,6 +18,7 @@ module.exports = {
       orange: '#DA8D32',
       'blue-100': '#7ca9ff',
       currentColor: 'currentColor',
+      transparent: 'transparent',
     },
     fontSize: {
       // default fontsize from tailwind

@@ -32,9 +32,14 @@ export const auth = [
         name: '天上天下宇宙至尊大大ㄉㄉ醬',
         id: 1,
         imageUrl: PROFILE_IMAGE_URL,
+        email: 'eva@aa.cc',
         rank: 99,
         exp: 192873,
         upgradeExp: 99 * 99 * 10,
+        carbs: 320,
+        pro: 60,
+        fats: 55,
+        kcal: 2000,
       },
     });
   }),
@@ -43,5 +48,16 @@ export const auth = [
     if (params.email === 'eva@example.com')
       return new HttpResponse(null, { status: 409 });
     return new HttpResponse(null, { status: 200 });
+  }),
+  http.get(`${BASE_API_URL}/user/friend`, async ({ request }) => {
+    return HttpResponse.json({
+      success: true,
+      message: 'User data retrieval successful',
+      data: [
+        { id: 15, name: 'Rexford', imageUrl: null, rank: 65 },
+        { id: 74, name: 'Cyrex', imageUrl: null, rank: 34 },
+        { id: 109, name: 'Zorexley', imageUrl: null, rank: 37 },
+      ].filter(({ name }) => name),
+    });
   }),
 ];
