@@ -26,9 +26,9 @@ class UserGuildRelationController {
       console.log(err);
       return res.status(400).json(
           {
-          "success": false,
-          "message": "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
-          "data": "Bad Request"
+          success: false,
+          message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
+          data: "Bad Request"
         }
       );
     }
@@ -37,7 +37,7 @@ class UserGuildRelationController {
   async replyInvitation(req, res) {
     try {
       const member = await UserGuildRelation.getMembership(req.query.userId, req.query.guildId);
-      if (member[0].MEMBERSHIP !== "Pending" && req.query.userId === req.session.passport.user){
+      if (member[0].MEMBERSHIP !== "Pending" || req.query.userId === req.session.passport.user){
         return res.status(403).json({
           success: false,
           message: "You do not have sufficient permissions to access this resource.",
@@ -102,7 +102,46 @@ class UserGuildRelationController {
     }
   }
 
-  
+  async deleteUserGuildRelations(req, res) {
+    try {
+      const member = await UserGuildRelation.getMembership(req.session.passport.user, req.params.guildId);      
+      const isMaster = member[0].MEMBERSHIP === "Master";
+      const isCurrentUser = req.session.passport.user === req.params.userId;
+      if (((!isMaster && isCurrentUser) || (isMaster && !isCurrentUser)) && member?.length){
+        const query = await UserGuildRelation.deleteUserGuildRelations(req.params.userId, req.params.guildId);
+        if (query['affectedRows']){
+          return res.status(200).json(
+              {
+              success: true,
+              message: "Data update successfully.",
+              data: "OK"
+          });
+        } else{
+          return res.status(404).json({
+              success: false,
+              message: "The requested resource was not found.",
+              data: "Not Found"
+          });                
+        }
+      } else {
+        return res.status(403).json({
+          success: false,
+          message: "You do not have sufficient permissions to access this resource.",
+          data: "Forbidden"
+        });
+      }
+
+    } catch (err) {
+      console.log(err);
+      return res.status(400).json(
+          {
+          success: false,
+          message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
+          data: "Bad Request"
+        }
+      );
+    }
+  }
 
 }
 
