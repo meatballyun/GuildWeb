@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../api';
-import { Paper } from '../_layout/components';
+import { Paper, Block } from '../_layout/components';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import {
   Button,
@@ -11,7 +11,6 @@ import {
   Input,
 } from '../../components';
 import {
-  Block,
   FoodBar,
   IngredientValue,
   NutritionalSummaryChart,
