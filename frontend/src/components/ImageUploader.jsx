@@ -11,7 +11,7 @@ export const ImageUploader = ({
   type,
   onChange,
   className,
-  disabled,
+  disabled = false,
 }) => {
   const inputElement = useRef();
 
@@ -59,7 +59,7 @@ export const ImageUploader = ({
         onChange={handleImageChange}
       />
       {value ? (
-        <Image className="h-full w-full" />
+        <Image className="h-full w-full" url={value} />
       ) : (
         <div className="flex h-full w-full items-center justify-center bg-primary-100">
           <MaterialSymbol
