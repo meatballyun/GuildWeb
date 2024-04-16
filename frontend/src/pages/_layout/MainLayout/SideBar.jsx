@@ -1,9 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
 import { api } from '../../../api';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Button, Avatar, ColumnBar, MaterialSymbol } from '../../../components';
 import { classNames } from '../../../utils';
 import { useNavigate } from 'react-router-dom';
+import { sideBarContext } from './context';
 
 const SIDEBAR_ITEMS = [
   {
@@ -11,43 +12,66 @@ const SIDEBAR_ITEMS = [
     key: 'home',
     icon: 'home',
     route: '/',
-    activeMatch: /^\/$/,
+    activeMatch: 'home',
   },
   {
     label: 'FOOD',
     key: 'food',
-    activeMatch: /\/food/,
+    activeMatch: 'food',
     icon: 'restaurant',
     children: [
       {
         label: '• record',
         key: 'record',
         route: '/food/record',
-        activeMatch: /\/food\/record/,
+        activeMatch: 'record',
       },
       {
         label: '• recipe',
         key: 'recipe',
         route: '/food/recipe',
-        activeMatch: /\/food\/recipe/,
+        activeMatch: 'recipe',
       },
       {
         label: '• ingredient',
         key: 'ingredient',
         route: '/food/ingredient',
-        activeMatch: /\/food\/ingredient/,
+        activeMatch: 'ingredient',
       },
     ],
   },
   {
-    label: 'MISSION',
+    label: 'FRIENDS',
+    key: 'friends',
+    icon: 'group',
+    route: '/friends',
+    activeMatch: 'friends',
+  },
+  {
+    label: 'GUILD',
     key: 'mission',
     icon: 'point_scan',
-    route: '/mission',
-    activeMatch: /\/mission/,
+    route: '/guild',
+    activeMatch: 'guild',
     disabled: true,
   },
 ];
+
+export const SideBarProvider = ({ children }) => {
+  const [activeKey, setActiveKey] = useState([]);
+  return (
+    <sideBarContext.Provider value={{ activeKey, setActiveKey }}>
+      {children}
+    </sideBarContext.Provider>
+  );
+};
+
+export const useSideBar = ({ activeKey: activeKeyProp }) => {
+  const { setActiveKey } = useContext(sideBarContext);
+  useEffect(() => {
+    setActiveKey(activeKeyProp);
+  }, [activeKeyProp, setActiveKey]);
+};
 
 const UserItem = ({ userMe }) => {
   return (
@@ -79,11 +103,14 @@ const MenuLabel = ({
   suffix,
   activeMatch,
   children,
+  key,
   ...props
 }) => {
-  const location = useLocation();
-  const { pathname } = location;
-  const active = activeMatch.test(pathname);
+  const { activeKey } = useContext(sideBarContext);
+  const active = Array.isArray(activeKey)
+    ? activeKey.includes(activeMatch)
+    : activeMatch === activeKey;
+
   return (
     <Button
       size="md"

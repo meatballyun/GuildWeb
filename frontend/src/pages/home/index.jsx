@@ -1,8 +1,10 @@
 import { api } from '../../api';
 import { Button } from '../../components';
+import { useSideBar } from '../_layout/MainLayout/SideBar';
 import './styles.css';
 
 function HomePage() {
+  useSideBar({ activeKey: 'home' });
   const token = localStorage.token;
 
   const handleLogin = async () => {

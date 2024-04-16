@@ -1,6 +1,6 @@
 /* basic */
 .button {
-  @apply flex cursor-pointer items-center border-none transition-all;
+  @apply flex cursor-pointer items-center gap-1 border-none transition-all;
   box-shadow: 0px 2px 2px 0px #3b282655;
   &:hover {
     box-shadow: 0px 2px 5px 0px #3b282655;

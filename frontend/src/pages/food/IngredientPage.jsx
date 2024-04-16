@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../api';
-import { Paper } from '../_layout/components';
+import { Paper, Block } from '../_layout/components';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import {
   Button,
@@ -10,10 +10,11 @@ import {
   ImageUploader,
   Input,
 } from '../../components';
-import { Block, IngredientValue, NutritionalSummaryChart } from './components';
+import { IngredientValue, NutritionalSummaryChart } from './components';
 import { TextArea } from '../../components/Form/TextArea';
 import { Link } from 'react-router-dom';
 import { classNames } from '../../utils';
+import { useSideBar } from '../_layout/MainLayout/SideBar';
 
 const PublicButton = ({ value, onChange }) => {
   if (value)
@@ -49,6 +50,7 @@ const ingredientDefaultValue = {
   image_url: '',
 };
 export const IngredientPage = ({ editMode = false }) => {
+  useSideBar({ activeKey: ['food', 'ingredient'] });
   const navigate = useNavigate();
   const location = useLocation();
 

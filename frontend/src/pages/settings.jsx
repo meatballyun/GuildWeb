@@ -83,9 +83,16 @@ export const SettingsPage = ({ editMode = false }) => {
           Adventurer information
         </div>
         {editMode ? (
-          <Button onClick={handleSubmit} className="ml-4" size="md">
-            save
-          </Button>
+          <>
+            <Link to="/settings">
+              <Button type="hollow" className="ml-4" size="md">
+                Cancel
+              </Button>
+            </Link>
+            <Button onClick={handleSubmit} className="ml-4" size="md">
+              Save
+            </Button>
+          </>
         ) : (
           <Link to="/settings/edit">
             <Button className="ml-4" size="md">
@@ -111,26 +118,32 @@ export const SettingsPage = ({ editMode = false }) => {
                 <Form.Item valueKey="email" label="E-MAIL">
                   <Input disabled type="underline" />
                 </Form.Item>
+                <div>
+                  {editMode && (
+                    <Button type="hollow" className="mt-2">
+                      <MaterialSymbol icon="lock" fill size={20} />
+                      Change Password
+                    </Button>
+                  )}
+                </div>
                 <div className="mt-auto">
-                  <div className="text-heading-h4">Lv. {userMe.rank}</div>
-                  <div className="flex justify-between">
-                    <span>Exp.</span>
-                    <span>
-                      <span className="text-base text-blue-100">
-                        {userMe.exp}
-                      </span>
-                      <span className="text-primary-200">
-                        {' '}
-                        / {userMe.upgradeExp}
-                      </span>
+                  <div className=" flex items-end gap-1">
+                    <span className="mb-1 text-heading-h2">
+                      Lv. {userMe.rank}
+                    </span>
+                    <div className="flex-1" />
+                    <span className="text-base text-blue">{userMe.exp}</span>
+                    <span className="text-primary-300">
+                      {' '}
+                      / {userMe.upgradeExp}
                     </span>
                   </div>
+                  <ColumnBar
+                    total={userMe.upgradeExp}
+                    height={12}
+                    items={[{ value: userMe.exp, color: '#4C76C7' }]}
+                  />
                 </div>
-                <ColumnBar
-                  total={userMe.upgradeExp}
-                  height={12}
-                  items={[{ value: userMe.exp, color: '#4C76C7' }]}
-                />
               </div>
             </div>
             <div className="relative mt-6 flex flex-col rounded-md border-2 border-primary-300 p-4">
