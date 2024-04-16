@@ -1,26 +1,67 @@
 const UserGuildRelation = require('../models/userGuildRelationModel');
+const UserFriend = require('../models/userFriendModel');
 
 class UserGuildRelationController {
-  async addUserGuildRelations(req, res) {
-    try {     
-      const newUserGuildRelation = await UserGuildRelation.addUserGuildRelation(req.body.userId, req.body.guildId, 'Regular');
-      console.log(newUserGuildRelation)
-      if (newUserGuildRelation['affectedRows']){
+  async sendInvitation(req, res) {
+    try {      
+      const member = await UserGuildRelation.getMembership(req.session.passport.user, req.body.guildId);
+      console.log(member);
+      if (member[0].MEMBERSHIP !== "Master"){
+        return res.status(403).json({
+          success: false,
+          message: "You do not have sufficient permissions to access this resource.",
+          data: "Forbidden"
+        });
+      }
+      const newmember = await UserGuildRelation.addUserGuildRelation(req.body.userId, req.body.guildId, 'Pending');
+      if (newmember['affectedRows']){
         return res.status(200).json(
             {
-            "success": true,
-            "message": "Data uploaded successfully.",
-            "data": "OK"
+            success: true,
+            message: "Invitation sent successfully.",
+            data: "OK"
         });
       }
     } catch (err) {
-        return res.status(400).json(
+      console.log(err);
+      return res.status(400).json(
+          {
+          "success": false,
+          "message": "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
+          "data": "Bad Request"
+        }
+      );
+    }
+  }
+
+  async replyInvitation(req, res) {
+    try {
+      const member = await UserGuildRelation.getMembership(req.query.userId, req.query.guildId);
+      if (member[0].MEMBERSHIP !== "Pending" && req.query.userId === req.session.passport.user){
+        return res.status(403).json({
+          success: false,
+          message: "You do not have sufficient permissions to access this resource.",
+          data: "Forbidden"
+        });
+      }
+      const query = await UserGuildRelation.updateUserGuildRelations(req.query.userId, req.query.guildId, 'Regular');
+      if (query['affectedRows']){
+        return res.status(200).json(
             {
-            "success": false,
-            "message": "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
-            "data": "Bad Request"
-          }
-        );
+            success: true,
+            message: "Data update successfully.",
+            data: "OK"
+        });
+      }
+    } catch (err) {
+      console.log(err);
+      return res.status(400).json(
+          {
+          success: false,
+          message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
+          data: "Bad Request"
+        }
+      );
     }
   }
 
@@ -53,13 +94,15 @@ class UserGuildRelationController {
       console.log(err);
       return res.status(400).json(
           {
-          "success": false,
-          "message": "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
-          "data": "Bad Request"
+          success: false,
+          message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
+          data: "Bad Request"
         }
       );
     }
   }
+
+  
 
 }
 

@@ -1,6 +1,5 @@
 const Guild = require('../models/guildModel');
 const UserGuildRelation = require('../models/userGuildRelationModel');
-
 class GuildController {
   async addGuild(req, res) {
     try {     

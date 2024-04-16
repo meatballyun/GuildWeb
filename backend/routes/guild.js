@@ -12,8 +12,9 @@ router.put('/', passport.authenticate('jwt', { session: true }), guildController
 router.get('/', passport.authenticate('jwt', { session: true }), guildController.getGuilds);
 router.get('/:id', passport.authenticate('jwt', { session: true }), guildController.getGuildDetail);
 
-router.post('/member', passport.authenticate('jwt', { session: true }), userGuildRelationController.addUserGuildRelations);
+router.post('/member', passport.authenticate('jwt', { session: true }), userGuildRelationController.sendInvitation);
 router.put('/member', passport.authenticate('jwt', { session: true }), userGuildRelationController.updateUserGuildRelations);
+router.put('/member', passport.authenticate('jwt', { session: true }), userGuildRelationController.replyInvitation);
 
 
 module.exports = router;

@@ -16,7 +16,7 @@ const UserGuildRelationController = require('../controllers/userGuildRelationCon
 const userGuildRelationController = new UserGuildRelationController();
 
 //router.get('/', passport.authenticate('jwt', { session: false }) );
-router.get('/checkAuth', userGuildRelationController.updateUserGuildRelations);
+router.get('/checkAuth', userGuildRelationController.replyInvitation);
 
 router.post('/login', logInController.login);
 
