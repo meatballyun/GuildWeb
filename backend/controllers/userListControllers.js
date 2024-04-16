@@ -4,23 +4,30 @@ const UserFriend = require('../models/userFriendModel');
 class UserListController {
   async getUsers(req, res) {     
     try {  
-        const query = await User.getUserByName('User');
+        const query = await User.getUserByName(req.query.q);
         if (query?.length){
           const users = await Promise.all( query.map( async (row) => {
-            const [ q ] = await UserFriend.getFriendStatus(2, row.ID);
+            const status = "None";
+            const [ query ] = await UserFriend.getFriendStatus(req.session.passport.user, row.ID);
+            if (query.STATUS === "Confirmed") status = "Confirmed";
+            else if (query.STATUS === "Pending") status = "Pending Response";
+            else {
+              const [ q ] = await UserFriend.getFriendStatus(row.ID, req.session.passport.user);
+              if (q.STATUS === "Pending") status = "Pending Confirmation";
+            }
+
             return {
               id: row.ID,
               name: row.NAME,
               imageUrl: row.IMAGE_URL,
               rank: row.RANK,
-              status: q ? q.STATUS : 'none'
+              status: status
             }
-            })
-          )
+          }))
           return res.status(200).json({
             success: true,
             message: "User data retrieval successful",
-            data: users
+            data: users.filter((row)=>{ return req.session.passport.user !== row.id })
           });
         } else {
           const users = [];
