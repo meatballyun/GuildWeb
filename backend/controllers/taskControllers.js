@@ -9,7 +9,7 @@ const User = require('../models/userModel');
 class TaskController {
   async addTask(req, res) {
     try {
-      const member = await UserGuildRelation.getUserGuildRelation(req.session.passport.user, req.body.guildId);
+      const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, req.body.guildId);
       if (member[0].MEMBERSHIP !== "Master"){
         return res.status(403).json({
           success: false,
@@ -72,7 +72,7 @@ class TaskController {
 
   async updateTask(req, res) {
     try {
-      const member = await UserGuildRelation.getUserGuildRelation(req.session.passport.user, req.body.guildId);
+      const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, req.body.guildId);
       const taskDetail = await Task.getTaskDetail(req.body.taskId);
       if (member[0].MEMBERSHIP !== "Master" || member[0].MEMBERSHIP !== "Admin" || (member[0].MEMBERSHIP === "Admin" && req.session.passport.user !== taskDetail[0].CREATOR_ID)){
         return res.status(403).json({
@@ -167,7 +167,7 @@ class TaskController {
   async acceptTack(req, res){
     try {
       const task = await Task.getTaskDetail(req.params.id);
-      const member = await UserGuildRelation.getUserGuildRelation(req.session.passport.user, task[0].GUILD_ID);
+      const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, task[0].GUILD_ID);
       if (!task || !task.length){
         return res.status(404).json({
           success: false,

@@ -29,7 +29,7 @@ class GuildController {
 
   async updateGuild(req, res) {
     try {     
-      const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, req.body.id);
+      const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, req.params.id);
       if (!member?.length){
         return res.status(403).json({
           success: false,
@@ -44,13 +44,13 @@ class GuildController {
         });
       }
 
-      const guild = await Guild.updateGuild(req.body.id, req.body.name, req.body.description, req.body.imageUrl);
+      const guild = await Guild.updateGuild(req.params.id, req.body.name, req.body.description, req.body.imageUrl);
       if (guild.affectedRows){
         return res.status(200).json({
             success: true,
             message: "Data update successfully.",
             data: {
-                id: req.body.id
+                id: req.params.id
             }
         });
       }
@@ -67,22 +67,19 @@ class GuildController {
 
   async getGuilds(req, res) {
     try {    
-      const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, req.body.id);
-      if (!member?.length){
-        return res.status(403).json({
-          success: false,
-          message: "You are not a member of this guild.",
-          data: "Forbidden"
-        });
-      }
-      
-      const query = (req.query.q) ? await Guild.getGuildsByLeaderAndName(req.session.passport.user, req.query.q) : await Guild.getGuildsByLeader(req.session.passport.user);
+      const query = await UserGuildRelation.getUserGuildRelationByUser(req.session.passport.user);
       if (query?.length){
-        const guilds = query.map( row => ({
-          id: row.ID,
-          name: row.NAME,
-          imageUrl: row.IMAGE_URL
+        let guild;
+        const guilds = await Promise.all(query.map(async(row)=>{
+          guild = await Guild.getGuild(row.GUILD_ID);
+
+          return {
+            id: guild[0].ID,
+            name: guild[0].NAME,
+            imageUrl: guild[0].IMAGE_URL
+          }
         }))
+
         return res.status(200).json({
             success: true,
             message: "Data retrieval successfully.",
@@ -103,35 +100,24 @@ class GuildController {
 
   async getGuildDetail(req, res) {
     try {  
-      const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, req.body.id);
+      const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, req.params.id);
       if (!member?.length){
         return res.status(403).json({
           success: false,
           message: "You are not a member of this guild.",
           data: "Forbidden"
         });
-      }
-      
+      }      
       const [ guild ] = await Guild.getGuild(req.params.id);
-      const getGuildMembers = await UserGuildRelation.getUserGuildRelationByGuild(req.params.id);
-      const guildMembers = await Promise.all( getGuildMembers.map( async (row) => {
-        const [ user ] = await User.getUserById(row.USER_ID);
-        return {
-          id: user.ID,
-          name: user.NAME,
-          imageUrl: user.IMAGE_URL,
-          rank: user.RANK
-        }
-      }));
 
       return res.status(200).json({
           success: true,
           message: "Data retrieval successfully.",
           data: {
             id: guild.ID,
+            name: guild.NAME,
             description: guild.DESCRIPTION,
             imageUrl: guild.IMAGE_URL,
-            user: guildMembers
           }
       })
       
@@ -169,7 +155,7 @@ class GuildController {
             success: true,
             message: "Data update successfully.",
             data: {
-                id: req.body.id
+                id: req.params.id
             }
         });
       }      
