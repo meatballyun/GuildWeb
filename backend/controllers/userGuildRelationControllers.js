@@ -4,7 +4,7 @@ const UserFriend = require('../models/userFriendModel');
 class UserGuildRelationController {
   async sendInvitation(req, res) {
     try {      
-      const member = await UserGuildRelation.getMembership(req.session.passport.user, req.body.guildId);
+      const member = await UserGuildRelation.getUserGuildRelation(req.session.passport.user, req.body.guildId);
       console.log(member);
       if (member[0].MEMBERSHIP !== "Master"){
         return res.status(403).json({
@@ -36,7 +36,7 @@ class UserGuildRelationController {
 
   async replyInvitation(req, res) {
     try {
-      const member = await UserGuildRelation.getMembership(req.query.userId, req.query.guildId);
+      const member = await UserGuildRelation.getUserGuildRelation(req.query.userId, req.query.guildId);
       if (member[0].MEMBERSHIP !== "Pending" || req.query.userId === req.session.passport.user){
         return res.status(403).json({
           success: false,
@@ -67,7 +67,7 @@ class UserGuildRelationController {
 
   async updateUserGuildRelations(req, res) {
     try {
-      const member = await UserGuildRelation.getMembership(req.session.passport.user, req.body.guildId);
+      const member = await UserGuildRelation.getUserGuildRelation(req.session.passport.user, req.body.guildId);
       if (member[0].MEMBERSHIP !== "Master"){
         return res.status(403).json({
           success: false,
@@ -104,7 +104,7 @@ class UserGuildRelationController {
 
   async deleteUserGuildRelations(req, res) {
     try {
-      const member = await UserGuildRelation.getMembership(req.session.passport.user, req.params.guildId);      
+      const member = await UserGuildRelation.getUserGuildRelation(req.session.passport.user, req.params.guildId);      
       const isMaster = member[0].MEMBERSHIP === "Master";
       const isCurrentUser = req.session.passport.user === req.params.userId;
       if (((!isMaster && isCurrentUser) || (isMaster && !isCurrentUser)) && member?.length){

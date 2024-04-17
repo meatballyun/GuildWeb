@@ -1,13 +1,15 @@
 const Task = require('../models/taskModel');
 const RepetitiveTask = require('../models/repetitiveTaskModel');
 const Item = require('../models/itemModel');
+const ItemRecord = require('../models/itemRecordModel');
 const Adventurer = require('../models/adventurerModel');
 const UserGuildRelation = require('../models/userGuildRelationModel');
+const User = require('../models/userModel');
 
 class TaskController {
   async addTask(req, res) {
     try {
-      const member = await UserGuildRelation.getMembership(req.session.passport.user, req.body.guildId);
+      const member = await UserGuildRelation.getUserGuildRelation(req.session.passport.user, req.body.guildId);
       if (member[0].MEMBERSHIP !== "Master"){
         return res.status(403).json({
           success: false,
@@ -70,15 +72,16 @@ class TaskController {
 
   async updateTask(req, res) {
     try {
-      const member = await UserGuildRelation.getMembership(req.session.passport.user, req.body.guildId);
-      if (member[0].MEMBERSHIP !== "Master" || member[0].MEMBERSHIP !== "Admin"){
+      const member = await UserGuildRelation.getUserGuildRelation(req.session.passport.user, req.body.guildId);
+      const taskDetail = await Task.getTaskDetail(req.body.taskId);
+      if (member[0].MEMBERSHIP !== "Master" || member[0].MEMBERSHIP !== "Admin" || (member[0].MEMBERSHIP === "Admin" && req.session.passport.user !== taskDetail[0].CREATOR_ID)){
         return res.status(403).json({
           success: false,
           message: "You do not have sufficient permissions to access this resource.",
           data: "Forbidden"
         });
-      }
-
+      } 
+      
       const task = await Task.updateTask(req.body.taskId, req.body.name, req.body.initiationTime, req.body.deadline, req.body.description, req.body.imageUrl, req.body.type, req.body.maxAdvrnture);
       if (task.affectedRows){
         if (req.body.type === 'Repetitive'){
@@ -149,6 +152,220 @@ class TaskController {
         data: "OK"
       });
 
+    } catch (err) {
+      console.log(err);
+      return res.status(400).json(
+          {
+          success: false,
+          message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
+          data: "Bad Request"
+        }
+      );
+    }
+  }
+
+  async acceptTack(req, res){
+    try {
+      const task = await Task.getTaskDetail(req.params.id);
+      const member = await UserGuildRelation.getUserGuildRelation(req.session.passport.user, task[0].GUILD_ID);
+      if (!task || !task.length){
+        return res.status(404).json({
+          success: false,
+          message: "The requested resource was not found.",
+          data: "Not Found"
+        });
+      } else if (!member || !member.length) {
+        return res.status(403).json({
+          success: false,
+          message: "You do not have sufficient permissions to access this resource.",
+          data: "Forbidden"
+        });
+      } else if (task[0].ADVENTURER >= task[0].MAX_ADVENTURER) {
+        return res.status(200).json({
+          success: false,
+          message: "The maximum number of adventurers for this task has been reached.",
+          data: "OK"
+        });
+      }
+      
+      const acceptTack = await task.acceptTack(req.params.id, task[0].ADVENTURER + 1);
+      if (!acceptTack || !acceptTack.length){
+        return res.status(400).json({
+          success: false,
+          message: "When attempting to change the number of adventurers for the task, an error occurred.",
+          data: "Bad Request"
+        });
+      }
+
+      const adventurer = await Adventurer.addAdventurer(req.params.id , req.session.passport.user);
+      if (!adventurer || !adventurer.length){
+        return res.status(400).json({
+          success: false,
+          message: "When attempting to add the table for adventurers, an error occurred.",
+          data: "Bad Request"
+        });
+      }
+
+      const items = await Item.getItem(req.params.id);
+      if (items?.length){
+        const itemRecords = await Promise.all( items.map( async (row) => {
+          const itemRecord = await ItemRecord.addItemRecord(row.ID, row.CONTENT, row.USER_ID)
+        }))
+      }
+      
+      return res.status(200).json({
+        success: false,
+        message: "User has successfully accepted the task.",
+        data: "OK"
+      });
+
+    } catch (err){
+      console.log(err);
+      return res.status(400).json(
+          {
+          success: false,
+          message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
+          data: "Bad Request"
+        }
+      );
+    }
+  }
+
+  async getTask(req, res) {
+    try {
+      const tasks = (req.query.q) ? await Task.getTaskByGuildAndName(req.query.guildId, req.query.q) : await Task.getTaskByGuild(req.query.guildId);
+      let data;
+      if (tasks?.length){
+        data = await Promise.all( tasks.map( async (row) => {
+          const repetitiveTasksType ='None';
+          if (row.TYPE === 'Repetitive'){
+            const repetitiveTasks = await RepetitiveTask.getRepetitiveTask(row.TASK_ID);
+            repetitiveTasksType = repetitiveTasks[0].TYPE;
+          }  
+          return {
+            id: row.ID,
+            name: row.NAME,
+            type: row.TYPE,
+            status: row.STATUS,
+            accepted: row.ACCEPTED,
+            repetitiveTasksType: repetitiveTasksType,
+          }
+        }));
+      }
+      if (data) {
+        return res.status(200).json({
+          success: true,
+          message: "Data retrieval successful.",
+          data : data 
+        });
+      } else {
+        return res.status(404).json({
+          success: false,
+          message: "The requested resource was not found.",
+          data: "Not Found"
+      })} 
+
+    } catch (err) {
+      console.log(err);
+      return res.status(400).json(
+          {
+          success: false,
+          message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
+          data: "Bad Request"
+        }
+      );
+    }
+  }
+
+  async getTaskDetail(req, res) {
+    try {
+      const [ task ] = await Task.getTaskDetail(req.params.id);
+      let data;
+      if (task?.length) {
+        let repetitiveTasksType, adventurers, itemRecords;
+        if (task.TYPE === 'Repetitive'){
+          const repetitiveTasks = await RepetitiveTask.getRepetitiveTask(row.TASK_ID);
+          repetitiveTasksType = repetitiveTasks[0].TYPE;
+        }
+
+        adventurers = (await Promise.all(await Adventurer.getAdventurerByTask(req.params.id))).map(async(row) => {
+          const [ user ] = await User.getUserById(row.USER_ID);
+          return {
+            id: row.USER_ID,
+            name: user.NAME,
+            imageUrl: user.IMAGE_URL,
+            status: row.STATUS
+          }
+        });
+
+        adventurers = (await Promise.all(await Adventurer.getAdventurerByTask(req.params.id))).map(async(row) => {
+          const [ user ] = await User.getUserById(row.USER_ID);
+          return {
+            id: row.USER_ID,
+            name: user.NAME,
+            imageUrl: user.IMAGE_URL,
+            status: row.STATUS
+          }
+        });
+
+        itemRecords = (await Promise.all(await ItemRecord.getItemRecord(req.params.id))).map(async(row) => {
+          return {
+            id: row.ID ,
+            status: row.STATUS,
+            content: row.CONTENT
+          }
+        });
+
+        data =  {
+          id: task.ID,
+          name: task.NAME,
+          initiationTime: task.INITIATION_TIME,
+          deadline: task.DEADLINE,
+          description: task.DESCRIPTION,
+          type: task.TYPE,
+          repetitiveTasksType: repetitiveTasksType,
+          maxAdventurer: task.MAX_ADVENTURER ,
+          adventurers: adventurers ,
+          imageUrl: task.ACCEPTED,
+          itemRecords: itemRecords,
+        }  
+      }
+      
+      return res.status(200).json({
+        success: true,
+        message: "Data retrieval successful.",
+        data : data 
+      });
+
+    } catch (err) {
+      console.log(err);
+      return res.status(400).json(
+          {
+          success: false,
+          message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
+          data: "Bad Request"
+        }
+      );
+    }
+  }
+
+  async deleteTask(req, res) {
+    try {
+      const deleteTask = await Task.deleteTask(req.params.id);
+      if (deleteTask.affectedRows){
+        return res.status(200).json({
+          success: true,
+          message: "Data delete successful.",
+          data : "OK" 
+        });
+      } else {
+        return res.status(404).json({
+          success: true,
+          message: "Can not find the 'taskId'.",
+          data : "Not Found" 
+        });
+      }
+      
     } catch (err) {
       console.log(err);
       return res.status(400).json(
