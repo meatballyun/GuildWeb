@@ -1,5 +1,6 @@
 const Guild = require('../models/guildModel');
 const UserGuildRelation = require('../models/userGuildRelationModel');
+const User = require('../models/userModel');
 class GuildController {
   async addGuild(req, res) {
     try {     
@@ -87,14 +88,28 @@ class GuildController {
 
   async getGuildDetail(req, res) {
     try {     
-      req.params.id = 2;
       const [ guild ] = await Guild.getGuild(req.params.id);
       console.log(guild);
+      const getGuildMembers = await UserGuildRelation.getUserGuildRelationByGuild(req.params.id);
+      const guildMembers = await Promise.all( getGuildMembers.map( async (row) => {
+        const [ user ] = await User.getUserById(row.USER_ID);
+        return {
+          id: user.ID,
+          name: user.NAME,
+          imageUrl: user.IMAGE_URL,
+          rank: user.RANK
+        }
+      }));
 
       return res.status(200).json({
           success: true,
           message: "Data retrieval successfully.",
-          data: guild
+          data: {
+            id: guild.ID,
+            description: guild.DESCRIPTION,
+            imageUrl: guild.IMAGE_URL,
+            user: guildMembers
+          }
       })
       
     } catch (err) {

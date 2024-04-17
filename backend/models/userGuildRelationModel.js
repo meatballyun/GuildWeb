@@ -13,7 +13,19 @@ class UserGuildRelationModel {
     });
   }
 
-  static getUserGuildRelation(USER_ID, GUILD_ID) {
+  static getUserGuildRelationByGuild(GUILD_ID) {
+    return new Promise((resolve, reject) => {
+      connection.query('SELECT * FROM userGuildRelations WHERE GUILD_ID = ?', [GUILD_ID], function (err, rows) {
+        if (err) {
+            reject(err);
+        } else {
+            resolve(rows);
+        }
+      });
+    });
+  }
+
+  static getUserGuildRelationByGuildAndUser(USER_ID, GUILD_ID) {
     return new Promise((resolve, reject) => {
       connection.query('SELECT * FROM userGuildRelations WHERE USER_ID = ? AND GUILD_ID = ?', [USER_ID, GUILD_ID], function (err, rows) {
         if (err) {
