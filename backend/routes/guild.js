@@ -8,14 +8,21 @@ const UserGuildRelationController = require('../controllers/userGuildRelationCon
 const userGuildRelationController = new UserGuildRelationController();
 
 router.post('/', passport.authenticate('jwt', { session: true }), guildController.addGuild);
+
 router.put('/', passport.authenticate('jwt', { session: true }), guildController.updateGuild);
+
 router.get('/', passport.authenticate('jwt', { session: true }), guildController.getGuilds);
+
 router.get('/:id', passport.authenticate('jwt', { session: true }), guildController.getGuildDetail);
 
-router.post('/member', passport.authenticate('jwt', { session: true }), userGuildRelationController.sendInvitation);
-router.put('/member', passport.authenticate('jwt', { session: true }), userGuildRelationController.updateUserGuildRelations);
-router.get('/member', passport.authenticate('jwt', { session: true }), userGuildRelationController.replyInvitation);
-router.delete('/member', passport.authenticate('jwt', { session: true }), userGuildRelationController.deleteUserGuildRelations);
+router.delete('/:id', passport.authenticate('jwt', { session: true }), guildController.daleteGuild);
 
+router.post('/member', passport.authenticate('jwt', { session: true }), userGuildRelationController.sendInvitation);
+
+router.put('/member', passport.authenticate('jwt', { session: true }), userGuildRelationController.updateUserGuildRelations);
+
+router.get('/member', passport.authenticate('jwt', { session: true }), userGuildRelationController.replyInvitation);
+
+router.delete('/member/:guildId/:userId', passport.authenticate('jwt', { session: true }), userGuildRelationController.deleteUserGuildRelations);
 
 module.exports = router;

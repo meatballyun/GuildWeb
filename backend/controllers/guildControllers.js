@@ -29,6 +29,21 @@ class GuildController {
 
   async updateGuild(req, res) {
     try {     
+      const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, req.body.id);
+      if (!member?.length){
+        return res.status(403).json({
+          success: false,
+          message: "You are not a member of this guild.",
+          data: "Forbidden"
+        });
+      } else if ((member[0].MEMBERSHIP !== "Master")){
+        return res.status(403).json({
+          success: false,
+          message: "Only guild Master have permission to access this resource.",
+          data: "Forbidden"
+        });
+      }
+
       const guild = await Guild.updateGuild(req.body.id, req.body.name, req.body.description, req.body.imageUrl);
       if (guild.affectedRows){
         return res.status(200).json({
@@ -38,16 +53,8 @@ class GuildController {
                 id: req.body.id
             }
         });
-      } else{
-        return res.status(404).json({
-            success: false,
-            message: "The requested resource was not found.",
-            data: "Not Found"
-        });                
       }
-
     } catch (err) {
-      console.log(err);
       return res.status(400).json(
           {
           success: false,
@@ -59,7 +66,16 @@ class GuildController {
   }
 
   async getGuilds(req, res) {
-    try {     
+    try {    
+      const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, req.body.id);
+      if (!member?.length){
+        return res.status(403).json({
+          success: false,
+          message: "You are not a member of this guild.",
+          data: "Forbidden"
+        });
+      }
+      
       const query = (req.query.q) ? await Guild.getGuildsByLeaderAndName(req.session.passport.user, req.query.q) : await Guild.getGuildsByLeader(req.session.passport.user);
       if (query?.length){
         const guilds = query.map( row => ({
@@ -67,7 +83,6 @@ class GuildController {
           name: row.NAME,
           imageUrl: row.IMAGE_URL
         }))
-        console.log(guilds);
         return res.status(200).json({
             success: true,
             message: "Data retrieval successfully.",
@@ -87,9 +102,17 @@ class GuildController {
   }
 
   async getGuildDetail(req, res) {
-    try {     
+    try {  
+      const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, req.body.id);
+      if (!member?.length){
+        return res.status(403).json({
+          success: false,
+          message: "You are not a member of this guild.",
+          data: "Forbidden"
+        });
+      }
+      
       const [ guild ] = await Guild.getGuild(req.params.id);
-      console.log(guild);
       const getGuildMembers = await UserGuildRelation.getUserGuildRelationByGuild(req.params.id);
       const guildMembers = await Promise.all( getGuildMembers.map( async (row) => {
         const [ user ] = await User.getUserById(row.USER_ID);
@@ -112,6 +135,44 @@ class GuildController {
           }
       })
       
+    } catch (err) {
+      console.log(err);
+      return res.status(400).json(
+          {
+          success: false,
+          message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
+          data: "Bad Request"
+        }
+      );
+    }
+  }
+
+  async daleteGuild(req, res) {
+    try {  
+      const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, req.params.id);
+      if (!member?.length){
+        return res.status(403).json({
+          success: false,
+          message: "You are not a member of this guild.",
+          data: "Forbidden"
+        });
+      } else if ((member[0].MEMBERSHIP !== "Master")){
+        return res.status(403).json({
+          success: false,
+          message: "Only guild Master have permission to access this resource.",
+          data: "Forbidden"
+        });
+      }      
+      const query = await Guild.daleteGuild(req.params.id);
+      if (query.affectedRows){
+        return res.status(200).json({
+            success: true,
+            message: "Data update successfully.",
+            data: {
+                id: req.body.id
+            }
+        });
+      }      
     } catch (err) {
       console.log(err);
       return res.status(400).json(
