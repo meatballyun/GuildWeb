@@ -11,7 +11,7 @@ class UserGuildRelationController {
             message: "You are not a member of this guild.",
             data: "Forbidden"
         });                
-      }else if (member[0].MEMBERSHIP !== "Master"){
+      }else if (member[0].MEMBERSHIP !== "Master" && member[0].MEMBERSHIP !== "Admin"){
         return res.status(403).json({
           success: false,
           message: "Only guild Master have permission to access this resource.",

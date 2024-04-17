@@ -13,9 +13,9 @@ class TaskModel {
     });
   }
 
-  static getTaskDetail(Task_ID) {
+  static getTaskDetail(ID) {
     return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM tasks WHERE Task_ID = ?', [Task_ID], function (err, rows) {
+      connection.query('SELECT * FROM tasks WHERE ID = ?', [ID], function (err, rows) {
         if (err) {
             reject(err);
         } else {
@@ -51,7 +51,7 @@ class TaskModel {
 
   static updateTask(TASK_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, IMAGE_URL, TYPE, MAX_ADVENTURER) {
     return new Promise((resolve, reject) => {
-      connection.query('UPDATE tasks SET NAME = ?, INITIATION_TIME = ?, DEADLINE = ?, DESCRIPTION = ?, IMAGE_URL = ?, TYPE = ?, MAX_ADVENTURER = ?) WHERE ID = ?', [NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, IMAGE_URL, TYPE, MAX_ADVENTURER, TASK_ID], function (err, rows) {
+      connection.query('UPDATE tasks SET NAME = ?, INITIATION_TIME = ?, DEADLINE = ?, DESCRIPTION = ?, IMAGE_URL = ?, TYPE = ?, MAX_ADVENTURER = ? WHERE ID = ?', [NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, IMAGE_URL, TYPE, MAX_ADVENTURER, TASK_ID], function (err, rows) {
         if (err) {
             reject(err);
         } else {

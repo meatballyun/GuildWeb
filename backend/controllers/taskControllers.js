@@ -10,10 +10,16 @@ class TaskController {
   async addTask(req, res) {
     try {
       const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, req.body.guildId);
-      if (member[0].MEMBERSHIP !== "Master"){
+      if (!member?.length){
         return res.status(403).json({
           success: false,
-          message: "You do not have sufficient permissions to access this resource.",
+          message: "You are not a member of this guild.",
+          data: "Forbidden"
+        });
+      } else if (member[0].MEMBERSHIP !== "Master"){
+        return res.status(403).json({
+          success: false,
+          message: "Only guild Master have permission to access this resource.",
           data: "Forbidden"
         });
       }
@@ -31,10 +37,10 @@ class TaskController {
             data: "Bad Request"
           });
           const generrationTime = await RepetitiveTask.DATE_ADD(req.body.initiationTime, 1, unit);
-          const newRepetitiveTask = await Task.addRepetitiveTask(newTask['insertId'] , Object.values(generrationTime[0])[0], req.body.repetitiveType);
+          const newRepetitiveTask = await RepetitiveTask.addRepetitiveTask(newTask['insertId'] , Object.values(generrationTime[0])[0], req.body.repetitiveType);
           if (!newRepetitiveTask['insertId']) return res.status(400).json({
             success: false,
-            message: "Error in Task.addRepetitiveTask()",
+            message: "Error in RepetitiveTask.addRepetitiveTask()",
             data: "Bad Request"
           });
         }
@@ -74,15 +80,27 @@ class TaskController {
     try {
       const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, req.body.guildId);
       const taskDetail = await Task.getTaskDetail(req.body.taskId);
-      if (member[0].MEMBERSHIP !== "Master" || member[0].MEMBERSHIP !== "Admin" || (member[0].MEMBERSHIP === "Admin" && req.session.passport.user !== taskDetail[0].CREATOR_ID)){
+      if (!member?.length){
+        return res.status(403).json({
+          success: false,
+          message: "You are not a member of this guild.",
+          data: "Forbidden"
+        });
+      } else if ((member[0].MEMBERSHIP !== "Master" && member[0].MEMBERSHIP !== "Admin") || (member[0].MEMBERSHIP === "Admin" && req.session.passport.user !== taskDetail[0].CREATOR_ID)){
         return res.status(403).json({
           success: false,
           message: "You do not have sufficient permissions to access this resource.",
           data: "Forbidden"
         });
-      } 
+      } else if (!taskDetail?.length){
+        return res.status(404).json({
+          success: false,
+          message: "The task cannot be found in this guild.",
+          data: "Not found"
+        });
+      }
       
-      const task = await Task.updateTask(req.body.taskId, req.body.name, req.body.initiationTime, req.body.deadline, req.body.description, req.body.imageUrl, req.body.type, req.body.maxAdvrnture);
+      const task = await Task.updateTask(req.body.taskId, req.body.name, req.body.initiationTime, req.body.deadline, req.body.description, req.body.imageUrl, req.body.type, req.body.maxAdventurer);
       if (task.affectedRows){
         if (req.body.type === 'Repetitive'){
           let unit;
@@ -95,72 +113,57 @@ class TaskController {
             data: "Bad Request"
           });
           const generrationTime = await RepetitiveTask.DATE_ADD(req.body.initiationTime, 1, unit);
-          const getRepetitiveTask= await Task.getRepetitiveTask(req.body.taskId);
+          const getRepetitiveTask= await RepetitiveTask.getRepetitiveTask(req.body.taskId);
           if (!getRepetitiveTask?.length){
-            const newRepetitiveTask = await Task.addRepetitiveTask(req.body.taskId , Object.values(generrationTime[0])[0], req.body.repetitiveType);
+            const newRepetitiveTask = await RepetitiveTask.addRepetitiveTask(req.body.taskId , Object.values(generrationTime[0])[0], req.body.repetitiveType);
             if (!newRepetitiveTask['insertId']) return res.status(400).json({
               success: false,
               message: "Error in Task.addRepetitiveTask()",
               data: "Bad Request"
             });
           } else{
-            const repetitiveTask = await Task.updateRepetitiveTask(req.body.taskId , Object.values(generrationTime[0])[0], req.body.repetitiveType);
+            const repetitiveTask = await RepetitiveTask.updateRepetitiveTask(req.body.taskId , Object.values(generrationTime[0])[0], req.body.repetitiveType);
             if (!repetitiveTask.affectedRows) return res.status(400).json({
               success: false,
               message: "Error in Task.addRepetitiveTask().",
               data: "Bad Request"
             });
           }
+        } else {
+          const getRepetitiveTask= await RepetitiveTask.getRepetitiveTask(req.body.taskId);
+          if (getRepetitiveTask?.length) {
+            await RepetitiveTask.deleteRepetitiveTask(req.body.taskId)
+          }
         }
 
         if (req.body.items) {
-          await Promise.all(req.body.items.map( async(i) => {
-            if (i.id){
-              const query = await Item.updateItem(i.id , i.content);
-              if (!query.affectedRows) return res.status(400).json({
-                success: false,
-                message: "Error in Item.updateItem().",
-                data: "Bad Request"
-              });
+          await Promise.all((req.body.items).map( async(i) => {
+            if (i.content){
+              (i.id) ? await Item.updateItem(i.id , i.content) : await Item.addItem(req.body.taskId , i.content);
             } else {
-              const query = await Item.addItem(req.body.taskId , i.content);
-              if (!query['insertId']) return res.status(400).json({
-                success: false,
-                message: "Error in parameter or missing parameter 'CONTENT'.",
-                data: "Bad Request"
-              });
+              console.log(i.id, i.content)
+              await Item.deleteItem(i.id) ;
             }
-          }));
+          }))
         } else {
           const query = await Item.getItem(req.body.taskId);
-          if(query?.length){
-            await Promise.all(query.map( async(i) => {
-              await Item.deleteItem(i.ID);              
-            }))
+          if(query){
+              await Item.deleteItems(req.body.taskId);
           }
         }
-        return res.status(200).json(
-            {
-            success: true,
-            message: "Data uploaded successfully.",
-            data: "OK"
+        return res.status(200).json({
+          success: true,
+          message: "Data update successfully.",
+          data: "OK"
         });
       }
-      return res.status(200).json({
-        success: true,
-        message: "Data update successfully.",
-        data: "OK"
-      });
-
     } catch (err) {
       console.log(err);
-      return res.status(400).json(
-          {
+      return res.status(400).json({
           success: false,
           message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
           data: "Bad Request"
-        }
-      );
+      });
     }
   }
 
