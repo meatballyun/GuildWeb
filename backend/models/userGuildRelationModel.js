@@ -13,9 +13,9 @@ class UserGuildRelationModel {
     });
   }
 
-  static getMembership(USER_ID, GUILD_ID) {
+  static getUserGuildRelation(USER_ID, GUILD_ID) {
     return new Promise((resolve, reject) => {
-      connection.query('SELECT MEMBERSHIP FROM userGuildRelations WHERE USER_ID = ? AND GUILD_ID = ?', [USER_ID, GUILD_ID], function (err, rows) {
+      connection.query('SELECT * FROM userGuildRelations WHERE USER_ID = ? AND GUILD_ID = ?', [USER_ID, GUILD_ID], function (err, rows) {
         if (err) {
             reject(err);
         } else {
