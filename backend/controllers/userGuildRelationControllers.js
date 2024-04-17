@@ -1,18 +1,29 @@
 const UserGuildRelation = require('../models/userGuildRelationModel');
-const UserFriend = require('../models/userFriendModel');
 
 class UserGuildRelationController {
   async sendInvitation(req, res) {
     try {      
-      const member = await UserGuildRelation.getUserGuildRelation(req.session.passport.user, req.body.guildId);
-      console.log(member);
-      if (member[0].MEMBERSHIP !== "Master"){
+      let member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, req.body.guildId);
+      if (!member?.length){
+        return res.status(403).json({
+            success: false,
+            message: "You are not a member of this guild.",
+            data: "Forbidden"
+        });                
+      }else if (member[0].MEMBERSHIP !== "Master"){
         return res.status(403).json({
           success: false,
-          message: "You do not have sufficient permissions to access this resource.",
+          message: "Only guild Master have permission to access this resource.",
           data: "Forbidden"
         });
       }
+      member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.body.userId, req.body.guildId);
+      if (member?.length)
+      return res.status(409).json({
+        success: false,
+        message: "The player has already been invited to join this guild. Please do not resend the invitation.",
+        data: "Conflict"
+      });
       const newmember = await UserGuildRelation.addUserGuildRelation(req.body.userId, req.body.guildId, 'Pending');
       if (newmember['affectedRows']){
         return res.status(200).json(
@@ -24,8 +35,7 @@ class UserGuildRelationController {
       }
     } catch (err) {
       console.log(err);
-      return res.status(400).json(
-          {
+      return res.status(400).json({
           success: false,
           message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
           data: "Bad Request"
@@ -36,25 +46,31 @@ class UserGuildRelationController {
 
   async replyInvitation(req, res) {
     try {
-      const member = await UserGuildRelation.getUserGuildRelation(req.query.userId, req.query.guildId);
-      if (member[0].MEMBERSHIP !== "Pending" || req.query.userId === req.session.passport.user){
-        return res.status(403).json({
+      const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, req.query.guildId);
+      if (!member?.length) {
+        return res.status(409).json({
           success: false,
-          message: "You do not have sufficient permissions to access this resource.",
-          data: "Forbidden"
+          message: "An error occurred while processing your invitation.",
+          data: "Conflict"
         });
       }
-      const query = await UserGuildRelation.updateUserGuildRelations(req.query.userId, req.query.guildId, 'Regular');
+      if (member[0].MEMBERSHIP !== "Pending"){
+        return res.status(410).json({
+          success: false,
+          message: "You are already a member of this guild. The invitation cannot be accepted.",
+          data: "Gone"
+        });
+      }
+      const query = await UserGuildRelation.updateUserGuildRelations(req.session.passport.user, req.query.guildId, 'Regular');
       if (query['affectedRows']){
         return res.status(200).json(
             {
             success: true,
-            message: "Data update successfully.",
+            message: "You have successfully accepted the invitation and joined the guild.",
             data: "OK"
         });
       }
     } catch (err) {
-      console.log(err);
       return res.status(400).json(
           {
           success: false,
@@ -67,11 +83,17 @@ class UserGuildRelationController {
 
   async updateUserGuildRelations(req, res) {
     try {
-      const member = await UserGuildRelation.getUserGuildRelation(req.session.passport.user, req.body.guildId);
-      if (member[0].MEMBERSHIP !== "Master"){
+      const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, req.body.guildId);
+      if (!member?.length){
+        return res.status(403).json({
+            success: false,
+            message: "You are not a member of this guild.",
+            data: "Forbidden"
+        });                
+      }else if (member[0].MEMBERSHIP !== "Master"){
         return res.status(403).json({
           success: false,
-          message: "You do not have sufficient permissions to access this resource.",
+          message: "Only guild Master have permission to access this resource.",
           data: "Forbidden"
         });
       }
@@ -83,10 +105,10 @@ class UserGuildRelationController {
             message: "Data update successfully.",
             data: "OK"
         });
-      } else{
+      } else if (!query?.length){
         return res.status(404).json({
             success: false,
-            message: "The requested resource was not found.",
+            message: "The member you are trying to edit does not exist in the guild. Please check the member's information and try again.",
             data: "Not Found"
         });                
       }
@@ -104,10 +126,17 @@ class UserGuildRelationController {
 
   async deleteUserGuildRelations(req, res) {
     try {
-      const member = await UserGuildRelation.getUserGuildRelation(req.session.passport.user, req.params.guildId);      
+      const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, req.params.guildId);
       const isMaster = member[0].MEMBERSHIP === "Master";
       const isCurrentUser = req.session.passport.user === req.params.userId;
-      if (((!isMaster && isCurrentUser) || (isMaster && !isCurrentUser)) && member?.length){
+
+      if (!member?.length){
+        return res.status(403).json({
+            success: false,
+            message: "You are not a member of this guild.",
+            data: "Forbidden"
+        });                
+      } else if (((!isMaster && isCurrentUser) || (isMaster && !isCurrentUser))){
         const query = await UserGuildRelation.deleteUserGuildRelations(req.params.userId, req.params.guildId);
         if (query['affectedRows']){
           return res.status(200).json(
@@ -119,14 +148,14 @@ class UserGuildRelationController {
         } else{
           return res.status(404).json({
               success: false,
-              message: "The requested resource was not found.",
+              message: "The member you are trying to edit does not exist in the guild. Please check the member's information and try again.",
               data: "Not Found"
           });                
         }
       } else {
         return res.status(403).json({
           success: false,
-          message: "You do not have sufficient permissions to access this resource.",
+          message: "Only guild Master have permission to access this resource.",
           data: "Forbidden"
         });
       }
@@ -142,7 +171,6 @@ class UserGuildRelationController {
       );
     }
   }
-
 }
 
 module.exports = UserGuildRelationController;

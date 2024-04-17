@@ -61,6 +61,18 @@ class GuildModel {
     });
   }
 
+  static daleteGuild(ID) {
+    return new Promise((resolve, reject) => {
+      connection.query('UPDATE guilds SET ACTIVE = FALSE WHERE ID = ?', [ID], function (err, rows) {
+        if (err) {
+            reject(err);
+        } else {
+            resolve(rows);
+        }
+      });
+    });
+  }
+
 }
 
 module.exports = GuildModel;
