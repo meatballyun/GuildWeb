@@ -6,21 +6,30 @@ const user = require('./user.js');
 const upload = require('./upload.js');
 const food = require('./food.js');
 const guild = require('./guild.js');
-const task = require('./task.js');
 const passport = require('../verification/passport');
 const LogInController = require('../controllers/loginControllers');
 const logInController = new LogInController();
 
-const GuildController = require('../controllers/guildControllers');
-const guildController = new GuildController();
-const UserGuildRelationController = require('../controllers/userGuildRelationControllers');
-const userGuildRelationController = new UserGuildRelationController();
+function middleware1(req, res, next) {
+  //throw new Error('fake error by throw');   
+  //next(new Error('fake error by next()'));
+  //return;  
+  req.a = 15;
+  next(); 
+  console.log('middleware1');
+  //res.send('搶先送出回應');
+}
+function middleware2(req, res, next) {
+  console.log('middleware2');
+  console.log(req.a);
+  next(); 
+}
+router.get('/middleware', middleware1, middleware2, function (req, res) {
+  console.log('final');
+  res.send('done');
+});
 
-const TaskController = require('../controllers/taskControllers');
-const taskController = new TaskController();
-
-//router.get('/', passport.authenticate('jwt', { session: false }) );
-router.get('/checkAuth', taskController.updateTask);
+//router.get('/checkAuth', taskController.updateTask);
 
 router.post('/login', logInController.login);
 
@@ -37,7 +46,5 @@ router.use('/upload', upload);
 router.use('/food', food);
 
 router.use('/guild', guild);
-
-router.use('/task', task);
 
 module.exports = router;

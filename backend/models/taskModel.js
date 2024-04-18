@@ -61,7 +61,7 @@ class TaskModel {
     });
   }
 
-  static acceptTack(TASK_ID, ADVENTURER) {
+  static acceptTask(TASK_ID, ADVENTURER) {
     return new Promise((resolve, reject) => {
       connection.query('UPDATE tasks SET ADVENTURER = ? WHERE ID = ?', [ADVENTURER, TASK_ID], function (err, rows) {
         if (err) {

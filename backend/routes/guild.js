@@ -1,30 +1,47 @@
 const express = require("express")
 const router = express.Router();
 const passport = require('../verification/passport');
+const auth = passport.authenticate('jwt', { session: true });
+const { GuildAuth, GuildController, UserGuildRelationController } = require('../controllers/guildControllers');
+const TaskController = require('../controllers/taskControllers');
+const guild = new GuildController();
+const guildAuth = new GuildAuth();
+const member = new UserGuildRelationController();
+const task = new TaskController();
 
-const GuildController = require('../controllers/guildControllers');
-const guildController = new GuildController();
-const UserGuildRelationController = require('../controllers/userGuildRelationControllers');
-const userGuildRelationController = new UserGuildRelationController();
+// Guild
+router.get('/', auth, guild.getGuilds);
 
-router.get('/', passport.authenticate('jwt', { session: true }), guildController.getGuilds);
+router.get('/:gid', auth, guildAuth.isMember, guild.getGuildDetail);
 
-router.get('/:id', passport.authenticate('jwt', { session: true }), guildController.getGuildDetail);
+router.post('/', auth, guild.addGuild);
 
-router.post('/', passport.authenticate('jwt', { session: true }), guildController.addGuild);
+router.put('/:gid', auth, guildAuth.isMaster, guild.updateGuild);
 
-router.put('/:id', passport.authenticate('jwt', { session: true }), guildController.updateGuild);
+router.delete('/:gid', auth, guildAuth.isMaster, guild.daleteGuild);
 
-router.delete('/:id', passport.authenticate('jwt', { session: true }), guildController.daleteGuild);
+// Member
+router.get('/:gid/invitation', auth, member.replyInvitation);
 
-router.get('/:id/invitation', passport.authenticate('jwt', { session: true }), userGuildRelationController.replyInvitation);
+router.get('/:gid/member', auth, guildAuth.isMember, member.getMember);
 
-router.get('/:id/member', passport.authenticate('jwt', { session: true }), userGuildRelationController.getUserGuildRelations);
+router.post('/:gid/member', auth, guildAuth.isMasterOrAdmin, member.sendInvitation);
 
-router.post('/:id/member', passport.authenticate('jwt', { session: true }), userGuildRelationController.sendInvitation);
+router.patch('/:gid/member', auth, guildAuth.isMember, guildAuth.isMaster, member.updateMember);
 
-router.patch('/:id/member', passport.authenticate('jwt', { session: true }), userGuildRelationController.updateUserGuildRelations);
+router.delete('/:gid/member/:uid', auth, guildAuth.isMember, member.deleteMember);
 
-router.delete('/:id/member/:userId', passport.authenticate('jwt', { session: true }), userGuildRelationController.deleteUserGuildRelations);
+// Task
+router.get('/:gid/task', auth, task.getTasks);
+
+router.get('/:gid/task/:tid', auth, guildAuth.isMember, task.getTaskDetail);
+
+router.get('/:gid/task/:tid/accepted', auth, guildAuth.isMember, task.acceptTack2);
+
+router.post('/:gid/task/', auth, guildAuth.isMasterOrAdmin, task.addTask);
+
+router.put('/:gid/task/', auth, guildAuth.isMember, task.updateTask);
+
+router.delete('/:gid/task/:tid', auth, guildAuth.isMember, task.deleteTask);
 
 module.exports = router;

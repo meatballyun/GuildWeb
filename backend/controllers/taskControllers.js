@@ -7,22 +7,13 @@ const UserGuildRelation = require('../models/userGuildRelationModel');
 const User = require('../models/userModel');
 
 class TaskController {
-  async getTask(req, res) {
+  async getTasks(req, res) {
     try {
-      const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, req.query.guildId);
-      if (!member?.length){
-        return res.status(403).json({
-          success: false,
-          message: "You are not a member of this guild.",
-          data: "Forbidden"
-        });
-      }
-
-      const tasks = (req.query.q) ? await Task.getTaskByGuildAndName(req.query.guildId, req.query.q) : await Task.getTaskByGuild(req.query.guildId);
+      const tasks = (req.query.q) ? await Task.getTaskByGuildAndName(req.params.gid, req.query.q) : await Task.getTaskByGuild(req.params.gid);
       let data;
       if (tasks?.length){
         data = await Promise.all( tasks.map( async (row) => {
-          const repetitiveTasksType ='None';
+          let repetitiveTasksType ='None';
           if (row.TYPE === 'Repetitive'){
             const repetitiveTasks = await RepetitiveTask.getRepetitiveTask(row.ID);
             repetitiveTasksType = repetitiveTasks[0].TYPE;
@@ -64,17 +55,16 @@ class TaskController {
 
   async getTaskDetail(req, res) {
     try {
-      const [task] = await Task.getTaskDetail(req.params.id);
+      const [task] = await Task.getTaskDetail(req.params.tid);
       let data;
-      if (task.ID) {
-        console.log(task.ID);
+      if ( task && task.ID) {
         let repetitiveTasksType, adventurers, itemRecords;
         if (task.TYPE === 'Repetitive'){
           const [ repetitiveTasks ] = await RepetitiveTask.getRepetitiveTask(task.ID);
           repetitiveTasksType = repetitiveTasks.TYPE;
         }
 
-        adventurers = (await Promise.all(await Adventurer.getAdventurerByTask(req.params.id))).map(async(row) => {
+        adventurers = (await Promise.all(await Adventurer.getAdventurerByTask(req.params.tid))).map(async(row) => {
           const user = await User.getUserById(row.USER_ID);
           return {
             id: row.USER_ID,
@@ -84,7 +74,7 @@ class TaskController {
           }
         });
 
-        itemRecords = (await Promise.all(await ItemRecord.getItemRecord(req.params.id))).map(async(row) => {
+        itemRecords = (await Promise.all(await ItemRecord.getItemRecord(req.params.tid))).map(async(row) => {
           return {
             id: row.ID ,
             status: row.STATUS,
@@ -111,7 +101,13 @@ class TaskController {
           message: "Data retrieval successful.",
           data : data 
         });
-      }
+      } 
+
+      return res.status(409).json({
+        success: false,
+        message: "Conflict detected",
+        data : "Conflict" 
+      });
       
       return res.status(200).json({
         success: true,
@@ -133,16 +129,9 @@ class TaskController {
 
   async acceptTack(req, res){
     try {
-      const [ task ] = await Task.getTaskDetail(req.params.id);
-      const [ isMember ] = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, task.GUILD_ID);
-      const [ isAdventurer ] = await Adventurer.getAdventurerByTaskAndUser(req.params.id, req.session.passport.user);
-      if (!isMember || !isMember.USER_ID){
-        return res.status(403).json({
-          success: false,
-          message: "You do not have sufficient permissions to access this resource.",
-          data: "Forbidden"
-        });        
-      } else if (!task || !task.ID) {
+      const [ task ] = await Task.getTaskDetail(req.params.tid);
+      const [ isAdventurer ] = await Adventurer.getAdventurerByTaskAndUser(req.params.tid, req.session.passport.user);
+      if (!task || !task.ID) {
         return res.status(404).json({
           success: false,
           message: "The requested resource was not found.",
@@ -168,7 +157,7 @@ class TaskController {
         });
       }
       
-      const acceptTack = await Task.acceptTack(req.params.id, task.ADVENTURER + 1);
+      const acceptTack = await Task.acceptTack(req.params.tid, task.ADVENTURER + 1);
       if (!acceptTack || !acceptTack.affectedRows){
         return res.status(400).json({
           success: false,
@@ -177,11 +166,11 @@ class TaskController {
         });
       } else {
         if ((task.ADVENTURER + 1) >= task.MAX_ADVENTURER){
-          await Task.maxAccepted(req.params.id);
+          await Task.maxAccepted(req.params.tid);
         }
       }
       
-      const adventurer = await Adventurer.addAdventurer(req.params.id , req.session.passport.user);
+      const adventurer = await Adventurer.addAdventurer(req.params.tid , req.session.passport.user);
       if (!adventurer || !adventurer.affectedRows){
         return res.status(400).json({
           success: false,
@@ -190,7 +179,7 @@ class TaskController {
         });
       }
 
-      const items = await Item.getItem(req.params.id);
+      const items = await Item.getItem(req.params.tid);
       if (items){
         await Promise.all( items.map( async (row) => {
           const itemRecord = await ItemRecord.addItemRecord(row.ID, row.CONTENT, req.session.passport.user);
@@ -377,7 +366,7 @@ class TaskController {
 
   async deleteTask(req, res) {
     try {
-      const deleteTask = await Task.deleteTask(req.params.id);
+      const deleteTask = await Task.deleteTask(req.params.tid);
       if (deleteTask.affectedRows){
         return res.status(200).json({
           success: true,
@@ -403,6 +392,64 @@ class TaskController {
       );
     }
   }
+
+  async acceptTack2(req, res){
+    try {
+      const [ task ] = await Task.getTaskDetail(req.params.tid);
+      const [ isAdventurer ] = await Adventurer.getAdventurerByTaskAndUser(req.params.tid, 9);
+      if (!task || !task.ID) {
+        return res.status(404).json({
+          success: false,
+          message: "The requested resource was not found.",
+          data: "Not Found"
+        });
+      } else if (isAdventurer) {
+        return res.status(200).json({
+          success: true,
+          message: "You have already accepted this task.",
+          data: "OK"
+        });
+      } else if (task.STATUS !== 'Established' && task.STATUS !== 'Pending Activation' && task.STATUS !== "In Progress") {
+        return res.status(200).json({
+          success: true,
+          message: "The current task status is not available for acceptance.",
+          data: "OK"
+        });
+      } else if (task.ACCEPTED ===  'Max Accepted') {
+        return res.status(200).json({
+          success: true,
+          message: "The maximum number of adventurers for this task has been reached.",
+          data: "OK"
+        });
+      }
+      
+      const adventurer = await Adventurer.addAdventurer(req.params.tid , 9);
+      if (!adventurer || !adventurer.affectedRows){
+        return res.status(400).json({
+          success: false,
+          message: "When attempting to add the table for adventurers, an error occurred.",
+          data: "Bad Request"
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "User successfully accepted the task.",
+        data: "OK"
+      });
+
+    } catch (err){
+      console.log(err);
+      return res.status(400).json(
+          {
+          success: false,
+          message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
+          data: "Bad Request"
+        }
+      );
+    }
+  }
+
 }
 
 module.exports = TaskController;
