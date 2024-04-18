@@ -15,7 +15,7 @@ class TaskModel {
 
   static getTaskDetail(ID) {
     return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM tasks WHERE ID = ?', [ID], function (err, rows) {
+      connection.query('SELECT * FROM tasks WHERE ID = ? AND ACTIVE = TRUE', [ID], function (err, rows) {
         if (err) {
             reject(err);
         } else {
@@ -27,7 +27,7 @@ class TaskModel {
 
   static getTaskByGuild(GUILD_ID) {
     return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM tasks WHERE GUILD_ID = ?', [GUILD_ID], function (err, rows) {
+      connection.query('SELECT * FROM tasks WHERE GUILD_ID = ? AND ACTIVE = TRUE', [GUILD_ID], function (err, rows) {
         if (err) {
             reject(err);
         } else {
@@ -39,7 +39,7 @@ class TaskModel {
 
   static getTaskByGuildAndName(GUILD_ID, NAME) {
     return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM tasks WHERE GUILD_ID = ? AND , NAME LIKE ?', [GUILD_ID, '%'+NAME+'%'], function (err, rows) {
+      connection.query('SELECT * FROM tasks WHERE GUILD_ID = ? AND NAME LIKE ? AND ACTIVE = TRUE', [GUILD_ID, '%'+NAME+'%'], function (err, rows) {
         if (err) {
             reject(err);
         } else {
@@ -64,6 +64,18 @@ class TaskModel {
   static acceptTack(TASK_ID, ADVENTURER) {
     return new Promise((resolve, reject) => {
       connection.query('UPDATE tasks SET ADVENTURER = ? WHERE ID = ?', [ADVENTURER, TASK_ID], function (err, rows) {
+        if (err) {
+            reject(err);
+        } else {
+            resolve(rows);
+        }
+      });
+    });
+  }
+
+  static maxAccepted(TASK_ID) {
+    return new Promise((resolve, reject) => {
+      connection.query(`UPDATE tasks SET ACCEPTED = 'Max Accepted' WHERE ID = ?`, [TASK_ID], function (err, rows) {
         if (err) {
             reject(err);
         } else {
