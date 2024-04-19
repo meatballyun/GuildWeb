@@ -10,24 +10,41 @@ const passport = require('../verification/passport');
 const LogInController = require('../controllers/loginControllers');
 const logInController = new LogInController();
 
+const ErrorHandler = (err, req, res, next) => {
+  console.log("Middleware Error Hadnling");
+  const errStatus = err.statusCode || 500;
+  const errMsg = err.message || 'Something went wrong';
+  res.status(errStatus).json({
+      success: false,
+      status: errStatus,
+      message: errMsg,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : {}
+  })
+}
+
 function middleware1(req, res, next) {
   //throw new Error('fake error by throw');   
   //next(new Error('fake error by next()'));
   //return;  
+  console.log(process.env);
   req.a = 15;
-  next(); 
   console.log('middleware1');
+  next(); 
   //res.send('搶先送出回應');
 }
 function middleware2(req, res, next) {
+  if (req.a > 10) {
+    var err = new Error("Something went wrong");
+    next(err)
+  }
   console.log('middleware2');
-  console.log(req.a);
-  next(); 
+  next();
 }
 router.get('/middleware', middleware1, middleware2, function (req, res) {
   console.log('final');
-  res.send('done');
+  return res.send('done');  
 });
+
 
 //router.get('/checkAuth', taskController.updateTask);
 

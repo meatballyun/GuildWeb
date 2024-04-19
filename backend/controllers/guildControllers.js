@@ -29,8 +29,7 @@ class GuildAuth {
         data: "Forbidden"
       });
     }
-  }  
-
+  } 
   async isMasterOrAdmin(req, res, next) {
     const { message, member } = await checkAuth(req.session.passport.user, req.params.gid, 1);
     if (message === "OK"){
@@ -196,7 +195,6 @@ class GuildController {
 class UserGuildRelationController {
   async sendInvitation(req, res) {
     try {      
-      req.member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.body.userId, req.params.gid);
       if (req.member?.length)
       return res.status(409).json({
         success: false,
@@ -225,15 +223,14 @@ class UserGuildRelationController {
 
   async replyInvitation(req, res) {
     try {
-      const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, req.params.gid);
-      if (!member?.length) {
+      if (!req.member?.length) {
         return res.status(409).json({
           success: false,
           message: "An error occurred while processing your invitation.",
           data: "Conflict"
         });
       }
-      if (member[0].MEMBERSHIP !== "Pending"){
+      if (req.member[0].MEMBERSHIP !== "Pending"){
         return res.status(410).json({
           success: false,
           message: "You are already a member of this guild. The invitation cannot be accepted.",
@@ -326,10 +323,10 @@ class UserGuildRelationController {
 
   async deleteMember(req, res) {
     try {
-      const isMaster = req.member.MEMBERSHIP === "Master";
-      const isCurrentUser = req.session.passport.user === req.params.uid;
+      const isMaster = (req.member[0].MEMBERSHIP === "Master");
+      const isCurrentUser = (req.session.passport.user === req.params.uid);
 
-      if (((!isMaster && isCurrentUser) || (isMaster && !isCurrentUser))){
+      if ((!isMaster && isCurrentUser) || (isMaster && !isCurrentUser)){
         const query = await UserGuildRelation.deleteUserGuildRelations(req.params.uid, req.params.gid);
         if (query['affectedRows']){
           return res.status(200).json(

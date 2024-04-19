@@ -36,11 +36,13 @@ router.get('/:gid/task', auth, task.getTasks);
 
 router.get('/:gid/task/:tid', auth, guildAuth.isMember, task.getTaskDetail);
 
-router.get('/:gid/task/:tid/accepted', auth, guildAuth.isMember, task.acceptTack2);
+router.get('/:gid/task/:tid/accepted', auth, guildAuth.isMember, task.acceptTack);
 
 router.post('/:gid/task/', auth, guildAuth.isMasterOrAdmin, task.addTask);
 
-router.put('/:gid/task/', auth, guildAuth.isMember, task.updateTask);
+router.patch('/:gid/task/cancel', auth, guildAuth.isMasterOrAdmin, task.cancelTask);
+
+router.put('/:gid/task/', auth, guildAuth.isMasterOrAdmin, task.updateTask);
 
 router.delete('/:gid/task/:tid', auth, guildAuth.isMember, task.deleteTask);
 
