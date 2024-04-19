@@ -50,6 +50,18 @@ class RepetitiveTaskModel {
     });
   }
 
+  static deleteRepetitiveTask(TASK_ID) {
+    return new Promise((resolve, reject) => {
+      connection.query('DELETE FROM repetitiveTasks WHERE TASK_ID = ?', [TASK_ID], function (err, rows) {
+        if (err) {
+            reject(err);
+        } else {
+            resolve(rows);
+        }
+      });
+    });
+  }
+
 }
 
 module.exports = RepetitiveTaskModel;

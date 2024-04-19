@@ -39,7 +39,19 @@ class ItemModel {
 
   static deleteItem(ID) {
     return new Promise((resolve, reject) => {
-      connection.query('UPDATE items SET ACTIVE = FALSE WHERE TASK_ID = ?', [ID], function (err, rows) {
+      connection.query('UPDATE items SET ACTIVE = FALSE WHERE ID = ?', [ID], function (err, rows) {
+        if (err) {
+            reject(err);
+        } else {
+            resolve(rows);
+        }
+      });
+    });
+  }
+
+  static deleteItems(TASK_ID) {
+    return new Promise((resolve, reject) => {
+      connection.query('UPDATE items SET ACTIVE = FALSE WHERE TASK_ID = ?', [TASK_ID], function (err, rows) {
         if (err) {
             reject(err);
         } else {

@@ -1,19 +1,26 @@
 const express = require("express")
 const router = express.Router();
 const passport = require('../verification/passport');
+const auth = passport.authenticate('jwt', { session: true });
 const UserInfoController = require('../controllers/userinfoControllers');
-const userInfoController = new UserInfoController();
+const userInfo = new UserInfoController();
 const UserListController = require('../controllers/userListControllers');
-const userListController = new UserListController();
+const userList = new UserListController();
 
-router.get('/me', passport.authenticate('jwt', { session: true }), userInfoController.getUserInfoByUserId);
-router.put('/me', passport.authenticate('jwt', { session: true }), userInfoController.updateUserTarget);
+// UserInfo
+router.get('/me', auth, userInfo.getUserInfoByUserId);
 
-router.post('/', passport.authenticate('jwt', { session: true }), userListController.sendInvitation);
-router.get('/', passport.authenticate('jwt', { session: true }), userListController.getUsers);
+router.put('/me', auth, userInfo.updateUserTarget);
 
-router.put('/friend', passport.authenticate('jwt', { session: true }), userListController.updateFriends);
-router.get('/friend', passport.authenticate('jwt', { session: true }), userListController.getFriends);
-router.delete('/friend/:id', passport.authenticate('jwt', { session: true }), userListController.deleteFriend);
+// Friend
+router.get('/', auth, userList.getUsers);
+
+router.get('/friend', auth, userList.getFriends);
+
+router.post('/', auth, userList.sendInvitation);
+
+router.put('/friend', auth, userList.updateFriends);
+
+router.delete('/friend/:id', auth, userList.deleteFriend);
 
 module.exports = router;
