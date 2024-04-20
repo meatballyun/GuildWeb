@@ -2,6 +2,8 @@ const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
 const ConfirmationMail = require('../models/confirmationMailModel');
 const User = require('../models/userModel');
+const ApplicationError = require('../utils/error/applicationError.js');
+VALIDATION_URL = process.env.NODE_ENV === 'development' ?  process.env.API_SERVICE_URL :  process.env.FE_URL;
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -14,12 +16,12 @@ const transporter = nodemailer.createTransport({
 
 const mailOptions = (EMAIL, ID, CODE) => ({
   from: process.env.MAIL_USER,
-  to: 'rex.rex022534@gmail.com',
+  to: EMAIL,
   subject: 'Hello User',
   html: `
         <p>This email sincerely invites you to join Guild.</p>
         <p>Brave adventurers, please activate the magic emblem below to join our ranks.</p>
-        <a href="${process.env.FE_URL}/validation?id=${ID}&code=${CODE}" style="padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Verify Email</a>
+        <a href="${VALIDATION_URL}/validation?id=${ID}&code=${CODE}" style="padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Verify Email</a>
         <p>(If you did not request this verification, please ignore this email.)</p>
     `
 })
@@ -43,12 +45,7 @@ class MailController {
       const query = await ConfirmationMail.addConfirmationMail(req.body.id, "SignUp", CODE);
       transporter.sendMail(mailOptions(req.body.email, query.insertId, CODE), function(err, info){
         if(err){
-          console.log(err);
-          return res.status(404).json({
-            success: false,
-            message: "Email address not found.",
-            error: "Not Found"
-          });
+          return next(new ApplicationError(404, 'Email address not found.'));
         } else{
           console.log("Email sent: " + info.response);
           return res.status(200).json({
@@ -59,12 +56,7 @@ class MailController {
         }
       })
     } catch (err) {
-      console.log(err);
-      return res.status(400).json({
-        success: false,
-        message: "Bad Request: The email address provided is invalid.",
-        data: "Bad Request"
-      });
+      return next(new ApplicationError(400));
     }
   }
 
