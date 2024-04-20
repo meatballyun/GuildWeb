@@ -1,25 +1,28 @@
 const express = require('express');
-const path = require('path');
+const {createProxyMiddleware} = require('http-proxy-middleware');
 const logger = require('morgan');
 const cors = require('cors');
-const cookieParser = require('cookie-parser');
-const session = require('express-session');
 const bodyParser = require('body-parser');
+const session = require('express-session');
 const passport = require('passport');
-const createProxyMiddleware = require('http-proxy-middleware');
-
-// Setting routes
+const cookieParser = require('cookie-parser');
 const routes = require('./routes/index');
+const errorHandler = require('./utils/errorHandler.js');
+
 const app = express();
-app.use(bodyParser.json({ limit: '1mb' }))
+if (process.env.NODE_ENV !== 'development'){
+    app.use('/api', createProxyMiddleware({
+        target: process.env.API_SERVICE_URL,
+        changeOrigin: true,
+        pathRewrite: {
+            [`^/api`]: '',
+        },
+    }));
+} else app.use(logger('dev'));
 
-app.use(logger('dev'));
-app.use(cors({
-    origin:"*"
-}));
-app.use(bodyParser.json());
+app.use(cors({ origin:"*" }));
+app.use(bodyParser.json({ limit: '5mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
-
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: true,
@@ -27,29 +30,10 @@ app.use(session({
     cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 app.set('trust proxy', 1)
-
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(cookieParser());
-
 app.use('/api', routes);
-
-//404
-app.use((req, res, next) => {
-    res.status(404).json({
-        success: false,
-        message: "The requested resource was not found.",
-        data: "Not Found"
-    });
-});
-
-//500
-app.use((err, req, res, next) => {
-    res.status(500).json({
-        "success": false,
-        "message": "Internal Server Error occurred. Please try again later.",
-        "error": "Internal Server Error"
-      });
-});
+app.use(errorHandler);
 
 module.exports = app;

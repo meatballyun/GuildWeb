@@ -1,5 +1,6 @@
 const passport = require('../verification/passport');
 const jwt = require('jsonwebtoken');
+const ApplicationError = require('../utils/error/applicationError.js');
 
 class LogInController {
     async login(req, res, next) {
@@ -8,20 +9,12 @@ class LogInController {
                 if (err) {
                     console.log(err)
                 } else if (!user) {
-                    return res.status(401).json({
-                        success: false,
-                        message: info,
-                        error: "Unauthorized"
-                    });
+                    return next(new ApplicationError(401, info));
                 } else if(user.STATUS === "Pending"){
-                    return res.status(403).json({
-                        success: false,
-                        message: "Email verification required. Please verify your email address to perform this action.",
-                        error: "Forbidden"
-                    });
+                    return next(new ApplicationError(403, 'Email verification required. Please verify your email address to perform this action.'));
                 } else {
                     req.login(user, function (err) {           
-                        if (err) return next(err);
+                        if (err) return next(403, err);
                         const currentTimestamp = Math.floor(Date.now()/1000);
                         const payload = {
                             id: user.ID,
@@ -42,11 +35,7 @@ class LogInController {
             })(req, res, next);
         }
         catch {
-            return res.status(400).json({
-                success: false,
-                message: "Bad Request: The process is invalid.",
-                data: "Bad Request"
-            });
+            return next(new ApplicationError(400));
         }
     }
 

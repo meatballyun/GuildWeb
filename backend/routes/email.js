@@ -1,7 +1,6 @@
 const express = require("express")
 const router = express.Router();
-const MailController = require('../controllers/mailControllers');
-const mailUp = new MailController();
+const mailUp = new (require('../controllers/mailControllers'))();
 
 router.post('/resend', mailUp.resendSignUpMail);
 
