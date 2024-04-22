@@ -10,6 +10,7 @@ module.exports = {
       'primary-200': '#BBAFA2',
       'primary-100': '#F1E3D5',
       white: '#ffffff',
+      paper: '#DCCAB7',
       warning: '#f5e9b9',
       black: '#000000',
       red: '#D1104A',

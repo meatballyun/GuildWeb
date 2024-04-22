@@ -7,6 +7,7 @@ import { AuthLayout, MainLayout } from './_layout';
 import { SettingsPage } from './settings';
 import { ValidationPage } from './validation';
 import { UsersPage } from './users';
+import GuildRoute from './guild';
 
 function Pages() {
   return (
@@ -26,6 +27,7 @@ function Pages() {
         <Route path="/friends" element={<UsersPage friendsMode />} />
         <Route path="/users" element={<UsersPage />} />
         <Route path="/food/*" element={<FoodRoute />} />
+        <Route path="/guild/*" element={<GuildRoute />} />
       </Route>
     </Routes>
   );
