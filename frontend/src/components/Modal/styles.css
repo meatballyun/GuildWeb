@@ -6,7 +6,7 @@
   @apply flex h-full p-4;
 }
 .modal {
-  @apply m-auto flex max-h-full w-[500px] flex-col rounded-md bg-primary-100;
+  @apply bg-paper m-auto flex max-h-full w-[500px] flex-col rounded-md;
 }
 .modal-content {
   @apply max-h-full flex-1 p-2;

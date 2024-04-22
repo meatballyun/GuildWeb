@@ -1,7 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import './styles.css';
 import { Input } from '../Form';
 import { MaterialSymbol } from '../MaterialSymbol';
+import { classNames } from '../../utils';
+import { createPortal } from 'react-dom';
 
 const extractTextFromChildren = (label) => {
   let text = '';
@@ -13,12 +15,29 @@ const extractTextFromChildren = (label) => {
   return text;
 };
 
+export const Dropdown = forwardRef(({ menuItem, onItemClick }, ref) => {
+  return (
+    <div className="dropdown-select__options" ref={ref}>
+      {menuItem.map((item) => (
+        <div
+          key={item.value}
+          className="dropdown-select__option"
+          onClick={() => onItemClick?.(item.value, item)}
+        >
+          {item.label}
+        </div>
+      ))}
+    </div>
+  );
+});
+
 export const DropdownSelect = ({
   options = [],
   placeholder,
   renderValue,
   value: valueProp,
   disabled,
+  className,
   onChange: onChangeProp,
 }) => {
   const inputRef = useRef();
@@ -36,8 +55,8 @@ export const DropdownSelect = ({
 
   const selectValue = useMemo(() => {
     const selectOption = options.find(({ value }) => value === currentValue);
-    if (renderValue) return renderValue(selectOption ?? {});
-    return selectOption?.label;
+    if (renderValue) return renderValue(currentValue, selectOption ?? {});
+    return selectOption?.label ?? currentValue;
   }, [currentValue, options, renderValue]);
 
   const handleOptionClick = (newValue) => {
@@ -67,7 +86,7 @@ export const DropdownSelect = ({
   });
 
   return (
-    <div className="dropdown-select" ref={inputRef}>
+    <div className={classNames('dropdown-select', className)} ref={inputRef}>
       <div
         className="dropdown-select__selected flex text-paragraph-p3"
         onClick={() => !disabled && setIsOpen(!isOpen)}
@@ -83,17 +102,7 @@ export const DropdownSelect = ({
         <MaterialSymbol icon="arrow_drop_down" size={24} />
       </div>
       {isOpen && (
-        <div className="dropdown-select__options" ref={dropdownRef}>
-          {filterOptions.map(({ value, label }) => (
-            <div
-              key={value}
-              className="dropdown-select__option"
-              onClick={() => handleOptionClick(value)}
-            >
-              {label}
-            </div>
-          ))}
-        </div>
+        <Dropdown menuItem={filterOptions} onItemClick={handleOptionClick} />
       )}
     </div>
   );

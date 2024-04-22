@@ -2,28 +2,28 @@ import { BASE_API_URL } from './constants';
 import { fetchJson } from './utils';
 
 export const login = ({ body }) =>
-  fetchJson({ url: `${BASE_API_URL}/login`, method: 'POST', body });
+  fetchJson({ url: `${BASE_API_URL}/user/login`, method: 'POST', body });
 
 export const logout = () =>
-  fetchJson({ url: `${BASE_API_URL}/logout`, method: 'GET' });
+  fetchJson({ url: `${BASE_API_URL}/user/logout`, method: 'GET' });
 
 export const checkAuth = (token) =>
   fetchJson({
-    url: `${BASE_API_URL}/checkAuth`,
+    url: `${BASE_API_URL}/user/checkAuth`,
     method: 'GET',
     headers: { Authorization: `Bearer ${token}` },
   });
 
 export const signUp = ({ body }) =>
   fetchJson({
-    url: `${BASE_API_URL}/signup`,
+    url: `${BASE_API_URL}/user/signup`,
     method: 'POST',
     body,
   });
 
 export const signUpValidation = ({ pathParams }) =>
   fetchJson({
-    url: `${BASE_API_URL}/signup?${pathParams}`,
+    url: `${BASE_API_URL}/user/signup?${pathParams}`,
     method: 'GET',
   });
 

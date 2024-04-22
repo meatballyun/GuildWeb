@@ -66,7 +66,7 @@ export const FoodBar = ({
         className
       )}
     >
-      <Avatar size={28} url={imageUrl} text={name} />
+      <Avatar size={28} url={imageUrl} name={name} />
       <div className="flex flex-[2] justify-between gap-2">
         <div className="flex-1 text-primary-400">{name}</div>
         <div className="flex-1 text-primary-400">{unit}</div>
