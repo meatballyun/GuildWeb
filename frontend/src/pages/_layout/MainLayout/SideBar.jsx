@@ -1,42 +1,43 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { api } from '../../../api';
 import { useContext, useEffect, useState } from 'react';
 import { Button, Avatar, ColumnBar, MaterialSymbol } from '../../../components';
 import { classNames } from '../../../utils';
 import { useNavigate } from 'react-router-dom';
 import { sideBarContext } from './context';
+import { useUserMe } from './MainLayout';
 
-const SIDEBAR_ITEMS = [
+const SIDEBAR_ITEMS = (guild) => [
   {
     label: 'HOME',
     key: 'home',
     icon: 'home',
     route: '/',
-    activeMatch: 'home',
+    name: 'home',
   },
   {
     label: 'FOOD',
     key: 'food',
-    activeMatch: 'food',
+    name: 'food',
     icon: 'restaurant',
     children: [
       {
         label: '• record',
         key: 'record',
         route: '/food/record',
-        activeMatch: 'record',
+        name: 'record',
       },
       {
         label: '• recipe',
         key: 'recipe',
         route: '/food/recipe',
-        activeMatch: 'recipe',
+        name: 'recipe',
       },
       {
         label: '• ingredient',
         key: 'ingredient',
         route: '/food/ingredient',
-        activeMatch: 'ingredient',
+        name: 'ingredient',
       },
     ],
   },
@@ -45,15 +46,32 @@ const SIDEBAR_ITEMS = [
     key: 'friends',
     icon: 'group',
     route: '/friends',
-    activeMatch: 'friends',
+    name: 'friends',
   },
   {
     label: 'GUILD',
     key: 'mission',
-    icon: 'point_scan',
-    route: '/guild',
-    activeMatch: 'guild',
-    disabled: true,
+    icon: 'demography',
+    name: 'guild',
+    children: [
+      {
+        label: '• overview',
+        key: 'guild',
+        route: '/guild',
+        name: 'overview',
+      },
+      ...guild.map(({ id, name, imageUrl }) => ({
+        label: (
+          <div className="flex items-start gap-1">
+            <Avatar size={20} name={name} className="mt-[2px]" url={imageUrl} />
+            {name}
+          </div>
+        ),
+        key: `guild.${id}`,
+        route: `/guild/${id}`,
+        name: String(id),
+      })),
+    ],
   },
 ];
 
@@ -68,16 +86,21 @@ export const SideBarProvider = ({ children }) => {
 
 export const useSideBar = ({ activeKey: activeKeyProp }) => {
   const { setActiveKey } = useContext(sideBarContext);
+  const activeKeyChangeCheck = Array.isArray(activeKeyProp)
+    ? activeKeyProp.join('')
+    : activeKeyProp;
   useEffect(() => {
     setActiveKey(activeKeyProp);
-  }, [activeKeyProp, setActiveKey]);
+  }, [activeKeyChangeCheck]);
 };
 
-const UserItem = ({ userMe }) => {
+const UserItem = () => {
+  const { userMe } = useUserMe();
+  if (!userMe) return null;
   return (
     <div className="p-4">
       <div className="flex items-center gap-2">
-        <Avatar size={48} url={userMe.imageUrl} text={userMe.name} />
+        <Avatar size={48} url={userMe.imageUrl} name={userMe.name} />
         <div className="text-heading-h3">{userMe.name}</div>
       </div>
       <div className="text-right text-heading-h4">Lv. {userMe.rank}</div>
@@ -97,19 +120,10 @@ const UserItem = ({ userMe }) => {
   );
 };
 
-const MenuLabel = ({
-  label,
-  icon,
-  suffix,
-  activeMatch,
-  children,
-  key,
-  ...props
-}) => {
+const MenuLabel = ({ label, icon, suffix, name, children, key, ...props }) => {
   const { activeKey } = useContext(sideBarContext);
-  const active = Array.isArray(activeKey)
-    ? activeKey.includes(activeMatch)
-    : activeMatch === activeKey;
+  const activeList = Array.isArray(activeKey) ? activeKey : [activeKey];
+  const active = name && !name.some((v, i) => v !== activeList[i]);
 
   return (
     <Button
@@ -128,13 +142,18 @@ const MenuLabel = ({
   );
 };
 
-const MenuItem = ({ children, route, icon, label, ...props }) => {
+const MenuItem = ({ children, route, icon, label, name, ...props }) => {
   const [showChildren, setShowChildren] = useState(false);
+  const currentName = Array.isArray(name) ? name : [name];
 
   if (children) {
     return (
       <div>
-        <MenuLabel onClick={() => setShowChildren((show) => !show)} {...props}>
+        <MenuLabel
+          name={currentName}
+          onClick={() => setShowChildren((show) => !show)}
+          {...props}
+        >
           <MaterialSymbol fill icon={icon} className="mr-1" />
           {label}
           <MaterialSymbol
@@ -144,8 +163,8 @@ const MenuItem = ({ children, route, icon, label, ...props }) => {
         </MenuLabel>
         {showChildren && (
           <div className="ml-4 flex flex-col gap-2 border-l-2 border-dotted border-primary-300 pl-2 pt-2">
-            {children.map((childProp) => (
-              <MenuItem {...childProp} />
+            {children.map(({ name: childName, ...childProp }) => (
+              <MenuItem name={[...currentName, childName]} {...childProp} />
             ))}
           </div>
         )}
@@ -154,8 +173,8 @@ const MenuItem = ({ children, route, icon, label, ...props }) => {
   }
   return (
     <Link to={route}>
-      <MenuLabel {...props}>
-        <MaterialSymbol fill icon={icon} className="mr-1" />
+      <MenuLabel name={currentName} {...props}>
+        {icon && <MaterialSymbol fill icon={icon} className="mr-1" />}
         {label}
       </MenuLabel>
     </Link>
@@ -163,15 +182,22 @@ const MenuItem = ({ children, route, icon, label, ...props }) => {
 };
 
 export const SideBar = () => {
-  const [userMe, setUserMe] = useState();
   const navigate = useNavigate();
+  const [guildList, setGuildList] = useState([]);
+
+  const getGuildList = async () => {
+    try {
+      const res = await api.guild.getGuild();
+      if (res.status !== 200) throw Error(res);
+      const json = await res.json();
+      setGuildList(json.data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   useEffect(() => {
-    api.auth
-      .getUserMe()
-      .then((res) => res.json())
-      .then((res) => setUserMe(res.data))
-      .catch(() => navigate('/login'));
+    getGuildList();
   }, []);
 
   const handleLogout = async () => {
@@ -181,13 +207,11 @@ export const SideBar = () => {
 
   return (
     <div className="sidebar">
-      {userMe && (
-        <Link to="/settings">
-          <UserItem userMe={userMe} />
-        </Link>
-      )}
+      <Link to="/settings">
+        <UserItem />
+      </Link>
       <div className="sidebar-main flex flex-col gap-2 overflow-auto">
-        {SIDEBAR_ITEMS.map((props) => (
+        {SIDEBAR_ITEMS(guildList ?? []).map((props) => (
           <MenuItem {...props} />
         ))}
       </div>
