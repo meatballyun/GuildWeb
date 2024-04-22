@@ -1,8 +1,9 @@
-const User = require('../models/userModel');
-const UserFriend = require('../models/userFriendModel');
+const User = require('../../models/userModel');
+const UserFriend = require('../../models/userFriendModel');
+const ApplicationError = require('../../utils/error/applicationError.js');
 
 class UserListController {
-  async getUsers(req, res) {     
+  async getUsers(req, res, next) {     
     try {  
         const query = await User.getUserByName(req.query.q);
         if (query?.length){
@@ -38,19 +39,13 @@ class UserListController {
         }
         
     } catch (err) {
-      console.log(err);
-        return res.status(400).json({
-          success: false,
-          message: "Bad Request: The request cannot be processed due to invalid information.",
-          data: "Bad Request"
-        });
+      return next(new ApplicationError(400));
     }
   }
 
-  async sendInvitation(req, res) {     
-    try {  
+  async sendInvitation(req, res, next) {     
+    try {
       const query = await UserFriend.addFriend(req.session.passport.user, req.body.userId);
-      console.log(query);
       if (query['affectedRows']){
         return res.status(200).json({
           success: true,
@@ -58,23 +53,15 @@ class UserListController {
           data: "OK"
         });
       } else {
-        return res.status(404).json({
-          success: false,
-          message: "The requested resource was not found.",
-          data: "Not Found"
-        });
+        return next(new ApplicationError(404));
       }        
     } catch (err) {
-      console.log(err);
-        return res.status(400).json({
-          success: false,
-          message: "Bad Request: The request cannot be processed due to invalid information.",
-          data: "Bad Request"
-        });
+      if (err.code === 'ER_DUP_ENTRY') return next(new ApplicationError(409, 'Cannot add duplicate friend relationship.'));
+      return next(new ApplicationError(400));
     }
   }
 
-  async updateFriends(req, res) {     
+  async updateFriends(req, res, next) {     
     try {
       const query = await UserFriend.updateFriend(req.body.userId, req.session.passport.user, req.body.status);
       if (query.affectedRows){
@@ -84,24 +71,16 @@ class UserListController {
           data: "OK"
         });
       } else {
-        return res.status(404).json({
-          success: false,
-          message: "The requested resource was not found.",
-          data: "Not Found"
-        });
+        return next(new ApplicationError(404));
       }        
     } catch (err) {
-        return res.status(400).json({
-          success: false,
-          message: "Bad Request: The request cannot be processed due to invalid information.",
-          data: "Bad Request"
-        });
+      return next(new ApplicationError(400));
     }
   }
 
-  async getFriends(req, res) {     
+  async getFriends(req, res, next) {     
     try { 
-      const query = req.query.q ? await UserFriend.getFriends(req.query.q) : await UserFriend.getFriends(req.session.passport.user);
+      const query = req.query.q ? await UserFriend.getFriendsByName(req.query.q) : await UserFriend.getFriendsById(req.session.passport.user);
       if (query?.length){
         const users = query.map(row =>({
           id: row.ID,
@@ -124,15 +103,11 @@ class UserListController {
       }
         
     } catch (err) {
-        return res.status(400).json({
-          success: false,
-          message: "Bad Request: The request cannot be processed due to invalid information.",
-          data: "Bad Request"
-        });
+      return next(new ApplicationError(400));
     }
   }
 
-  async deleteFriend(req, res) {     
+  async deleteFriend(req, res, next) {     
     try {  
         const query = await UserFriend.deleteFriend(req.session.passport.user, req.query.id);
         if (query.affectedRows){
@@ -142,19 +117,11 @@ class UserListController {
             data: "OK"
           });
         } else {
-          return res.status(404).json({
-            success: false,
-            message: "The requested resource was not found.",
-            data: "Not Found"
-          });
+          return next(new ApplicationError(404));
         }
         
     } catch (err) {
-        return res.status(400).json({
-          success: false,
-          message: "Bad Request: The request cannot be processed due to invalid information.",
-          data: "Bad Request"
-        });
+      return next(new ApplicationError(400));
     }
   }
 

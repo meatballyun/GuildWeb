@@ -10,16 +10,14 @@ const routes = require('./routes/index');
 const errorHandler = require('./utils/errorHandler.js');
 
 const app = express();
-if (process.env.NODE_ENV !== 'development'){
-    app.use('/api', createProxyMiddleware({
-        target: process.env.API_SERVICE_URL,
-        changeOrigin: true,
-        pathRewrite: {
-            [`^/api`]: '',
-        },
-    }));
-} else app.use(logger('dev'));
-
+// app.use('/api', createProxyMiddleware({
+//     target: process.env.API_SERVICE_URL,
+//     changeOrigin: true,
+//     pathRewrite: {
+//         [`^/api`]: '',
+//     },
+// }));
+app.use(logger('dev'));
 app.use(cors({ origin:"*" }));
 app.use(bodyParser.json({ limit: '5mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));

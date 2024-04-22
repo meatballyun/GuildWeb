@@ -1,6 +1,6 @@
-const Ingredient = require('../models/ingredientModel.js');
-const RecipeIngredientRelation = require('../models/recipeIngredientRelationModel.js');
-const UserInfoController = require('./userinfoControllers');
+const Ingredient = require('../../models/ingredientModel.js');
+const RecipeIngredientRelation = require('../../models/recipeIngredientRelationModel.js');
+const UserInfoController = require('../user/userinfoControllers.js');
 const userInfoController = new UserInfoController();
 const updateUserExp = userInfoController.updateUserExp;
 

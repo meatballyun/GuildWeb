@@ -27,7 +27,19 @@ class GuildModel {
   
   static getGuild(ID) {
     return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM guilds WHERE ID = ?', [ID], function (err, rows) {
+      connection.query('SELECT * FROM guilds WHERE ID = ? AND ACTIVE = TRUE', [ID], function (err, rows) {
+        if (err) {
+            reject(err);
+        } else {
+            resolve(rows);
+        }
+      });
+    });
+  }
+
+  static getGuildByIdAndName(ID, NAME) {
+    return new Promise((resolve, reject) => {
+      connection.query('SELECT * FROM guilds WHERE ID = ? AND NAME LIKE ? AND ACTIVE = TRUE', [ID, '%'+NAME+'%'], function (err, rows) {
         if (err) {
             reject(err);
         } else {
@@ -39,7 +51,7 @@ class GuildModel {
   
   static getGuildsByLeader(LEADER_ID) {
     return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM guilds WHERE LEADER_ID = ?', [LEADER_ID], function (err, rows) {
+      connection.query('SELECT * FROM guilds WHERE LEADER_ID = ? AND ACTIVE = TRUE', [LEADER_ID], function (err, rows) {
         if (err) {
             reject(err);
         } else {
@@ -51,7 +63,7 @@ class GuildModel {
 
   static getGuildsByLeaderAndName(LEADER_ID, NAME) {
     return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM guilds WHERE LEADER_ID = ? AND NAME LIKE ?', [LEADER_ID, '%'+NAME+'%'], function (err, rows) {
+      connection.query('SELECT * FROM guilds WHERE LEADER_ID = ? AND NAME LIKE ? AND ACTIVE = TRUE', [LEADER_ID, '%'+NAME+'%'], function (err, rows) {
         if (err) {
             reject(err);
         } else {

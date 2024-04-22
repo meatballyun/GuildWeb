@@ -1,4 +1,6 @@
-const User = require('../models/userModel');
+const User = require('../../models/userModel');
+const ApplicationError = require('../../utils/error/applicationError.js');
+
 class UserInfoController {
     async getUserInfoByUserId(req, res) {        
         try {
@@ -25,22 +27,14 @@ class UserInfoController {
                 });
             }
             else {
-                res.status(404).json({
-                    success: false,
-                    message: "Not Found: The requested user was not found in the database.",
-                    data: "Not Found"
-                });
+                return next(new ApplicationError(404));
             }
         } catch (error) {
-            res.status(400).json({
-                success: false,
-                message: "Bad Request: The request cannot be processed due to invalid information.",
-                data: "Bad Request"
-            });
+            return next(new ApplicationError(400));
         }
     }
 
-    async updateUserTarget(req, res) {        
+    async updateUserInfo(req, res) {        
         try {
             const ID = req.session.passport.user;
             const query =  await User.updateUserInfo(ID, req.body.name, req.body.imageUrl, req.body.carbs, req.body.pro, req.body.fats, req.body.kcal);
@@ -51,19 +45,10 @@ class UserInfoController {
                     data: "OK"
                 });
             } else{
-                return res.status(404).json({
-                    success: false,
-                    message: "The requested resource was not found.",
-                    data: "Not Found"
-                });                
+                return next(new ApplicationError(404));
             }
-        } catch (error) {            
-            console.log(error);
-            res.status(400).json({
-                success: false,
-                message: "Bad Request: The request cannot be processed due to invalid information.",
-                data: "Bad Request"
-            });
+        } catch (error) {
+            return next(new ApplicationError(400));
         }
     }
 

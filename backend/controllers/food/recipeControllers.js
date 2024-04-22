@@ -1,8 +1,7 @@
-const Recipe = require('../models/recipeModel.js');
-const RecipeIngredientRelation = require('../models/recipeIngredientRelationModel.js');
-const Ingredient = require('../models/ingredientModel.js');
-
-const UserInfoController = require('./userinfoControllers');
+const Recipe = require('../../models/recipeModel.js');
+const RecipeIngredientRelation = require('../../models/recipeIngredientRelationModel.js');
+const Ingredient = require('../../models/ingredientModel.js');
+const UserInfoController = require('../user/userinfoControllers.js');
 const userInfoController = new UserInfoController();
 const updateUserExp = userInfoController.updateUserExp;
 

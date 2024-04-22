@@ -1,20 +1,20 @@
-const passport = require('../verification/passport');
+const passport = require('../../verification/passport.js');
 const jwt = require('jsonwebtoken');
-const ApplicationError = require('../utils/error/applicationError.js');
+const ApplicationError = require('../../utils/error/applicationError.js');
 
 class LogInController {
     async login(req, res, next) {
         try {
             passport.authenticate('login', async function (err, user, info) {            
                 if (err) {
-                    console.log(err)
+                    return next(new ApplicationError(500, err));
                 } else if (!user) {
                     return next(new ApplicationError(401, info));
                 } else if(user.STATUS === "Pending"){
                     return next(new ApplicationError(403, 'Email verification required. Please verify your email address to perform this action.'));
                 } else {
                     req.login(user, function (err) {           
-                        if (err) return next(403, err);
+                        if (err) return next(new ApplicationError(403, err));
                         const currentTimestamp = Math.floor(Date.now()/1000);
                         const payload = {
                             id: user.ID,
@@ -40,7 +40,7 @@ class LogInController {
     }
 
     async logout(req, res) {
-        req.logout(() => { 
+        req.logout(() => {
             res.status(200).json({
             success: true,
             message: "log out",

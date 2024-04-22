@@ -2,12 +2,11 @@ const express = require("express")
 const router = express.Router();
 const passport = require('../verification/passport');
 const auth = passport.authenticate('jwt', { session: true });
-const { GuildAuth, GuildController, UserGuildRelationController } = require('../controllers/guildControllers');
-const TaskController = require('../controllers/taskControllers');
+const { GuildAuth, GuildController, UserGuildRelationController } = require('../controllers/guild/guildControllers');
 const guild = new GuildController();
 const guildAuth = new GuildAuth();
 const member = new UserGuildRelationController();
-const task = new TaskController();
+const task = new (require('../controllers/guild/taskControllers'))();
 
 // Guild
 router.get('/', auth, guild.getGuilds);
@@ -18,14 +17,14 @@ router.post('/', auth, guild.addGuild);
 
 router.put('/:gid', auth, guildAuth.isMaster, guild.updateGuild);
 
-router.delete('/:gid', auth, guildAuth.isMaster, guild.daleteGuild);
+router.delete('/:gid', auth, guildAuth.isMaster, guild.deleteGuild);
 
 // Member
 router.get('/:gid/invitation', auth, member.replyInvitation);
 
 router.get('/:gid/member', auth, guildAuth.isMember, member.getMember);
 
-router.post('/:gid/member', auth, guildAuth.isMasterOrAdmin, member.sendInvitation);
+router.post('/:gid/invitation', auth, guildAuth.isMasterOrAdmin, member.sendInvitation);
 
 router.patch('/:gid/member', auth, guildAuth.isMember, guildAuth.isMaster, member.updateMember);
 
