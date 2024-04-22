@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Button,
@@ -12,6 +11,8 @@ import {
 import { Paper } from './_layout/components';
 import { api } from '../api';
 import { NutritionalSummaryChart } from './food/components';
+import { useSideBar } from './_layout/MainLayout/SideBar';
+import { useUserMe } from './_layout';
 
 const hintText = `BMR (Basal Metabolic Rate) refers to the minimum energy your body needs at rest to maintain basic functions such as heart rate, breathing, and temperature regulation.
 It's suggested that protein intake should account for 30% of your total daily calories. While you can adjust this percentage, note that 20% to 25% is the minimum required to promote muscle growth. Opting for a higher protein percentage may encourage you to consume cleaner foods and avoid junk food.`;
@@ -41,7 +42,8 @@ const NutationInput = ({
 };
 
 export const SettingsPage = ({ editMode = false }) => {
-  const [userMe, setUserMe] = useState();
+  useSideBar({ activeKey: null });
+  const { userMe, getUserMeData } = useUserMe();
   const form = useFormInstance({ defaultValue: userMe });
   const navigator = useNavigate();
   const { formData } = form;
@@ -52,20 +54,13 @@ export const SettingsPage = ({ editMode = false }) => {
     (formData?.fats ?? 0) * 9
   ).toFixed(2);
 
-  useEffect(() => {
-    api.auth
-      .getUserMe()
-      .then((res) => res.json())
-      .then((res) => setUserMe(res.data));
-  }, []);
-
   const handleSubmit = async () => {
     const res = await api.auth.editUserSetting({
       body: { ...formData, kcal: totalKcal },
     });
     if (res.status === 200) {
+      getUserMeData();
       navigator('/settings');
-      window.location.reload();
     }
   };
 

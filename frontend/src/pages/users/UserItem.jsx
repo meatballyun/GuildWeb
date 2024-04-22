@@ -18,7 +18,7 @@ export const UserItem = ({ name, imageUrl, rank, onClick, focus }) => {
           : 'bg-primary-100/50 hover:bg-primary-100'
       )}
     >
-      <Avatar size={28} url={imageUrl} text={name} />
+      <Avatar size={28} url={imageUrl} name={name} />
       <div className="w-full text-primary-400">{name}</div>
       <div
         className={classNames(
