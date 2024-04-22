@@ -8,4 +8,7 @@
   .textArea_container {
     @apply h-full resize-none p-2;
   }
+  input[type='checkbox']:checked {
+    @apply accent-primary-400;
+  }
 }

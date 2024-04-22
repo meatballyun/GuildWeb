@@ -1,11 +1,9 @@
 .dropdown-select {
-  position: relative;
-  display: inline-block;
+  @apply relative inline-block border-b border-primary-500 pb-1;
 }
 
 .dropdown-select__selected {
-  @apply cursor-pointer border-b border-primary-500 py-1 pl-2;
-  min-width: 120px;
+  @apply w-full cursor-pointer bg-primary-100 py-1 pl-2;
 }
 
 .dropdown-select__options {
