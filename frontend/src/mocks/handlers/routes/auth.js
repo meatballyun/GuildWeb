@@ -30,7 +30,7 @@ export const auth = [
     return HttpResponse.json({
       data: {
         name: '天上天下宇宙至尊大大ㄉㄉ醬',
-        id: 1,
+        id: 6,
         imageUrl: PROFILE_IMAGE_URL,
         email: 'eva@aa.cc',
         rank: 99,
