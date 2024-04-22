@@ -33,28 +33,32 @@ const IngredientList = ({ value: valueProp = [], disabled, onChange }) => {
   return valueProp
     .filter(({ amount }) => amount)
     .map(({ amount, id, ...ingredient }) => (
-      <FoodBar
-        {...ingredient}
-        showChart={false}
-        key={id}
-        id={id}
-        amount={
-          disabled ? (
-            amount
-          ) : (
-            <Input
-              value={amount}
-              onChange={(value) => handleCountChange(id, value)}
-            />
-          )
-        }
-        suffix={
-          <MaterialSymbol
-            icon="delete"
-            onClick={() => handleCountChange(id, 0)}
-          />
-        }
-      />
+      <Link to={`/food/ingredient/${id}`} className="w-full">
+        <FoodBar
+          {...ingredient}
+          showChart={false}
+          key={id}
+          id={id}
+          amount={
+            disabled ? (
+              amount
+            ) : (
+              <Input
+                value={amount}
+                onChange={(value) => handleCountChange(id, value)}
+              />
+            )
+          }
+          suffix={
+            !disabled && (
+              <MaterialSymbol
+                icon="delete"
+                onClick={() => handleCountChange(id, 0)}
+              />
+            )
+          }
+        />
+      </Link>
     ));
 };
 

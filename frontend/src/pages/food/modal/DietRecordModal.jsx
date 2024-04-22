@@ -70,7 +70,7 @@ export const DietRecordModal = ({
           <Form.Item valueKey="category" label="Category">
             <DropdownSelect
               placeholder="select category"
-              renderValue={({ custom }) => custom?.label}
+              renderValue={(_, { custom }) => custom?.label}
               options={CATEGORIES.map(({ value, label, color }) => ({
                 value,
                 label: <span style={{ color }}>{label}</span>,
@@ -82,7 +82,7 @@ export const DietRecordModal = ({
             <Form.Item valueKey="recipe" className="w-1/2" label="Recipe">
               <DropdownSelect
                 placeholder="select recipe"
-                renderValue={({ custom }) => custom?.recipe?.name}
+                renderValue={(_, { custom }) => custom?.recipe?.name}
                 options={recipeList.map((recipe) => ({
                   value: recipe.id,
                   label: <FoodBar {...recipe} className="!bg-white/0 p-0" />,
