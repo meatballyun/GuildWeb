@@ -12,14 +12,14 @@ class TaskController {
     try {
       const tasks = (req.query.q) ? await Task.getTaskByGuildAndName(req.params.gid, req.query.q) : await Task.getTaskByGuild(req.params.gid);
       let data;
-      console.log(tasks);
-
       if (tasks?.length){
         data = await Promise.all( tasks.map( async (row) => {
-          let repetitiveTasksType ='None';
+          let repetitiveTaskType ='None';
           if (row.TYPE === 'Repetitive'){
             const repetitiveTasks = await RepetitiveTask.getRepetitiveTask(row.ID);
-            repetitiveTasksType = repetitiveTasks[0].TYPE;
+            if (repetitiveTasks?.length){
+              repetitiveTaskType = repetitiveTasks[0].TYPE;
+            }
           }
           const query = await Adventurer.getAdventurerByTaskAndUser(row.ID, req.session.passport.user);
           let isAccepted = false;
@@ -30,7 +30,7 @@ class TaskController {
             type: row.TYPE,
             status: row.STATUS,
             accepted: row.ACCEPTED,
-            repetitiveTasksType: repetitiveTasksType,
+            repetitiveTaskType: repetitiveTaskType,
             isAccepted: isAccepted,
           }
         }));
@@ -48,16 +48,16 @@ class TaskController {
 
   async getTaskDetail(req, res, next) {
     try {
-      const [task] = await Task.getTaskDetail(req.params.tid);
+      const [task] = await Task.getTaskDetailById(req.params.tid);
       let data;
       if ( task && task.ID) {
         const [user] = await User.getUserById(task.CREATOR_ID);
-        const creator = {id: user.ID, name: user.NAME, imageUrl: user.IMAGE_URL};
+        const creator = {id: user.ID, name: user.NAME, imageUrl: user.IMAGE_URL};        
+        let repetitiveTaskType, adventurers, items, isAccepted = false;
 
-        let repetitiveTasksType, adventurers, items, isAccepted = false; 
         if (task.TYPE === 'Repetitive'){
           const [ repetitiveTasks ] = await RepetitiveTask.getRepetitiveTask(task.ID);
-          repetitiveTasksType = repetitiveTasks.TYPE;
+          repetitiveTaskType = repetitiveTasks.TYPE;
         }
 
         const query = await Adventurer.getAdventurerByTask(req.params.tid);
@@ -72,20 +72,22 @@ class TaskController {
             };
         }));
 
+        const q_item = await Item.getItem(req.params.tid);
         if (isAccepted) {
-          items = (await Promise.all(await ItemRecord.getItemRecord(req.params.tid))).map((row) => {
+          items = await Promise.all(q_item.map(async (row) => {
+            const itemRecord = await ItemRecord.getItemRecordByItemAndUser(row.ID, req.session.passport.user);
             return {
-              id: row.ID ,
-              status: row.STATUS,
-              content: row.CONTENT
-            }
-          });
+              id: itemRecord[0].ID ,
+              status: itemRecord[0].STATUS,
+              content: itemRecord[0].CONTENT
+            };
+          }));
         } else {
-          items = (await Promise.all(await Item.getItem(req.params.tid))).map((row) => {
+          items = q_item.map((row) => {
             return {
               id: row.ID ,
               content: row.CONTENT
-            }
+            };
           });
         }
         
@@ -97,7 +99,7 @@ class TaskController {
           deadline: task.DEADLINE,
           description: task.DESCRIPTION,
           type: task.TYPE,
-          repetitiveTasksType: repetitiveTasksType,
+          repetitiveTaskType: repetitiveTaskType,
           maxAdventurer: task.MAX_ADVENTURER ,
           adventurers: adventurers ,
           status: task.STATUS,
@@ -119,9 +121,9 @@ class TaskController {
     }
   }
 
-  async acceptTack(req, res, next){
+  async acceptTask(req, res, next){
     try {
-      const [ task ] = await Task.getTaskDetail(req.params.tid);
+      const [ task ] = await Task.getTaskDetailById(req.params.tid);
       const [ isAdventurer ] = await Adventurer.getAdventurerByTaskAndUser(req.params.tid, req.session.passport.user);
       if (!task || !task.ID) {
         return next(new ApplicationError(404, "When attempting to add the table for adventurers, an error occurred."));
@@ -139,12 +141,41 @@ class TaskController {
       
       const adventurer = await Adventurer.addAdventurer(req.params.tid , req.session.passport.user);
       if (!adventurer || !adventurer.affectedRows){
-      return next(new ApplicationError(400, "When attempting to add the table for adventurers, an error occurred."));
+        return next(new ApplicationError(400, "When attempting to add the table for adventurers, an error occurred."));
       }
 
       return res.status(200).json({
         success: true,
         message: "User successfully accepted the task.",
+        data: "OK"
+      });
+
+    } catch (err){      
+      return next(new ApplicationError(400, err));
+    }
+  }
+
+  async abandonTask(req, res, next){
+    try {
+      const [ isAdventurer ] = await Adventurer.getAdventurerByTaskAndUser(req.params.tid, req.session.passport.user);
+      if (!isAdventurer) {
+        return next(new ApplicationError(409, "User has not accepted this task yet."));
+      } 
+      
+      await Adventurer.deleteAdventurerByTaskAndUser(req.params.tid, req.session.passport.user);
+      const items = await Item.getItem(req.params.tid);
+      if (items && items?.length) {
+        await Promise.all(items.map( async(i) => {
+          const itemRecord = await ItemRecord.getItemRecordByItemAndUser(i.id, req.session.passport.user);
+          if (itemRecord && itemRecord?.length){
+            await ItemRecord.deleteItemRecordByItem(itemRecord[0].ID);
+          } 
+        }))
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "User successfully abandon the task.",
         data: "OK"
       });
 
@@ -170,15 +201,17 @@ class TaskController {
       if (newTask['insertId']){
         let unit;
         if (req.body.type === 'Repetitive'){
-          if (req.body.repetitiveType === 'Daily') { unit = 'DAY';}
-          else if (req.body.repetitiveType === 'Weekly') { unit = 'WEEK';}
-          else if (req.body.repetitiveType === 'Monthly') { unit = 'MONTH';}
-          else return next(new ApplicationError(400, "Error in parameter or missing parameter 'repetitiveType'."));
+          if (req.body.repetitiveTaskType === 'Daily') { unit = 'DAY';}
+          else if (req.body.repetitiveTaskType === 'Weekly') { unit = 'WEEK';}
+          else if (req.body.repetitiveTaskType === 'Monthly') { unit = 'MONTH';}
+          else return next(new ApplicationError(400, "Error in parameter or missing parameter 'repetitiveTaskType'."));
           const generrationTime = await RepetitiveTask.DATE_ADD(req.body.initiationTime, 1, unit);
-          const newRepetitiveTask = await RepetitiveTask.addRepetitiveTask(newTask['insertId'] , Object.values(generrationTime[0])[0], req.body.repetitiveType);
-          if (!newRepetitiveTask['insertId']) return next(new ApplicationError(400, "Error in RepetitiveTask.addRepetitiveTask()"));
+          const newRepetitiveTask = await RepetitiveTask.addRepetitiveTask(newTask['insertId'] , Object.values(generrationTime[0])[0], req.body.repetitiveTaskType);
+          if (!newRepetitiveTask['affectedRows']) {
+            await Task.deleteTask(newTask['insertId']);
+            return next(new ApplicationError(400, "Error in RepetitiveTask.addRepetitiveTask()"));
+          }
         }
-
         if (req.body.items) {
           await Promise.all(req.body.items.map( async(i) => {
             const query = await Item.addItem(newTask['insertId'] , i.content);
@@ -201,33 +234,29 @@ class TaskController {
 
   async updateTask(req, res, next) {
     try {
-      const taskDetail = await Task.getTaskDetail(req.body.taskId);
+      const taskDetail = await Task.getTaskDetailById(req.body.taskId);
       if (!taskDetail?.length){
-        return res.status(404).json({
-          success: false,
-          message: "The task cannot be found in this guild.",
-          data: "Not found"
-        });
+        return next(ApplicationError(404, "The task cannot be found in this guild."));
       } else if (req.member[0].MEMBERSHIP === "Admin" && req.session.passport.user !== taskDetail[0].CREATOR_ID){
-        return next(new ApplicationError(403));
+        return next(new ApplicationError(403, "Only guild Master have permission to access this resource."));
       }
       
       const task = await Task.updateTask(req.body.taskId, req.body.name, req.body.initiationTime, req.body.deadline, req.body.description, req.body.imageUrl, req.body.type, req.body.maxAdventurer);
       if (task.affectedRows){
         if (req.body.type === 'Repetitive'){
           let unit;
-          if (req.body.repetitiveType === 'Daily') { unit = 'DAY';}
-          else if (req.body.repetitiveType === 'Weekly') { unit = 'WEEK';}
-          else if (req.body.repetitiveType === 'Monthly') { unit = 'MONTH';}
-          else return next(new ApplicationError(400, "Error in parameter or missing parameter 'repetitiveType'."));
+          if (req.body.repetitiveTaskType === 'Daily') { unit = 'DAY';}
+          else if (req.body.repetitiveTaskType === 'Weekly') { unit = 'WEEK';}
+          else if (req.body.repetitiveTaskType === 'Monthly') { unit = 'MONTH';}
+          else return next(new ApplicationError(400, "Error in parameter or missing parameter 'repetitiveTaskType'."));
 
           const generrationTime = await RepetitiveTask.DATE_ADD(req.body.initiationTime, 1, unit);
           const getRepetitiveTask= await RepetitiveTask.getRepetitiveTask(req.body.taskId);
           if (!getRepetitiveTask?.length){
-            const newRepetitiveTask = await RepetitiveTask.addRepetitiveTask(req.body.taskId , Object.values(generrationTime[0])[0], req.body.repetitiveType);
+            const newRepetitiveTask = await RepetitiveTask.addRepetitiveTask(req.body.taskId , Object.values(generrationTime[0])[0], req.body.repetitiveTaskType);
             if (!newRepetitiveTask['insertId']) return next(new ApplicationError(400, "Error in Task.addRepetitiveTask()"));
           } else{
-            const repetitiveTask = await RepetitiveTask.updateRepetitiveTask(req.body.taskId , Object.values(generrationTime[0])[0], req.body.repetitiveType);
+            const repetitiveTask = await RepetitiveTask.updateRepetitiveTask(req.body.taskId , Object.values(generrationTime[0])[0], req.body.repetitiveTaskType);
             if (!repetitiveTask.affectedRows) 
             return next(new ApplicationError(400, "Error in Task.updateRepetitiveTask()."));
           }
@@ -261,8 +290,6 @@ class TaskController {
           data: "OK"
         });
       }
-
-
     } catch (err) {
       return next(new ApplicationError(400, err));
     }
@@ -270,6 +297,24 @@ class TaskController {
 
   async cancelTask(req, res, next) {
     try {
+      const taskDetail = await Task.getTaskDetailById(req.body.taskId);
+      if (!taskDetail?.length){
+        return next(ApplicationError(404, "The task cannot be found in this guild."));
+      } else if (req.member[0].MEMBERSHIP === "Admin" && req.session.passport.user !== taskDetail[0].CREATOR_ID){
+        return next(new ApplicationError(403, "Only guild Master have permission to access this resource."));
+      }
+
+      await Adventurer.deleteAdventurerByTask(req.body.taskId);
+      const items = await Item.getItem(req.body.taskId);
+      if (items && items?.length) {
+        await Promise.all(items.map( async(i) => {
+          const itemRecord = await ItemRecord.getItemRecordByItem(i.id);
+          if (itemRecord && itemRecord?.length){
+            await ItemRecord.deleteItemRecordByItem(i.id);
+          } 
+        }))
+      }
+      
       const cancelTask = await Task.cancelTask(req.body.taskId);
       if (!cancelTask.affectedRows) return next(new ApplicationError(400, "Error in Task.cancelTask()."));
       return res.status(200).json({
@@ -284,6 +329,25 @@ class TaskController {
 
   async deleteTask(req, res, next) {
     try {
+      const taskDetail = await Task.getTaskDetailById(req.params.tid);
+      if (!taskDetail?.length){
+        return next(ApplicationError(404, "The task cannot be found in this guild."));
+      } else if (req.member[0].MEMBERSHIP === "Admin" && req.session.passport.user !== taskDetail[0].CREATOR_ID){
+        return next(new ApplicationError(403));
+      }
+
+      await Adventurer.deleteAdventurerByTask(req.params.tid);
+      const items = await Item.getItem(req.params.tid);
+      if (items && items?.length) {
+        await Promise.all(items.map( async(i) => {
+          const itemRecord = await ItemRecord.getItemRecordByItemAndUser(i.id, req.session.passport.user);
+          if (itemRecord && itemRecord?.length){
+            await ItemRecord.deleteItemRecordByItem(itemRecord[0].ID);
+          } 
+        }))
+      }
+      await Item.deleteItems(req.params.tid);
+      
       const deleteTask = await Task.deleteTask(req.params.tid);
       if (deleteTask.affectedRows){
         return res.status(200).json({
@@ -292,14 +356,13 @@ class TaskController {
           data : "OK" 
         });
       } else {
-        return next(new ApplicationError(404, "Can not find the 'taskId'."));
+        return next(new ApplicationError(404, "The task cannot be found in this guild."));
       }
       
     } catch (err) {
       return next(new ApplicationError(400, err));
     }
   }
-
 }
 
 module.exports = TaskController;

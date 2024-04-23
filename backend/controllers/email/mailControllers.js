@@ -47,7 +47,7 @@ class MailController {
       }
       const CODE = await confirmationCode(req.body.uid + req.body.email + "SignUp");
       const query = await ConfirmationMail.addConfirmationMail(req.body.uid, "SignUp", CODE);
-      transporter.sendMail(mailOptions(req.body.email, query.insertId, CODE), function(err, info){
+      transporter.sendMail(mailOptions(req.body.email, req.body.uid, CODE), function(err, info){
         if(err){
           return next(new ApplicationError(404, 'Email address not found.'));
         } else{
@@ -99,11 +99,7 @@ class MailController {
     try {
       
     } catch (err) {
-      return res.status(400).json({
-        success: false,
-        message: "Bad Request: The email address provided is invalid.",
-        data: "Bad Request"
-      });
+      return next(new ApplicationError(400));
     }
   }
   

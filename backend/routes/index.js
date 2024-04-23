@@ -5,6 +5,7 @@ const user = require('./user.js');
 const upload = require('./upload.js');
 const food = require('./food.js');
 const guild = require('./guild.js');
+const notification = require('./notification.js');
 
 //router.get('/checkAuth', taskController.updateTask);
 
@@ -18,5 +19,6 @@ router.use('/food', food);
 
 router.use('/guild', guild);
 
+router.use('/notification', notification);
 
 module.exports = router;

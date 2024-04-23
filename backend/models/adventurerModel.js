@@ -12,6 +12,18 @@ class AdventurerModel {
       });
     });
   }
+  
+  static getAdventurerByTask(TASK_ID) {
+    return new Promise((resolve, reject) => {
+      connection.query(`SELECT * FROM adventurers WHERE TASK_ID = ?`, [TASK_ID], function (err, rows) {
+        if (err) {
+            reject(err);
+        } else {
+            resolve(rows);
+        }
+      });
+    });
+  }
 
   static getAdventurerByTaskAndUser(TASK_ID, USER_ID) {
     return new Promise((resolve, reject) => {
@@ -25,9 +37,21 @@ class AdventurerModel {
     });
   }
 
-  static getAdventurerByTask(TASK_ID) {
+  static deleteAdventurerByTask(TASK_ID) {
     return new Promise((resolve, reject) => {
-      connection.query(`SELECT * FROM adventurers WHERE TASK_ID = ?`, [TASK_ID], function (err, rows) {
+      connection.query(`DELETE FROM adventurers WHERE TASK_ID = ?`, [TASK_ID], function (err, rows) {
+        if (err) {
+            reject(err);
+        } else {
+            resolve(rows);
+        }
+      });
+    });
+  }
+
+  static deleteAdventurerByTaskAndUser(TASK_ID, USER_ID) {
+    return new Promise((resolve, reject) => {
+      connection.query(`DELETE FROM adventurers WHERE TASK_ID = ? AND USER_ID = ?`, [TASK_ID, USER_ID], function (err, rows) {
         if (err) {
             reject(err);
         } else {

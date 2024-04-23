@@ -1,13 +1,13 @@
-const Guild = require('../../models/guildModel');
-const UserGuildRelation = require('../../models/userGuildRelationModel');
-const User = require('../../models/userModel');
 const ApplicationError = require('../../utils/error/applicationError.js');
+const Guild = require('../../models/guildModel');
+const User = require('../../models/userModel');
+const UserGuildRelation = require('../../models/userGuildRelationModel');
 
 const checkAuth = async (user, gid, level) => {
   let message = "OK";   
   const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(user, gid); 
   if ((!member?.length) && (level >= 0)){
-    message = "You are not a member of this guild.";
+    message = "You are not a member of this guild, or you have not been invited.";
   } else if ((member[0].MEMBERSHIP !== "Admin" && member[0].MEMBERSHIP !== "Master") && level >= 1){
     message = "Only guild Master and Admin have permission to access this resource.";
   } else if ((member[0].MEMBERSHIP !== "Master") && level >= 2){
@@ -46,42 +46,6 @@ class GuildAuth {
 }
 
 class GuildController {
-  async addGuild(req, res, next) {
-    try {     
-      const newGuild = await Guild.addGuild(req.session.passport.user, req.body.name, req.body.description, req.body.imageUrl, false);
-      if (newGuild['insertId']){
-        const newUserGuildRelation = await UserGuildRelation.addUserGuildRelation(req.session.passport.user, newGuild['insertId'], 'Master');
-        if (newUserGuildRelation['affectedRows']){
-          return res.status(200).json(
-              {
-              "success": true,
-              "message": "Data build successfully.",
-              "data": "OK"
-          });
-        }
-      }
-    } catch (err) {
-      return next(new ApplicationError(400,err));
-    }
-  }
-
-  async updateGuild(req, res, next) {
-    try {     
-      const guild = await Guild.updateGuild(req.params.gid, req.body.name, req.body.description, req.body.imageUrl);
-      if (guild.affectedRows){
-        return res.status(200).json({
-            success: true,
-            message: "Data update successfully.",
-            data: {
-                id: req.params.gid
-            }
-        });
-      }
-    } catch (err) {
-      return next(new ApplicationError(400, err));
-    }
-  }
-
   async getGuilds(req, res, next) {
     try {
       const query = req.query.q ? await UserGuildRelation.getUserGuildRelationByUserAndName(req.session.passport.user, req.query.q) : await UserGuildRelation.getUserGuildRelationByUser(req.session.passport.user);
@@ -105,7 +69,7 @@ class GuildController {
       return next(new ApplicationError(400, err));
     }
   }
-
+  
   async getGuildDetail(req, res, next) {
     try {   
       const [ guild ] = await Guild.getGuild(req.params.gid);
@@ -123,6 +87,43 @@ class GuildController {
       return next(new ApplicationError(400, err));
     }
   }
+
+  async addGuild(req, res, next) {
+    try {     
+      const newGuild = await Guild.addGuild(req.session.passport.user, req.body.name, req.body.description, req.body.imageUrl, false);
+      if (newGuild['insertId']){
+        const newUserGuildRelation = await UserGuildRelation.addUserGuildRelation(req.session.passport.user, newGuild['insertId'], 'Master');
+        if (newUserGuildRelation['affectedRows']){
+          return res.status(200).json(
+              {
+              "success": true,  
+              "message": "Data build successfully.",
+              "data": "OK"
+          });    
+        }  
+      }  
+    } catch (err) {
+      return next(new ApplicationError(400,err));
+    }  
+  }  
+
+  async updateGuild(req, res, next) {
+    try {     
+      const guild = await Guild.updateGuild(req.params.gid, req.body.name, req.body.description, req.body.imageUrl);
+      if (guild.affectedRows){
+        return res.status(200).json({
+            success: true,
+            message: "Data update successfully.",
+            data: {
+                id: req.params.gid
+            }    
+        });    
+      }  
+    } catch (err) {
+      return next(new ApplicationError(400, err));
+    }  
+  }  
+
 
   async deleteGuild(req, res, next) {
     try {      
@@ -143,28 +144,8 @@ class GuildController {
 }
 
 class UserGuildRelationController {
-  async sendInvitation(req, res, next) {
-    try {
-      const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.body.userId, req.params.gid);
-      if (member?.length) {
-        return next(new ApplicationError(409, "The player has already been invited to join this guild. Please do not resend the invitation."));
-      }
-      const newmember = await UserGuildRelation.addUserGuildRelation(req.body.userId, req.params.gid, 'Pending');
-      if (newmember['affectedRows']){
-        return res.status(200).json(
-            {
-            success: true,
-            message: "Invitation sent successfully.",
-            data: "OK"
-        });
-      }
-    } catch (err) {
-      return next(new ApplicationError(400));
-    }
-  }
-
   async replyInvitation(req, res, next) {
-    try {
+  try {
       const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, req.params.gid);
       if (!member?.length) {
         return next(new ApplicationError(409, "An error occurred while processing your invitation."));
@@ -174,8 +155,7 @@ class UserGuildRelationController {
       }
       const query = await UserGuildRelation.updateUserGuildRelations(req.session.passport.user, req.params.gid, 'Regular');
       if (query['affectedRows']){
-        return res.status(200).json(
-            {
+        return res.status(200).json({
             success: true,
             message: "You have successfully accepted the invitation and joined the guild.",
             data: "OK"
@@ -210,6 +190,26 @@ class UserGuildRelationController {
           data: guildMembers
       });
     } catch (err) {      
+      return next(new ApplicationError(400));
+    }
+  }
+
+  async sendInvitation(req, res, next) {
+    try {
+      const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.body.userId, req.params.gid);
+      if (member?.length) {
+        return next(new ApplicationError(409, "The player has already been invited to join this guild. Please do not resend the invitation."));
+      }
+      const newmember = await UserGuildRelation.addUserGuildRelation(req.body.userId, req.params.gid, 'Pending');
+      if (newmember['affectedRows']){
+        return res.status(200).json(
+            {
+            success: true,
+            message: "Invitation sent successfully.",
+            data: "OK"
+        });
+      }
+    } catch (err) {
       return next(new ApplicationError(400));
     }
   }

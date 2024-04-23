@@ -2,7 +2,7 @@ const CommonError = {
     400: {
         STATUS: "Bad Request",
         STATUS_CODE: 400,
-        MESSAGE: "The server cannot process the request due to a client error."
+        MESSAGE: "The server could not understand the request due to invalid syntax or missing parameters."
     },
 
     401: {

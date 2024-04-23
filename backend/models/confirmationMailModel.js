@@ -25,18 +25,6 @@ class ConfirmationMailModel {
 		});
 	}
 
-	static getConfirmationMailByUserId(USER_ID) {
-		return new Promise((resolve, reject) => {
-			connection.query('SELECT * FROM confirmationMails WHERE USER_ID = ?', USER_ID, function (err, rows) {
-				if (err) {
-					reject(err);
-				} else {
-					resolve(rows);
-				}
-			});
-		});
-	}
-
 	static updateConfirmationMail(USER_ID, STATUS) {
 		return new Promise((resolve, reject) => {
 			connection.query('UPDATE confirmationMails SET STATUS = ? WHERE USER_ID = ?', [STATUS, USER_ID], function (err, rows) {

@@ -13,7 +13,7 @@ class TaskModel {
     });
   }
 
-  static getTaskDetail(ID) {
+  static getTaskDetailById(ID) {
     return new Promise((resolve, reject) => {
       connection.query('SELECT * FROM tasks WHERE ID = ? AND ACTIVE = TRUE', [ID], function (err, rows) {
         if (err) {
@@ -73,6 +73,7 @@ class TaskModel {
     });
   }
 
+  // "Currently, updating the ADVENTURER when adding adventurers has been achieved through a trigger in MySQL."
   static acceptTask(TASK_ID, ADVENTURER) {
     return new Promise((resolve, reject) => {
       connection.query('UPDATE tasks SET ADVENTURER = ? WHERE ID = ?', [ADVENTURER, TASK_ID], function (err, rows) {
