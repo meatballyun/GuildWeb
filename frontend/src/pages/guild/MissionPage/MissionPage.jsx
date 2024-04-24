@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button, Input, MaterialSymbol } from '../../../components';
 import { Paper } from '../../_layout/components';
 import { api } from '../../../api';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { EmptyMissionDetail, MissionDetailBlock } from './MissionDetailBlock';
 import { useSideBar } from '../../_layout/MainLayout/SideBar';
 import { AddMissionModal } from '../modal';
@@ -13,6 +13,7 @@ import { formateDate } from '../../../utils';
 export const MissionPage = ({ manageMode = false }) => {
   const params = useParams();
   useSideBar({ activeKey: ['guild', params.gid] });
+  const navigate = useNavigate();
 
   const [openModal, setOpenModal] = useState();
 
@@ -63,16 +64,20 @@ export const MissionPage = ({ manageMode = false }) => {
     })();
   }, [fetchMissions]);
 
-  const handleMissionClick = async (id) => {
+  const fetchMissionDetail = async (id) => {
     const res = await api.guild.getTaskDetail({
       pathParams: { gid: params.gid, tid: id },
     });
     const json = await res.json();
-    setSelectedDetail(json.data);
+    return json.data;
+  };
+  const handleMissionClick = async (id) => {
+    const data = await fetchMissionDetail(id);
+    setSelectedDetail(data);
   };
 
   const handleSubmitModal = async (value) => {
-    api.guild.createTask({
+    await api.guild.createTask({
       pathParams: { gid: params.gid },
       body: {
         ...value,
@@ -80,21 +85,64 @@ export const MissionPage = ({ manageMode = false }) => {
         deadline: formateDate(value.deadline ?? new Date()),
       },
     });
+    const data = fetchMissions();
+    setSelectedDetail(data);
+  };
+
+  const handleBtnClick = async (type) => {
+    switch (type) {
+      case 'accept':
+        await api.guild.acceptedTask({
+          pathParams: { gid: params.gid, tid: selectedDetail.id },
+        });
+        break;
+      case 'exit':
+        await api.guild.abandonTask({
+          pathParams: { gid: params.gid, tid: selectedDetail.id },
+        });
+        break;
+      default:
+    }
+    const data = await fetchMissionDetail(selectedDetail.id);
+    setSelectedDetail(data);
+  };
+
+  const handleCheckboxClick = async (itemRecordId) => {
+    await api.guild.patchTaskCheckbox({
+      pathParams: { gid: params.gid },
+      body: { itemRecordId },
+    });
+    const data = await fetchMissionDetail(selectedDetail.id);
+    setSelectedDetail(data);
   };
 
   return (
     <>
       <Paper row className="flex flex-col">
         <div className="mb-4 text-center text-heading-h1 text-primary-500">
-          {!manageMode && (
-            <Link to=".." className="float-left">
+          {manageMode && (
+            <Link to={`/guild/${params.id}/mission`} className="float-left">
               <MaterialSymbol
                 icon="arrow_back"
                 className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full hover:bg-primary-300/50"
               />
             </Link>
           )}
-          {manageMode ? 'Mission' : 'Guild Mission Manager'}
+          {manageMode ? (
+            'Guild Mission Manager'
+          ) : (
+            <div className="flex items-center justify-center">
+              Mission
+              <Button
+                type="hollow"
+                className="ml-2"
+                onClick={() => navigate('./manage')}
+                prefix={<MaterialSymbol icon="settings" />}
+              >
+                Manage
+              </Button>
+            </div>
+          )}
         </div>
 
         <div className="mb-4 flex w-full justify-between">
@@ -112,7 +160,9 @@ export const MissionPage = ({ manageMode = false }) => {
         </div>
         <div className="mb-4 flex justify-between">
           <HeaderButton value={filterType} onChange={setFilterType} />
-          <Button onClick={() => setOpenModal(true)}>add mission</Button>
+          {manageMode && (
+            <Button onClick={() => setOpenModal(true)}>add mission</Button>
+          )}
         </div>
         <div className="flex h-full w-full overflow-auto">
           <div className="mr-4 flex w-full flex-col gap-2 overflow-auto">
@@ -134,17 +184,8 @@ export const MissionPage = ({ manageMode = false }) => {
               key={selectedDetail.id}
               detail={selectedDetail}
               className="w-full"
-              onBtnClick={(type) => {
-                switch (type) {
-                  case 'accept':
-                    return api.guild.acceptedTask({
-                      pathParams: { gid: params.gid, tid: selectedDetail.id },
-                    });
-                  case 'exit':
-                    return api.guild.acceptedTask({});
-                  default:
-                }
-              }}
+              onBtnClick={handleBtnClick}
+              onCheckItemClick={handleCheckboxClick}
             />
           ) : (
             <EmptyMissionDetail className="w-full" />

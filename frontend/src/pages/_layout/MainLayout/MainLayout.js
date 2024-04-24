@@ -10,6 +10,16 @@ import {
 } from 'react';
 import { api } from '../../../api';
 
+const guildContext = createContext({
+  guildList: [{ id: 3, imageUrl: '', name: 'rex_guild_3' }],
+  getGuildList: () => new Promise(),
+});
+
+export const useGuild = () => {
+  const { guildList, getGuildList } = useContext(guildContext);
+  return { guildList, getGuildList };
+};
+
 const userMeContext = createContext({
   userMe: {
     name: '',
@@ -36,6 +46,8 @@ export const MainLayout = () => {
   const [userMe, setUserMe] = useState();
   const navigate = useNavigate();
 
+  const [guildList, setGuildList] = useState([]);
+
   const getUserMeData = useCallback(async () => {
     try {
       const res = await api.auth.getUserMe();
@@ -47,20 +59,37 @@ export const MainLayout = () => {
     }
   }, [navigate]);
 
+  const getGuildList = useCallback(async () => {
+    try {
+      const res = await api.guild.getGuild();
+      if (res.status !== 200) throw Error(res);
+      const json = await res.json();
+      setGuildList(json.data);
+    } catch (e) {
+      console.log(e);
+    }
+  }, []);
+
   useEffect(() => {
     getUserMeData();
   }, [getUserMeData]);
 
+  useEffect(() => {
+    getGuildList();
+  }, [getGuildList]);
+
   return (
-    <userMeContext.Provider value={{ userMe, getUserMeData }}>
-      <SideBarProvider>
-        <div className="main-layout-container">
-          <SideBar />
-          <div className="content">
-            <Outlet />
+    <guildContext.Provider value={{ guildList, getGuildList }}>
+      <userMeContext.Provider value={{ userMe, getUserMeData }}>
+        <SideBarProvider>
+          <div className="main-layout-container">
+            <SideBar />
+            <div className="content">
+              <Outlet />
+            </div>
           </div>
-        </div>
-      </SideBarProvider>
-    </userMeContext.Provider>
+        </SideBarProvider>
+      </userMeContext.Provider>
+    </guildContext.Provider>
   );
 };

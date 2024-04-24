@@ -24,15 +24,15 @@ export const MissionStatusWithColor = ({ status, className }) => {
   return <div className={classNames(className, colorClassName)}>{status}</div>;
 };
 
-export const MissionPill = ({ type, repetitiveTasksType, onClick }) => {
+export const MissionPill = ({ type, repetitiveTaskType, onClick }) => {
   const { background, text } = (() => {
     switch (type) {
       case 'Repetitive':
-        if (repetitiveTasksType === 'Daily')
-          return { background: COLORS.green, text: repetitiveTasksType };
-        if (repetitiveTasksType === 'Weekly')
-          return { background: COLORS.blue, text: repetitiveTasksType };
-        return { background: COLORS.orange, text: repetitiveTasksType };
+        if (repetitiveTaskType === 'Daily')
+          return { background: COLORS.green, text: repetitiveTaskType };
+        if (repetitiveTaskType === 'Weekly')
+          return { background: COLORS.blue, text: repetitiveTaskType };
+        return { background: COLORS.orange, text: repetitiveTaskType };
       case 'Ordinary':
         return { background: COLORS['primary-200'], text: type };
       case 'Emergency':

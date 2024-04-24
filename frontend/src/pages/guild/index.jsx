@@ -10,6 +10,10 @@ const GuildRoute = () => {
       <Route path={'/:id'} element={<GuildDetailPage />} />
       <Route path={'/:id/edit'} element={<GuildDetailPage editMode />} />
       <Route path={'/:gid/mission'} element={<MissionPage />} />
+      <Route
+        path={'/:gid/mission/manage'}
+        element={<MissionPage manageMode />}
+      />
     </Routes>
   );
 };

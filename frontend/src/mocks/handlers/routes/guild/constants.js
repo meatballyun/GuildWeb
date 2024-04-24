@@ -72,7 +72,7 @@ export const TASKS = [
     type: 'Ordinary',
     status: 'Established',
     accepted: false,
-    repetitiveTasksType: 'None',
+    repetitiveTaskType: 'None',
   },
   {
     id: 17,
@@ -80,7 +80,7 @@ export const TASKS = [
     type: 'Emergency',
     status: 'In Progress',
     accepted: true,
-    repetitiveTasksType: 'None',
+    repetitiveTaskType: 'None',
   },
   {
     id: 18,
@@ -88,7 +88,7 @@ export const TASKS = [
     type: 'Repetitive',
     status: 'Completed',
     accepted: true,
-    repetitiveTasksType: 'Weekly',
+    repetitiveTaskType: 'Weekly',
   },
   {
     id: 19,
@@ -96,7 +96,7 @@ export const TASKS = [
     type: 'Repetitive',
     status: 'Expired',
     accepted: false,
-    repetitiveTasksType: 'Daily',
+    repetitiveTaskType: 'Daily',
   },
   {
     id: 20,
@@ -104,7 +104,7 @@ export const TASKS = [
     type: 'Ordinary',
     status: 'Pending Activation',
     accepted: false,
-    repetitiveTasksType: 'Weekly',
+    repetitiveTaskType: 'Weekly',
   },
   {
     id: 21,
@@ -112,7 +112,7 @@ export const TASKS = [
     type: 'Repetitive',
     status: 'Cancelled',
     accepted: false,
-    repetitiveTasksType: 'Monthly',
+    repetitiveTaskType: 'Monthly',
   },
   {
     id: 22,
@@ -121,7 +121,7 @@ export const TASKS = [
     status: 'In Progress',
     accepted: false,
     maxAccept: true,
-    repetitiveTasksType: 'Daily',
+    repetitiveTaskType: 'Daily',
   },
 ];
 

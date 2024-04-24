@@ -4,7 +4,7 @@ import { MissionPill } from '../components';
 export const MissionBar = ({
   name,
   type,
-  repetitiveTasksType,
+  repetitiveTaskType,
   focus,
   onClick,
 }) => {
@@ -18,7 +18,7 @@ export const MissionBar = ({
           : 'bg-primary-100/50 hover:bg-primary-100'
       )}
     >
-      <MissionPill type={type} repetitiveTasksType={repetitiveTasksType} />
+      <MissionPill type={type} repetitiveTaskType={repetitiveTaskType} />
       <div className="w-full flex-1  truncate text-paragraph-p3 text-primary-400">
         {name}
       </div>

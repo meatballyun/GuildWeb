@@ -11,7 +11,7 @@ import {
   useFormInstance,
 } from '../../components';
 import { useSideBar } from '../_layout/MainLayout/SideBar';
-import { useUserMe } from '../_layout';
+import { useGuild, useUserMe } from '../_layout';
 import { TextArea } from '../../components/Form/TextArea';
 import { Link } from 'react-router-dom';
 import { UserItem } from './components';
@@ -22,6 +22,7 @@ export const GuildDetailPage = ({ editMode }) => {
   const navigate = useNavigate();
   const params = useParams();
   useSideBar({ activeKey: ['guild', params.id] });
+  const { getGuildList } = useGuild();
   const [openModal, setOpenModal] = useState(false);
   const { userMe } = useUserMe();
 
@@ -119,8 +120,10 @@ export const GuildDetailPage = ({ editMode }) => {
       body: { ...form.formData },
       pathParams: { id: params.id },
     });
+    console.log(res);
     if (res.status === 200) {
       const json = await res.json();
+      await getGuildList();
       navigate(`/guild/${json.data.id ?? params.id}`);
     }
   };
@@ -134,8 +137,10 @@ export const GuildDetailPage = ({ editMode }) => {
     });
   };
 
-  const handleDelete = () => {
-    api.guild.deleteGuild({ pathParams: { id: params.id } });
+  const handleDelete = async () => {
+    await api.guild.deleteGuild({ pathParams: { id: params.id } });
+    await getGuildList();
+    navigate('..');
   };
 
   if (!isGuildDetailFetched) return <Paper row>Loading</Paper>;

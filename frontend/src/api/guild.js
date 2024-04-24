@@ -44,7 +44,7 @@ export const addNewGuild = ({ body }) =>
 
 export const addNewGuildMember = ({ pathParams, body }) =>
   fetchJson({
-    url: `${BASE_API_URL}/guild/${pathParams.id}/member`,
+    url: `${BASE_API_URL}/guild/${pathParams.id}/invitation`,
     method: 'POST',
     body,
   });
@@ -74,6 +74,12 @@ export const acceptedTask = ({ pathParams }) =>
     method: 'GET',
   });
 
+export const abandonTask = ({ pathParams }) =>
+  fetchJson({
+    url: `${BASE_API_URL}/guild/${pathParams.gid}/task/${pathParams.tid}/abandon`,
+    method: 'GET',
+  });
+
 export const createTask = ({ pathParams, body }) =>
   fetchJson({
     url: `${BASE_API_URL}/guild/${pathParams.gid}/task`,
@@ -92,4 +98,11 @@ export const deleteTask = ({ pathParams }) =>
   fetchJson({
     url: `${BASE_API_URL}/guild/${pathParams.gid}/task/${pathParams.tid}`,
     method: 'DELETE',
+  });
+
+export const patchTaskCheckbox = ({ pathParams, body }) =>
+  fetchJson({
+    url: `${BASE_API_URL}/guild/${pathParams.gid}/task/checkbox`,
+    method: 'PATCH',
+    body,
   });

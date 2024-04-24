@@ -41,7 +41,10 @@ const CheckList = ({ value = [], onChange }) => {
           onRemove={() => handleItemRemove(i)}
         />
       ))}
-      <Button onClick={() => onChange([...value, { content: '' }])}>
+      <Button
+        type="hollow"
+        onClick={() => onChange([...value, { content: '' }])}
+      >
         add item
       </Button>
     </div>
@@ -103,7 +106,7 @@ export const AddMissionModal = ({ isOpen, onClose, onFinish, ...props }) => {
             </Form.Item>
             {form.formData.type === 'Repetitive' && (
               <Form.Item
-                valueKey="repetitiveTasksType"
+                valueKey="repetitiveTaskType"
                 label="Repetitive Tasks Type"
                 className="w-full"
               >
@@ -148,7 +151,7 @@ export const AddMissionModal = ({ isOpen, onClose, onFinish, ...props }) => {
             <TextArea className="h-[200px]" placeholder="text something..." />
           </Form.Item>
 
-          <Form.Item valueKey="item" label="Check List">
+          <Form.Item valueKey="items" label="Check List">
             <CheckList />
           </Form.Item>
         </div>

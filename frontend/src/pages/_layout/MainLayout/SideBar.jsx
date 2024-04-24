@@ -5,7 +5,7 @@ import { Button, Avatar, ColumnBar, MaterialSymbol } from '../../../components';
 import { classNames } from '../../../utils';
 import { useNavigate } from 'react-router-dom';
 import { sideBarContext } from './context';
-import { useUserMe } from './MainLayout';
+import { useGuild, useUserMe } from './MainLayout';
 
 const SIDEBAR_ITEMS = (guild) => [
   {
@@ -13,6 +13,13 @@ const SIDEBAR_ITEMS = (guild) => [
     key: 'home',
     icon: 'home',
     route: '/',
+    name: 'home',
+  },
+  {
+    label: 'ADVENTURE REPORTS',
+    key: 'notifications',
+    icon: 'notifications',
+    route: '/notifications',
     name: 'home',
   },
   {
@@ -183,22 +190,7 @@ const MenuItem = ({ children, route, icon, label, name, ...props }) => {
 
 export const SideBar = () => {
   const navigate = useNavigate();
-  const [guildList, setGuildList] = useState([]);
-
-  const getGuildList = async () => {
-    try {
-      const res = await api.guild.getGuild();
-      if (res.status !== 200) throw Error(res);
-      const json = await res.json();
-      setGuildList(json.data);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  useEffect(() => {
-    getGuildList();
-  }, []);
+  const { guildList } = useGuild();
 
   const handleLogout = async () => {
     await api.auth.logout();
