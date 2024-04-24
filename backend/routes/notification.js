@@ -1,13 +1,13 @@
 const express = require("express")
 const router = express.Router();
-const Notification = new (require('../controllers/notification/notificationControllers'))();
+const notification = new (require('../controllers/notification/notificationControllers'))();
 
-router.get('/notification', Notification.getNotifications);
+router.get('/notification', notification.getNotifications);
 
-router.get('/notification/:nid', Notification.getNotificationDetail);
+router.get('/notification/:nid', notification.getNotificationDetail);
 
-router.post('/notification', Notification.addNotification);
+router.post('/notification', notification.addNotification);
 
-router.delete('/notification:nid', Notification.deleteNotification);
+router.delete('/notification/:nid', notification.deleteNotification);
 
 module.exports = router;

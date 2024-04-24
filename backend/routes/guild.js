@@ -6,6 +6,7 @@ const { GuildAuth, GuildController, UserGuildRelationController } = require('../
 const guild = new GuildController();
 const guildAuth = new GuildAuth();
 const member = new UserGuildRelationController();
+const notification = new (require('../controllers/notification/notificationControllers'))();
 const task = new (require('../controllers/guild/taskControllers'))();
 
 // Guild
@@ -24,7 +25,7 @@ router.get('/:gid/invitation', auth, guildAuth.isMember, member.replyInvitation)
 
 router.get('/:gid/member', auth, guildAuth.isMember, member.getMember);
 
-router.post('/:gid/invitation', auth, guildAuth.isMasterOrAdmin, member.sendInvitation);
+router.post('/:gid/invitation', auth, guildAuth.isMasterOrAdmin, member.sendInvitation, notification.addNotification);
 
 router.patch('/:gid/member', auth, guildAuth.isMember, guildAuth.isMaster, member.updateMember);
 

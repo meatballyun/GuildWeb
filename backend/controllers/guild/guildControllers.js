@@ -202,13 +202,11 @@ class UserGuildRelationController {
       }
       const newmember = await UserGuildRelation.addUserGuildRelation(req.body.userId, req.params.gid, 'Pending');
       if (newmember['affectedRows']){
-        return res.status(200).json(
-            {
-            success: true,
-            message: "Invitation sent successfully.",
-            data: "OK"
-        });
-      }
+        req.body.senderId = req.params.gid;
+        req.body.recipientId = req.body.userId;
+        req.body.type = "Guild";
+        next();
+      } else return next(new ApplicationError(404));
     } catch (err) {
       return next(new ApplicationError(400));
     }

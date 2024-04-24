@@ -12,7 +12,7 @@ class ImageController {
             const filename = `${Date.now()}.jpg`;
             const path = `/uploads/image/${req.body.type}/${filename}`;
             await fs.writeFile(`${IMAGE_UPLOAD_PATH}${path}`, imageUrl.split(';base64,').pop(), { encoding: 'base64' },(err)=>{console.log(err)});
-            res.status(200).json({
+            return res.status(200).json({
                 success: true,
                 message: "Image uploaded successfully.",
                 data: { 
