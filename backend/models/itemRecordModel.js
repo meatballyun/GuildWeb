@@ -51,7 +51,7 @@ class ItemRecordModel {
 
   static updateItemRecord(ID, STATUS) {
     return new Promise((resolve, reject) => {
-      connection.query('UPDATE itemRecords SET STATUS = ? WHERE ID = ?', [ID, STATUS], function (err, rows) {
+      connection.query('UPDATE itemRecords SET STATUS = ? WHERE ID = ?', [ STATUS, ID], function (err, rows) {
         if (err) {
             reject(err);
         } else {

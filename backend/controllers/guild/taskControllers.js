@@ -327,6 +327,29 @@ class TaskController {
     }
   }
 
+  async checkbox(req, res, next) {
+    try {
+      const itemRecord = await ItemRecord.getItemRecord(req.body.itemRecordId);
+      if (itemRecord && itemRecord?.length) {
+        if (!itemRecord[0].STATUS) {
+          await ItemRecord.updateItemRecord(req.body.itemRecordId, true);
+        }
+        else {
+          await ItemRecord.updateItemRecord(req.body.itemRecordId, false);
+        }
+
+      } else return next(new ApplicationError(404, "Error in checkbox()."));
+
+      return res.status(200).json({
+        success: true,
+        message: "Data update successfully.",
+        data: "OK"
+      });
+    } catch (err) {
+      return next(new ApplicationError(400, err));
+    }
+  }
+
   async deleteTask(req, res, next) {
     try {
       const taskDetail = await Task.getTaskDetailById(req.params.tid);

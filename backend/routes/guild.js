@@ -46,6 +46,8 @@ router.put('/:gid/task/', auth, guildAuth.isMasterOrAdmin, task.updateTask);
 
 router.patch('/:gid/task/cancel', auth, guildAuth.isMasterOrAdmin, task.cancelTask);
 
+router.patch('/:gid/task/checkbox', auth, guildAuth.isMember, task.checkbox);
+
 router.delete('/:gid/task/:tid', auth, guildAuth.isMember, task.deleteTask);
 
 module.exports = router;
