@@ -13,9 +13,9 @@ class ConfirmationMailModel {
 		});
 	}
 
-	static getConfirmationMailByUserId(USER_ID) {
+	static getConfirmationMailByUserId(USER_ID, TYPE) {
 		return new Promise((resolve, reject) => {
-			connection.query('SELECT * FROM confirmationMails WHERE USER_ID = ?', USER_ID, function (err, rows) {
+			connection.query('SELECT * FROM confirmationMails WHERE USER_ID = ? AND TYPE = ?', [USER_ID, TYPE], function (err, rows) {
 				if (err) {
 					reject(err);
 				} else {
@@ -25,9 +25,9 @@ class ConfirmationMailModel {
 		});
 	}
 
-	static updateConfirmationMail(USER_ID, STATUS) {
+	static updateConfirmationMail(USER_ID, STATUS, TYPE) {
 		return new Promise((resolve, reject) => {
-			connection.query('UPDATE confirmationMails SET STATUS = ? WHERE USER_ID = ?', [STATUS, USER_ID], function (err, rows) {
+			connection.query('UPDATE confirmationMails SET STATUS = ? WHERE USER_ID = ? AND TYPE = ?', [STATUS, USER_ID, TYPE], function (err, rows) {
 				if (err) {
 					reject(err);
 				} else {
