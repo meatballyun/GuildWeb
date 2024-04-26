@@ -3,7 +3,6 @@ const bcrypt = require('bcrypt');
 const ConfirmationMail = require('../../models/confirmationMailModel.js');
 const User = require('../../models/userModel.js');
 const ApplicationError = require('../../utils/error/applicationError.js');
-VALIDATION_URL = process.env.NODE_ENV === 'development' ? process.env.FE_URL : process.env.API_SERVICE_URL;
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -14,9 +13,13 @@ const transporter = nodemailer.createTransport({
   socketTimeout: 60000
 });
 
-const mailOptions = (EMAIL, ID, CODE) => ({
+const signUpEmail = (EMAIL, ID, CODE) => {{
+  const ADDRESS = process.env.NODE_ENV === 'development' ? process.env.TEST_MAIL : EMAIL;
+  const VALIDATION_URL = process.env.NODE_ENV === 'development' ? process.env.FE_URL : process.env.API_SERVICE_URL;
+
+  return {
   from: process.env.MAIL_USER,
-  to: "rex.rex022534@gmail.com",
+  to: ADDRESS,
   subject: 'Hello User',
   html: `
         <p>This email sincerely invites you to join Guild.</p>
