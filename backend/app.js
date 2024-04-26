@@ -8,8 +8,9 @@ const passport = require('passport');
 const cookieParser = require('cookie-parser');
 const routes = require('./routes/index');
 const errorHandler = require('./utils/errorHandler.js');
-
+const path = require('path');
 const app = express();
+
 // app.use('/api', createProxyMiddleware({
 //     target: process.env.API_SERVICE_URL,
 //     changeOrigin: true,
@@ -17,6 +18,7 @@ const app = express();
 //         [`^/api`]: '',
 //     },
 // }));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(logger('dev'));
 app.use(cors({ origin:"*" }));
 app.use(bodyParser.json({ limit: '5mb' }));
