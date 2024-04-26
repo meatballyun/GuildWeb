@@ -41,7 +41,21 @@ class ImageController {
             });
         } catch (err) {
             return next(new ApplicationError(400, err));
+        }
+    }
 
+    async deleteImage(req, res, next) {
+        try {            
+            const localImagePath = path.join('public', req.params.url.replace(process.env.UPLOAD_PATH, ''));
+            await fs.access(localImagePath);
+            await fs.unlink(localImagePath);
+            return res.status(200).json({
+                success: true,
+                message: "Image delete successfully.",
+                data: "OK",
+            });
+        } catch (err) {
+            return next(new ApplicationError(400, err));
         }
     }
     
