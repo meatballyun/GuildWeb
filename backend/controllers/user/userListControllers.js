@@ -1,5 +1,7 @@
 const User = require('../../models/userModel');
 const UserFriend = require('../../models/userFriendModel');
+const userInfoController = new (require('../user/userinfoControllers.js'))();
+const updateUserExp = userInfoController.updateUserExp;
 const ApplicationError = require('../../utils/error/applicationError.js');
 
 class UserListController {
@@ -39,13 +41,44 @@ class UserListController {
         }
         
     } catch (err) {
-      return next(new ApplicationError(400));
+      return next(new ApplicationError(400, err));
+    }
+  }
+
+  async getFriends(req, res, next) {     
+    try { 
+      const query = req.query.q ? await UserFriend.getFriendsByName(req.query.q) : await UserFriend.getFriendsById(req.session.passport.user);
+      let users;
+      if (query?.length){
+        users = query.map(row =>({
+          id: row.ID,
+          name: row.NAME,
+          imageUrl: row.IMAGE_URL,
+          rank: row.RANK
+        }))
+        await updateUserExp(1, req.session.passport.user);
+
+        return res.status(200).json({
+          success: true,
+          message: "User data retrieval successful",
+          data: users.filter((row)=>{ return req.session.passport.user !== row.id })
+        });
+      } else {
+        return res.status(200).json({
+          success: true,
+          message: "User data retrieval successful",
+          data: users
+        });
+      }
+        
+    } catch (err) {
+      return next(new ApplicationError(400, err));
     }
   }
 
   async sendInvitation(req, res, next) {     
     try {
-      const query = await UserFriend.addFriend(req.session.passport.user, req.body.userId);
+      const query = await UserFriend.addFriend(req.session.passport.user, req.body.uid);
       if (query['affectedRows']){
         return res.status(200).json({
           success: true,
@@ -57,13 +90,13 @@ class UserListController {
       }        
     } catch (err) {
       if (err.code === 'ER_DUP_ENTRY') return next(new ApplicationError(409, 'Cannot add duplicate friend relationship.'));
-      return next(new ApplicationError(400));
+      return next(new ApplicationError(400, err));
     }
   }
 
-  async updateFriends(req, res, next) {     
+  async updateFriend(req, res, next) {     
     try {
-      const query = await UserFriend.updateFriend(req.body.userId, req.session.passport.user, req.body.status);
+      const query = await UserFriend.updateFriend(req.params.uid, req.session.passport.user, req.body.status);
       if (query.affectedRows){
         return res.status(200).json({
           success: true,
@@ -78,38 +111,9 @@ class UserListController {
     }
   }
 
-  async getFriends(req, res, next) {     
-    try { 
-      const query = req.query.q ? await UserFriend.getFriendsByName(req.query.q) : await UserFriend.getFriendsById(req.session.passport.user);
-      if (query?.length){
-        const users = query.map(row =>({
-          id: row.ID,
-          name: row.NAME,
-          imageUrl: row.IMAGE_URL,
-          rank: row.RANK
-        }))
-        return res.status(200).json({
-          success: true,
-          message: "User data retrieval successful",
-          data: users.filter((row)=>{ return req.session.passport.user !== row.id })
-        });
-      } else {
-        const users = [];
-        return res.status(200).json({
-          success: true,
-          message: "User data retrieval successful",
-          data: users.filter((row)=>{ return req.session.passport.user !== row.id })
-        });
-      }
-        
-    } catch (err) {
-      return next(new ApplicationError(400));
-    }
-  }
-
   async deleteFriend(req, res, next) {     
     try {  
-        const query = await UserFriend.deleteFriend(req.session.passport.user, req.query.id);
+        const query = await UserFriend.deleteFriend(req.session.passport.user, req.params.uid);
         if (query.affectedRows){
           return res.status(200).json({
             success: true,
@@ -121,7 +125,7 @@ class UserListController {
         }
         
     } catch (err) {
-      return next(new ApplicationError(400));
+      return next(new ApplicationError(400,err));
     }
   }
 

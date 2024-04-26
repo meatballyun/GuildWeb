@@ -34,28 +34,6 @@ class SignUpController {
         }
     }
 
-    async validation(req, res, next) {
-        try {
-            const [confirmationMail] = await ConfirmationMail.getConfirmationMailByUserId(req.query.uid);
-            if(confirmationMail.STATUS === "Confirmed"){
-                return next(new ApplicationError(403, "The verification link has expired or the account is already activated."));
-            }else if(confirmationMail.CODE === req.query.code){
-                const query = await ConfirmationMail.updateConfirmationMail(req.query.uid, "Confirmed");
-                if(query.affectedRows){
-                    const rows = await User.updateUserStatus("Confirmed", confirmationMail.USER_ID);
-                    if (rows.affectedRows) return res.status(200).json( {
-                        success: true,
-                        message: "The provided confirmation code is valid and can be used for user validation.",
-                        data: "OK"
-                    });
-                    else return next(new ApplicationError(404, "User not found."));
-                } 
-            } else return next(new ApplicationError(404, "The provided confirmation code does not exist or has expired."));
-        }
-        catch (err){
-            return next(new ApplicationError(400, "Not registered yet."));
-        }
-    }
 }
 
 module.exports = SignUpController;
