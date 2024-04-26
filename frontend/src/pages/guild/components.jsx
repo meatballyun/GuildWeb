@@ -24,7 +24,7 @@ export const MissionStatusWithColor = ({ status, className }) => {
   return <div className={classNames(className, colorClassName)}>{status}</div>;
 };
 
-export const MissionPill = ({ type, repetitiveTaskType, onClick }) => {
+export const MissionPill = ({ type, repetitiveTaskType, onClick, suffix }) => {
   const { background, text } = (() => {
     switch (type) {
       case 'Repetitive':
@@ -50,6 +50,7 @@ export const MissionPill = ({ type, repetitiveTaskType, onClick }) => {
       style={{ background }}
     >
       {text}
+      {suffix}
     </div>
   );
 };

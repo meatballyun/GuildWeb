@@ -120,7 +120,6 @@ export const GuildDetailPage = ({ editMode }) => {
       body: { ...form.formData },
       pathParams: { id: params.id },
     });
-    console.log(res);
     if (res.status === 200) {
       const json = await res.json();
       await getGuildList();

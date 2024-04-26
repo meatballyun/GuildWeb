@@ -89,7 +89,7 @@ export const createTask = ({ pathParams, body }) =>
 
 export const editTask = ({ pathParams, body }) =>
   fetchJson({
-    url: `${BASE_API_URL}/guild/${pathParams.gid}/task/${pathParams.tid}`,
+    url: `${BASE_API_URL}/guild/${pathParams.gid}/task`,
     method: 'PUT',
     body,
   });
@@ -98,6 +98,20 @@ export const deleteTask = ({ pathParams }) =>
   fetchJson({
     url: `${BASE_API_URL}/guild/${pathParams.gid}/task/${pathParams.tid}`,
     method: 'DELETE',
+  });
+
+export const cancelTask = ({ pathParams, body }) =>
+  fetchJson({
+    url: `${BASE_API_URL}/guild/${pathParams.gid}/task/cancel`,
+    method: 'PATCH',
+    body,
+  });
+
+export const restoreTask = ({ pathParams, body }) =>
+  fetchJson({
+    url: `${BASE_API_URL}/guild/${pathParams.gid}/task/restore`,
+    method: 'PATCH',
+    body,
   });
 
 export const patchTaskCheckbox = ({ pathParams, body }) =>

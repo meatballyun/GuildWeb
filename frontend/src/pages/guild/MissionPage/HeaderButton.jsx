@@ -39,3 +39,32 @@ export const HeaderButton = ({ value = 'all', onChange }) => {
     </div>
   );
 };
+
+export const ManageModeHeaderButton = ({
+  filter = 'all',
+  showClosed,
+  onChange,
+}) => {
+  return (
+    <div className="flex items-center gap-2">
+      <Button
+        onClick={() => onChange?.({ filter: 'all' })}
+        type={filter === 'all' ? 'solid' : 'hollow'}
+      >
+        Mission List
+      </Button>
+      <Button
+        onClick={() => onChange?.({ filter: 'mine' })}
+        type={filter === 'mine' ? 'solid' : 'hollow'}
+      >
+        Mine
+      </Button>
+      <Button
+        onClick={() => onChange?.({ filter: 'cancel' })}
+        type={filter === 'cancel' ? 'solid' : 'hollow'}
+      >
+        Cancelled
+      </Button>
+    </div>
+  );
+};

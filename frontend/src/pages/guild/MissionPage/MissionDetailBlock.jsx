@@ -1,16 +1,7 @@
-import {
-  Avatar,
-  AvatarGroup,
-  Button,
-  CheckBox,
-  MaterialSymbol,
-} from '../../../components';
+import { Avatar, AvatarGroup, Button, CheckBox } from '../../../components';
 import { Block } from '../../_layout/components';
-import { COLORS } from '../../../styles';
-import { useMemo } from 'react';
 import { MissionPill, MissionStatusWithColor } from '../components';
 import { classNames, formateDate } from '../../../utils';
-import { api } from '../../../api';
 
 const CheckItem = ({ content, showCheckBox, disabled, value, onChange }) => {
   return (
@@ -58,8 +49,9 @@ export const EmptyMissionDetail = ({ className }) => {
 export const MissionDetailBlock = ({
   className,
   detail,
-  onBtnClick,
   onCheckItemClick,
+  headerBtn,
+  footerBtn,
 }) => {
   const {
     type,
@@ -71,60 +63,20 @@ export const MissionDetailBlock = ({
     description,
     adventurers,
     items,
-    accepted,
     isAccepted,
     creator,
   } = detail;
-  const maxAccept = accepted === 'Max Accepted';
-
-  const button = useMemo(() => {
-    if (['Cancelled'].includes(status)) return [];
-    if (['Completed'].includes(status))
-      return [
-        {
-          disabled: true,
-          style: { background: COLORS['primary-200'] },
-          prefix: (
-            <MaterialSymbol icon="sentiment_very_satisfied" className="mr-1" />
-          ),
-          children: 'Mission Completed',
-        },
-      ];
-    if (isAccepted) {
-      return [
-        {
-          style: { background: COLORS.red },
-          onClick: () => onBtnClick('exit'),
-          prefix: <MaterialSymbol icon="close" className="mr-1" />,
-          children: 'Exit',
-        },
-      ];
-    }
-    if (
-      maxAccept &&
-      ['Established', 'Pending Activation', 'In Progress'].includes(status)
-    )
-      return [
-        {
-          disabled: true,
-          style: { background: COLORS['primary-200'] },
-          prefix: <MaterialSymbol icon="error" className="mr-1" />,
-          children: 'Mission Meet Max Accept',
-        },
-      ];
-    if (status === 'Expired') return [];
-    return [
-      {
-        onClick: () => onBtnClick('accept'),
-        prefix: <MaterialSymbol icon="point_scan" className="mr-1" />,
-        children: 'Accept',
-      },
-    ];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, accepted, maxAccept]);
 
   return (
-    <Block className={className} title={name}>
+    <Block
+      className={className}
+      title={
+        <div className="flex items-center justify-center gap-1">
+          {name}
+          {headerBtn}
+        </div>
+      }
+    >
       <div className="flex h-full w-full flex-col">
         <div className="flex h-full w-full flex-col items-start gap-2 overflow-auto pb-2">
           <Item label="Creator">
@@ -186,7 +138,7 @@ export const MissionDetailBlock = ({
           )}
         </div>
         <div className="flex gap-2">
-          {button.map((props, i) => (
+          {footerBtn.map((props, i) => (
             <Button className="w-full justify-center" key={i} {...props} />
           ))}
         </div>

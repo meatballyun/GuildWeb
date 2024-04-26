@@ -51,12 +51,18 @@ const CheckList = ({ value = [], onChange }) => {
   );
 };
 
-export const AddMissionModal = ({ isOpen, onClose, onFinish, ...props }) => {
+export const AddMissionModal = ({
+  modalStatus,
+  onClose,
+  onFinish,
+  ...props
+}) => {
   const form = useFormInstance({});
 
   useEffect(() => {
-    form.setFormData({});
-  }, [isOpen]);
+    form.setFormData({ ...modalStatus?.formData });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modalStatus]);
 
   const handleClick = async () => {
     await onFinish?.(form.formData);
@@ -66,7 +72,7 @@ export const AddMissionModal = ({ isOpen, onClose, onFinish, ...props }) => {
   return (
     <Modal
       {...props}
-      isOpen={isOpen}
+      isOpen={modalStatus.isOpen}
       onClose={onClose}
       header="Add Mission"
       footButton={

@@ -6,39 +6,69 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { EmptyMissionDetail, MissionDetailBlock } from './MissionDetailBlock';
 import { useSideBar } from '../../_layout/MainLayout/SideBar';
 import { AddMissionModal } from '../modal';
-import { HeaderButton } from './HeaderButton';
+import { HeaderButton, ManageModeHeaderButton } from './HeaderButton';
 import { MissionBar } from './MissionBar';
 import { formateDate } from '../../../utils';
+import {
+  MissionTypeSelect,
+  convertMissionTypeValue,
+} from './MissionTypeSelect';
+import { getMissionDetailBtn } from './utils';
+import { useUserMe } from '../../_layout';
 
 export const MissionPage = ({ manageMode = false }) => {
   const params = useParams();
   useSideBar({ activeKey: ['guild', params.gid] });
+  const { userMe } = useUserMe();
   const navigate = useNavigate();
-
-  const [openModal, setOpenModal] = useState();
-
   const [missionList, setMissionList] = useState([]);
   const [search, setSearch] = useState('');
   const [isFetched, setIsFetched] = useState(false);
   const [selectedDetail, setSelectedDetail] = useState();
-  const [filterType, setFilterType] = useState();
+  const [query, setQuery] = useState({
+    filter: 'all',
+    missionType: '',
+  });
+  const [modalStatus, setModalStatus] = useState({
+    isOpen: false,
+    formData: {},
+    type: 'new',
+  });
 
   const filteredMission = useMemo(() => {
     if (!missionList?.length) return [];
-    switch (filterType) {
-      case 'canAccepted':
-        return missionList.filter(({ status }) => status !== 'Cancel');
-      case 'inProcess':
-        return missionList.filter(({ status }) => status === 'In Process');
-      case 'completed':
-        return missionList.filter(({ status }) => status === 'Completed');
-      case 'expired':
-        return missionList.filter(({ status }) => status === 'Expired');
-      case 'all':
-      default:
-        return missionList.filter(({ status }) => status !== 'Cancel');
-    }
-  }, [missionList, filterType]);
+
+    const baseFilteredMissionList = (() => {
+      switch (query.filter) {
+        case 'mine':
+          return missionList.filter(({ creator }) => creator === userMe.id);
+        case 'cancel':
+          return missionList.filter(({ status }) => status === 'Cancelled');
+        case 'canAccepted':
+          return missionList.filter(({ status }) => status === 'Cancelled');
+        case 'inProcess':
+          return missionList.filter(({ status }) => status === 'In Process');
+        case 'completed':
+          return missionList.filter(({ status }) => status === 'Completed');
+        case 'expired':
+          return missionList.filter(({ status }) => status === 'Expired');
+        case 'all':
+        default:
+          return missionList.filter(({ status }) => status !== 'Cancelled');
+      }
+    })();
+
+    if (!query.missionType) return baseFilteredMissionList;
+
+    const { type, repetitiveTaskType } = convertMissionTypeValue(
+      query.missionType
+    );
+    return baseFilteredMissionList.filter(
+      (mission) =>
+        mission.type === type &&
+        mission.repetitiveTaskType === (repetitiveTaskType ?? 'None')
+    );
+  }, [missionList, query, userMe.id]);
 
   const fetchMissions = useCallback(async () => {
     const res = await api.guild.getTasks({
@@ -50,6 +80,7 @@ export const MissionPage = ({ manageMode = false }) => {
     if (!Array.isArray(data.data)) return;
 
     setMissionList(data.data);
+    return data.data;
   }, [params.gid, search]);
 
   useEffect(() => {
@@ -77,34 +108,89 @@ export const MissionPage = ({ manageMode = false }) => {
   };
 
   const handleSubmitModal = async (value) => {
-    await api.guild.createTask({
-      pathParams: { gid: params.gid },
-      body: {
-        ...value,
-        initiationTime: formateDate(value.initiationTime ?? new Date()),
-        deadline: formateDate(value.deadline ?? new Date()),
-      },
-    });
-    const data = fetchMissions();
-    setSelectedDetail(data);
+    let newDataId;
+    if (modalStatus.type === 'edit') {
+      const data = await api.guild.editTask({
+        pathParams: { gid: params.gid },
+        body: {
+          ...value,
+          taskId: selectedDetail.id,
+          initiationTime: formateDate(value.initiationTime ?? new Date()),
+          deadline: formateDate(value.deadline ?? new Date()),
+        },
+      });
+      const json = await data.json();
+      newDataId = json.data.id;
+    } else {
+      const data = await api.guild.createTask({
+        pathParams: { gid: params.gid },
+        body: {
+          ...value,
+          initiationTime: formateDate(value.initiationTime ?? new Date()),
+          deadline: formateDate(value.deadline ?? new Date()),
+        },
+      });
+      const json = await data.json();
+      newDataId = json.data.id;
+    }
+    await fetchMissions();
+    const detail = await fetchMissionDetail(newDataId);
+    setSelectedDetail(detail);
   };
 
   const handleBtnClick = async (type) => {
+    if (type === 'edit') {
+      setModalStatus({
+        isOpen: true,
+        formData: selectedDetail,
+        type: 'edit',
+      });
+      return;
+    }
+
     switch (type) {
-      case 'accept':
+      case 'accept': {
         await api.guild.acceptedTask({
           pathParams: { gid: params.gid, tid: selectedDetail.id },
         });
+        const data = await fetchMissionDetail(selectedDetail.id);
+        setSelectedDetail(data);
         break;
-      case 'exit':
+      }
+      case 'exit': {
         await api.guild.abandonTask({
           pathParams: { gid: params.gid, tid: selectedDetail.id },
         });
+        const data = await fetchMissionDetail(selectedDetail.id);
+        setSelectedDetail(data);
+        break;
+      }
+      case 'restore':
+        await api.guild.restoreTask({
+          pathParams: { gid: params.gid },
+          body: { taskId: selectedDetail.id },
+        });
+        await fetchMissions();
+        setSelectedDetail(undefined);
+        break;
+      case 'cancel':
+        await api.guild.cancelTask({
+          pathParams: { gid: params.gid },
+          body: { taskId: selectedDetail.id },
+        });
+        await fetchMissions();
+        setSelectedDetail(undefined);
+        break;
+
+      case 'delete':
+        await api.guild.deleteTask({
+          pathParams: { gid: params.gid, tid: selectedDetail.id },
+        });
+        await fetchMissions();
+        setSelectedDetail(undefined);
         break;
       default:
     }
-    const data = await fetchMissionDetail(selectedDetail.id);
-    setSelectedDetail(data);
   };
 
   const handleCheckboxClick = async (itemRecordId) => {
@@ -121,32 +207,34 @@ export const MissionPage = ({ manageMode = false }) => {
       <Paper row className="flex flex-col">
         <div className="mb-4 text-center text-heading-h1 text-primary-500">
           {manageMode && (
-            <Link to={`/guild/${params.id}/mission`} className="float-left">
+            <Link to={`/guild/${params.gid}/mission`} className="float-left">
               <MaterialSymbol
                 icon="arrow_back"
                 className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full hover:bg-primary-300/50"
               />
             </Link>
           )}
-          {manageMode ? (
-            'Guild Mission Manager'
-          ) : (
-            <div className="flex items-center justify-center">
-              Mission
-              <Button
-                type="hollow"
-                className="ml-2"
-                onClick={() => navigate('./manage')}
-                prefix={<MaterialSymbol icon="settings" />}
-              >
-                Manage
-              </Button>
-            </div>
+          {manageMode ? 'Guild Mission Manager' : 'Mission'}
+          {!manageMode && (
+            <Button
+              type="hollow"
+              className="float-right mt-2"
+              onClick={() => navigate('./manage')}
+              prefix={<MaterialSymbol icon="settings" />}
+            >
+              Manage
+            </Button>
           )}
         </div>
 
         <div className="mb-4 flex w-full justify-between">
-          <div className="flex w-full max-w-72 rounded-full border border-primary-500 py-1 pl-3 pr-2 text-paragraph-p2 text-primary-500">
+          <div className="flex w-full max-w-[400px] rounded-full border border-primary-500 p-1 text-paragraph-p2 text-primary-500">
+            <MissionTypeSelect
+              value={query.missionType}
+              onChange={(missionType) =>
+                setQuery((q) => ({ ...q, missionType }))
+              }
+            />
             <Input
               noFill
               value={search}
@@ -159,9 +247,25 @@ export const MissionPage = ({ manageMode = false }) => {
           <div />
         </div>
         <div className="mb-4 flex justify-between">
-          <HeaderButton value={filterType} onChange={setFilterType} />
+          {manageMode ? (
+            <ManageModeHeaderButton
+              {...query}
+              onChange={(data) => {
+                setQuery((q) => ({ ...q, ...data }));
+              }}
+            />
+          ) : (
+            <HeaderButton
+              value={query.filter}
+              onChange={(filter) => {
+                setQuery((q) => ({ ...q, filter }));
+              }}
+            />
+          )}
           {manageMode && (
-            <Button onClick={() => setOpenModal(true)}>add mission</Button>
+            <Button onClick={() => setModalStatus({ isOpen: true })}>
+              add mission
+            </Button>
           )}
         </div>
         <div className="flex h-full w-full overflow-auto">
@@ -184,8 +288,26 @@ export const MissionPage = ({ manageMode = false }) => {
               key={selectedDetail.id}
               detail={selectedDetail}
               className="w-full"
-              onBtnClick={handleBtnClick}
               onCheckItemClick={handleCheckboxClick}
+              headerBtn={
+                manageMode && (
+                  <MaterialSymbol
+                    onClick={() => {
+                      setModalStatus({
+                        isOpen: true,
+                        formData: selectedDetail,
+                      });
+                    }}
+                    icon="content_copy"
+                    className="float-right cursor-pointer rounded-full hover:bg-primary-300/50"
+                  />
+                )
+              }
+              footerBtn={getMissionDetailBtn({
+                detail: selectedDetail,
+                manageMode,
+                onBtnClick: handleBtnClick,
+              })}
             />
           ) : (
             <EmptyMissionDetail className="w-full" />
@@ -193,8 +315,8 @@ export const MissionPage = ({ manageMode = false }) => {
         </div>
       </Paper>
       <AddMissionModal
-        isOpen={openModal}
-        onClose={() => setOpenModal(false)}
+        modalStatus={modalStatus}
+        onClose={() => setModalStatus({ isOpen: false })}
         onFinish={handleSubmitModal}
       />
     </>
