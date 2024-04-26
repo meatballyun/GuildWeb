@@ -24,6 +24,30 @@ class IngredientModel {
             });
         });
     }
+    
+    static getIngredients() {
+        return new Promise((resolve, reject) => {
+            connection.query('SELECT * FROM ingredients WHERE ACTIVE = TRUE', function (err, rows) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            });
+        });
+    };
+    
+    static getIngredientsByName(NAME) {
+        return new Promise((resolve, reject) => {
+            connection.query('SELECT * FROM ingredients WHERE NAME = ? AND ACTIVE = TRUE', NAME, function (err, rows) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            });
+        });
+    };
 
     static getIngredientsByCreator(CREATOR) {
         return new Promise((resolve, reject) => {
@@ -37,20 +61,7 @@ class IngredientModel {
         });
     };
 
-    static getIngredientsByName(NAME) {
-        return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM ingredients WHERE NAME = ? AND ACTIVE = TRUE', NAME, function (err, rows) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(rows);
-                }
-            });
-        });
-    };
-
     static getIngredientsByCreatorAndName(CREATOR, NAME) {
-        console.log(NAME);
         return new Promise((resolve, reject) => {
             connection.query('SELECT * FROM ingredients WHERE CREATOR = ? AND NAME LIKE ? AND ACTIVE = TRUE', [ CREATOR, '%'+ NAME + '%' ], function (err, rows) {
                 if (err) {

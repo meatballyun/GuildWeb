@@ -61,9 +61,9 @@ class TaskModel {
     });
   }
 
-  static cancelTask(TASK_ID) {
+  static updateTaskStatus(TASK_ID, STATUS) {
     return new Promise((resolve, reject) => {
-      connection.query(`UPDATE tasks SET STATUS = 'Cancelled', ADVENTURER = 0 WHERE ID = ?`, [TASK_ID], function (err, rows) {
+      connection.query(`UPDATE tasks SET STATUS = ?, ADVENTURER = 0 WHERE ID = ?`, [STATUS, TASK_ID], function (err, rows) {
         if (err) {
             reject(err);
         } else {
@@ -73,7 +73,6 @@ class TaskModel {
     });
   }
 
-  // "Currently, updating the ADVENTURER when adding adventurers has been achieved through a trigger in MySQL."
   static acceptTask(TASK_ID, ADVENTURER) {
     return new Promise((resolve, reject) => {
       connection.query('UPDATE tasks SET ADVENTURER = ? WHERE ID = ?', [ADVENTURER, TASK_ID], function (err, rows) {

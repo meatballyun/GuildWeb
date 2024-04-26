@@ -37,6 +37,18 @@ class AdventurerModel {
     });
   }
 
+  static updateAdventurerByTaskAndUser(TASK_ID, USER_ID, STATUS) {
+    return new Promise((resolve, reject) => {
+      connection.query(`UPDATE adventurers SET STATUS = ? WHERE TASK_ID = ? AND USER_ID = ?`, [STATUS, TASK_ID, USER_ID], function (err, rows) {
+        if (err) {
+            reject(err);
+        } else {
+            resolve(rows);
+        }
+      });
+    });
+  }
+
   static deleteAdventurerByTask(TASK_ID) {
     return new Promise((resolve, reject) => {
       connection.query(`DELETE FROM adventurers WHERE TASK_ID = ?`, [TASK_ID], function (err, rows) {

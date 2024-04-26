@@ -6,7 +6,9 @@ const Adventurer = require('../../models/adventurerModel');
 const UserGuildRelation = require('../../models/userGuildRelationModel');
 const User = require('../../models/userModel');
 const ApplicationError = require('../../utils/error/applicationError.js');
-
+const { application } = require('express');
+const userInfoController = new (require('../user/userinfoControllers.js'))();
+const updateUserExp = userInfoController.updateUserExp;
 class TaskController {
   async getTasks(req, res, next) {
     try {
@@ -26,6 +28,7 @@ class TaskController {
           if (query?.length) isAccepted = true;
           return {
             id: row.ID,
+            creator: row.CREATOR_ID,
             name: row.NAME,
             type: row.TYPE,
             status: row.STATUS,
@@ -223,7 +226,9 @@ class TaskController {
             {
             success: true,
             message: "Data uploaded successfully.",
-            data: "OK"
+            data: {
+              id: newTask['insertId']
+            }
         });
 
       }
@@ -234,14 +239,14 @@ class TaskController {
 
   async updateTask(req, res, next) {
     try {
-      const taskDetail = await Task.getTaskDetailById(req.body.taskId);
+      const taskDetail = await Task.getTaskDetailById(req.params.tid);
       if (!taskDetail?.length){
         return next(ApplicationError(404, "The task cannot be found in this guild."));
       } else if (req.member[0].MEMBERSHIP === "Admin" && req.session.passport.user !== taskDetail[0].CREATOR_ID){
         return next(new ApplicationError(403, "Only guild Master have permission to access this resource."));
       }
       
-      const task = await Task.updateTask(req.body.taskId, req.body.name, req.body.initiationTime, req.body.deadline, req.body.description, req.body.imageUrl, req.body.type, req.body.maxAdventurer);
+      const task = await Task.updateTask(req.params.tid, req.body.name, req.body.initiationTime, req.body.deadline, req.body.description, req.body.imageUrl, req.body.type, req.body.maxAdventurer);
       if (task.affectedRows){
         if (req.body.type === 'Repetitive'){
           let unit;
@@ -251,20 +256,20 @@ class TaskController {
           else return next(new ApplicationError(400, "Error in parameter or missing parameter 'repetitiveTaskType'."));
 
           const generrationTime = await RepetitiveTask.DATE_ADD(req.body.initiationTime, 1, unit);
-          const getRepetitiveTask= await RepetitiveTask.getRepetitiveTask(req.body.taskId);
+          const getRepetitiveTask= await RepetitiveTask.getRepetitiveTask(req.params.tid);
           if (!getRepetitiveTask?.length){
-            const newRepetitiveTask = await RepetitiveTask.addRepetitiveTask(req.body.taskId , Object.values(generrationTime[0])[0], req.body.repetitiveTaskType);
+            const newRepetitiveTask = await RepetitiveTask.addRepetitiveTask(req.params.tid, Object.values(generrationTime[0])[0], req.body.repetitiveTaskType);
             if (!newRepetitiveTask['insertId']) return next(new ApplicationError(400, "Error in Task.addRepetitiveTask()"));
           } else{
-            const repetitiveTask = await RepetitiveTask.updateRepetitiveTask(req.body.taskId , Object.values(generrationTime[0])[0], req.body.repetitiveTaskType);
+            const repetitiveTask = await RepetitiveTask.updateRepetitiveTask(req.params.tid , Object.values(generrationTime[0])[0], req.body.repetitiveTaskType);
             if (!repetitiveTask.affectedRows) 
             return next(new ApplicationError(400, "Error in Task.updateRepetitiveTask()."));
           }
 
         } else {
-          const getRepetitiveTask= await RepetitiveTask.getRepetitiveTask(req.body.taskId);
+          const getRepetitiveTask= await RepetitiveTask.getRepetitiveTask(req.params.tid);
           if (getRepetitiveTask?.length) {
-            await RepetitiveTask.deleteRepetitiveTask(req.body.taskId)
+            await RepetitiveTask.deleteRepetitiveTask(req.params.tid)
           }
         }
 
@@ -272,22 +277,24 @@ class TaskController {
         if (req.body.items) {
           await Promise.all((req.body.items).map( async(i) => {
             if (i.content){
-              (i.id) ? await Item.updateItem(i.id , i.content) : await Item.addItem(req.body.taskId , i.content);
+              (i.id) ? await Item.updateItem(i.id , i.content) : await Item.addItem(req.params.tid , i.content);
             } else {
               await Item.deleteItem(i.id) ;
             }
           }))
         } else {
-          const query = await Item.getItem(req.body.taskId);
+          const query = await Item.getItem(req.params.tid);
           if(query){
-              await Item.deleteItems(req.body.taskId);
+              await Item.deleteItems(req.params.tid);
           }
         }
 
         return res.status(200).json({
           success: true,
           message: "Data update successfully.",
-          data: "OK"
+          data: {
+            id: req.params.tid
+          }
         });
       }
     } catch (err) {
@@ -295,17 +302,48 @@ class TaskController {
     }
   }
 
-  async cancelTask(req, res, next) {
+  async completeTask(req, res, next) {
     try {
-      const taskDetail = await Task.getTaskDetailById(req.body.taskId);
+      const taskDetail = await Task.getTaskDetailById(req.params.tid);
       if (!taskDetail?.length){
         return next(ApplicationError(404, "The task cannot be found in this guild."));
       } else if (req.member[0].MEMBERSHIP === "Admin" && req.session.passport.user !== taskDetail[0].CREATOR_ID){
         return next(new ApplicationError(403, "Only guild Master have permission to access this resource."));
       }
 
-      await Adventurer.deleteAdventurerByTask(req.body.taskId);
-      const items = await Item.getItem(req.body.taskId);
+      const adventurers = await Adventurer.getAdventurerByTask(req.params.tid);
+      if (adventurers && adventurers?.length) {
+        await Promise.all(adventurers.map( async(i) => {
+          const adventurer = await Adventurer.getAdventurerByTaskAndUser(req.params.tid, i.USER_ID);
+          if (adventurer[0].STATUS != 'Completed'){
+            return next(new ApplicationError(409, "There are users who have not completed the task."))
+          }
+        }))
+      } else return next(new ApplicationError(409))
+      
+      const completeTask = await Task.updateTaskStatus(req.params.tid, "Completed");
+      if (!completeTask.affectedRows) return next(new ApplicationError(400, "Error in Task.completeTask()."));
+      return res.status(200).json({
+        success: true,
+        message: "Data update successfully.",
+        data: "OK"
+      });
+    } catch (err) {
+      return next(new ApplicationError(400, err));
+    }
+  }
+
+  async cancelTask(req, res, next) {
+    try {
+      const taskDetail = await Task.getTaskDetailById(req.params.tid);
+      if (!taskDetail?.length){
+        return next(ApplicationError(404, "The task cannot be found in this guild."));
+      } else if (req.member[0].MEMBERSHIP === "Admin" && req.session.passport.user !== taskDetail[0].CREATOR_ID){
+        return next(new ApplicationError(403, "Only guild Master have permission to access this resource."));
+      }
+
+      await Adventurer.deleteAdventurerByTask(req.params.tid);
+      const items = await Item.getItem(req.params.tid);
       if (items && items?.length) {
         await Promise.all(items.map( async(i) => {
           const itemRecord = await ItemRecord.getItemRecordByItem(i.id);
@@ -315,8 +353,54 @@ class TaskController {
         }))
       }
       
-      const cancelTask = await Task.cancelTask(req.body.taskId);
+      const cancelTask = await Task.updateTaskStatus(req.params.tid, "Cancelled");
       if (!cancelTask.affectedRows) return next(new ApplicationError(400, "Error in Task.cancelTask()."));
+      return res.status(200).json({
+        success: true,
+        message: "Data update successfully.",
+        data: "OK"
+      });
+    } catch (err) {
+      return next(new ApplicationError(400, err));
+    }
+  }
+
+  async restoreTask(req, res, next) {
+    try {
+      const taskDetail = await Task.getTaskDetailById(req.params.tid);
+      if (!taskDetail?.length){
+        return next(ApplicationError(404, "The task cannot be found in this guild."));
+      } else if (req.member[0].MEMBERSHIP === "Admin" && req.session.passport.user !== taskDetail[0].CREATOR_ID){
+        return next(new ApplicationError(403, "Only guild Master have permission to access this resource."));
+      }
+      
+      const restoreTask = await Task.updateTaskStatus(req.params.tid, "Established");
+      if (!restoreTask.affectedRows) return next(new ApplicationError(400, "Error in Task.restoreTask()."));
+      return res.status(200).json({
+        success: true,
+        message: "Data update successfully.",
+        data: "OK"
+      });
+    } catch (err) {
+      return next(new ApplicationError(400, err));
+    }
+  }
+
+  async submitTask(req, res, next) {
+    try {
+      const taskDetail = await Task.getTaskDetailById(req.params.tid);
+      if (!taskDetail?.length){
+        return next(ApplicationError(404, "The task cannot be found in this guild."));
+      } else if (new Date(taskDetail[0].DEADLINE) < new Date() ){
+        return next(new ApplicationError(400, 'Task has expired.'));
+      }
+      const adventurer = await Adventurer.getAdventurerByTaskAndUser(req.params.tid, req.session.passport.user);
+      if (adventurer?.length) return next(new ApplicationError(409, "The task has not been accepted yet."));
+      const query = await Adventurer.updateAdventurerByTaskAndUser(req.params.tid, req.session.passport.user, "Completed");
+      if (!query['affectedRows']){
+        return next(new ApplicationError(400, "Error in Adventurer.submitTask()."));
+      }       
+
       return res.status(200).json({
         success: true,
         message: "Data update successfully.",

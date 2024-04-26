@@ -97,6 +97,18 @@ class UserModel {
 		});
 	};
 
+	static updateUserPassword(ID, PASSWORD ) {
+		return new Promise((resolve, reject) => {
+			connection.query('UPDATE users SET PASSWORD = ? WHERE ID = ?', [PASSWORD , ID], function (err, rows) {
+				if (err) {
+					reject(err);
+				} else {
+					resolve(rows);
+				}
+			});
+		});
+	};
+
 };
 
 module.exports = UserModel;

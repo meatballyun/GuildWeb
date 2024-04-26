@@ -2,6 +2,8 @@ const ApplicationError = require('../../utils/error/applicationError.js');
 const Guild = require('../../models/guildModel');
 const User = require('../../models/userModel');
 const UserGuildRelation = require('../../models/userGuildRelationModel');
+const userInfoController = new (require('../user/userinfoControllers.js'))();
+const updateUserExp = userInfoController.updateUserExp;
 
 const checkAuth = async (user, gid, level) => {
   let message = "OK";   
@@ -94,6 +96,7 @@ class GuildController {
       if (newGuild['insertId']){
         const newUserGuildRelation = await UserGuildRelation.addUserGuildRelation(req.session.passport.user, newGuild['insertId'], 'Master');
         if (newUserGuildRelation['affectedRows']){
+          await updateUserExp(1, req.session.passport.user);
           return res.status(200).json(
               {
               "success": true,  
@@ -166,7 +169,7 @@ class UserGuildRelationController {
     }
   }
 
-  async getMember(req, res, next) {
+  async getMembers(req, res, next) {
     try {
       let guildMembers;
       const getGuildMembers = await UserGuildRelation.getUserGuildRelationByGuild(req.params.gid);
@@ -183,7 +186,7 @@ class UserGuildRelationController {
           }
         }));
       }
-      
+      await updateUserExp(1, req.session.passport.user);
       return res.status(200).json({
           success: true,
           message: "You have successfully accepted the invitation and joined the guild.",
@@ -214,7 +217,7 @@ class UserGuildRelationController {
 
   async updateMember(req, res, next) {
     try {
-      const query = await UserGuildRelation.updateUserGuildRelations(req.body.userId, req.params.gid, req.body.membership);
+      const query = await UserGuildRelation.updateUserGuildRelations(req.params.uid, req.params.gid, req.body.membership);
       if (query['affectedRows']){
         return res.status(200).json(
             {

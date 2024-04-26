@@ -25,9 +25,9 @@ class RecipeModel {
         });
     }
 
-    static getRecipesByCreator(CREATOR) {
+    static getRecipes() {
         return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM recipes WHERE CREATOR = ? AND ACTIVE = TRUE', CREATOR, function (err, rows) {
+            connection.query('SELECT * FROM recipes WHERE AND ACTIVE = TRUE', function (err, rows) {
                 if (err) {
                     reject(err);
                 } else {
@@ -36,10 +36,22 @@ class RecipeModel {
             });
         });
     };
-
+    
     static getRecipesByName(NAME) {
         return new Promise((resolve, reject) => {
             connection.query('SELECT * FROM recipes WHERE NAME = ? AND ACTIVE = TRUE', NAME, function (err, rows) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            });
+        });
+    };
+    
+    static getRecipesByCreator(CREATOR) {
+        return new Promise((resolve, reject) => {
+            connection.query('SELECT * FROM recipes WHERE CREATOR = ? AND ACTIVE = TRUE', CREATOR, function (err, rows) {
                 if (err) {
                     reject(err);
                 } else {

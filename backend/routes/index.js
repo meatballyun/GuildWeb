@@ -1,24 +1,24 @@
 const express = require('express');
 const router = express.Router();
-const email = require('./email.js');
-const user = require('./user.js');
+const emails = require('./emails.js');
+const users = require('./users.js');
 const upload = require('./upload.js');
-const food = require('./food.js');
-const guild = require('./guild.js');
-const notification = require('./notification.js');
+const foods = require('./foods.js');
+const guilds = require('./guilds.js');
+const notifications = require('./notifications.js');
 
 //router.get('/checkAuth', taskController.updateTask);
 
-router.use('/user', user);
+router.use('/users', users);
 
-router.use('/email', email);
+router.use('/emails', emails);
 
 router.use('/upload', upload);
 
-router.use('/food', food);
+router.use('/foods', foods);
 
-router.use('/guild', guild);
+router.use('/guilds', guilds);
 
-router.use('/notification', notification);
+router.use('/notifications', notifications);
 
 module.exports = router;
