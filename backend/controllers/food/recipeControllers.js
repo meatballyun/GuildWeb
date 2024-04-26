@@ -4,77 +4,18 @@ const Ingredient = require('../../models/ingredientModel.js');
 const UserInfoController = require('../user/userinfoControllers.js');
 const userInfoController = new UserInfoController();
 const updateUserExp = userInfoController.updateUserExp;
+const ApplicationError = require('../../utils/error/applicationError.js');
 
 class RecipeController {
-    async addRecipe(req, res) {
-        try {        
-            const CREATOR = req.session.passport.user;
-            const newRecipe = await Recipe.addRecipe(CREATOR, req.body.name, req.body.description, req.body.carbs, req.body.pro, req.body.fats, req.body.kcal, req.body.unit, req.body.imageUrl, req.body.public);
-            const ingredients = req.body.ingredients;
-            if (!ingredients?.length) return res.status(404).json({
-                    success: false,
-                    message: "The requested resource was not found.",
-                    data: "Not Found"
-                });
-            
-            ingredients.map(async (ingredient)=>{
-                await RecipeIngredientRelation.addRecipeIngredientRelation(ingredient.id, newRecipe['insertId'], ingredient.amount);
-            });
-
-            await updateUserExp(1, CREATOR);
-            return res.status(200).json({
-                success: true,
-                message: "Data uploaded successfully.",
-                data: {
-                    id: newRecipe['insertId']
-                }
-            });
-
-        } catch (err) {
-            return res.status(400).json({
-                success: false,
-                message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
-                data: "Bad Request"
-            });
-        }
-    } 
-
-    async updateRecipe(req, res) {
+    async getRecipes(req, res, next) {
         try {
-            const query = await Recipe.updateRecipe(req.body.id, req.body.name, req.body.description, req.body.carbs, req.body.pro, req.body.fats, req.body.kcal, req.body.unit, req.body.imageUrl, req.body.public);
-            console.log(query);
-            if (!query.affectedRows) return res.status(404).json({
-                success: false,
-                message: "The requested resource was not found.",
-                data: "Not Found"
-            });
-            const ingredients = req.body.ingredients;
-            ingredients.map(async (ingredient)=>{
-                const getIngredient = await RecipeIngredientRelation.getRecipeIngredientRelationByIngredientAndRecipe(ingredient.id, req.body.id);
-                (getIngredient?.length) ? await RecipeIngredientRelation.updateRecipeIngredientRelation(ingredient.id, req.body.id, ingredient.amount) : await RecipeIngredientRelation.addRecipeIngredientRelation(ingredient.id, req.body.id, ingredient.amount);
-            });
-            
-            return res.status(200).json({
-                success: true,
-                message: "Data updated successfully.",
-                data: {
-                    id: req.body.id
-                }
-            });
-        } catch (err) {
-            return res.status(400).json({
-                success: false,
-                message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
-                data: "Bad Request"
-            });
-        }
-    } 
-
-    async getRecipes(req, res) {
-        try {
-            const CREATOR = req.session.passport.user;      
-            const recipes = req.query.q ? await Recipe.getRecipesByCreatorAndName(CREATOR, req.query.q) : await Recipe.getRecipesByCreator(CREATOR);
-            const data = recipes.map(row => ({
+            let recipes, data;
+            if ( req.query.public ){
+                recipes = req.query.q ? await Recipe.getRecipesByName(req.query.q) : await Recipe.getRecipes();
+            } else {
+                recipes = req.query.q ? await Recipe.getRecipesByCreatorAndName(req.session.passport.user, req.query.q) : await Recipe.getRecipesByCreator(req.session.passport.user);
+            }
+            data = recipes.map(row => ({
                 id: row.ID,
                 name: row.NAME,
                 carbs: row.CARBS,
@@ -85,36 +26,20 @@ class RecipeController {
                 imageUrl: row.IMAGE_URL
             }));
 
-            if (data) {
-                return res.status(200).json({
-                    success: true,
-                    message: "Data retrieval successful.",
-                    data : data
-                });
-            } else{
-                return res.status(404).json({
-                    success: false,
-                    message: "The requested resource was not found.",
-                    data : "Not Found"
-                });
-            }
-        } catch (err) {
-            return res.status(400).json({
-                success: false,
-                message: "Bad Request: The request cannot be processed due to invalid information.",
-                data: "Bad Request"
+            return res.status(200).json({
+                success: true,
+                message: "Data retrieval successful.",
+                data : data
             });
+        } catch (err) {
+            return next(new ApplicationError(400, err));
         }
     }
 
-    async getRecipeDetailById(req, res) {
+    async getRecipeDetail(req, res, next) {
         try {
             const [ recipes ] = await Recipe.getRecipesById(req.params.id);
-            if (!recipes) return res.status(404).json({
-                success: false,
-                message: "The requested resource was not found.",
-                data: "Not Found"
-            });
+            if (!recipes) return next(new ApplicationError(404));
 
             const query = await RecipeIngredientRelation.getRecipeIngredientRelationByRecipe(req.params.id);
             const ingredients = await Promise.all(query.map( async(item)=>{
@@ -148,15 +73,58 @@ class RecipeController {
                 });
             }
         } catch (err) {
-            return res.status(400).json({
-                success: false,
-                message: "Bad Request: The request cannot be processed due to invalid information.",
-                data: "Bad Request"
-            });
+            return next(new ApplicationError(400, err));
         }
     }
 
-    async deleteRecipeById(req, res) {
+    async addRecipe(req, res, next) {
+        try {        
+            const newRecipe = await Recipe.addRecipe(req.session.passport.user, req.body.name, req.body.description, req.body.carbs, req.body.pro, req.body.fats, req.body.kcal, req.body.unit, req.body.imageUrl, req.body.public);
+            const ingredients = req.body.ingredients;
+            if (!ingredients?.length) return next(new ApplicationError(404));
+            
+            ingredients.map(async (ingredient)=>{
+                await RecipeIngredientRelation.addRecipeIngredientRelation(ingredient.id, newRecipe['insertId'], ingredient.amount);
+            });
+
+            await updateUserExp(1, req.session.passport.user);
+            return res.status(200).json({
+                success: true,
+                message: "Data uploaded successfully.",
+                data: {
+                    id: newRecipe['insertId']
+                }
+            });
+
+        } catch (err) {
+            return next(new ApplicationError(400, err));
+        }
+    } 
+
+    async updateRecipe(req, res, next) {
+        try {
+            const query = await Recipe.updateRecipe(req.params.id, req.body.name, req.body.description, req.body.carbs, req.body.pro, req.body.fats, req.body.kcal, req.body.unit, req.body.imageUrl, req.body.public);
+            if (!query.affectedRows) return next(new ApplicationError(404));
+
+            const ingredients = req.body.ingredients;
+            ingredients.map(async (ingredient)=>{
+                const getIngredient = await RecipeIngredientRelation.getRecipeIngredientRelationByIngredientAndRecipe(ingredient.id, req.params.id);
+                (getIngredient?.length) ? await RecipeIngredientRelation.updateRecipeIngredientRelation(ingredient.id, req.params.id, ingredient.amount) : await RecipeIngredientRelation.addRecipeIngredientRelation(ingredient.id, req.body.id, ingredient.amount);
+            });
+            
+            return res.status(200).json({
+                success: true,
+                message: "Data updated successfully.",
+                data: {
+                    id: req.params.id
+                }
+            });
+        } catch (err) {
+            return next(new ApplicationError(400, err));
+        }
+    } 
+
+    async deleteRecipe(req, res, next) {
         try {
             const query = await Recipe.deleteRecipesById(req.params.id);
             if (query.changedRows) {
@@ -166,18 +134,10 @@ class RecipeController {
                     data: "OK"
                 });
             } else{
-                return res.status(404).json({
-                success: false,
-                    message: "The requested resource to delete was not found.",
-                    data: "Not Found"
-                })
+                return next(new ApplicationError(404));
             }
         } catch (error) {
-            return res.status(400).json({
-                success: false,
-                message: "Bad Request: The request to delete the data was invalid.",
-                data: "Bad Request"
-            });
+            return next(new ApplicationError(400, err));
         }
     }
 

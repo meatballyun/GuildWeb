@@ -2,46 +2,15 @@ const DietRecord = require('../../models/dietRecordModel.js');
 const Recipe = require('../../models/recipeModel.js');
 const User = require('../../models/userModel.js');
 
-const UserInfoController = require('../user/userinfoControllers.js');
-const userInfoController = new UserInfoController();
+const userInfoController = new (require('../user/userinfoControllers.js'))();
 const updateUserExp = userInfoController.updateUserExp;
+const ApplicationError = require('../../utils/error/applicationError.js');
 
-class DietRecordController {
-    async addDietRecord(req, res) {
+class DietRecordController {    
+    async getDietRecords(req, res, next) {
         try {
-            const CREATOR = req.session.passport.user;
-            const query = await DietRecord.addDietRecord(CREATOR, req.body.date, req.body.category, req.body.recipe, req.body.amount);
-            if (query.affectedRows) {
-                await updateUserExp(1, CREATOR);
-                return res.status(200).json({ 
-                    success: true,
-                    message: "Data uploaded successfully.",
-                    data : {
-                        id: 2
-                    } 
-                });
-            } else{
-                return res.status(404).json({
-                    success: false,
-                    message: "The requested resource to delete was not found.",
-                    data: "Not Found"
-                })
-            }
-            
-        } catch (error) {
-            return res.status(400).json({
-                success: false,
-                message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
-                data: "Bad Request"
-            });
-        }
-    }
-    
-    async getDietRecord(req, res) {
-        try {
-            const CREATOR = req.session.passport.user;
-            const [ userinfo ] = await User.getUserById(CREATOR);
-            const query = await DietRecord.getDietRecord(CREATOR, req.query.date);
+            const [ userinfo ] = await User.getUserById(req.session.passport.user);
+            const query = await DietRecord.getDietRecord(req.session.passport.user, req.query.date);
             if(query?.length){
                 const dietRecords = await Promise.all(query.map(async (rows) => {
                     const [ row ] = await Recipe.getRecipesById(rows.RECIPES);
@@ -95,16 +64,33 @@ class DietRecordController {
                     data : data 
                 });
             }
-        } catch (error) {
-            return res.status(400).json({
-                success: false,
-                message: "Bad Request: The server could not understand the request due to invalid syntax or missing parameters.",
-                data: "Bad Request"
-            });
+        } catch (err) {
+            return next(new ApplicationError(400, err))
         }
     }
 
-    async deleteDietRecord(req, res) {
+    async addDietRecord(req, res, next) {
+        try {
+            const query = await DietRecord.addDietRecord(req.session.passport.user, req.body.date, req.body.category, req.body.recipe, req.body.amount);
+            if (query.affectedRows) {
+                await updateUserExp(1, req.session.passport.user);
+                return res.status(200).json({ 
+                    success: true,
+                    message: "Data uploaded successfully.",
+                    data : {
+                        id: 2
+                    } 
+                });
+            } else{
+                return next(new ApplicationError(404))
+            }
+            
+        } catch (err) {
+            return next(new ApplicationError(400, err))
+        }
+    }
+
+    async deleteDietRecord(req, res, next) {
         try {
             const query = await DietRecord.deleteDietRecord(req.params.id);            
             if (query.changedRows) {
@@ -114,18 +100,10 @@ class DietRecordController {
                     data: "OK"
                 });
             } else{
-                return res.status(404).json({
-                    success: false,
-                    message: "The requested resource to delete was not found.",
-                    data: "Not Found"
-                })
+                return next(new ApplicationError(404))
             }
         } catch (error) {
-            return res.status(400).json({
-                success: false,
-                message: "Bad Request: The request to delete the data was invalid.",
-                data: "Bad Request"
-            });
+            return next(new ApplicationError(400, err))
         }
     }
 
