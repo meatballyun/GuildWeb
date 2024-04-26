@@ -1,87 +1,90 @@
 import { BASE_API_URL } from './constants';
 import { fetchJson } from './utils';
 
-const BASE_URL = `${BASE_API_URL}/food`;
+const BASE_URL = `${BASE_API_URL}/foods`;
 
-export const getDietRecords = ({ params }) =>
+// ------------- DietRecords ------------- //
+export const getDietRecords = ({ params = { date: '' } }) =>
   fetchJson({
     url: `${BASE_URL}/dietRecords?date=${params.date}`,
     method: 'GET',
   });
 
-export const addDietRecords = ({ body }) =>
+export const postDietRecords = ({ body }) =>
   fetchJson({
     url: `${BASE_URL}/dietRecords`,
     body,
     method: 'POST',
   });
-export const deleteDietRecords = ({ pathParams }) =>
+
+export const deleteDietRecords = ({ pathParams = { id: -1 } }) =>
   fetchJson({
     url: `${BASE_URL}/dietRecords/${pathParams.id}`,
     method: 'DELETE',
   });
 
-/** Ingredient */
-export const getIngredient = ({ params }) =>
+// ------------- Ingredients ------------- //
+export const getIngredients = ({ params = { id: -1 } }) =>
   fetchJson({
-    url: `${BASE_URL}/ingredient?q=${params.q}`,
+    url: `${BASE_URL}/ingredients?q=${params.q}`,
     method: 'GET',
   });
 
-export const getIngredientDetail = ({ pathParams }) =>
+export const postIngredients = ({ body }) =>
   fetchJson({
-    url: `${BASE_URL}/ingredient/${pathParams.id}`,
-    method: 'GET',
-  });
-export const deleteIngredient = ({ pathParams }) =>
-  fetchJson({
-    url: `${BASE_URL}/ingredient/${pathParams.id}`,
-    method: 'DELETE',
-  });
-
-export const addNewIngredient = ({ body }) =>
-  fetchJson({
-    url: `${BASE_URL}/ingredient`,
+    url: `${BASE_URL}/ingredients`,
     method: 'POST',
     body: body,
   });
 
-export const editIngredientDetail = ({ body }) =>
+export const putIngredients = ({ pathParams = { id: -1 }, body }) =>
   fetchJson({
-    url: `${BASE_URL}/ingredient`,
+    url: `${BASE_URL}/ingredients/${pathParams.id}`,
     method: 'PUT',
     body: body,
   });
 
-/** Recipe */
-export const getRecipe = ({ params }) =>
+export const getIngredientsDetail = ({ pathParams = { id: -1 } }) =>
   fetchJson({
-    url: `${BASE_URL}/recipe?q=${params.q}`,
+    url: `${BASE_URL}/ingredients/${pathParams.id}`,
     method: 'GET',
   });
 
-export const getRecipeDetail = ({ pathParams }) =>
+export const deleteIngredients = ({ pathParams = { id: -1 } }) =>
   fetchJson({
-    url: `${BASE_URL}/recipe/${pathParams.id}`,
-    method: 'GET',
-  });
-
-export const deleteRecipe = ({ pathParams }) =>
-  fetchJson({
-    url: `${BASE_URL}/recipe/${pathParams.id}`,
+    url: `${BASE_URL}/ingredients/${pathParams.id}`,
     method: 'DELETE',
   });
 
-export const addNewRecipe = ({ body }) =>
+// ------------- Recipes ------------- //
+export const getRecipes = ({ params = { q: '' } }) =>
   fetchJson({
-    url: `${BASE_URL}/recipe`,
+    url: `${BASE_URL}/recipes?q=${params.q}`,
+    method: 'GET',
+  });
+
+export const getRecipesDetail = ({ pathParams = { id: -1 } }) =>
+  fetchJson({
+    url: `${BASE_URL}/recipes/${pathParams.id}`,
+    method: 'GET',
+  });
+
+export const postRecipes = ({ body }) =>
+  fetchJson({
+    url: `${BASE_URL}/recipes`,
     method: 'POST',
     body: body,
   });
 
-export const editRecipeDetail = ({ body }) =>
+export const putRecipes = ({ pathParams = { id: -1 }, body }) =>
   fetchJson({
-    url: `${BASE_URL}/recipe`,
+    url: `${BASE_URL}/recipes/${pathParams.id}`,
     method: 'PUT',
     body: body,
+  });
+
+export const deleteRecipes = ({ pathParams = { id: -1 } }) =>
+  fetchJson({
+    url: `${BASE_URL}/recipes/${pathParams.id}`,
+    method: 'DELETE',
   });

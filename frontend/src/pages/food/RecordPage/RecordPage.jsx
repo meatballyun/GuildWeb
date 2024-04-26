@@ -33,7 +33,7 @@ const Category = ({ category }) => {
 };
 
 export const RecordPage = () => {
-  useSideBar({ activeKey: ['food', 'record'] });
+  useSideBar({ activeKey: ['foods', 'records'] });
   const [date, setDate] = useState(new Date());
   const [isFetched, setIsFetched] = useState(false);
   const [dailyFood, setDailyFood] = useState();
@@ -62,6 +62,7 @@ export const RecordPage = () => {
       }, {}),
     [dailyFood]
   );
+  console.log(foolGroupByCategory);
 
   useEffect(() => {
     (async () => {
@@ -118,42 +119,25 @@ export const RecordPage = () => {
               <div className="flex flex-col items-start gap-2" key={category}>
                 <Category category={category} />
                 {foodList.map(({ recipe, amount, id }) => (
-                  <Link to={`/food/recipe/${recipe.id}`} className="w-full">
+                  <Link to={`/foods/recipes/${recipe.id}`} className="w-full">
                     <FoodBar
                       key={id}
                       {...recipe}
                       amount={amount}
                       suffix={
-                        <>
-                          <div
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setShowModal(true);
-                              setModalValue({
-                                recipe: recipe.id,
-                                amount,
-                                date,
-                              });
-                            }}
-                            className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full border border-primary-600 text-primary-600 hover:bg-primary-600/20"
-                          >
-                            <MaterialSymbol icon="edit" size={20} />
-                          </div>
-                          <div
-                            onClick={async (e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              await api.food.deleteDietRecords({
-                                pathParams: { id },
-                              });
-                              fetchData();
-                            }}
-                            className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full border border-primary-600 text-primary-600 hover:bg-primary-600/20"
-                          >
-                            <MaterialSymbol icon="delete" size={20} />
-                          </div>
-                        </>
+                        <div
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            await api.food.deleteDietRecords({
+                              pathParams: { id },
+                            });
+                            fetchData();
+                          }}
+                          className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full border border-primary-600 text-primary-600 hover:bg-primary-600/20"
+                        >
+                          <MaterialSymbol icon="delete" size={20} />
+                        </div>
                       }
                     />
                   </Link>
@@ -168,7 +152,7 @@ export const RecordPage = () => {
         value={modalValue}
         onClose={() => setShowModal(false)}
         onFinish={async (formData) => {
-          await api.food.addDietRecords({
+          await api.food.postDietRecords({
             body: {
               ...formData,
               date: formateDate(formData.date ?? new Date()),

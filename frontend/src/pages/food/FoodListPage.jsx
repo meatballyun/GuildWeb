@@ -7,13 +7,13 @@ import { Link } from 'react-router-dom';
 import { useSideBar } from '../_layout/MainLayout/SideBar';
 
 export const FoodListPage = ({ title }) => {
-  useSideBar({ activeKey: ['food', title.toLowerCase()] });
+  useSideBar({ activeKey: ['foods', title.toLowerCase()] });
   const [foodList, setFoodList] = useState();
   const [search, setSearch] = useState('');
   const [isFetched, setIsFetched] = useState(false);
 
   const apiUtil =
-    title === 'Ingredient' ? api.food.getIngredient : api.food.getRecipe;
+    title === 'Ingredients' ? api.food.getIngredients : api.food.getRecipes;
   const fetchData = async () => {
     const res = await apiUtil({ params: { q: search } });
     const data = await res.json();
@@ -30,9 +30,9 @@ export const FoodListPage = ({ title }) => {
 
   const handleDelete = async (id) => {
     const apiUtil =
-      title === 'Ingredient'
-        ? api.food.deleteIngredient
-        : api.food.deleteRecipe;
+      title === 'Ingredients'
+        ? api.food.deleteIngredients
+        : api.food.deleteRecipes;
     const res = await apiUtil({ pathParams: { id } });
     if (res.status === 200) {
       fetchData();
@@ -53,7 +53,7 @@ export const FoodListPage = ({ title }) => {
           />
           <MaterialSymbol icon="search" size={24} />
         </div>
-        <Link to={`/food/${title.toLowerCase()}/edit/new`}>
+        <Link to={`/foods/${title.toLowerCase()}/edit/new`}>
           <Button size="sm" className="!rounded-full">
             + Add New
           </Button>
@@ -68,7 +68,7 @@ export const FoodListPage = ({ title }) => {
               {foodList.map((foodItem, i) => (
                 <Link
                   key={i}
-                  to={`/food/${title.toLowerCase()}/${foodItem.id}`}
+                  to={`/foods/${title.toLowerCase()}/${foodItem.id}`}
                 >
                   <FoodBar
                     {...foodItem}

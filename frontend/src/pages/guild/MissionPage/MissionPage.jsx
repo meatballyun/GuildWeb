@@ -18,7 +18,7 @@ import { useUserMe } from '../../_layout';
 
 export const MissionPage = ({ manageMode = false }) => {
   const params = useParams();
-  useSideBar({ activeKey: ['guild', params.gid] });
+  useSideBar({ activeKey: ['guilds', params.gid] });
   const { userMe } = useUserMe();
   const navigate = useNavigate();
   const [missionList, setMissionList] = useState([]);
@@ -68,10 +68,10 @@ export const MissionPage = ({ manageMode = false }) => {
         mission.type === type &&
         mission.repetitiveTaskType === (repetitiveTaskType ?? 'None')
     );
-  }, [missionList, query, userMe.id]);
+  }, [missionList, query, userMe]);
 
   const fetchMissions = useCallback(async () => {
-    const res = await api.guild.getTasks({
+    const res = await api.guild.getGuildsTasks({
       pathParams: { gid: params.gid },
       params: { q: search },
     });
@@ -96,7 +96,7 @@ export const MissionPage = ({ manageMode = false }) => {
   }, [fetchMissions]);
 
   const fetchMissionDetail = async (id) => {
-    const res = await api.guild.getTaskDetail({
+    const res = await api.guild.getGuildsTasksDetail({
       pathParams: { gid: params.gid, tid: id },
     });
     const json = await res.json();
@@ -110,8 +110,8 @@ export const MissionPage = ({ manageMode = false }) => {
   const handleSubmitModal = async (value) => {
     let newDataId;
     if (modalStatus.type === 'edit') {
-      const data = await api.guild.editTask({
-        pathParams: { gid: params.gid },
+      const data = await api.guild.putGuildsTasks({
+        pathParams: { gid: params.gid, tid: selectedDetail.id },
         body: {
           ...value,
           taskId: selectedDetail.id,
@@ -122,7 +122,7 @@ export const MissionPage = ({ manageMode = false }) => {
       const json = await data.json();
       newDataId = json.data.id;
     } else {
-      const data = await api.guild.createTask({
+      const data = await api.guild.postGuildsTasks({
         pathParams: { gid: params.gid },
         body: {
           ...value,
@@ -150,15 +150,15 @@ export const MissionPage = ({ manageMode = false }) => {
 
     switch (type) {
       case 'accept': {
-        await api.guild.acceptedTask({
+        await api.guild.getGuildsTasksAccepted({
           pathParams: { gid: params.gid, tid: selectedDetail.id },
         });
         const data = await fetchMissionDetail(selectedDetail.id);
         setSelectedDetail(data);
         break;
       }
-      case 'exit': {
-        await api.guild.abandonTask({
+      case 'abandon': {
+        await api.guild.getGuildsTasksAbandon({
           pathParams: { gid: params.gid, tid: selectedDetail.id },
         });
         const data = await fetchMissionDetail(selectedDetail.id);
@@ -166,24 +166,22 @@ export const MissionPage = ({ manageMode = false }) => {
         break;
       }
       case 'restore':
-        await api.guild.restoreTask({
-          pathParams: { gid: params.gid },
-          body: { taskId: selectedDetail.id },
+        await api.guild.patchGuildsTasksRestore({
+          pathParams: { gid: params.gid, tid: selectedDetail.id },
         });
         await fetchMissions();
         setSelectedDetail(undefined);
         break;
       case 'cancel':
-        await api.guild.cancelTask({
-          pathParams: { gid: params.gid },
-          body: { taskId: selectedDetail.id },
+        await api.guild.patchGuildsTasksCancel({
+          pathParams: { gid: params.gid, tid: selectedDetail.id },
         });
         await fetchMissions();
         setSelectedDetail(undefined);
         break;
 
       case 'delete':
-        await api.guild.deleteTask({
+        await api.guild.deleteGuildsTasks({
           pathParams: { gid: params.gid, tid: selectedDetail.id },
         });
         await fetchMissions();
@@ -194,7 +192,7 @@ export const MissionPage = ({ manageMode = false }) => {
   };
 
   const handleCheckboxClick = async (itemRecordId) => {
-    await api.guild.patchTaskCheckbox({
+    await api.guild.patchTasksCheckbox({
       pathParams: { gid: params.gid },
       body: { itemRecordId },
     });
@@ -207,7 +205,7 @@ export const MissionPage = ({ manageMode = false }) => {
       <Paper row className="flex flex-col">
         <div className="mb-4 text-center text-heading-h1 text-primary-500">
           {manageMode && (
-            <Link to={`/guild/${params.gid}/mission`} className="float-left">
+            <Link to={`/guilds/${params.gid}/missions`} className="float-left">
               <MaterialSymbol
                 icon="arrow_back"
                 className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full hover:bg-primary-300/50"

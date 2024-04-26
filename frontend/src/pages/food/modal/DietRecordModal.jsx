@@ -30,7 +30,7 @@ export const DietRecordModal = ({
   useEffect(() => {
     (async () => {
       setIsFetched(false);
-      const res = await api.food.getRecipe({ params: { q: search } });
+      const res = await api.food.getRecipes({ params: { q: search } });
       const { data } = await res.json();
       setIsFetched(true);
       setRecipeList(data);

@@ -55,7 +55,7 @@ export const SettingsPage = ({ editMode = false }) => {
   ).toFixed(2);
 
   const handleSubmit = async () => {
-    const res = await api.auth.editUserSetting({
+    const res = await api.user.putUserMe({
       body: { ...formData, kcal: totalKcal },
     });
     if (res.status === 200) {

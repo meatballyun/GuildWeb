@@ -12,7 +12,7 @@ export const AddIngredientModal = ({ onClose, ...props }) => {
   useEffect(() => {
     (async () => {
       setIsFetched(false);
-      const res = await api.food.getIngredient({ params: { q: search } });
+      const res = await api.food.getIngredients({ params: { q: search } });
       const { data } = await res.json();
       setIsFetched(true);
       setFoodList(data);

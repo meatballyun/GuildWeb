@@ -50,7 +50,7 @@ const ingredientDefaultValue = {
   image_url: '',
 };
 export const IngredientPage = ({ editMode = false }) => {
-  useSideBar({ activeKey: ['food', 'ingredient'] });
+  useSideBar({ activeKey: ['foods', 'ingredients'] });
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -76,7 +76,7 @@ export const IngredientPage = ({ editMode = false }) => {
     }
     (async () => {
       setIsFetched(false);
-      const res = await api.food.getIngredientDetail({
+      const res = await api.food.getIngredientsDetail({
         pathParams: { id: params.id },
       });
       const { data } = await res.json();
@@ -86,22 +86,29 @@ export const IngredientPage = ({ editMode = false }) => {
   }, [params.id]);
 
   const handleSubmit = async () => {
-    const apiUtil =
-      params.id === 'new'
-        ? api.food.addNewIngredient
-        : api.food.editIngredientDetail;
-    const res = await apiUtil({
-      body: {
-        ...formData,
-        kcal: totalKcal,
-        id: params.id === 'new' ? undefined : params.id,
-      },
-    });
-    if (res.status === 200) {
-      const json = await res.json();
-      const ingredientID = params.id === 'new' ? json.data.id : params.id;
-      navigate(`/food/ingredient/${ingredientID}`);
-    }
+    const requestBody = {
+      ...formData,
+      kcal: totalKcal,
+    };
+    let targetId = -1;
+    try {
+      if (params.id === 'new') {
+        const res = await api.food.postIngredients({ body: requestBody });
+        if (res.status !== 200) throw Error();
+        const data = await res.json();
+        targetId = data.data.id;
+      } else {
+        const res = await api.food.putIngredients({
+          pathParams: {
+            id: params.id,
+          },
+          body: requestBody,
+        });
+        if (res.status !== 200) throw Error();
+        targetId = params.id;
+      }
+      navigate(`/foods/ingredients/${targetId}`);
+    } catch (error) {}
   };
 
   if (!isFetched) return <Paper row>loading</Paper>;
@@ -142,7 +149,7 @@ export const IngredientPage = ({ editMode = false }) => {
               </>
             ) : (
               <>
-                <Link to="/food/ingredient/edit/new" state={ingredientDetail}>
+                <Link to="/foods/ingredients/edit/new" state={ingredientDetail}>
                   <Button
                     type="hollow"
                     size="md"
@@ -152,7 +159,7 @@ export const IngredientPage = ({ editMode = false }) => {
                     Copy
                   </Button>
                 </Link>
-                <Link to={`/food/ingredient/edit/${params.id}`}>
+                <Link to={`/foods/ingredients/edit/${params.id}`}>
                   <Button size="md" className="flex h-full items-center gap-1">
                     <MaterialSymbol icon="edit" fill />
                     Edit

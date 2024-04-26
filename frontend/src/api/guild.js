@@ -1,122 +1,141 @@
 import { BASE_API_URL } from './constants';
 import { fetchJson } from './utils';
 
-export const getGuild = () =>
-  fetchJson({ url: `${BASE_API_URL}/guild`, method: 'GET' });
+const BASE_GUILD_URL = `${BASE_API_URL}/guilds`;
 
-export const getGuildDetail = ({ pathParams }) =>
+// ------------- guild ------------- //
+export const getGuilds = () =>
+  fetchJson({ url: `${BASE_GUILD_URL}`, method: 'GET' });
+
+export const getGuildsDetail = ({ pathParams = { gid: -1 } }) =>
   fetchJson({
-    url: `${BASE_API_URL}/guild/${pathParams.id}`,
+    url: `${BASE_GUILD_URL}/${pathParams.gid}`,
     method: 'GET',
   });
 
-export const deleteGuild = ({ pathParams }) =>
+export const postGuilds = ({ body }) =>
   fetchJson({
-    url: `${BASE_API_URL}/guild/${pathParams.id}`,
-    method: 'DELETE',
-  });
-
-export const getGuildMember = ({ pathParams }) =>
-  fetchJson({
-    url: `${BASE_API_URL}/guild/${pathParams.id}/member`,
-    method: 'GET',
-  });
-
-export const patchGuildMember = ({ pathParams, body }) =>
-  fetchJson({
-    url: `${BASE_API_URL}/guild/${pathParams.id}/member`,
-    method: 'PATCH',
-    body,
-  });
-
-export const deleteGuildMember = ({ pathParams }) =>
-  fetchJson({
-    url: `${BASE_API_URL}/guild/${pathParams.id}/member/${pathParams.userId}`,
-    method: 'DELETE',
-  });
-
-export const addNewGuild = ({ body }) =>
-  fetchJson({
-    url: `${BASE_API_URL}/guild`,
+    url: `${BASE_GUILD_URL}`,
     method: 'POST',
     body,
   });
 
-export const addNewGuildMember = ({ pathParams, body }) =>
+export const putGuilds = ({ body, pathParams }) =>
   fetchJson({
-    url: `${BASE_API_URL}/guild/${pathParams.id}/invitation`,
-    method: 'POST',
-    body,
-  });
-
-export const editGuild = ({ body, pathParams }) =>
-  fetchJson({
-    url: `${BASE_API_URL}/guild/${pathParams.id}`,
+    url: `${BASE_GUILD_URL}/${pathParams.gid}`,
     method: 'PUT',
     body,
   });
 
-export const getTasks = ({ pathParams, params }) =>
+export const deleteGuilds = ({ pathParams = { gid: -1 } }) =>
   fetchJson({
-    url: `${BASE_API_URL}/guild/${pathParams.gid}/task?q=${params.q}`,
-    method: 'GET',
+    url: `${BASE_GUILD_URL}/${pathParams.gid}`,
+    method: 'DELETE',
   });
 
-export const getTaskDetail = ({ pathParams }) =>
+// ------------- member ------------- //
+export const postGuildsInvitation = ({ pathParams, body }) =>
   fetchJson({
-    url: `${BASE_API_URL}/guild/${pathParams.gid}/task/${pathParams.tid}`,
-    method: 'GET',
-  });
-
-export const acceptedTask = ({ pathParams }) =>
-  fetchJson({
-    url: `${BASE_API_URL}/guild/${pathParams.gid}/task/${pathParams.tid}/accepted`,
-    method: 'GET',
-  });
-
-export const abandonTask = ({ pathParams }) =>
-  fetchJson({
-    url: `${BASE_API_URL}/guild/${pathParams.gid}/task/${pathParams.tid}/abandon`,
-    method: 'GET',
-  });
-
-export const createTask = ({ pathParams, body }) =>
-  fetchJson({
-    url: `${BASE_API_URL}/guild/${pathParams.gid}/task`,
+    url: `${BASE_GUILD_URL}/${pathParams.gid}/invitation`,
     method: 'POST',
     body,
   });
 
-export const editTask = ({ pathParams, body }) =>
+export const getGuildsMember = ({ pathParams = { gid: -1 } }) =>
   fetchJson({
-    url: `${BASE_API_URL}/guild/${pathParams.gid}/task`,
+    url: `${BASE_GUILD_URL}/${pathParams.gid}/members`,
+    method: 'GET',
+  });
+
+export const patchGuildsMember = ({
+  pathParams = { gid: -1, uid: -1 },
+  body,
+}) =>
+  fetchJson({
+    url: `${BASE_GUILD_URL}/${pathParams.gid}/members/${pathParams.uid}`,
+    method: 'PATCH',
+    body,
+  });
+
+export const deleteGuildsMember = ({ pathParams = { gid: -1, uid: -1 } }) =>
+  fetchJson({
+    url: `${BASE_GUILD_URL}/${pathParams.gid}/members/${pathParams.uid}`,
+    method: 'DELETE',
+  });
+
+// ------------- task -------------//
+export const getGuildsTasks = ({
+  pathParams = { gid: -1 },
+  params = { q: '' },
+}) =>
+  fetchJson({
+    url: `${BASE_GUILD_URL}/${pathParams.gid}/tasks?q=${params.q}`,
+    method: 'GET',
+  });
+
+export const getGuildsTasksDetail = ({ pathParams = { gid: -1, tid: -1 } }) =>
+  fetchJson({
+    url: `${BASE_GUILD_URL}/${pathParams.gid}/tasks/${pathParams.tid}`,
+    method: 'GET',
+  });
+
+export const postGuildsTasks = ({ pathParams = { gid: -1, tid: -1 }, body }) =>
+  fetchJson({
+    url: `${BASE_GUILD_URL}/${pathParams.gid}/tasks`,
+    method: 'POST',
+    body,
+  });
+
+export const putGuildsTasks = ({ pathParams = { gid: -1, tid: -1 }, body }) =>
+  fetchJson({
+    url: `${BASE_GUILD_URL}/${pathParams.gid}/tasks/${pathParams.tid}`,
     method: 'PUT',
     body,
   });
 
-export const deleteTask = ({ pathParams }) =>
+export const deleteGuildsTasks = ({ pathParams = { gid: -1, tid: -1 } }) =>
   fetchJson({
-    url: `${BASE_API_URL}/guild/${pathParams.gid}/task/${pathParams.tid}`,
+    url: `${BASE_GUILD_URL}/${pathParams.gid}/tasks/${pathParams.tid}`,
     method: 'DELETE',
   });
 
-export const cancelTask = ({ pathParams, body }) =>
+// ------------- update task status -------------//
+
+export const getGuildsTasksAccepted = ({ pathParams = { gid: -1, tid: -1 } }) =>
   fetchJson({
-    url: `${BASE_API_URL}/guild/${pathParams.gid}/task/cancel`,
+    url: `${BASE_GUILD_URL}/${pathParams.gid}/tasks/${pathParams.tid}/accepted`,
+    method: 'GET',
+  });
+
+export const getGuildsTasksAbandon = ({ pathParams = { gid: -1, tid: -1 } }) =>
+  fetchJson({
+    url: `${BASE_GUILD_URL}/${pathParams.gid}/tasks/${pathParams.tid}/abandon`,
+    method: 'GET',
+  });
+
+export const patchGuildsTasksCancel = ({
+  pathParams = { gid: -1, tid: -1 },
+  body,
+}) =>
+  fetchJson({
+    url: `${BASE_GUILD_URL}/${pathParams.gid}/tasks/${pathParams.tid}/cancel`,
     method: 'PATCH',
     body,
   });
 
-export const restoreTask = ({ pathParams, body }) =>
+export const patchGuildsTasksRestore = ({
+  pathParams = { gid: -1, tid: -1 },
+  body,
+}) =>
   fetchJson({
-    url: `${BASE_API_URL}/guild/${pathParams.gid}/task/restore`,
+    url: `${BASE_GUILD_URL}/${pathParams.gid}/tasks/${pathParams.tid}/restore`,
     method: 'PATCH',
     body,
   });
 
-export const patchTaskCheckbox = ({ pathParams, body }) =>
+export const patchTasksCheckbox = ({ pathParams = { gid: -1 }, body }) =>
   fetchJson({
-    url: `${BASE_API_URL}/guild/${pathParams.gid}/task/checkbox`,
+    url: `${BASE_GUILD_URL}/${pathParams.gid}/tasks/checkbox`,
     method: 'PATCH',
     body,
   });

@@ -4,7 +4,7 @@ import { Paper } from '../_layout/components';
 import { useSideBar } from '../_layout/MainLayout/SideBar';
 
 export const OverviewPage = () => {
-  useSideBar({ activeKey: ['guild', 'overview'] });
+  useSideBar({ activeKey: ['guilds', 'overview'] });
   return (
     <Paper>
       <Link to="new/edit">

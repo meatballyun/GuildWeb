@@ -16,14 +16,14 @@ export const UsersPage = ({ friendsMode = false }) => {
 
   const fetchData = useCallback(async () => {
     const fetchFriendData = async () => {
-      const res = await api.auth.getUserFriend({ params: { q: search } });
+      const res = await api.user.getUserFriend({ params: { q: search } });
       if (res.status !== 200) return;
       const data = await res.json();
       return data.data.map((friend) => ({ ...friend, status: 'Confirmed' }));
     };
 
     const fetchUserData = async () => {
-      const res = await api.auth.getUser({ params: { q: search } });
+      const res = await api.user.getUser({ params: { q: search } });
       if (res.status !== 200) return;
       const data = await res.json();
       return data.data;

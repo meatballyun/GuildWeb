@@ -15,7 +15,7 @@ export const HeaderButton = ({ value = 'all', onChange }) => {
           onClick={() => onChange(value === 'all' ? 'canAccepted' : 'all')}
         >
           <CheckBox value={value === 'canAccepted'} />
-          only show can accepted mission
+          only show can accepted missions
         </div>
       )}
       <Button

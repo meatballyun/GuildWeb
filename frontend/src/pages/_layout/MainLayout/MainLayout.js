@@ -50,7 +50,7 @@ export const MainLayout = () => {
 
   const getUserMeData = useCallback(async () => {
     try {
-      const res = await api.auth.getUserMe();
+      const res = await api.user.getUserMe();
       if (res.status !== 200) throw Error();
       const json = await res.json();
       setUserMe(json.data);
@@ -61,7 +61,7 @@ export const MainLayout = () => {
 
   const getGuildList = useCallback(async () => {
     try {
-      const res = await api.guild.getGuild();
+      const res = await api.guild.getGuilds();
       if (res.status !== 200) throw Error(res);
       const json = await res.json();
       setGuildList(json.data);

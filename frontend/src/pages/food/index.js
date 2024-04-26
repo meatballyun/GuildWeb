@@ -8,27 +8,27 @@ import { RecipePage } from './RecipePage';
 const FoodRoute = () => {
   return (
     <Routes>
-      <Route path={food.record} element={<RecordPage />} />
+      <Route path={food.records} element={<RecordPage />} />
       <Route
-        path={food.ingredient.base}
-        element={<FoodListPage title="Ingredient" />}
+        path={food.ingredients.base}
+        element={<FoodListPage title="Ingredients" />}
       />
       <Route
-        path={food.ingredient.id}
+        path={food.ingredients.id}
         element={<IngredientPage key="base" />}
       />
       <Route
-        path={food.ingredient.edit}
+        path={food.ingredients.edit}
         element={<IngredientPage key="edit" editMode />}
       />
 
       <Route
-        path={food.recipe.base}
-        element={<FoodListPage title="Recipe" />}
+        path={food.recipes.base}
+        element={<FoodListPage title="Recipes" />}
       />
-      <Route path={food.recipe.id} element={<RecipePage key="base" />} />
+      <Route path={food.recipes.id} element={<RecipePage key="base" />} />
       <Route
-        path={food.recipe.edit}
+        path={food.recipes.edit}
         element={<RecipePage key="edit" editMode />}
       />
     </Routes>

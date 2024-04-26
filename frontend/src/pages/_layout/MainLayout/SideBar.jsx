@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { sideBarContext } from './context';
 import { useGuild, useUserMe } from './MainLayout';
 
-const SIDEBAR_ITEMS = (guild) => [
+const SIDEBAR_ITEMS = (guilds) => [
   {
     label: 'HOME',
     key: 'home',
@@ -24,27 +24,27 @@ const SIDEBAR_ITEMS = (guild) => [
   },
   {
     label: 'FOOD',
-    key: 'food',
-    name: 'food',
+    key: 'foods',
+    name: 'foods',
     icon: 'restaurant',
     children: [
       {
-        label: '• record',
-        key: 'record',
-        route: '/food/record',
-        name: 'record',
+        label: '• records',
+        key: 'records',
+        route: '/foods/records',
+        name: 'records',
       },
       {
-        label: '• recipe',
-        key: 'recipe',
-        route: '/food/recipe',
-        name: 'recipe',
+        label: '• recipes',
+        key: 'recipes',
+        route: '/foods/recipes',
+        name: 'recipes',
       },
       {
-        label: '• ingredient',
-        key: 'ingredient',
-        route: '/food/ingredient',
-        name: 'ingredient',
+        label: '• ingredients',
+        key: 'ingredients',
+        route: '/foods/ingredients',
+        name: 'ingredients',
       },
     ],
   },
@@ -57,25 +57,25 @@ const SIDEBAR_ITEMS = (guild) => [
   },
   {
     label: 'GUILD',
-    key: 'mission',
+    key: 'missions',
     icon: 'demography',
-    name: 'guild',
+    name: 'guilds',
     children: [
       {
         label: '• overview',
-        key: 'guild',
-        route: '/guild',
+        key: 'guilds',
+        route: '/guilds',
         name: 'overview',
       },
-      ...guild.map(({ id, name, imageUrl }) => ({
+      ...guilds.map(({ id, name, imageUrl }) => ({
         label: (
           <div className="flex items-start gap-1">
             <Avatar size={20} name={name} className="mt-[2px]" url={imageUrl} />
             {name}
           </div>
         ),
-        key: `guild.${id}`,
-        route: `/guild/${id}`,
+        key: `guilds.${id}`,
+        route: `/guilds/${id}`,
         name: String(id),
       })),
     ],
@@ -191,6 +191,7 @@ const MenuItem = ({ children, route, icon, label, name, ...props }) => {
 export const SideBar = () => {
   const navigate = useNavigate();
   const { guildList } = useGuild();
+  console.log(guildList);
 
   const handleLogout = async () => {
     await api.auth.logout();

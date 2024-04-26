@@ -1,15 +1,15 @@
 const food = {
   base: '/',
-  record: '/record',
-  recipe: {
-    base: '/recipe',
-    id: '/recipe/:id',
-    edit: '/recipe/edit/:id',
+  records: '/records',
+  recipes: {
+    base: '/recipes',
+    id: '/recipes/:id',
+    edit: '/recipes/edit/:id',
   },
-  ingredient: {
-    base: '/ingredient',
-    id: '/ingredient/:id',
-    edit: '/ingredient/edit/:id',
+  ingredients: {
+    base: '/ingredients',
+    id: '/ingredients/:id',
+    edit: '/ingredients/edit/:id',
   },
 };
 

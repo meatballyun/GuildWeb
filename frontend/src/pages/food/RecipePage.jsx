@@ -33,7 +33,7 @@ const IngredientList = ({ value: valueProp = [], disabled, onChange }) => {
   return valueProp
     .filter(({ amount }) => amount)
     .map(({ amount, id, ...ingredient }) => (
-      <Link to={`/food/ingredient/${id}`} className="w-full">
+      <Link to={`/foods/ingredients/${id}`} className="w-full">
         <FoodBar
           {...ingredient}
           showChart={false}
@@ -63,7 +63,7 @@ const IngredientList = ({ value: valueProp = [], disabled, onChange }) => {
 };
 
 export const RecipePage = ({ editMode }) => {
-  useSideBar({ activeKey: ['food', 'recipe'] });
+  useSideBar({ activeKey: ['foods', 'recipes'] });
   const navigate = useNavigate();
   const params = useParams();
   const [openModal, setOpenModal] = useState(false);
@@ -89,7 +89,7 @@ export const RecipePage = ({ editMode }) => {
     }
     (async () => {
       setIsFetched(false);
-      const res = await api.food.getRecipeDetail({
+      const res = await api.food.getRecipesDetail({
         pathParams: { id: params.id },
       });
       const { data } = await res.json();
@@ -99,15 +99,22 @@ export const RecipePage = ({ editMode }) => {
   }, [params.id]);
 
   const handleSubmit = async () => {
-    const apiUtil =
-      params.id === 'new' ? api.food.addNewRecipe : api.food.editRecipeDetail;
-    const res = await apiUtil({
-      body: { ...formData, carbs, pro, fats, kcal, id: params.id },
-    });
-    if (res.status === 200) {
-      const json = await res.json();
-      navigate(`/food/recipe/${json.data.id ?? params.id}`);
-    }
+    const requestBody = { ...formData, carbs, pro, fats, kcal, id: params.id };
+    try {
+      if (params.id === 'new') {
+        const res = await api.food.postRecipes({ body: requestBody });
+        if (res.status !== 200) throw Error();
+        const json = await res.json();
+        navigate(`/foods/recipes/${json.data.id}`);
+      } else {
+        const res = await api.food.putRecipes({
+          pathParams: { id: params.id },
+          body: requestBody,
+        });
+        if (res.status !== 200) throw Error();
+        navigate(`/foods/recipes/${params.id}`);
+      }
+    } catch (error) {}
   };
 
   const handleModalClose = (newItem) => {
@@ -218,7 +225,7 @@ export const RecipePage = ({ editMode }) => {
                 </>
               ) : (
                 <>
-                  <Link to="/food/recipe/edit/new" state={recipeDetail}>
+                  <Link to="/foods/recipes/edit/new" state={recipeDetail}>
                     <Button
                       type="hollow"
                       size="md"
@@ -228,7 +235,7 @@ export const RecipePage = ({ editMode }) => {
                       Copy
                     </Button>
                   </Link>
-                  <Link to={`/food/recipe/edit/${params.id}`}>
+                  <Link to={`/foods/recipes/edit/${params.id}`}>
                     <Button
                       size="md"
                       className="flex h-full items-center gap-1"

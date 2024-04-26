@@ -15,7 +15,7 @@ export const UserDetailBlock = ({ className, detail }) => {
           button: [
             {
               style: { background: COLORS.red },
-              onClick: () => api.auth.deleteUserFriend({ pathParams: { id } }),
+              onClick: () => api.user.deleteUserFriend({ pathParams: { id } }),
               prefix: <MaterialSymbol icon="person_remove" className="mr-1" />,
               children: 'Remove Friend',
             },
@@ -27,7 +27,7 @@ export const UserDetailBlock = ({ className, detail }) => {
           button: [
             {
               type: 'hollow',
-              onClick: () => api.auth.deleteUserFriend({ pathParams: { id } }),
+              onClick: () => api.user.deleteUserFriend({ pathParams: { id } }),
               prefix: <MaterialSymbol icon="cancel" className="mr-1" />,
               children: 'Revoke',
             },
@@ -39,14 +39,14 @@ export const UserDetailBlock = ({ className, detail }) => {
           button: [
             {
               type: 'hollow',
-              onClick: () => api.auth.deleteUserFriend({ pathParams: { id } }),
+              onClick: () => api.user.deleteUserFriend({ pathParams: { id } }),
               prefix: <MaterialSymbol icon="close" className="mr-1" />,
               children: 'Reject',
             },
             {
               onClick: () =>
-                api.auth.updateUserFriendStatus({
-                  body: { userId: id, status: 'Confirmed' },
+                api.user.putUserFriendStatus({
+                  body: { uid: id, status: 'Confirmed' },
                 }),
               prefix: <MaterialSymbol icon="close" className="mr-1" />,
               children: 'Reject',
@@ -57,7 +57,7 @@ export const UserDetailBlock = ({ className, detail }) => {
         return {
           button: [
             {
-              onClick: () => api.auth.postUserFriend({ body: { userId: id } }),
+              onClick: () => api.user.postUserFriend({ body: { uid: id } }),
               prefix: <MaterialSymbol icon="person_add" className="mr-1" />,
               children: 'Add Friend',
             },
@@ -69,7 +69,7 @@ export const UserDetailBlock = ({ className, detail }) => {
     <Block className={classNames(className, 'h-max')} title="User Detail">
       <div className="flex w-full flex-col items-center">
         {message && (
-          <div className="bg-warning mb-4 rounded-sm px-4 py-1">{message}</div>
+          <div className="mb-4 rounded-sm bg-warning px-4 py-1">{message}</div>
         )}
         <div className="h-[240px] w-[240px] border-[20px] border-primary-200">
           <ImageUploader value={imageUrl} disabled type="user" />

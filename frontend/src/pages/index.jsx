@@ -26,8 +26,8 @@ function Pages() {
         />
         <Route path="/friends" element={<UsersPage friendsMode />} />
         <Route path="/users" element={<UsersPage />} />
-        <Route path="/food/*" element={<FoodRoute />} />
-        <Route path="/guild/*" element={<GuildRoute />} />
+        <Route path="/foods/*" element={<FoodRoute />} />
+        <Route path="/guilds/*" element={<GuildRoute />} />
       </Route>
     </Routes>
   );

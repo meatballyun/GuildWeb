@@ -21,7 +21,7 @@ import { COLORS } from '../../styles';
 export const GuildDetailPage = ({ editMode }) => {
   const navigate = useNavigate();
   const params = useParams();
-  useSideBar({ activeKey: ['guild', params.id] });
+  useSideBar({ activeKey: ['guilds', params.id] });
   const { getGuildList } = useGuild();
   const [openModal, setOpenModal] = useState(false);
   const { userMe } = useUserMe();
@@ -52,8 +52,8 @@ export const GuildDetailPage = ({ editMode }) => {
     try {
       setIsGuildDetailFetched(false);
 
-      const res = await api.guild.getGuildDetail({
-        pathParams: { id: params.id },
+      const res = await api.guild.getGuildsDetail({
+        pathParams: { gid: params.id },
       });
       if (res.status !== 200) throw Error(res);
       const json = await res.json();
@@ -66,8 +66,8 @@ export const GuildDetailPage = ({ editMode }) => {
 
   const fetchGuildMember = useCallback(async () => {
     setIsGuildMemberFetched(false);
-    const res = await api.guild.getGuildMember({
-      pathParams: { id: params.id },
+    const res = await api.guild.getGuildsMember({
+      pathParams: { gid: params.id },
     });
     const json = await res.json();
     setGuildMember(json.data);
@@ -94,18 +94,18 @@ export const GuildDetailPage = ({ editMode }) => {
     fetchGuildMember();
   }, [fetchGuildDetail, fetchGuildMember, params.id, userMe]);
 
-  const handleMemberClick = async (value, userId) => {
+  const handleMemberClick = async (value, uid) => {
     switch (value) {
       case 'Admin':
       case 'Regular':
-        api.guild.patchGuildMember({
-          pathParams: { id: params.id },
-          body: { userId, membership: value },
+        api.guild.patchGuildsMember({
+          pathParams: { gid: params.id },
+          body: { uid, membership: value },
         });
         break;
       case 'Delete':
-        api.guild.deleteGuildMember({
-          pathParams: { id: params.id, userId },
+        api.guild.deleteGuildsMember({
+          pathParams: { gid: params.id, uid },
         });
         break;
       default:
@@ -115,7 +115,7 @@ export const GuildDetailPage = ({ editMode }) => {
 
   const handleSubmit = async () => {
     const apiUtil =
-      params.id === 'new' ? api.guild.addNewGuild : api.guild.editGuild;
+      params.id === 'new' ? api.guild.postGuilds : api.guild.putGuilds;
     const res = await apiUtil({
       body: { ...form.formData },
       pathParams: { id: params.id },
@@ -123,21 +123,21 @@ export const GuildDetailPage = ({ editMode }) => {
     if (res.status === 200) {
       const json = await res.json();
       await getGuildList();
-      navigate(`/guild/${json.data.id ?? params.id}`);
+      navigate(`/guilds/${json.data.id ?? params.id}`);
     }
   };
 
   const handleModalClose = (user) => {
     setOpenModal(false);
     if (!user) return;
-    api.guild.addNewGuildMember({
+    api.guild.postGuildsInvitation({
       pathParams: { id: params.id },
-      body: { userId: user.id },
+      body: { uid: user.id },
     });
   };
 
   const handleDelete = async () => {
-    await api.guild.deleteGuild({ pathParams: { id: params.id } });
+    await api.guild.deleteGuilds({ pathParams: { id: params.id } });
     await getGuildList();
     navigate('..');
   };
@@ -197,7 +197,7 @@ export const GuildDetailPage = ({ editMode }) => {
                 </Link>
               )}
               {!editMode && (
-                <Link to="mission">
+                <Link to="missions">
                   <Button prefix={<MaterialSymbol icon="event_note" />}>
                     Mission
                   </Button>

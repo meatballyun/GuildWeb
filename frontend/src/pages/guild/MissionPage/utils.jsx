@@ -21,9 +21,14 @@ const getBasicMissionBtnProps = ({
     return [
       {
         style: { background: COLORS.red },
-        onClick: () => onBtnClick('exit'),
+        onClick: () => onBtnClick('abandon'),
         prefix: <MaterialSymbol icon="close" />,
-        children: 'Exit',
+        children: 'Abandon',
+      },
+      {
+        onClick: () => onBtnClick('complete'),
+        prefix: <MaterialSymbol icon="check" />,
+        children: 'Complete',
       },
     ];
   }
