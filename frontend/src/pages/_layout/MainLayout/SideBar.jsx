@@ -194,6 +194,7 @@ export const SideBar = () => {
 
   const handleLogout = async () => {
     await api.auth.logout();
+    localStorage.removeItem('token');
     navigate('/login');
   };
 
