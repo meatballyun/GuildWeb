@@ -1,37 +1,13 @@
 import { Avatar, AvatarGroup, Button, CheckBox } from '../../../components';
 import { Block } from '../../_layout/components';
 import { MissionPill, MissionStatusWithColor } from '../components';
-import { classNames, formateDate } from '../../../utils';
+import { formateDate } from '../../../utils';
 
 const CheckItem = ({ content, showCheckBox, disabled, value, onChange }) => {
   return (
     <div className="inline-block" onClick={() => onChange?.(!value)}>
       {showCheckBox ? <CheckBox value={value} disabled={disabled} /> : '-'}
       <span className="ml-1">{content}</span>
-    </div>
-  );
-};
-
-const Label = ({ children }) => {
-  return (
-    <div className="inline-block pl-2 text-heading-h5 text-primary-300">
-      <span className="underline">{children}</span>：
-    </div>
-  );
-};
-
-const Item = ({ label, className, children }) => {
-  return (
-    <div className="flex w-full flex-wrap items-center">
-      <Label>{label}</Label>
-      <div
-        className={classNames(
-          'p-2 text-paragraph-p3 text-primary-600',
-          className
-        )}
-      >
-        {children}
-      </div>
     </div>
   );
 };
@@ -79,20 +55,20 @@ export const MissionDetailBlock = ({
     >
       <div className="flex h-full w-full flex-col">
         <div className="flex h-full w-full flex-col items-start gap-2 overflow-auto pb-2">
-          <Item label="Creator">
+          <Block.Item label="Creator">
             <div className="flex items-center">
               <Avatar size={24} url={creator.imageUrl} name={creator.name} />
               <span className="ml-1">{creator.name}</span>
             </div>
-          </Item>
-          <Item label="Type">
+          </Block.Item>
+          <Block.Item label="Type">
             <MissionPill type={type} repetitiveTaskType={repetitiveTaskType} />
-          </Item>
-          <Item label="Time">
+          </Block.Item>
+          <Block.Item label="Time">
             {formateDate(initiationTime).replaceAll('-', '/')} ~{' '}
             {formateDate(deadline).replaceAll('-', '/')}
-          </Item>
-          <Item label="Status">
+          </Block.Item>
+          <Block.Item label="Status">
             <div className="flex items-center gap-2">
               <MissionStatusWithColor
                 className="border-r-2 border-primary-200 pr-2"
@@ -112,15 +88,15 @@ export const MissionDetailBlock = ({
                 );
               })()}
             </div>
-          </Item>
-          <Item
+          </Block.Item>
+          <Block.Item
             label="Description"
             className="mt-2 min-h-40 w-full rounded-lg bg-primary-100"
           >
             <div className="whitespace-pre-wrap">{description}</div>
-          </Item>
+          </Block.Item>
           {!!items?.length && (
-            <Item
+            <Block.Item
               label="Chick List"
               className="mt-2 flex min-h-40 w-full flex-col gap-2 rounded-lg bg-primary-100"
             >
@@ -134,7 +110,7 @@ export const MissionDetailBlock = ({
                   onChange={() => onCheckItemClick(id)}
                 />
               ))}
-            </Item>
+            </Block.Item>
           )}
         </div>
         <div className="flex gap-2">

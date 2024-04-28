@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Avatar, Dropdown, MaterialSymbol } from '../../components';
+import { Avatar, Dropdown, MaterialSymbol, Pill } from '../../components';
 import { COLORS } from '../../styles';
 import { classNames } from '../../utils';
 
@@ -44,14 +44,10 @@ export const MissionPill = ({ type, repetitiveTaskType, onClick, suffix }) => {
 
   if (!background) return null;
   return (
-    <div
-      onClick={onClick}
-      className="flex items-center rounded-full px-2 text-paragraph-p3 text-white shadow-sm"
-      style={{ background }}
-    >
+    <Pill onClick={onClick} style={{ background }}>
       {text}
       {suffix}
-    </div>
+    </Pill>
   );
 };
 
@@ -73,14 +69,10 @@ export const MembershipPill = ({ membership, suffix, onClick }) => {
 
   if (!background) return null;
   return (
-    <div
-      onClick={onClick}
-      className="flex items-center rounded-full px-2 text-paragraph-p3 text-white shadow-sm"
-      style={{ background }}
-    >
+    <Pill onClick={onClick} style={{ background }}>
       {membership}
       {suffix}
-    </div>
+    </Pill>
   );
 };
 
