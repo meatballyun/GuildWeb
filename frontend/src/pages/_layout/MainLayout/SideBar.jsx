@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { sideBarContext } from './context';
 import { useGuild, useUserMe } from './MainLayout';
 
-const SIDEBAR_ITEMS = (guilds) => [
+const BASIC_SIDEBAR_LIST = [
   {
     label: 'HOME',
     key: 'home',
@@ -20,7 +20,7 @@ const SIDEBAR_ITEMS = (guilds) => [
     key: 'notifications',
     icon: 'notifications',
     route: '/notifications',
-    name: 'home',
+    name: 'notifications',
   },
   {
     label: 'FOOD',
@@ -55,32 +55,33 @@ const SIDEBAR_ITEMS = (guilds) => [
     route: '/friends',
     name: 'friends',
   },
-  {
-    label: 'GUILD',
-    key: 'missions',
-    icon: 'demography',
-    name: 'guilds',
-    children: [
-      {
-        label: '• overview',
-        key: 'guilds',
-        route: '/guilds',
-        name: 'overview',
-      },
-      ...guilds.map(({ id, name, imageUrl }) => ({
-        label: (
-          <div className="flex items-start gap-1">
-            <Avatar size={20} name={name} className="mt-[2px]" url={imageUrl} />
-            {name}
-          </div>
-        ),
-        key: `guilds.${id}`,
-        route: `/guilds/${id}`,
-        name: String(id),
-      })),
-    ],
-  },
 ];
+
+const getGuildSidebarItem = (guilds = []) => ({
+  label: 'GUILD',
+  key: 'missions',
+  icon: 'demography',
+  name: 'guilds',
+  children: [
+    {
+      label: '• overview',
+      key: 'guilds',
+      route: '/guilds',
+      name: 'overview',
+    },
+    ...guilds.map(({ id, name, imageUrl }) => ({
+      label: (
+        <div className="flex items-start gap-1">
+          <Avatar size={20} name={name} className="mt-[2px]" url={imageUrl} />
+          {name}
+        </div>
+      ),
+      key: `guilds.${id}`,
+      route: `/guilds/${id}`,
+      name: String(id),
+    })),
+  ],
+});
 
 export const SideBarProvider = ({ children }) => {
   const [activeKey, setActiveKey] = useState([]);
@@ -169,9 +170,13 @@ const MenuItem = ({ children, route, icon, label, name, ...props }) => {
           />
         </MenuLabel>
         {showChildren && (
-          <div className="ml-4 flex flex-col gap-2 border-l-2 border-dotted border-primary-300 pl-2 pt-2">
+          <div className="ml-4 grid gap-2 border-l-2 border-dotted border-primary-300 pl-2 pt-2">
             {children.map(({ name: childName, ...childProp }) => (
-              <MenuItem name={[...currentName, childName]} {...childProp} />
+              <MenuItem
+                name={[...currentName, childName]}
+                key={childName}
+                {...childProp}
+              />
             ))}
           </div>
         )}
@@ -191,7 +196,6 @@ const MenuItem = ({ children, route, icon, label, name, ...props }) => {
 export const SideBar = () => {
   const navigate = useNavigate();
   const { guildList } = useGuild();
-  console.log(guildList);
 
   const handleLogout = async () => {
     await api.auth.logout();
@@ -199,14 +203,16 @@ export const SideBar = () => {
     navigate('/login');
   };
 
+  const sidebarList = [...BASIC_SIDEBAR_LIST, getGuildSidebarItem(guildList)];
+
   return (
     <div className="sidebar">
       <Link to="/settings">
         <UserItem />
       </Link>
       <div className="sidebar-main flex flex-col gap-2 overflow-auto">
-        {SIDEBAR_ITEMS(guildList ?? []).map((props) => (
-          <MenuItem {...props} />
+        {sidebarList.map(({ key, ...props }) => (
+          <MenuItem {...props} key={key} />
         ))}
       </div>
       <div>

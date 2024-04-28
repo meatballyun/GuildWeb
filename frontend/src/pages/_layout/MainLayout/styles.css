@@ -28,7 +28,7 @@
 }
 
 .content {
-  @apply flex flex-col p-4;
+  @apply flex w-0 flex-1 flex-col p-4;
 
   flex: 1;
   height: 100%;
