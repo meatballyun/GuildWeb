@@ -6,10 +6,50 @@ const Adventurer = require('../../models/adventurerModel');
 const UserGuildRelation = require('../../models/userGuildRelationModel');
 const User = require('../../models/userModel');
 const ApplicationError = require('../../utils/error/applicationError.js');
-const { application } = require('express');
 const userInfoController = new (require('../user/userinfoControllers.js'))();
 const updateUserExp = userInfoController.updateUserExp;
 class TaskController {
+  async getAllTasks(req, res, next) {
+    try {
+      const [query] = await Adventurer.getAdventurerByUser(req.session.passport.user);
+      console.log(query);
+      let data;
+      if (query?.length){
+         await Promise.all( query.map( async (i) => {          
+          const tasks = await Task.getTaskByGuild(i.TASK_ID);
+          if (tasks?.length){
+            data = await Promise.all( tasks.map( async (row) => {
+              let repetitiveTaskType ='None';
+              if (row.TYPE === 'Repetitive'){
+                const repetitiveTasks = await RepetitiveTask.getRepetitiveTask(row.ID);
+                if (repetitiveTasks?.length){
+                  repetitiveTaskType = repetitiveTasks[0].TYPE;
+                }
+              }
+              
+              return {
+                id: row.ID,
+                creator: row.CREATOR_ID,
+                name: row.NAME,
+                type: row.TYPE,
+                status: row.STATUS,
+                accepted: row.ACCEPTED,
+                repetitiveTaskType: repetitiveTaskType,
+              }
+            }));
+          }
+        }));
+      }      
+      return res.status(200).json({
+        success: true,
+        message: "Data retrieval successful.",
+        data : data 
+      });
+    } catch (err) {
+      return next(new ApplicationError(400));
+    }
+  }
+
   async getTasks(req, res, next) {
     try {
       const tasks = (req.query.q) ? await Task.getTaskByGuildAndName(req.params.gid, req.query.q) : await Task.getTaskByGuild(req.params.gid);

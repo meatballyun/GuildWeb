@@ -16,14 +16,9 @@ class SignUpController {
                 });
             });
             const signUp = await User.signUp(req.body.name, req.body.email, password);
-            if (signUp.affectedRows) {         
-                return res.status(200).json( {
-                    success: true,
-                    message: "Registration successful. Your account has been created.",
-                    data: {
-                        id: signUp.insertId
-                    }
-                });
+            if (signUp.affectedRows) {       
+                req.body.uid  = signUp.insertId
+                next();
             }
         } catch (err) {
             if (err.code === 'ER_DUP_ENTRY') {

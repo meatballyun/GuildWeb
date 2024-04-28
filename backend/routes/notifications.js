@@ -1,13 +1,17 @@
 const express = require("express")
 const router = express.Router();
+const passport = require('../verification/passport');
+const auth = passport.authenticate('jwt', { session: true });
 const notification = new (require('../controllers/notification/notificationControllers'))();
 
-router.get('/notifications', notification.getNotifications);
+router.get('/', auth, notification.getNotifications);
 
-router.get('/notifications/:nid', notification.getNotificationDetail);
+router.get('/:nid', auth, notification.getNotificationDetail);
 
-router.post('/notifications', notification.addNotification);
+router.patch('/:nid', auth, notification.uesNotification);
 
-router.delete('/notifications/:nid', notification.deleteNotification);
+//router.post('/', auth, notification.addNotification);
+
+router.delete('/:nid', auth, notification.deleteNotification);
 
 module.exports = router;

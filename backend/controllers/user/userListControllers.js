@@ -47,7 +47,7 @@ class UserListController {
 
   async getFriends(req, res, next) {     
     try { 
-      const query = req.query.q ? await UserFriend.getFriendsByName(req.query.q) : await UserFriend.getFriendsById(req.session.passport.user);
+      const query = await UserFriend.getFriendsByIdAndName(req.session.passport.user, req.query.q);
       let users;
       if (query?.length){
         users = query.map(row =>({
@@ -80,11 +80,10 @@ class UserListController {
     try {
       const query = await UserFriend.addFriend(req.session.passport.user, req.body.uid);
       if (query['affectedRows']){
-        return res.status(200).json({
-          success: true,
-          message: "User data retrieval successful",
-          data: "OK"
-        });
+        req.body.type = "User";
+        req.body.senderId = req.session.passport.user;
+        req.body.recipientId = req.body.uid;
+        next();
       } else {
         return next(new ApplicationError(404));
       }        
@@ -113,6 +112,7 @@ class UserListController {
 
   async deleteFriend(req, res, next) {     
     try {  
+        console.log(req.session.passport.user, req.params.uid);
         const query = await UserFriend.deleteFriend(req.session.passport.user, req.params.uid);
         if (query.affectedRows){
           return res.status(200).json({

@@ -6,10 +6,12 @@ const signUp = new (require('../controllers/user/signupControllers'))();
 const login = new (require('../controllers/user/loginControllers'))();
 const userInfo = new (require('../controllers/user/userinfoControllers'))();
 const userList = new (require('../controllers/user/userListControllers'))();
+const mailUp = new (require('../controllers/email/mailControllers'))();
+const notification = new (require('../controllers/notification/notificationControllers'))();
 
 
 // SignUp
-router.post('/signup', signUp.signup);
+router.post('/signup', signUp.signup, mailUp.sendSignUp);
 
 // Login、Logout
 router.post('/login', login.login);
@@ -30,7 +32,7 @@ router.get('/', auth, userList.getUsers);
 
 router.get('/friends', auth, userList.getFriends);
 
-router.post('/invitation', auth, userList.sendInvitation);
+router.post('/invitation', auth, userList.sendInvitation, notification.addNotification);
 
 router.put('/friends/:uid', auth, userList.updateFriend);
 

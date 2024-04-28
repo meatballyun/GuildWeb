@@ -51,21 +51,23 @@ class GuildController {
   async getGuilds(req, res, next) {
     try {
       const query = req.query.q ? await UserGuildRelation.getUserGuildRelationByUserAndName(req.session.passport.user, req.query.q) : await UserGuildRelation.getUserGuildRelationByUser(req.session.passport.user);
-      let guild, guilds;
+      let guilds = [];
       if (query?.length){
-          guilds = await Promise.all(query.map(async(row)=>{
-            guild = await Guild.getGuild(row.GUILD_ID);
+        guilds = await Promise.all(query.map(async(row)=>{
+            const [guild] = await Guild.getGuild(row.GUILD_ID);
+            const [userGuildRelation] = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, row.GUILD_ID);
             return {
-              id: guild[0].ID,
-              name: guild[0].NAME,
-              imageUrl: guild[0].IMAGE_URL
+              id: guild.ID,
+              membership: userGuildRelation.MEMBERSHIP,
+              name: guild.NAME,
+              imageUrl: guild.IMAGE_URL
             }
           }))
       }
       return res.status(200).json({
           success: true,
           message: "Data retrieval successfully.",
-          data: guilds
+          data: guilds.filter((row)=>{ return row.membership !== "Pending" })
       });
     } catch (err) {
       return next(new ApplicationError(400, err));
@@ -126,7 +128,6 @@ class GuildController {
       return next(new ApplicationError(400, err));
     }  
   }  
-
 
   async deleteGuild(req, res, next) {
     try {      
@@ -199,14 +200,15 @@ class UserGuildRelationController {
 
   async sendInvitation(req, res, next) {
     try {
-      const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.body.userId, req.params.gid);
+      const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.body.uid, req.params.gid);
+      console.log(req.body.uid, req.params.gid);
       if (member?.length) {
         return next(new ApplicationError(409, "The player has already been invited to join this guild. Please do not resend the invitation."));
       }
-      const newmember = await UserGuildRelation.addUserGuildRelation(req.body.userId, req.params.gid, 'Pending');
+      const newmember = await UserGuildRelation.addUserGuildRelation(req.body.uid, req.params.gid, 'Pending');
       if (newmember['affectedRows']){
         req.body.senderId = req.params.gid;
-        req.body.recipientId = req.body.userId;
+        req.body.recipientId = req.body.uid;
         req.body.type = "Guild";
         next();
       } else return next(new ApplicationError(404));

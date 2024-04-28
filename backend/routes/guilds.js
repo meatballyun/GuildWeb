@@ -32,6 +32,8 @@ router.patch('/:gid/members/:uid', auth, guildAuth.isMember, guildAuth.isMaster,
 router.delete('/:gid/members/:uid', auth, guildAuth.isMember, member.deleteMember);
 
 // Task
+router.get('/all/tasks', auth, task.getAllTasks);
+
 router.get('/:gid/tasks', auth, task.getTasks);
 
 router.get('/:gid/tasks/:tid', auth, guildAuth.isMember, task.getTaskDetail);

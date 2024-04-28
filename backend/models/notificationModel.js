@@ -37,6 +37,18 @@ class NotificationModel {
     });
   }
 
+  static uesNotification(ID) {
+    return new Promise((resolve, reject) => {
+      connection.query('UPDATE notifications SET USED = TRUE WHERE ID = ?', [ID], function (err, rows) {
+        if (err) {
+            reject(err);
+        } else {
+            resolve(rows);
+        }
+      });
+    });
+  }
+
   static readNotifications(ID) {
     return new Promise((resolve, reject) => {
       connection.query('UPDATE notifications SET `READ` = TRUE WHERE ID = ?', [ID], function (err, rows) {

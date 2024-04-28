@@ -92,7 +92,6 @@ class UserInfoController {
             const newEXP = EXP + userInfo[0].EXP;
             await User.updateUserExp(newEXP, ID);
             const upgradeExp = (userInfo[0].RANK ** 2) * 10;
-            console.log(upgradeExp);
             if (newEXP >= upgradeExp) {
                 await User.updateUserRank(userInfo[0].RANK + 1, ID);
             }
