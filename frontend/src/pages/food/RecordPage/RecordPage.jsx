@@ -11,7 +11,7 @@ import { Button, DatePicker, MaterialSymbol } from '../../../components';
 import { formateDate, getNutritionSum } from '../../../utils';
 import { useSideBar } from '../../_layout/MainLayout/SideBar';
 
-const calories = [
+export const CALORIES = [
   { key: 'carbs', text: 'Carbs.', color: FOOD_COLOR.carbs },
   { key: 'pro', text: 'Prot.', color: FOOD_COLOR.pro },
   { key: 'fats', text: 'Fat', color: FOOD_COLOR.fats },
@@ -62,7 +62,6 @@ export const RecordPage = () => {
       }, {}),
     [dailyFood]
   );
-  console.log(foolGroupByCategory);
 
   useEffect(() => {
     (async () => {
@@ -88,8 +87,8 @@ export const RecordPage = () => {
             <div className="p-2 text-5xl">{foodNutritionSum.kcal}</div>
             <div className="text-3xl">kcal</div>
           </NutritionalSummaryChart>
-          <div className="max-w-[640px] flex-1">
-            {calories.map(({ key, ...data }) => (
+          <div className="max-w-[640px] flex-1 space-y-4">
+            {CALORIES.map(({ key, ...data }) => (
               <CalorieBar
                 value={foodNutritionSum[key]}
                 target={dailyFood.target[key]}

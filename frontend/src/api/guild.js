@@ -41,6 +41,12 @@ export const postGuildsInvitation = ({ pathParams, body }) =>
     body,
   });
 
+export const getGuildsInvitation = ({ pathParams, body }) =>
+  fetchJson({
+    url: `${BASE_GUILD_URL}/${pathParams.gid}/invitation`,
+    method: 'GET',
+  });
+
 export const getGuildsMember = ({ pathParams = { gid: -1 } }) =>
   fetchJson({
     url: `${BASE_GUILD_URL}/${pathParams.gid}/members`,
@@ -79,7 +85,7 @@ export const getGuildsTasksDetail = ({ pathParams = { gid: -1, tid: -1 } }) =>
     method: 'GET',
   });
 
-export const postGuildsTasks = ({ pathParams = { gid: -1, tid: -1 }, body }) =>
+export const postGuildsTasks = ({ pathParams = { gid: -1 }, body }) =>
   fetchJson({
     url: `${BASE_GUILD_URL}/${pathParams.gid}/tasks`,
     method: 'POST',
@@ -138,4 +144,10 @@ export const patchTasksCheckbox = ({ pathParams = { gid: -1 }, body }) =>
     url: `${BASE_GUILD_URL}/${pathParams.gid}/tasks/checkbox`,
     method: 'PATCH',
     body,
+  });
+
+export const getAllTasks = () =>
+  fetchJson({
+    url: `${BASE_GUILD_URL}/all/tasks`,
+    method: 'GET',
   });

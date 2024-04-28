@@ -60,6 +60,8 @@ export const MembershipPill = ({ membership, suffix, onClick }) => {
         return 'linear-gradient(340deg, rgba(168,168,168,1) 0%, rgba(238,238,238,1) 100%)';
       case 'Regular':
         return COLORS['primary-200'];
+      case 'Pending':
+        return COLORS['primary-300'];
       case 'Delete':
         return COLORS.red;
       default:
@@ -88,11 +90,18 @@ const MemberShipSelect = ({ value: valueProp, onChange }) => {
       {open && (
         <Dropdown
           onItemClick={onChange}
-          menuItem={[
-            { label: 'Admin', value: 'Admin' },
-            { label: 'Unset', value: 'Regular' },
-            { label: 'Delete', value: 'Delete' },
-          ].filter(({ value }) => value !== valueProp)}
+          menuItem={
+            valueProp === 'Pending'
+              ? [{ label: 'Delete', value: 'Delete' }]
+              : [
+                  { label: 'Admin', value: 'Admin' },
+                  { label: 'Regular', value: 'Regular' },
+                  {
+                    label: <span className="text-red">Delete</span>,
+                    value: 'Delete',
+                  },
+                ].filter(({ value }) => value !== valueProp)
+          }
         />
       )}
     </div>

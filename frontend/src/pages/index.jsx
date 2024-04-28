@@ -8,6 +8,7 @@ import { SettingsPage } from './settings';
 import { ValidationPage } from './validation';
 import { UsersPage } from './users';
 import GuildRoute from './guild';
+import { NotificationPage } from './notification';
 
 function Pages() {
   return (
@@ -24,6 +25,7 @@ function Pages() {
           path="/settings/edit"
           element={<SettingsPage key="edit" editMode />}
         />
+        <Route path="/notifications" element={<NotificationPage />} />
         <Route path="/friends" element={<UsersPage friendsMode />} />
         <Route path="/users" element={<UsersPage />} />
         <Route path="/foods/*" element={<FoodRoute />} />

@@ -2,20 +2,22 @@ import { HttpResponse, http } from 'msw';
 import { BASE_API_URL } from '../../../../api';
 import { GUILD, TASKS, getTaskDetail, getUser } from './constants';
 
+const BASE_GUILD_URL = `${BASE_API_URL}/guilds`;
+
 export const guild = [
-  http.get(`${BASE_API_URL}/guild`, async () => {
+  http.get(`${BASE_GUILD_URL}`, async () => {
     return HttpResponse.json({
       success: true,
       message: 'Data retrieval successfully.',
       data: GUILD,
     });
   }),
-  http.get(`${BASE_API_URL}/guild/:id`, async ({ params }) => {
+  http.get(`${BASE_GUILD_URL}/:gid`, async ({ params }) => {
     return HttpResponse.json({
       success: true,
       message: 'Data uploaded successfully.',
       data: {
-        ...GUILD[params.id - 1],
+        ...GUILD[params.gid - 1],
         description:
           "Blades of Fire Guild is a respected adventurers' association, famed for its brave members and commitment to combating evil. Situated in a vibrant city center, the guild provides training, support, and camaraderie to adventurers of all backgrounds. Join us in our quest to bring light and justice to the world!",
       },

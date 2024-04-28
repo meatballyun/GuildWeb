@@ -24,15 +24,15 @@ export const postUserFriend = ({ body }) =>
 
 // ------------- Friend ------------- //
 
-export const getUserFriend = ({ params }) =>
+export const getUserFriend = ({ params = { q: '' } }) =>
   fetchJson({
     url: `${BASE_USER_URL}/friends?q=${params.q}`,
     method: 'GET',
   });
 
-export const putUserFriendStatus = ({ body }) =>
+export const putUserFriendStatus = ({ pathParams = { uid: -1 }, body }) =>
   fetchJson({
-    url: `${BASE_USER_URL}/friends`,
+    url: `${BASE_USER_URL}/friends/${pathParams.uid}`,
     method: 'PUT',
     body,
   });

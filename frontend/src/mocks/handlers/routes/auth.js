@@ -4,7 +4,7 @@ import { PROFILE_IMAGE_URL } from './constants';
 
 export const auth = [
   // login
-  http.post(`${BASE_API_URL}/login`, async ({ request }) => {
+  http.post(`${BASE_API_URL}/users/login`, async ({ request }) => {
     const params = await request.json();
     if (!params.email || !params.password)
       return HttpResponse.json(
@@ -22,11 +22,11 @@ export const auth = [
       data: { token: 'yoooo token!' },
     });
   }),
-  http.get(`${BASE_API_URL}/logout`, () => {
+  http.get(`${BASE_API_URL}/users/logout`, () => {
     return new HttpResponse(null, { status: 200 });
   }),
-  // user
-  http.get(`${BASE_API_URL}/user/me`, () => {
+  // users
+  http.get(`${BASE_API_URL}/users/me`, () => {
     return HttpResponse.json({
       data: {
         name: '天上天下宇宙至尊大大ㄉㄉ醬',
@@ -43,13 +43,13 @@ export const auth = [
       },
     });
   }),
-  http.post(`${BASE_API_URL}/signup`, async ({ request }) => {
+  http.post(`${BASE_API_URL}/users/signup`, async ({ request }) => {
     const params = await request.json();
     if (params.email === 'eva@example.com')
       return new HttpResponse(null, { status: 409 });
     return new HttpResponse(null, { status: 200 });
   }),
-  http.get(`${BASE_API_URL}/user/friend`, async ({ request }) => {
+  http.get(`${BASE_API_URL}/users/friends`, async ({ request }) => {
     return HttpResponse.json({
       success: true,
       message: 'User data retrieval successful',

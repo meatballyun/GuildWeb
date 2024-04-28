@@ -99,8 +99,8 @@ export const GuildDetailPage = ({ editMode }) => {
       case 'Admin':
       case 'Regular':
         api.guild.patchGuildsMember({
-          pathParams: { gid: params.id },
-          body: { uid, membership: value },
+          pathParams: { gid: params.id, uid },
+          body: { membership: value },
         });
         break;
       case 'Delete':
@@ -131,7 +131,7 @@ export const GuildDetailPage = ({ editMode }) => {
     setOpenModal(false);
     if (!user) return;
     api.guild.postGuildsInvitation({
-      pathParams: { id: params.id },
+      pathParams: { gid: params.id },
       body: { uid: user.id },
     });
   };
@@ -141,6 +141,11 @@ export const GuildDetailPage = ({ editMode }) => {
     await getGuildList();
     navigate('..');
   };
+
+  const currentGuildMember = useMemo(() => {
+    if (editMode) return guildMember;
+    return guildMember.filter(({ membership }) => membership !== 'Pending');
+  }, [editMode, guildMember]);
 
   if (!isGuildDetailFetched) return <Paper row>Loading</Paper>;
 
@@ -197,11 +202,32 @@ export const GuildDetailPage = ({ editMode }) => {
                 </Link>
               )}
               {!editMode && (
-                <Link to="missions">
-                  <Button prefix={<MaterialSymbol icon="event_note" />}>
-                    Mission
-                  </Button>
-                </Link>
+                <>
+                  {myMemberShip !== 'Master' && (
+                    <div className="border-r-2 border-primary-300 pr-2">
+                      <Button
+                        className="h-full"
+                        style={{ borderColor: COLORS.red, color: COLORS.red }}
+                        type="hollow"
+                        size="md"
+                        onClick={async () => {
+                          await api.guild.deleteGuildsMember({
+                            pathParams: { gid: params.id, uid: userMe.id },
+                          });
+                          getGuildList();
+                          navigate('/guilds');
+                        }}
+                      >
+                        Leave
+                      </Button>
+                    </div>
+                  )}
+                  <Link to="missions">
+                    <Button prefix={<MaterialSymbol icon="event_note" />}>
+                      Mission
+                    </Button>
+                  </Link>
+                </>
               )}
             </div>
           </div>
@@ -228,7 +254,7 @@ export const GuildDetailPage = ({ editMode }) => {
                 {(() => {
                   if (!isGuildMemberFetched) return 'loading';
                   if (guildMember?.length === 0) return 'no data';
-                  return guildMember.map((data) => (
+                  return currentGuildMember.map((data) => (
                     <UserItem
                       editAble={
                         data.membership !== 'Master' &&

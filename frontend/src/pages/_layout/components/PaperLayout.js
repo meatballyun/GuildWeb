@@ -11,7 +11,7 @@ const Content = ({ children, className }) => {
   return (
     <div
       className={classNames(
-        'flex flex-1 items-center justify-center',
+        'flex h-0 flex-1 items-center justify-center',
         className
       )}
     >

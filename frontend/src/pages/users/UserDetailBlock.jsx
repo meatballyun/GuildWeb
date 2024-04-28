@@ -1,11 +1,10 @@
 import { Button, ImageUploader, MaterialSymbol } from '../../components';
 import { Block } from '../_layout/components';
-import { api } from '../../api';
 import { classNames } from '../../utils';
 import { COLORS } from '../../styles';
 import { useMemo } from 'react';
 
-export const UserDetailBlock = ({ className, detail }) => {
+export const UserDetailBlock = ({ className, detail, onButtonClick }) => {
   const { imageUrl, name, rank, status, id } = detail;
 
   const { message, button } = useMemo(() => {
@@ -15,7 +14,7 @@ export const UserDetailBlock = ({ className, detail }) => {
           button: [
             {
               style: { background: COLORS.red },
-              onClick: () => api.user.deleteUserFriend({ pathParams: { id } }),
+              onClick: () => onButtonClick('remove'),
               prefix: <MaterialSymbol icon="person_remove" className="mr-1" />,
               children: 'Remove Friend',
             },
@@ -27,7 +26,7 @@ export const UserDetailBlock = ({ className, detail }) => {
           button: [
             {
               type: 'hollow',
-              onClick: () => api.user.deleteUserFriend({ pathParams: { id } }),
+              onClick: () => onButtonClick('revoke'),
               prefix: <MaterialSymbol icon="cancel" className="mr-1" />,
               children: 'Revoke',
             },
@@ -39,17 +38,14 @@ export const UserDetailBlock = ({ className, detail }) => {
           button: [
             {
               type: 'hollow',
-              onClick: () => api.user.deleteUserFriend({ pathParams: { id } }),
+              onClick: () => onButtonClick('reject'),
               prefix: <MaterialSymbol icon="close" className="mr-1" />,
               children: 'Reject',
             },
             {
-              onClick: () =>
-                api.user.putUserFriendStatus({
-                  body: { uid: id, status: 'Confirmed' },
-                }),
-              prefix: <MaterialSymbol icon="close" className="mr-1" />,
-              children: 'Reject',
+              onClick: () => onButtonClick('confirmed'),
+              prefix: <MaterialSymbol icon="done" className="mr-1" />,
+              children: 'Confirmed',
             },
           ],
         };
@@ -57,14 +53,16 @@ export const UserDetailBlock = ({ className, detail }) => {
         return {
           button: [
             {
-              onClick: () => api.user.postUserFriend({ body: { uid: id } }),
+              onClick: () => onButtonClick('add'),
               prefix: <MaterialSymbol icon="person_add" className="mr-1" />,
               children: 'Add Friend',
             },
           ],
         };
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, id]);
+
   return (
     <Block className={classNames(className, 'h-max')} title="User Detail">
       <div className="flex w-full flex-col items-center">

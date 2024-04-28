@@ -4,7 +4,7 @@ import { classNames } from '../../../utils';
 export const CalorieBar = ({ text, color, value, target }) => {
   const warning = value > target;
   return (
-    <div className="mt-4 flex-grow px-8" style={{ color }}>
+    <div className="flex-grow px-8" style={{ color }}>
       <div className="flex justify-between">
         <div className="text-2xl text-currentColor">{text}</div>
         <div className="flex items-end justify-between">
