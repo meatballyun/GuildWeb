@@ -1,5 +1,6 @@
 import { classNames } from '../../../../utils';
 import './styles.css';
+
 export const Paper = ({ children, className, row, ...props }) => {
   return (
     <div
