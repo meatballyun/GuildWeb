@@ -111,7 +111,7 @@ const UserItem = () => {
         <Avatar size={48} url={userMe.imageUrl} name={userMe.name} />
         <div className="text-heading-h3">{userMe.name}</div>
       </div>
-      <div className="text-right text-heading-h4">Lv. {userMe.rank}</div>
+      <div className="text-right text-heading-h4">LV. {userMe.rank}</div>
       <div className="flex justify-between">
         <span>Exp.</span>
         <span>

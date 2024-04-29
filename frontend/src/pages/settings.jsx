@@ -124,7 +124,7 @@ export const SettingsPage = ({ editMode = false }) => {
                 <div className="mt-auto">
                   <div className=" flex items-end gap-1">
                     <span className="mb-1 text-heading-h2">
-                      Lv. {userMe.rank}
+                      LV. {userMe.rank}
                     </span>
                     <div className="flex-1" />
                     <span className="text-base text-blue">{userMe.exp}</span>

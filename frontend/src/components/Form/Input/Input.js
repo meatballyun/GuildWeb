@@ -21,7 +21,7 @@ export const Input = ({
       className={classNames(
         'text-paragraph-p2',
         classNameProp,
-        type === 'underline' && 'border-b border-primary-500 pb-1',
+        type === 'underline' && 'border-b border-currentColor pb-1',
         error && 'text-red'
       )}
     >

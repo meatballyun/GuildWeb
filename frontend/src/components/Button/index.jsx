@@ -1,6 +1,12 @@
 import { classNames } from '../../utils';
 import './styles.css';
 
+/**
+ *
+ * @param {"sm"| "md"| "lg"} size
+ * @param {"sm"| "md"| "lg"} type
+ * @returns
+ */
 export const Button = ({
   className,
   prefix,

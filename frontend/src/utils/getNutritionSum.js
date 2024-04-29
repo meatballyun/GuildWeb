@@ -8,23 +8,25 @@ export const getNutritionSum = (
     },
   ]
 ) => {
-  const { carbs, pro, fats } = valueList.reduce(
-    (pre, ingredient) =>
-      Object.entries(pre)
-        .filter(([key]) => ['carbs', 'pro', 'fats'].includes(key))
-        .reduce(
-          (pre, [key, value]) => ({
-            ...pre,
-            [key]: value + ingredient[key] * (ingredient.amount ?? 1),
-          }),
-          {}
-        ),
-    {
-      carbs: 0,
-      pro: 0,
-      fats: 0,
-    }
-  );
+  const { carbs, pro, fats } = valueList
+    .filter(({ amount }) => amount >= 0)
+    .reduce(
+      (pre, ingredient) =>
+        Object.entries(pre)
+          .filter(([key]) => ['carbs', 'pro', 'fats'].includes(key))
+          .reduce(
+            (pre, [key, value]) => ({
+              ...pre,
+              [key]: value + ingredient[key] * (ingredient.amount ?? 1),
+            }),
+            {}
+          ),
+      {
+        carbs: 0,
+        pro: 0,
+        fats: 0,
+      }
+    );
   return {
     carbs: +carbs.toFixed(2),
     pro: +pro.toFixed(2),

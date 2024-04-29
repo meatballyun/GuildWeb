@@ -1,27 +1,36 @@
 import { Button, MaterialSymbol } from '../../../components';
 
-export const PublicButton = ({ value, onChange }) => {
-  if (value)
+export const PublishedContent = ({ published }) => {
+  if (published)
     return (
-      <Button
-        onClick={() => onChange(false)}
-        type="hollow"
-        size="md"
-        className="flex items-center gap-1"
-      >
+      <>
         <MaterialSymbol icon="public" fill />
-        Public
-      </Button>
+        Published
+      </>
+    );
+  return (
+    <>
+      <MaterialSymbol icon="lock" fill />
+      Private
+    </>
+  );
+};
+
+export const PublicButton = ({ value, onChange, disabled }) => {
+  if (disabled)
+    return (
+      <div className="flex h-full items-center gap-1 text-paragraph-p2 text-primary-500">
+        <PublishedContent published={!!value} />
+      </div>
     );
   return (
     <Button
-      onClick={() => onChange(true)}
+      onClick={() => onChange(!value)}
       type="hollow"
       size="md"
       className="flex items-center gap-1"
     >
-      <MaterialSymbol icon="lock" fill />
-      Private
+      <PublishedContent published={!!value} />
     </Button>
   );
 };
