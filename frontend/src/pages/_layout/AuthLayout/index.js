@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import './styles.css';
 import { Outlet, useLocation } from 'react-router';
+import { Paper } from '../components';
+import { MaterialSymbol } from '../../../components';
 
 const HINT = {
   signup: { to: '/login', text: 'Already an adventurer?\nLog in now !' },
@@ -17,10 +19,13 @@ export const AuthLayout = () => {
       <Outlet />
       {['/signup', '/login'].includes(location.pathname) && (
         <Link to={hintContent.to}>
-          <div className="absolute bottom-0 right-0 bg-primary-100 p-4 text-lg">
+          <Paper
+            row
+            className="absolute -bottom-4 -right-4 h-[150px] w-[250px] text-lg"
+          >
             <div className="whitespace-pre">{hintContent.text}</div>
-            <div className="text-right">→</div>
-          </div>
+            <MaterialSymbol className="float-right" icon="arrow_forward" />
+          </Paper>
         </Link>
       )}
     </div>

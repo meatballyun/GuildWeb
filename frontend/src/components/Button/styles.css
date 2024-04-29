@@ -74,3 +74,6 @@
 .button.button-type--hollow:active {
   background: rgba(98, 37, 29, 0.2);
 }
+.button.button-type--hollow:disabled {
+  @apply cursor-not-allowed border-primary-300/50 bg-primary-300/10 text-primary-300 shadow-none;
+}

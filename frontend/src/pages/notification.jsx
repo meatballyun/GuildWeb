@@ -74,8 +74,8 @@ export const NotificationDetailBlock = ({
       {
         onClick: async () => {
           await api.user.putUserFriendStatus({
-            pathParams: { gid: targetId },
-            body: { status: 'Confirm' },
+            pathParams: { uid: targetId },
+            body: { status: 'Confirmed' },
           });
           onFootBtnClick();
         },

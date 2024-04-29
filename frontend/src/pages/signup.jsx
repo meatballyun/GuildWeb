@@ -1,13 +1,16 @@
-import { useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import { Button, Form, Input, useFormInstance } from '../components';
 import { useState } from 'react';
 import { Paper } from './_layout/components';
+import { EmailModal } from './modal';
 
 const SignUp = () => {
-  const navigate = useNavigate();
   const form = useFormInstance();
   const [error, setError] = useState('');
+  const [modalStatus, setModalStatus] = useState({
+    isOpen: false,
+    sendEmailTime: 0,
+  });
 
   const handleSignUp = async () => {
     const { confirmPassword, password, email, name } = form.formData;
@@ -30,37 +33,46 @@ const SignUp = () => {
       return;
     }
     if (res.status === 200) {
-      navigate('/login');
+      setModalStatus({ isOpen: true, sendEmailTime: new Date().valueOf() });
+      // navigate('/login');
       return;
     }
   };
 
   return (
-    <Paper className="flex h-[720px] w-[600px] flex-col items-center justify-center">
-      <div className="mb-8 text-center text-heading-h1">
-        Become an adventurer!
-      </div>
-      <div className="flex w-[240px] flex-col gap-4">
-        <Form form={form}>
-          <Form.Item valueKey="name" label="Name">
-            <Input type="underline" />
-          </Form.Item>
-          <Form.Item valueKey="email" label="Email">
-            <Input type="underline" />
-          </Form.Item>
-          <Form.Item valueKey="password" label="Password">
-            <Input type="underline" inputType="password" />
-          </Form.Item>
-          <Form.Item valueKey="confirmPassword" label="Confirm Password">
-            <Input type="underline" inputType="password" />
-          </Form.Item>
-        </Form>
-        <div className="text-red">{error}</div>
-      </div>
-      <Button size="lg mt-12" onClick={handleSignUp}>
-        Start your journey
-      </Button>
-    </Paper>
+    <>
+      <Paper className="flex h-[720px] w-[600px] flex-col items-center justify-center">
+        <div className="mb-8 text-center text-heading-h1">
+          Become an adventurer!
+        </div>
+        <div className="flex w-[240px] flex-col gap-4">
+          <Form form={form}>
+            <Form.Item valueKey="name" label="Name">
+              <Input type="underline" />
+            </Form.Item>
+            <Form.Item valueKey="email" label="Email">
+              <Input type="underline" />
+            </Form.Item>
+            <Form.Item valueKey="password" label="Password">
+              <Input type="underline" inputType="password" />
+            </Form.Item>
+            <Form.Item valueKey="confirmPassword" label="Confirm Password">
+              <Input type="underline" inputType="password" />
+            </Form.Item>
+          </Form>
+          <div className="text-red">{error}</div>
+        </div>
+        <Button size="lg mt-12" onClick={handleSignUp}>
+          Start your journey
+        </Button>
+      </Paper>
+      <EmailModal
+        {...modalStatus}
+        header="The verification Email has been sent"
+        onClose={() => setModalStatus({ isOpen: false })}
+        email={form.formData.email}
+      />
+    </>
   );
 };
 
