@@ -11,14 +11,14 @@ const updateUserExp = userInfoController.updateUserExp;
 class TaskController {
   async getAllTasks(req, res, next) {
     try {
-      const [query] = await Adventurer.getAdventurerByUser(req.session.passport.user);
-      console.log(query);
-      let data;
+      const query = await Adventurer.getAdventurerByUser(req.session.passport.user);
+      let data = [];
       if (query?.length){
-         await Promise.all( query.map( async (i) => {          
-          const tasks = await Task.getTaskByGuild(i.TASK_ID);
+        await Promise.all( query.map( async (i) => {   
+          const tasks = await Task.getTaskDetailById(i.TASK_ID);
           if (tasks?.length){
-            data = await Promise.all( tasks.map( async (row) => {
+            const task = await Promise.all( tasks.filter((row)=>{ return (row.STATUS === 'Established' || row.STATUS === 'In Progress') })
+            .map( async (row) => {
               let repetitiveTaskType ='None';
               if (row.TYPE === 'Repetitive'){
                 const repetitiveTasks = await RepetitiveTask.getRepetitiveTask(row.ID);
@@ -37,6 +37,7 @@ class TaskController {
                 repetitiveTaskType: repetitiveTaskType,
               }
             }));
+            data.push(...task);
           }
         }));
       }      
@@ -229,16 +230,11 @@ class TaskController {
 
   async addTask(req, res, next) {
     try {
-      const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(req.session.passport.user, req.params.gid);
-      if (!member?.length){
-        return next(new ApplicationError(403, "You are not a member of this guild."));
-      } else if (member[0].MEMBERSHIP !== "Master"){
-        return res.status(403).json({
-          success: false,
-          message: "Only guild Master have permission to access this resource.",
-          data: "Forbidden"
-        });
-      }
+      const initiationTime = new Date(req.body.initiationTime);
+      const deadline = new Date(req.body.deadline);
+      if (deadline.toLocaleDateString() < initiationTime.toLocaleDateString()){      
+        return next(new ApplicationError(409, "Deadline cannot be earlier than initiationTime."));
+      };
       
       const newTask = await Task.addTask(req.session.passport.user, req.params.gid, req.body.name, req.body.initiationTime, req.body.deadline, req.body.description, req.body.imageUrl, req.body.type, req.body.maxAdventurer );
       if (newTask['insertId']){
@@ -356,10 +352,10 @@ class TaskController {
         await Promise.all(adventurers.map( async(i) => {
           const adventurer = await Adventurer.getAdventurerByTaskAndUser(req.params.tid, i.USER_ID);
           if (adventurer[0].STATUS != 'Completed'){
-            return next(new ApplicationError(409, "There are users who have not completed the task."))
+            await Adventurer.updateAdventurerByTaskAndUser(req.params.tid, i.USER_ID, 'Failed');
           }
         }))
-      } else return next(new ApplicationError(409))
+      } else return next(new ApplicationError(409, "No one completed the task."))
       
       const completeTask = await Task.updateTaskStatus(req.params.tid, "Completed");
       if (!completeTask.affectedRows) return next(new ApplicationError(400, "Error in Task.completeTask()."));
@@ -434,8 +430,9 @@ class TaskController {
       } else if (new Date(taskDetail[0].DEADLINE) < new Date() ){
         return next(new ApplicationError(400, 'Task has expired.'));
       }
-      const adventurer = await Adventurer.getAdventurerByTaskAndUser(req.params.tid, req.session.passport.user);
-      if (adventurer?.length) return next(new ApplicationError(409, "The task has not been accepted yet."));
+      
+      const [adventurer] = await Adventurer.getAdventurerByTaskAndUser(req.params.tid, req.session.passport.user);
+      if (!adventurer) return next(new ApplicationError(409, "The task has not been accepted yet."));
       const query = await Adventurer.updateAdventurerByTaskAndUser(req.params.tid, req.session.passport.user, "Completed");
       if (!query['affectedRows']){
         return next(new ApplicationError(400, "Error in Adventurer.submitTask()."));

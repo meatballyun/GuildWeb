@@ -71,15 +71,16 @@ class DietRecordController {
 
     async addDietRecord(req, res, next) {
         try {
+            const [getRecipe] = await Recipe.getRecipesById(req.body.recipe);
+            if (!getRecipe) return next(new ApplicationError(409));
+            else if (getRecipe.CREATOR !== req.session.passport.user) return next(new ApplicationError(403));
             const query = await DietRecord.addDietRecord(req.session.passport.user, req.body.date, req.body.category, req.body.recipe, req.body.amount);
             if (query.affectedRows) {
                 await updateUserExp(1, req.session.passport.user);
                 return res.status(200).json({ 
                     success: true,
                     message: "Data uploaded successfully.",
-                    data : {
-                        id: 2
-                    } 
+                    data : "OK"
                 });
             } else{
                 return next(new ApplicationError(404))

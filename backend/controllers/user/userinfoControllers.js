@@ -5,24 +5,24 @@ const ApplicationError = require('../../utils/error/applicationError.js');
 class UserInfoController {
     async getUserInfoByUserId(req, res, next) {        
         try {
-            const [ userinfo ] = await User.getUserById(req.session.passport.user);
-            if (userinfo) {
-                const upgradeExp = (userinfo.RANK ** 2) * 10;
+            const [ userInfo ] = await User.getUserById(req.session.passport.user);
+            if (userInfo) {
+                const upgradeExp = ((userInfo.RANK ** 2.8)* 10).toFixed(0) ;
                 res.status(200).json({
                     success: true,
                     message: "User data retrieval successful",
                     data: {
-                        id: userinfo.ID,
-                        name: userinfo.NAME,
-                        email: userinfo.EMAIL,
-                        imageUrl: userinfo.IMAGE_URL,
-                        rank: userinfo.RANK,
-                        exp: userinfo.EXP,
+                        id: userInfo.ID,
+                        name: userInfo.NAME,
+                        email: userInfo.EMAIL,
+                        imageUrl: userInfo.IMAGE_URL,
+                        rank: userInfo.RANK,
+                        exp: userInfo.EXP,
                         upgradeExp: upgradeExp,
-                        carbs: userinfo.CARBS,
-                        pro: userinfo.PRO,
-                        fats: userinfo.FATS,
-                        kcal: userinfo.KCAL
+                        carbs: userInfo.CARBS,
+                        pro: userInfo.PRO,
+                        fats: userInfo.FATS,
+                        kcal: userInfo.KCAL
                     }                    
                 });
             }
@@ -77,7 +77,7 @@ class UserInfoController {
                         id: req.session.passport.user
                     }
                 });
-            } else{
+            } else {
                 return next(new ApplicationError(404));
             }
         } catch (err) {
@@ -87,13 +87,14 @@ class UserInfoController {
 
     async updateUserExp(EXP, ID) {     
         try {  
-            const userInfo = await User.getUserById(ID);
-            if (userInfo[0].RANK === 50) return;
-            const newEXP = EXP + userInfo[0].EXP;
+            const [userInfo] = await User.getUserById(ID);
+            if (userInfo.RANK === 99) return;
+            const newEXP = EXP + userInfo.EXP;
             await User.updateUserExp(newEXP, ID);
-            const upgradeExp = (userInfo[0].RANK ** 2) * 10;
+            const upgradeExp = ((userInfo.RANK ** 2.8)* 10).toFixed(0);
             if (newEXP >= upgradeExp) {
-                await User.updateUserRank(userInfo[0].RANK + 1, ID);
+                await User.updateUserRank(userInfo.RANK + 1, ID);
+                await User.updateUserExp(0, ID);
             }
             return;
         } catch (err) {

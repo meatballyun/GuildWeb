@@ -24,10 +24,22 @@ class IngredientModel {
             });
         });
     }
-    
-    static getIngredients() {
+
+    static publishIngredient(ID) {
         return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM ingredients WHERE ACTIVE = TRUE', function (err, rows) {
+            connection.query('UPDATE ingredients SET PUBLISHED = TRUE WHERE ID = ?', [ID], function (err, rows) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            });
+        });
+    }
+    
+    static getIngredients(CREATOR) {
+        return new Promise((resolve, reject) => {
+            connection.query('SELECT * FROM ingredients WHERE CREATOR != ? AND ACTIVE = TRUE AND PUBLISHED = TRUE', [CREATOR], function (err, rows) {
                 if (err) {
                     reject(err);
                 } else {
@@ -37,9 +49,9 @@ class IngredientModel {
         });
     };
     
-    static getIngredientsByName(NAME) {
+    static getIngredientsByName(CREATOR, NAME) {
         return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM ingredients WHERE NAME = ? AND ACTIVE = TRUE', NAME, function (err, rows) {
+            connection.query('SELECT * FROM ingredients WHERE CREATOR != ? AND NAME = ? AND ACTIVE = TRUE AND PUBLISHED = TRUE', [CREATOR, NAME], function (err, rows) {
                 if (err) {
                     reject(err);
                 } else {
@@ -51,7 +63,7 @@ class IngredientModel {
 
     static getIngredientsByCreator(CREATOR) {
         return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM ingredients WHERE CREATOR = ? AND ACTIVE = TRUE', CREATOR, function (err, rows) {
+            connection.query('SELECT * FROM ingredients WHERE CREATOR = ? AND ACTIVE = TRUE', [CREATOR], function (err, rows) {
                 if (err) {
                     reject(err);
                 } else {

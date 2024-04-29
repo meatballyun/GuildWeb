@@ -2,8 +2,15 @@ const connection = require('../lib/db');
 
 class TaskModel {
   static addTask(CREATOR_ID, GUILD_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, IMAGE_URL, TYPE, MAX_ADVENTURER) {
+    const initiationTime = new Date(INITIATION_TIME);
+    const currentDate = new Date();
+    let STATUS = 'Established';
+    if (currentDate.toLocaleDateString() === initiationTime.toLocaleDateString()){      
+      STATUS = 'In Progress';
+    };
+    console.log(currentDate.toLocaleDateString(),initiationTime.toLocaleDateString(),STATUS);
     return new Promise((resolve, reject) => {
-      connection.query('INSERT INTO tasks(CREATOR_ID, GUILD_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, IMAGE_URL, TYPE, MAX_ADVENTURER) VALUES (?,?,?,?,?,?,?,?,?)', [CREATOR_ID, GUILD_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, IMAGE_URL, TYPE, MAX_ADVENTURER], function (err, rows) {
+      connection.query('INSERT INTO tasks(CREATOR_ID, GUILD_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, IMAGE_URL, TYPE, MAX_ADVENTURER, STATUS) VALUES (?,?,?,?,?,?,?,?,?,?)', [CREATOR_ID, GUILD_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, IMAGE_URL, TYPE, MAX_ADVENTURER,STATUS], function (err, rows) {
         if (err) {
             reject(err);
         } else {
@@ -50,8 +57,14 @@ class TaskModel {
   }
 
   static updateTask(TASK_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, IMAGE_URL, TYPE, MAX_ADVENTURER) {
+    const initiationTime = new Date(INITIATION_TIME);
+    const currentDate = new Date();
+    let STATUS = 'Established';
+    if (currentDate.toLocaleDateString() === initiationTime.toLocaleDateString()){      
+      STATUS = 'In Progress';
+    };
     return new Promise((resolve, reject) => {
-      connection.query('UPDATE tasks SET NAME = ?, INITIATION_TIME = ?, DEADLINE = ?, DESCRIPTION = ?, IMAGE_URL = ?, TYPE = ?, MAX_ADVENTURER = ? WHERE ID = ?', [NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, IMAGE_URL, TYPE, MAX_ADVENTURER, TASK_ID], function (err, rows) {
+      connection.query('UPDATE tasks SET NAME = ?, INITIATION_TIME = ?, DEADLINE = ?, DESCRIPTION = ?, IMAGE_URL = ?, TYPE = ?, MAX_ADVENTURER = ?, STATUS = ? WHERE ID = ?', [NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, IMAGE_URL, TYPE, MAX_ADVENTURER, TASK_ID, STATUS], function (err, rows) {
         if (err) {
             reject(err);
         } else {

@@ -60,6 +60,7 @@ class AdventurerModel {
       });
     });
   }
+  
 
   static deleteAdventurerByTask(TASK_ID) {
     return new Promise((resolve, reject) => {

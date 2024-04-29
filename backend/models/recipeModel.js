@@ -25,9 +25,9 @@ class RecipeModel {
         });
     }
 
-    static getRecipes() {
+    static getRecipes(CREATOR) {
         return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM recipes WHERE AND ACTIVE = TRUE', function (err, rows) {
+            connection.query('SELECT * FROM recipes WHERE CREATOR != ? AND PUBLISHED = TRUE AND ACTIVE = TRUE', CREATOR, function (err, rows) {
                 if (err) {
                     reject(err);
                 } else {
@@ -37,9 +37,9 @@ class RecipeModel {
         });
     };
     
-    static getRecipesByName(NAME) {
+    static getRecipesByName(CREATOR, NAME) {
         return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM recipes WHERE NAME = ? AND ACTIVE = TRUE', NAME, function (err, rows) {
+            connection.query('SELECT * FROM recipes WHERE CREATOR != ? AND NAME = ? AND PUBLISHED = TRUE AND ACTIVE = TRUE', [CREATOR, NAME], function (err, rows) {
                 if (err) {
                     reject(err);
                 } else {

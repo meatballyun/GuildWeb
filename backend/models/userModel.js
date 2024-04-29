@@ -15,7 +15,7 @@ class UserModel {
 
 	static getUserById(ID) {
 		return new Promise((resolve, reject) => {
-			connection.query('SELECT * FROM users WHERE ID = ?', ID, function (err, rows) {
+			connection.query(`SELECT * FROM users WHERE ID = ? AND STATUS = 'Confirmed'`, ID, function (err, rows) {
 				if (err) {
 					reject(err);
 				} else {
@@ -27,7 +27,7 @@ class UserModel {
 
 	static getUserByName(NAME) {
 		return new Promise((resolve, reject) => {
-			connection.query(`SELECT * FROM users WHERE NAME LIKE ?`, ['%'+NAME+'%'], function (err, rows) {
+			connection.query(`SELECT * FROM users WHERE NAME LIKE ? AND STATUS = 'Confirmed'`, ['%'+NAME+'%'], function (err, rows) {
 				if (err) {
 					reject(err);
 				} else {

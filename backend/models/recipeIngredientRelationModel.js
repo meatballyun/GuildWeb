@@ -60,6 +60,18 @@ class RecipeIngredientRelationModel {
             });
         });
     };
+
+    static deleteRecipeIngredientRelationByRecipe(RECIPES) {
+        return new Promise((resolve, reject) => {
+            connection.query('DELETE FROM recipeIngredientRelations WHERE RECIPES = ?', RECIPES, function (err, rows) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            });
+        });
+    };
 };
 
 module.exports = RecipeIngredientRelationModel;

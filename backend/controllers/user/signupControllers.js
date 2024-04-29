@@ -1,6 +1,5 @@
 const bcrypt = require('bcrypt');
 const User = require('../../models/userModel');
-const ConfirmationMail = require('../../models/confirmationMailModel');
 const ApplicationError = require('../../utils/error/applicationError.js');
 
 class SignUpController {

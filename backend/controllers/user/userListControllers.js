@@ -112,7 +112,6 @@ class UserListController {
 
   async deleteFriend(req, res, next) {     
     try {  
-        console.log(req.session.passport.user, req.params.uid);
         const query = await UserFriend.deleteFriend(req.session.passport.user, req.params.uid);
         if (query.affectedRows){
           return res.status(200).json({
@@ -122,8 +121,7 @@ class UserListController {
           });
         } else {
           return next(new ApplicationError(404));
-        }
-        
+        }        
     } catch (err) {
       return next(new ApplicationError(400,err));
     }
