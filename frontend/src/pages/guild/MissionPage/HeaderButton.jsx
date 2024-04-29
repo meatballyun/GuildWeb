@@ -19,10 +19,10 @@ export const HeaderButton = ({ value = 'all', onChange }) => {
         </div>
       )}
       <Button
-        onClick={() => onChange?.('inProcess')}
-        type={value === 'inProcess' ? 'solid' : 'hollow'}
+        onClick={() => onChange?.('inProgress')}
+        type={value === 'inProgress' ? 'solid' : 'hollow'}
       >
-        In Process
+        In Progress
       </Button>
       <Button
         onClick={() => onChange?.('completed')}

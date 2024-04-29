@@ -3,6 +3,7 @@ import { Button, Form, Input, useFormInstance } from '../components';
 import { useState } from 'react';
 import { Paper } from './_layout/components';
 import { EmailModal } from './modal';
+import { validation } from '../utils';
 
 const SignUp = () => {
   const form = useFormInstance();
@@ -18,7 +19,7 @@ const SignUp = () => {
       setError('All field are required.');
       return;
     }
-    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+    if (!validation.isEmail(email)) {
       setError('email format not current');
       return;
     }

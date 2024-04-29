@@ -3,11 +3,15 @@ import { COLORS } from '../../../styles';
 
 const getBasicMissionBtnProps = ({
   status,
+  accepted,
   isAccepted,
+  adventurers,
   maxAccept,
+  creator,
   onBtnClick,
+  userId,
 }) => {
-  if (['Cancelled'].includes(status)) return [];
+  if (['Cancelled', 'Expired'].includes(status)) return [];
   if (['Completed'].includes(status))
     return [
       {
@@ -17,6 +21,30 @@ const getBasicMissionBtnProps = ({
         children: 'Mission Completed',
       },
     ];
+  const adventurersCompleted = adventurers.some(
+    ({ status }) => status === 'Completed'
+  );
+  const isOwned = creator.id === userId;
+  const myStatus = adventurers.find(({ id }) => id === userId)?.status;
+
+  if (adventurersCompleted && isOwned) {
+    return [
+      {
+        onClick: () => onBtnClick('complete'),
+        prefix: <MaterialSymbol icon="check" />,
+        children: 'Complete',
+      },
+    ];
+  }
+  if (myStatus === 'Complete') {
+    return [
+      {
+        disabled: true,
+        style: { background: COLORS['primary-200'] },
+        children: 'Waiting for mission creator Check',
+      },
+    ];
+  }
   if (isAccepted) {
     return [
       {
@@ -26,9 +54,9 @@ const getBasicMissionBtnProps = ({
         children: 'Abandon',
       },
       {
-        onClick: () => onBtnClick('complete'),
+        onClick: () => onBtnClick('submit'),
         prefix: <MaterialSymbol icon="check" />,
-        children: 'Complete',
+        children: 'Submit',
       },
     ];
   }
@@ -87,9 +115,20 @@ const getManageMissionBtnProps = ({ status, onBtnClick }) => {
   ];
 };
 
-export const getMissionDetailBtn = ({ detail, manageMode, onBtnClick }) => {
+export const getMissionDetailBtn = ({
+  detail,
+  manageMode,
+  userId,
+  onBtnClick,
+}) => {
   const maxAccept = detail.accepted === 'Max Accepted';
+
   if (manageMode)
     return getManageMissionBtnProps({ ...detail, maxAccept, onBtnClick });
-  return getBasicMissionBtnProps({ ...detail, maxAccept, onBtnClick });
+  return getBasicMissionBtnProps({
+    ...detail,
+    userId,
+    maxAccept,
+    onBtnClick,
+  });
 };

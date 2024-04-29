@@ -8,7 +8,7 @@ import { useSideBar } from '../../_layout/MainLayout/SideBar';
 import { AddMissionModal } from '../modal';
 import { HeaderButton, ManageModeHeaderButton } from './HeaderButton';
 import { MissionBar } from './MissionBar';
-import { formateDate } from '../../../utils';
+import { formateIsoDate } from '../../../utils';
 import {
   MissionTypeSelect,
   convertMissionTypeValue,
@@ -46,15 +46,17 @@ export const MissionPage = ({ manageMode = false }) => {
           return missionList.filter(({ status }) => status === 'Cancelled');
         case 'canAccepted':
           return missionList.filter(({ status }) => status === 'Cancelled');
-        case 'inProcess':
-          return missionList.filter(({ status }) => status === 'In Process');
+        case 'inProgress':
+          return missionList.filter(({ status }) => status === 'In Progress');
         case 'completed':
           return missionList.filter(({ status }) => status === 'Completed');
         case 'expired':
           return missionList.filter(({ status }) => status === 'Expired');
         case 'all':
         default:
-          return missionList.filter(({ status }) => status !== 'Cancelled');
+          return missionList.filter(
+            ({ status }) => status !== 'Cancelled' && status !== 'Expired'
+          );
       }
     })();
 
@@ -115,8 +117,8 @@ export const MissionPage = ({ manageMode = false }) => {
         body: {
           ...value,
           taskId: selectedDetail.id,
-          initiationTime: formateDate(value.initiationTime ?? new Date()),
-          deadline: formateDate(value.deadline ?? new Date()),
+          initiationTime: formateIsoDate(value.initiationTime ?? new Date()),
+          deadline: formateIsoDate(value.deadline ?? new Date()),
         },
       });
       const json = await data.json();
@@ -126,8 +128,8 @@ export const MissionPage = ({ manageMode = false }) => {
         pathParams: { gid: params.gid },
         body: {
           ...value,
-          initiationTime: formateDate(value.initiationTime ?? new Date()),
-          deadline: formateDate(value.deadline ?? new Date()),
+          initiationTime: formateIsoDate(value.initiationTime ?? new Date()),
+          deadline: formateIsoDate(value.deadline ?? new Date()),
         },
       });
       const json = await data.json();
@@ -157,8 +159,24 @@ export const MissionPage = ({ manageMode = false }) => {
         setSelectedDetail(data);
         break;
       }
+      case 'complete': {
+        await api.guild.patchGuildsTasksComplete({
+          pathParams: { gid: params.gid, tid: selectedDetail.id },
+        });
+        const data = await fetchMissionDetail(selectedDetail.id);
+        setSelectedDetail(data);
+        break;
+      }
+      case 'submit': {
+        await api.guild.patchGuildsTasksSubmit({
+          pathParams: { gid: params.gid, tid: selectedDetail.id },
+        });
+        const data = await fetchMissionDetail(selectedDetail.id);
+        setSelectedDetail(data);
+        break;
+      }
       case 'abandon': {
-        await api.guild.getGuildsTasksAbandon({
+        await api.guild({
           pathParams: { gid: params.gid, tid: selectedDetail.id },
         });
         const data = await fetchMissionDetail(selectedDetail.id);
@@ -305,6 +323,7 @@ export const MissionPage = ({ manageMode = false }) => {
                 detail: selectedDetail,
                 manageMode,
                 onBtnClick: handleBtnClick,
+                userId: userMe.id,
               })}
             />
           ) : (

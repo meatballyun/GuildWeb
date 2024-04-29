@@ -10,37 +10,16 @@ import {
   ImageUploader,
   Input,
 } from '../../components';
-import { IngredientValue, NutritionalSummaryChart } from './components';
+import {
+  IngredientValue,
+  NutritionalSummaryChart,
+  PublicButton,
+} from './components';
 import { TextArea } from '../../components/Form/TextArea';
 import { Link } from 'react-router-dom';
 import { classNames } from '../../utils';
 import { useSideBar } from '../_layout/MainLayout/SideBar';
 
-const PublicButton = ({ value, onChange }) => {
-  if (value)
-    return (
-      <Button
-        onClick={() => onChange(false)}
-        type="hollow"
-        size="md"
-        className="flex items-center gap-1"
-      >
-        <MaterialSymbol icon="public" fill />
-        Public
-      </Button>
-    );
-  return (
-    <Button
-      onClick={() => onChange(true)}
-      type="hollow"
-      size="md"
-      className="flex items-center gap-1"
-    >
-      <MaterialSymbol icon="lock" fill />
-      Private
-    </Button>
-  );
-};
 const ingredientDefaultValue = {
   carbs: 0,
   pro: 0,
@@ -133,13 +112,13 @@ export const IngredientPage = ({ editMode = false }) => {
           </div>
           {/* foot button */}
           <div className="flex justify-center gap-2">
+            <div className="border-r-2 border-r-primary-300 pr-2">
+              <Form.Item valueKey="published" noStyle>
+                <PublicButton />
+              </Form.Item>
+            </div>
             {editMode ? (
               <>
-                <div className="border-r-2 border-r-primary-300 pr-2">
-                  <Form.Item valueKey="public" noStyle>
-                    <PublicButton />
-                  </Form.Item>
-                </div>
                 <Button onClick={() => navigate(-1)} type="hollow" size="md">
                   Cancel
                 </Button>
@@ -159,12 +138,17 @@ export const IngredientPage = ({ editMode = false }) => {
                     Copy
                   </Button>
                 </Link>
-                <Link to={`/foods/ingredients/edit/${params.id}`}>
-                  <Button size="md" className="flex h-full items-center gap-1">
-                    <MaterialSymbol icon="edit" fill />
-                    Edit
-                  </Button>
-                </Link>
+                {ingredientDetail.isOwned && (
+                  <Link to={`/foods/ingredients/edit/${params.id}`}>
+                    <Button
+                      size="md"
+                      className="flex h-full items-center gap-1"
+                    >
+                      <MaterialSymbol icon="edit" fill />
+                      Edit
+                    </Button>
+                  </Link>
+                )}
               </>
             )}
           </div>

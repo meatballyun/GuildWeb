@@ -1,11 +1,20 @@
-import { Avatar, AvatarGroup, Button, CheckBox } from '../../../components';
+import {
+  Avatar,
+  AvatarGroup,
+  Button,
+  CheckBox,
+  MaterialSymbol,
+} from '../../../components';
 import { Block } from '../../_layout/components';
 import { MissionPill, MissionStatusWithColor } from '../components';
 import { formateDate } from '../../../utils';
 
 const CheckItem = ({ content, showCheckBox, disabled, value, onChange }) => {
   return (
-    <div className="inline-block" onClick={() => onChange?.(!value)}>
+    <div
+      className="inline-block"
+      onClick={() => !disabled && onChange?.(!value)}
+    >
       {showCheckBox ? <CheckBox value={value} disabled={disabled} /> : '-'}
       <span className="ml-1">{content}</span>
     </div>
@@ -41,6 +50,7 @@ export const MissionDetailBlock = ({
     items,
     isAccepted,
     creator,
+    maxAdventurer,
   } = detail;
 
   return (
@@ -65,8 +75,7 @@ export const MissionDetailBlock = ({
             <MissionPill type={type} repetitiveTaskType={repetitiveTaskType} />
           </Block.Item>
           <Block.Item label="Time">
-            {formateDate(initiationTime).replaceAll('-', '/')} ~{' '}
-            {formateDate(deadline).replaceAll('-', '/')}
+            {formateDate(initiationTime)} ~ {formateDate(deadline)}
           </Block.Item>
           <Block.Item label="Status">
             <div className="flex items-center gap-2">
@@ -74,14 +83,35 @@ export const MissionDetailBlock = ({
                 className="border-r-2 border-primary-200 pr-2"
                 status={status}
               />
-              <span>adventurers:</span>
+              <span>
+                adventurers ({adventurers.length}/{maxAdventurer}):
+              </span>
               {(() => {
                 if (!adventurers?.length) return 'None';
                 return (
                   <AvatarGroup
-                    userList={adventurers.map(({ imageUrl, name }) => ({
+                    extraFix={({ status }) => {
+                      if (status === 'Completed')
+                        return (
+                          <div className="absolute -left-[2px] -top-[2px] z-10 flex h-[10px] w-[10px] items-center justify-center rounded-full border border-primary-100 bg-green text-primary-100">
+                            <MaterialSymbol icon="done" size={8} weight={800} />
+                          </div>
+                        );
+                      if (status === 'Failed')
+                        return (
+                          <div className="absolute -left-[2px] -top-[2px] z-10 flex h-[10px] w-[10px] items-center justify-center rounded-full border border-primary-100 bg-red text-primary-100">
+                            <MaterialSymbol
+                              icon="close"
+                              size={8}
+                              weight={800}
+                            />
+                          </div>
+                        );
+                    }}
+                    userList={adventurers.map(({ imageUrl, name, status }) => ({
                       url: imageUrl,
                       name,
+                      status,
                     }))}
                     size={24}
                   />

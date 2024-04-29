@@ -1,5 +1,5 @@
 import { api } from '../api';
-import { Button } from '../components';
+import { Button, Loading } from '../components';
 import { useEffect, useMemo, useState } from 'react';
 import { Modal } from '../components/Modal';
 
@@ -11,6 +11,7 @@ export const EmailModal = ({
 }) => {
   const [sendEmailTime, setSendEmailTime] = useState(new Date().valueOf());
   const [currentTime, setCurrentTime] = useState(new Date().valueOf());
+  const [loading, setLoading] = useState(false);
   const count = useMemo(() => {
     if (!sendEmailTime || !currentTime) return;
     return 60 - ((currentTime - sendEmailTime) / 1000).toFixed(0);
@@ -32,7 +33,9 @@ export const EmailModal = ({
   }, [sendEmailTime, propSendEmailTime, count]);
 
   const handleResendEmail = async () => {
+    setLoading(true);
     await api.auth.resendEmail({ body: { email } });
+    setLoading(false);
     setSendEmailTime(new Date().valueOf());
     setCurrentTime(new Date().valueOf());
   };
@@ -45,12 +48,17 @@ export const EmailModal = ({
       </div>
       <div>
         <Button
-          disabled={count > 0}
+          disabled={loading || count > 0}
           className="m-auto"
           type="hollow"
           onClick={handleResendEmail}
         >
-          {count > 0 && count} resend the verification email
+          {(() => {
+            if (loading) return <Loading />;
+            if (count > 0)
+              return `After ${count} seconds, you can try resending the verification email.`;
+            return 'resend the verification email';
+          })()}
         </Button>
       </div>
     </Modal>

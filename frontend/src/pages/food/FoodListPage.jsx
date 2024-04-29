@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { api } from '../../api';
 import { FoodBar } from './components';
 import { Button, Input, MaterialSymbol } from '../../components';
@@ -11,14 +11,15 @@ export const FoodListPage = ({ title }) => {
   const [foodList, setFoodList] = useState();
   const [search, setSearch] = useState('');
   const [isFetched, setIsFetched] = useState(false);
+  const [published, setPublished] = useState(false);
 
-  const apiUtil =
-    title === 'Ingredients' ? api.food.getIngredients : api.food.getRecipes;
-  const fetchData = async () => {
-    const res = await apiUtil({ params: { q: search } });
+  const fetchData = useCallback(async () => {
+    const apiUtil =
+      title === 'Ingredients' ? api.food.getIngredients : api.food.getRecipes;
+    const res = await apiUtil({ params: { q: search, published: published } });
     const data = await res.json();
     setFoodList(data.data);
-  };
+  }, [search, title, published]);
 
   useEffect(() => {
     (async () => {
@@ -26,7 +27,7 @@ export const FoodListPage = ({ title }) => {
       await fetchData();
       setIsFetched(true);
     })();
-  }, [search, title]);
+  }, [fetchData]);
 
   const handleDelete = async (id) => {
     const apiUtil =
@@ -43,15 +44,31 @@ export const FoodListPage = ({ title }) => {
     <Paper row className="flex flex-col items-center justify-center">
       <div className="mb-4 text-heading-h1 text-primary-500">{title}</div>
       <div className="mb-4 flex w-full justify-between">
-        <div className="flex w-full max-w-72 rounded-full border border-primary-500 py-1 pl-3 pr-2 text-paragraph-p2 text-primary-500">
-          <Input
-            noFill
-            value={search}
-            onChange={setSearch}
-            className="w-full"
-            placeholder={`Search with ${title} name...`}
-          />
-          <MaterialSymbol icon="search" size={24} />
+        <div className="flex">
+          <div className="flex w-full max-w-72 rounded-full border border-primary-500 py-1 pl-3 pr-2 text-paragraph-p2 text-primary-500">
+            <Input
+              noFill
+              value={search}
+              onChange={setSearch}
+              className="w-full"
+              placeholder={`Search with ${title} name...`}
+            />
+            <MaterialSymbol icon="search" size={24} />
+          </div>
+          <Button
+            className="ml-2 text-nowrap !rounded-full"
+            type={published ? 'solid' : 'hollow'}
+            onClick={() => setPublished(true)}
+          >
+            Show All
+          </Button>
+          <Button
+            className="ml-2 text-nowrap !rounded-full"
+            type={!published ? 'solid' : 'hollow'}
+            onClick={() => setPublished(false)}
+          >
+            Only Mine
+          </Button>
         </div>
         <Link to={`/foods/${title.toLowerCase()}/edit/new`}>
           <Button size="sm" className="!rounded-full">

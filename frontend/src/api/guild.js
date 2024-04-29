@@ -139,6 +139,26 @@ export const patchGuildsTasksRestore = ({
     body,
   });
 
+export const patchGuildsTasksComplete = ({
+  pathParams = { gid: -1, tid: -1 },
+  body,
+}) =>
+  fetchJson({
+    url: `${BASE_GUILD_URL}/${pathParams.gid}/tasks/${pathParams.tid}/complete`,
+    method: 'PATCH',
+    body,
+  });
+
+export const patchGuildsTasksSubmit = ({
+  pathParams = { gid: -1, tid: -1 },
+  body,
+}) =>
+  fetchJson({
+    url: `${BASE_GUILD_URL}/${pathParams.gid}/tasks/${pathParams.tid}/submit`,
+    method: 'PATCH',
+    body,
+  });
+
 export const patchTasksCheckbox = ({ pathParams = { gid: -1 }, body }) =>
   fetchJson({
     url: `${BASE_GUILD_URL}/${pathParams.gid}/tasks/checkbox`,

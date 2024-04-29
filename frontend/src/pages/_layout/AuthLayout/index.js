@@ -15,7 +15,7 @@ export const AuthLayout = () => {
     location.pathname === '/signup' ? HINT.signup : HINT.login;
 
   return (
-    <div className="auth-layout-container">
+    <div className="auth-layout-container overflow-hidden">
       <Outlet />
       {['/signup', '/login'].includes(location.pathname) && (
         <Link to={hintContent.to}>

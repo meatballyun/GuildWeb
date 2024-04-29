@@ -6,7 +6,7 @@ import { Block, PaperLayout } from '../_layout/components';
 import { CalorieBar } from '../food/RecordPage/CalorieBar';
 import { CALORIES } from '../food/RecordPage/RecordPage';
 import './styles.css';
-import { formateDate, getNutritionSum } from '../../utils';
+import { formateDate, formateIsoDate, getNutritionSum } from '../../utils';
 import { NutritionalSummaryChart } from '../food/components';
 import { Link } from 'react-router-dom';
 import { HeaderButton } from '../guild/MissionPage/HeaderButton';
@@ -17,7 +17,7 @@ const RecordBlock = () => {
 
   const fetchData = async () => {
     const res = await api.food.getDietRecords({
-      params: { date: formateDate(new Date()) },
+      params: { date: formateIsoDate(new Date()) },
     });
     const { data } = await res.json();
     setDailyFood(data);
@@ -99,10 +99,10 @@ const MissionBlock = () => {
     if (!missionList?.length) return [];
 
     switch (query.filter) {
-      case 'inProcess':
-        return missionList.filter(({ status }) => status === 'In Process');
-      case 'expired':
-        return missionList.filter(({ status }) => status === 'Expired');
+      case 'inProgress':
+        return missionList.filter(({ status }) => status === 'In Progress');
+      case 'established':
+        return missionList.filter(({ status }) => status === 'Established');
       case 'all':
       default:
         return missionList;
@@ -130,10 +130,10 @@ const MissionBlock = () => {
             </Button>
           </div>
           <Button
-            onClick={() => handleHeaderBtnClick('inProcess')}
-            type={query.filter === 'inProcess' ? 'solid' : 'hollow'}
+            onClick={() => handleHeaderBtnClick('inProgress')}
+            type={query.filter === 'inProgress' ? 'solid' : 'hollow'}
           >
-            In Process
+            In Progress
           </Button>
           <Button
             onClick={() => handleHeaderBtnClick('established')}
@@ -154,11 +154,13 @@ const MissionBlock = () => {
               return (
                 <div className="text-3xl text-primary-300">No Mission :D</div>
               );
-            return filteredMission.map(({ id, ...data }) => (
-              <div className="flex flex-col gap-2">
-                <MissionBar key={id} {...data} />
+            return (
+              <div className="mt-4 flex h-full w-full flex-col items-start gap-2">
+                {filteredMission.map(({ id, ...data }) => (
+                  <MissionBar key={id} {...data} />
+                ))}
               </div>
-            ));
+            );
           })()}
         </div>
       </div>

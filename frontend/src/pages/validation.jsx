@@ -12,13 +12,13 @@ export const ValidationPage = () => {
 
   useEffect(() => {
     if (called.current) return;
+    called.current = searchParams;
     (async () => {
       const res = await api.auth.signUpValidation({
         pathParams: searchParams.toString(),
       });
       if (res.status === 200) {
         setValidation(true);
-        called.current = true;
         return;
       }
       setValidation(false);

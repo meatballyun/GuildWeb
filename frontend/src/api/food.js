@@ -24,9 +24,9 @@ export const deleteDietRecords = ({ pathParams = { id: -1 } }) =>
   });
 
 // ------------- Ingredients ------------- //
-export const getIngredients = ({ params = { id: -1 } }) =>
+export const getIngredients = ({ params = { id: -1, published: false } }) =>
   fetchJson({
-    url: `${BASE_URL}/ingredients?q=${params.q}`,
+    url: `${BASE_URL}/ingredients?q=${params.q}&published=${params.published ? params.published : ''}`,
     method: 'GET',
   });
 
@@ -59,7 +59,7 @@ export const deleteIngredients = ({ pathParams = { id: -1 } }) =>
 // ------------- Recipes ------------- //
 export const getRecipes = ({ params = { q: '' } }) =>
   fetchJson({
-    url: `${BASE_URL}/recipes?q=${params.q}`,
+    url: `${BASE_URL}/recipes?q=${params.q}&published=${params.published ? params.published : ''}`,
     method: 'GET',
   });
 
