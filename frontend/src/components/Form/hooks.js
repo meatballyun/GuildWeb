@@ -1,5 +1,6 @@
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { formContext } from './formContext';
+import { validateFlow } from './utils';
 
 export const useForm = () => {
   const { formData, handleInputChange } = useContext(formContext);
@@ -10,9 +11,10 @@ export const useForm = () => {
 export const useFormInstance = ({
   defaultValue,
   validateObject,
-  validateMode = 'onChange',
+  validateMode = 'onSubmit',
   onSubmit,
-}) => {
+  onInputChange,
+} = {}) => {
   const [formData, setFormData] = useState(defaultValue ?? {});
   const [validation, setValidations] = useState();
   const [isFormDataValid, setIsFormDataValid] = useState(true);
@@ -32,16 +34,20 @@ export const useFormInstance = ({
       ...prevState,
       [key]: value,
     }));
+    onInputChange?.({ key, value }, formData);
   };
 
   const validate = useCallback(
     (shouldValidate) => {
       if (typeof validateObject !== 'object') return true;
       const validatedResult = Object.fromEntries(
-        Object.entries(validateObject).map(([key, callback]) => [
+        Object.entries(validateObject).map(([key, ruleList = []]) => [
           key,
           (shouldValidate === true || shouldValidate[key]) &&
-            callback?.(formData[key], formData),
+            validateFlow(...ruleList)(
+              { fieldName: key, value: formData[key] },
+              formData
+            ),
         ])
       );
       const isValid = !Object.values(validatedResult).some((v) => v);
@@ -50,7 +56,8 @@ export const useFormInstance = ({
       setIsFormDataValid(isValid);
       return isValid;
     },
-    [formData, validateObject]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [formData]
   );
 
   useEffect(() => {

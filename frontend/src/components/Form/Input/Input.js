@@ -13,6 +13,7 @@ export const Input = ({
   className: classNameProp,
   inputClassName,
   placeholder,
+  name,
   ...props
 }) => {
   return (
@@ -26,6 +27,7 @@ export const Input = ({
       )}
     >
       <BaseInput
+        name={name}
         className={classNames(
           inputClassName,
           'rounded-sm px-2',
