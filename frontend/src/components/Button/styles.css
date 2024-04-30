@@ -10,6 +10,10 @@
   }
 }
 
+.button:disabled {
+  @apply cursor-not-allowed shadow-none;
+}
+
 /* size */
 .button.button-size--sm {
   border-radius: 0.25rem;
@@ -29,13 +33,18 @@
 
 /* type--text */
 .button.button-type--text {
+  @apply underline;
   color: #1373cc;
-}
-.button.button-type--text:hover {
-  color: #4b98de;
-}
-.button.button-type--text:active {
-  color: #0f63b0;
+  box-shadow: none;
+  &:hover {
+    color: #4b98de;
+  }
+  &:active {
+    color: #0f63b0;
+  }
+  &:disabled {
+    @apply text-primary-200;
+  }
 }
 
 /* type--solid */
@@ -61,6 +70,10 @@
     linear-gradient(123deg, #946342 -1.86%, #62251d 74.55%);
   box-shadow: 0 2px 8px 0px #3b2826;
 }
+.button.button-type--solid:disabled {
+  text-shadow: none;
+  background: #bbafa2;
+}
 
 /* type--hollow */
 .button.button-type--hollow {
@@ -75,5 +88,5 @@
   background: rgba(98, 37, 29, 0.2);
 }
 .button.button-type--hollow:disabled {
-  @apply cursor-not-allowed border-primary-300/50 bg-primary-300/10 text-primary-300 shadow-none;
+  @apply border-primary-300/50 bg-primary-300/10 text-primary-300;
 }
