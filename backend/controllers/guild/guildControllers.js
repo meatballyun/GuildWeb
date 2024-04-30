@@ -85,6 +85,7 @@ class GuildController {
             name: guild.NAME,
             description: guild.DESCRIPTION,
             imageUrl: guild.IMAGE_URL,
+            cabin: guild.CABIN
           }
       })      
     } catch (err) {
@@ -110,7 +111,29 @@ class GuildController {
     } catch (err) {
       return next(new ApplicationError(400,err));
     }  
-  }  
+  }
+
+  async addPersonalCabin(req, res, next) {
+    try {
+      const description = `In your Personal Cabin, you have the flexibility to select from various task types like 'Ordinary', 'Emergency', and 'Repetitive', tailoring them to your specific needs. Additionally, you can customize the recurrence frequency, whether it's daily, weekly, or monthly, to suit your schedule. Furthermore, tasks can be further broken down into multiple sub-goals, empowering you to gain a comprehensive overview of your pending tasks and strategize your approach for more efficient planning and completion.`;
+      const imageUrl = `${process.env.UPLOAD_PATH}uploads/image/guild/Castle.svg`;
+      const newGuild = await Guild.addGuild(req.session.passport.user, 'Personal Cabin', description, imageUrl, true);
+      if (newGuild['insertId']){
+        const newUserGuildRelation = await UserGuildRelation.addUserGuildRelation(req.session.passport.user, newGuild['insertId'], 'Master');
+        if (newUserGuildRelation['affectedRows']){
+          await updateUserExp(1, req.session.passport.user);
+          return res.status(200).json(
+              {
+              "success": true,  
+              "message": "Data build successfully.",
+              "data": "OK"
+          });    
+        }  
+      }  
+    } catch (err) {
+      return next(new ApplicationError(400,err));
+    }  
+  } 
 
   async updateGuild(req, res, next) {
     try {     
@@ -187,7 +210,6 @@ class UserGuildRelationController {
           }
         }));
       }
-      await updateUserExp(1, req.session.passport.user);
       return res.status(200).json({
           success: true,
           message: "You have successfully accepted the invitation and joined the guild.",

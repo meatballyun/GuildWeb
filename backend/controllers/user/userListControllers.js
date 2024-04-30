@@ -56,7 +56,6 @@ class UserListController {
           imageUrl: row.IMAGE_URL,
           rank: row.RANK
         }))
-        await updateUserExp(1, req.session.passport.user);
 
         return res.status(200).json({
           success: true,

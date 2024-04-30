@@ -16,6 +16,8 @@ router.get('/:gid', auth, guildAuth.isMember, guild.getGuildDetail);
 
 router.post('/', auth, guild.addGuild);
 
+router.post('/cabin', auth, guild.addPersonalCabin);
+
 router.put('/:gid', auth, guildAuth.isMaster, guild.updateGuild);
 
 router.delete('/:gid', auth, guildAuth.isMaster, guild.deleteGuild);
@@ -47,6 +49,8 @@ router.post('/:gid/tasks/', auth, guildAuth.isMasterOrAdmin, task.addTask);
 router.put('/:gid/tasks/:tid', auth, guildAuth.isMasterOrAdmin, task.updateTask);
 
 router.patch('/:gid/tasks/:tid/complete', auth, guildAuth.isMasterOrAdmin, task.completeTask);
+
+router.patch('/:gid/tasks/:tid/fail', auth, guildAuth.isMasterOrAdmin, task.failTask);
 
 router.patch('/:gid/tasks/:tid/cancel', auth, guildAuth.isMasterOrAdmin, task.cancelTask);
 

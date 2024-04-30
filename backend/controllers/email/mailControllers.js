@@ -96,9 +96,9 @@ class MailController {
       } else if(query.STATUS === "Pending"){
         return next(new ApplicationError(403, "The email address has not been verified."));
       } else {
-        const CODE = await confirmationCode(req.body.uid + req.body.email + "ForgotPassword");
-        await ConfirmationMail.addConfirmationMail(req.body.uid, "ForgotPassword", CODE);
-        transporter.sendMail(passwordResetEmail(req.body.email, query.ID, query.CODE), function(err, info){
+        const CODE = await confirmationCode(user[0].ID + req.body.email + "ForgotPassword");
+        await ConfirmationMail.addConfirmationMail(user[0].ID, "ForgotPassword", CODE);
+        transporter.sendMail(passwordResetEmail(req.body.email, user[0].ID, CODE), function(err, info){
           if(err){
             return next(new ApplicationError(404, "Email address not found."));
           } else{
@@ -120,22 +120,20 @@ class MailController {
   async validationResetPassword(req, res, next) {
     try {
         const [confirmationMail] = await ConfirmationMail.getConfirmationMailByUserId(req.query.uid, "ForgotPassword");
-        if(confirmationMail.STATUS === "Confirmed" || (new Date(confirmationMail.CREATE_TIME)+86400000) < new Date() ){
+        if(confirmationMail.STATUS === "Confirmed" || ((new Date(confirmationMail.CREATE_TIME).valueOf()+86400000) < new Date().valueOf())){
             return next(new ApplicationError(403, "The verification link has expired."));
         } else if(confirmationMail.CODE === req.query.code){
             const query = await ConfirmationMail.updateConfirmationMail(req.query.uid, "Confirmed", "ForgotPassword");
-            if(query.affectedRows){
-                if (rows.affectedRows) return res.status(200).json( {
-                    success: true,
-                    message: "The provided confirmation code is valid and can be used for user validation.",
-                    data: "OK"
-                });
-                else return next(new ApplicationError(404, "User not found."));
-            } 
+            if (query.affectedRows) return res.status(200).json( {
+                success: true,
+                message: "The provided confirmation code is valid and can be used for user validation.",
+                data: "OK"
+            });
+            else return next(new ApplicationError(404, "User not found."));
         } else return next(new ApplicationError(404, "The provided confirmation code does not exist or has expired."));
     }
     catch (err){
-        return next(new ApplicationError(400));
+        return next(new ApplicationError(400, err));
     }
 }
   

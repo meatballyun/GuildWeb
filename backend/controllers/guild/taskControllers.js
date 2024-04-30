@@ -353,11 +353,41 @@ class TaskController {
           const adventurer = await Adventurer.getAdventurerByTaskAndUser(req.params.tid, i.USER_ID);
           if (adventurer[0].STATUS != 'Completed'){
             await Adventurer.updateAdventurerByTaskAndUser(req.params.tid, i.USER_ID, 'Failed');
+          } else {
+            await updateUserExp(1, i.USER_ID);
           }
         }))
       } else return next(new ApplicationError(409, "No one completed the task."))
       
       const completeTask = await Task.updateTaskStatus(req.params.tid, "Completed");
+      if (!completeTask.affectedRows) return next(new ApplicationError(400, "Error in Task.completeTask()."));
+      return res.status(200).json({
+        success: true,
+        message: "Data update successfully.",
+        data: "OK"
+      });
+    } catch (err) {
+      return next(new ApplicationError(400, err));
+    }
+  }
+
+  async failTask(req, res, next) {
+    try {
+      const taskDetail = await Task.getTaskDetailById(req.params.tid);
+      if (!taskDetail?.length){
+        return next(ApplicationError(404, "The task cannot be found in this guild."));
+      } else if (req.member[0].MEMBERSHIP === "Admin" && req.session.passport.user !== taskDetail[0].CREATOR_ID){
+        return next(new ApplicationError(403, "Only guild Master have permission to access this resource."));
+      }
+
+      const adventurers = await Adventurer.getAdventurerByTask(req.params.tid);
+      if (adventurers && adventurers?.length) {
+        await Promise.all(adventurers.map( async(i) => {
+          await Adventurer.updateAdventurerByTaskAndUser(req.params.tid, i.USER_ID, 'Failed');
+        }))
+      } else return next(new ApplicationError(409, "No one accepte the task."))
+      
+      const completeTask = await Task.updateTaskStatus(req.params.tid, "Expired");
       if (!completeTask.affectedRows) return next(new ApplicationError(400, "Error in Task.completeTask()."));
       return res.status(200).json({
         success: true,
@@ -433,7 +463,8 @@ class TaskController {
       
       const [adventurer] = await Adventurer.getAdventurerByTaskAndUser(req.params.tid, req.session.passport.user);
       if (!adventurer) return next(new ApplicationError(409, "The task has not been accepted yet."));
-      const query = await Adventurer.updateAdventurerByTaskAndUser(req.params.tid, req.session.passport.user, "Completed");
+      const currentDate = new Date();
+      const query = await Adventurer.updateAdventurerByTaskAndUser(req.params.tid, req.session.passport.user, "Completed", currentDate);
       if (!query['affectedRows']){
         return next(new ApplicationError(400, "Error in Adventurer.submitTask()."));
       }       
