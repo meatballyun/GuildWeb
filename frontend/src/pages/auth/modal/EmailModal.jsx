@@ -1,7 +1,7 @@
-import { api } from '../api';
-import { Button, Loading } from '../components';
 import { useEffect, useMemo, useState } from 'react';
-import { Modal } from '../components/Modal';
+import { api } from '../../../api';
+import { Button, Loading } from '../../../components';
+import { Modal } from '../../../components/Modal';
 
 export const EmailModal = ({
   email,

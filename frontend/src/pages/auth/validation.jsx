@@ -1,8 +1,8 @@
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Paper } from './_layout/components';
-import { Button } from '../components';
+import { Paper } from '../_layout/components';
+import { Button } from '../../components';
 import { useEffect, useRef, useState } from 'react';
-import { api } from '../api';
+import { api } from '../../api';
 
 export const ValidationPage = () => {
   const navigate = useNavigate();

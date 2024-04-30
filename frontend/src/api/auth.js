@@ -33,3 +33,23 @@ export const resendEmail = ({ body = { email: '' } }) =>
     method: 'POST',
     body,
   });
+
+export const resetPasswordEmail = ({ body = { email: '' } }) =>
+  fetchJson({
+    url: `${BASE_API_URL}/emails/reset-password`,
+    method: 'POST',
+    body,
+  });
+
+export const resetPasswordValidation = ({ pathParams }) =>
+  fetchJson({
+    url: `${BASE_API_URL}/emails/validation-reset-password?${pathParams}`,
+    method: 'GET',
+  });
+
+export const resetPassword = ({ body = { uid: -1, code: '', password: '' } }) =>
+  fetchJson({
+    url: `${BASE_API_URL}/users/reset-password`,
+    method: 'POST',
+    body,
+  });

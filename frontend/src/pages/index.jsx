@@ -1,11 +1,9 @@
 import { Route, Routes } from 'react-router';
 import HomePage from './home';
-import Login from './login';
-import SignUp from './signup';
+import { Login, SignUp, ValidationPage, ValidationPasswordPage } from './auth';
 import FoodRoute from './food';
 import { AuthLayout, MainLayout } from './_layout';
 import { SettingsPage } from './settings';
-import { ValidationPage } from './validation';
 import { UsersPage } from './users';
 import GuildRoute from './guild';
 import { NotificationPage } from './notification';
@@ -17,6 +15,7 @@ function Pages() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/validation" element={<ValidationPage />} />
+        <Route path="/password-reset" element={<ValidationPasswordPage />} />
       </Route>
       <Route element={<MainLayout />}>
         <Route path="/" element={<HomePage />} />
