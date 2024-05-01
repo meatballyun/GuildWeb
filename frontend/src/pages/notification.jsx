@@ -188,7 +188,10 @@ export const NotificationPage = () => {
               <div className="flex h-full w-full flex-col gap-2 overflow-auto p-2">
                 {notificationList.map(({ id, ...data }) => (
                   <NotificationBar
-                    onClick={() => fetchNotificationDetail(id)}
+                    onClick={() => {
+                      fetchNotificationDetail(id);
+                      fetchNotifications();
+                    }}
                     key={id}
                     focus={selectedDetail?.id === id}
                     {...data}
@@ -200,10 +203,10 @@ export const NotificationPage = () => {
                   detail={selectedDetail}
                   className="h-full w-full"
                   onFootBtnClick={async () => {
-                    await fetchNotificationDetail(selectedDetail.id);
-                    api.notification.patchNotifications({
+                    await api.notification.patchNotifications({
                       pathParams: { nid: selectedDetail.id },
                     });
+                    await fetchNotificationDetail(selectedDetail.id);
                   }}
                   onDelete={async () => {
                     await api.notification.deleteNotification({
