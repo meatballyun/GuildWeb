@@ -20,7 +20,7 @@ export const DatePicker = ({ value: valueProp = new Date(), onChange }) => {
         className="w-24 cursor-pointer rounded-sm px-2 text-center text-paragraph-p2 text-primary-500 transition-all hover:bg-primary-200/50"
         onClick={() => onChange(new Date())}
       >
-        {formateDate(valueProp).replaceAll('-', '/')}
+        {formateDate(valueProp)}
       </div>
       <MaterialSymbol
         onClick={() => handleDateChange(ONE_DAY_MILLISECOND)}

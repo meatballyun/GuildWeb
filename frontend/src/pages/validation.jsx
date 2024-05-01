@@ -1,14 +1,18 @@
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Paper } from './_layout/components';
 import { Button } from '../components';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api } from '../api';
 
 export const ValidationPage = () => {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [validation, setValidation] = useState();
+  const called = useRef(false);
+
   useEffect(() => {
+    if (called.current) return;
+    called.current = searchParams;
     (async () => {
       const res = await api.auth.signUpValidation({
         pathParams: searchParams.toString(),

@@ -51,23 +51,62 @@ const CheckList = ({ value = [], onChange }) => {
   );
 };
 
+const validateObject = {
+  name: (value) => {
+    if (!value) return 'name is required';
+  },
+  type: (value) => {
+    if (!value) return 'type is required';
+  },
+  repetitiveTaskType: (value, { type }) => {
+    if (type === 'Repetitive' && !value)
+      return 'repetitiveTaskType is required';
+  },
+  maxAdventurer: (value) => {
+    if (!value || value === '0') return 'maxAdventurer is required';
+  },
+  initiationTime: (value) => {
+    if (!value) return 'initiationTime is required';
+    if (new Date() - new Date(value) < 0)
+      return 'initiationTime should bigger than ';
+  },
+  deadline: (value, { initiationTime }) => {
+    if (!value) return 'deadline is required';
+    if (new Date(value) - new Date(initiationTime) < 0)
+      return 'deadline should bigger than initiationTime';
+  },
+  items: (value) => {
+    if (value?.some(({ content }) => !content))
+      return 'content should not be empty';
+  },
+};
+
+const defaultValue = {
+  initiationTime: new Date(),
+  deadline: new Date(),
+  type: 'Ordinary',
+  maxAdventurer: 1,
+};
+
 export const AddMissionModal = ({
   modalStatus,
   onClose,
   onFinish,
   ...props
 }) => {
-  const form = useFormInstance({});
-
   useEffect(() => {
     form.setFormData({ ...modalStatus?.formData });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modalStatus]);
 
-  const handleClick = async () => {
-    await onFinish?.(form.formData);
-    onClose?.();
-  };
+  const form = useFormInstance({
+    validateObject,
+    onSubmit: async (formData) => {
+      await onFinish?.(formData);
+      onClose?.();
+    },
+    defaultValue,
+  });
 
   return (
     <Modal
@@ -79,7 +118,7 @@ export const AddMissionModal = ({
         <Button
           size="md"
           className="w-full justify-center"
-          onClick={handleClick}
+          onClick={form.submit}
         >
           Submit
         </Button>

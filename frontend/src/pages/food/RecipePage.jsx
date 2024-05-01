@@ -31,34 +31,32 @@ const IngredientList = ({ value: valueProp = [], disabled, onChange }) => {
   };
 
   return valueProp
-    .filter(({ amount }) => amount)
+    .filter(({ amount }) => amount > -1)
     .map(({ amount, id, ...ingredient }) => (
-      <Link to={`/foods/ingredients/${id}`} className="w-full">
-        <FoodBar
-          {...ingredient}
-          showChart={false}
-          key={id}
-          id={id}
-          amount={
-            disabled ? (
-              amount
-            ) : (
-              <Input
-                value={amount}
-                onChange={(value) => handleCountChange(id, value)}
-              />
-            )
-          }
-          suffix={
-            !disabled && (
-              <MaterialSymbol
-                icon="delete"
-                onClick={() => handleCountChange(id, 0)}
-              />
-            )
-          }
-        />
-      </Link>
+      <FoodBar
+        {...ingredient}
+        showChart={false}
+        key={id}
+        id={id}
+        amount={
+          disabled ? (
+            amount
+          ) : (
+            <Input
+              value={amount}
+              onChange={(value) => handleCountChange(id, value)}
+            />
+          )
+        }
+        suffix={
+          !disabled && (
+            <MaterialSymbol
+              icon="delete"
+              onClick={() => handleCountChange(id, -1)}
+            />
+          )
+        }
+      />
     ));
 };
 
@@ -97,6 +95,7 @@ export const RecipePage = ({ editMode }) => {
       setRecipeDetail(data);
     })();
   }, [params.id]);
+  console.log(formData);
 
   const handleSubmit = async () => {
     const requestBody = { ...formData, carbs, pro, fats, kcal, id: params.id };
@@ -209,13 +208,13 @@ export const RecipePage = ({ editMode }) => {
               </div>
             </div>
             <div className="flex justify-center gap-2">
+              <div className="border-r-2 border-r-primary-300 pr-2">
+                <Form.Item valueKey="published" noStyle>
+                  <PublicButton />
+                </Form.Item>
+              </div>
               {editMode ? (
                 <>
-                  <div className="border-r-2 border-r-primary-300 pr-2">
-                    <Form.Item valueKey="public" noStyle>
-                      <PublicButton />
-                    </Form.Item>
-                  </div>
                   <Button onClick={() => navigate(-1)} type="hollow" size="md">
                     Cancel
                   </Button>

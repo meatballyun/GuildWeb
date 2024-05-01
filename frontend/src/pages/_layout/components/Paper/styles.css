@@ -2,7 +2,7 @@
 
 @layer components {
   .layout-paper {
-    @apply h-full w-full px-[4vw] py-[4vh];
+    @apply h-full w-full px-[4vw] py-[5vh];
     background: center / 100% 100% no-repeat url('./panel.png');
   }
   .layout-paper.layout-paper--row {

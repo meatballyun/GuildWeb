@@ -137,7 +137,7 @@ export const GuildDetailPage = ({ editMode }) => {
   };
 
   const handleDelete = async () => {
-    await api.guild.deleteGuilds({ pathParams: { id: params.id } });
+    await api.guild.deleteGuilds({ pathParams: { gid: params.id } });
     await getGuildList();
     navigate('..');
   };
@@ -280,7 +280,11 @@ export const GuildDetailPage = ({ editMode }) => {
           </div>
         </Paper>
       </Form>
-      <InviteMemberModal isOpen={openModal} onClose={handleModalClose} />
+      <InviteMemberModal
+        isOpen={openModal}
+        guildMemberList={guildMember}
+        onClose={handleModalClose}
+      />
     </>
   );
 };

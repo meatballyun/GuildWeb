@@ -8,7 +8,7 @@ import { FoodBar, NutritionalSummaryChart } from '../components';
 import { Paper } from '../../_layout/components';
 import { DietRecordModal } from '../modal';
 import { Button, DatePicker, MaterialSymbol } from '../../../components';
-import { formateDate, getNutritionSum } from '../../../utils';
+import { formateIsoDate, getNutritionSum } from '../../../utils';
 import { useSideBar } from '../../_layout/MainLayout/SideBar';
 
 export const CALORIES = [
@@ -42,7 +42,7 @@ export const RecordPage = () => {
 
   const fetchData = useCallback(async () => {
     const res = await api.food.getDietRecords({
-      params: { date: formateDate(date) },
+      params: { date: formateIsoDate(date) },
     });
     const { data } = await res.json();
     setDailyFood(data);
@@ -154,7 +154,7 @@ export const RecordPage = () => {
           await api.food.postDietRecords({
             body: {
               ...formData,
-              date: formateDate(formData.date ?? new Date()),
+              date: formateIsoDate(formData.date ?? new Date()),
             },
           });
           await fetchData();

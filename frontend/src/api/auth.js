@@ -23,6 +23,13 @@ export const signUp = ({ body }) =>
 
 export const signUpValidation = ({ pathParams }) =>
   fetchJson({
-    url: `${BASE_API_URL}/users/signup?${pathParams}`,
+    url: `${BASE_API_URL}/emails/validation-signup?${pathParams}`,
     method: 'GET',
+  });
+
+export const resendEmail = ({ body = { email: '' } }) =>
+  fetchJson({
+    url: `${BASE_API_URL}/emails/resend`,
+    method: 'POST',
+    body,
   });
