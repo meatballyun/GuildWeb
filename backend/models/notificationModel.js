@@ -27,7 +27,7 @@ class NotificationModel {
 
   static getNotifications(RECIPIENT_ID) {
     return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM notifications WHERE RECIPIENT_ID = ? AND ACTIVE = TRUE', [RECIPIENT_ID], function (err, rows) {
+      connection.query('SELECT * FROM notifications WHERE RECIPIENT_ID = ? AND ACTIVE = TRUE ORDER BY CREATE_TIME DESC', [RECIPIENT_ID], function (err, rows) {
         if (err) {
             reject(err);
         } else {

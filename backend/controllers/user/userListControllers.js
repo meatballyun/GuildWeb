@@ -16,7 +16,8 @@ class UserListController {
             else if (query[0]?.STATUS === "Pending") status = "Pending Response";
             else {
               const q = await UserFriend.getFriendStatus(row.ID, req.session.passport.user);
-              if (q[0]?.STATUS === "Pending") status = "Pending Confirmation";
+              if (q[0]?.STATUS === "Confirmed") status = "Confirmed";
+              else if (q[0]?.STATUS === "Pending") status = "Pending Confirmation";
             }
             return {
               id: row.ID,
@@ -77,6 +78,8 @@ class UserListController {
 
   async sendInvitation(req, res, next) {     
     try {
+      const status = await UserFriend.getFriendStatus(req.body.uid, req.session.passport.user);
+      if (status?.length) return next(new ApplicationError(409));
       const query = await UserFriend.addFriend(req.session.passport.user, req.body.uid);
       if (query['affectedRows']){
         req.body.type = "User";
