@@ -1,5 +1,7 @@
 # GuildWeb
 
+*Copyright © 2024 yun-tz*
+
 ## Introduction
 
 This is a platform designed to address the need for recording various aspects of life, including nutrition planning and task goal setting.
@@ -19,8 +21,8 @@ This is a platform designed to address the need for recording various aspects of
 
 
 ## Overview
-* [GuildWeb](http://guild.yun-tz.com)
-* [Documentation](https://hackmd.io/@rabbit-house/S1bMt8ceA)
+* Click here to navigate to [GuildWeb](http://guild.yun-tz.com).
+* Click here to navigate to [Documentation](https://hackmd.io/@rabbit-house/S1bMt8ceA).
 
 ### Backend
 * `/backend/lib/app.js` - initializes an Express app with middleware and routing
