@@ -99,6 +99,9 @@ class UserListController {
     try {
       const query = await UserFriend.updateFriend(req.params.uid, req.session.passport.user, req.body.status);
       if (query.affectedRows){
+        await updateUserExp(1, req.params.uid);
+        await updateUserExp(1, req.session.passport.user);
+
         return res.status(200).json({
           success: true,
           message: "Data updated successfully.",
@@ -116,6 +119,8 @@ class UserListController {
     try {  
         const query = await UserFriend.deleteFriend(req.session.passport.user, req.params.uid);
         if (query.affectedRows){
+          await updateUserExp(-1, req.params.uid);          
+          await updateUserExp(-1, req.session.passport.user);
           return res.status(200).json({
             success: true,
             message: "UserFriend record successfully deleted.",

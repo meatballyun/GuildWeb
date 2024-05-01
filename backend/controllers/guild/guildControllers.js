@@ -104,7 +104,9 @@ class GuildController {
               {
               "success": true,  
               "message": "Data build successfully.",
-              "data": "OK"
+              "data": {
+                id: newGuild['insertId']
+              }
           });    
         }  
       }  
