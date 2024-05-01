@@ -25,9 +25,9 @@ const Content = ({ children, className }) => {
   );
 };
 
-export const PaperLayout = ({ children }) => {
+export const PaperLayout = ({ children, className, ...props }) => {
   return (
-    <Paper row className="flex flex-col">
+    <Paper row {...props} className={classNames('flex flex-col', className)}>
       {children}
     </Paper>
   );

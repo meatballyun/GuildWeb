@@ -28,9 +28,8 @@
 }
 
 .content {
-  @apply flex w-0 flex-1 flex-col p-4;
+  @apply relative flex h-0 flex-col px-4 pb-6 pt-4;
 
   flex: 1;
-  height: 100%;
-  background: center / cover no-repeat url('../../../assets/png/background.png');
+  background: bottom / cover no-repeat url('../../../assets/png/background.png');
 }
