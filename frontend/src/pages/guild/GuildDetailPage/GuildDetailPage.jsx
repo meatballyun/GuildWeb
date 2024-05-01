@@ -23,7 +23,7 @@ export const GuildDetailPage = ({ editMode }) => {
   const params = useParams();
   useSideBar({ activeKey: ['guilds', params.id] });
 
-  const { getGuildList } = useGuild();
+  const { getGuildList, getMyMemberShipInGuild } = useGuild();
   const { userMe } = useUserMe();
   const [openModal, setOpenModal] = useState(false);
 
@@ -36,12 +36,7 @@ export const GuildDetailPage = ({ editMode }) => {
 
   const [isGuildMemberFetched, setIsGuildMemberFetched] = useState(false);
   const [guildMember, setGuildMember] = useState([]);
-
-  const myMemberShip = useMemo(() => {
-    if (!guildMember?.length || !userMe) return undefined;
-    const myDataInGuild = guildMember.find(({ id }) => id === userMe.id);
-    return myDataInGuild?.membership ?? null;
-  }, [guildMember, userMe]);
+  const myMemberShip = getMyMemberShipInGuild(+params.id);
 
   useEffect(() => {
     if (myMemberShip !== null || !editMode || params.id === 'new') return;
@@ -109,7 +104,6 @@ export const GuildDetailPage = ({ editMode }) => {
 
   const handleDelete = async () => {
     await api.guild.deleteGuilds({ pathParams: { gid: params.id } });
-    await fetchGuildMember();
     await getGuildList();
     navigate('..');
   };
@@ -198,6 +192,7 @@ export const GuildDetailPage = ({ editMode }) => {
                 editMode={editMode}
                 guildId={params.id}
                 myMemberShip={myMemberShip}
+                isCabin={guildDetail.cabin}
                 onSubmit={form.submit}
                 onLeave={handleLeave}
                 onDelete={handleDelete}
@@ -207,49 +202,51 @@ export const GuildDetailPage = ({ editMode }) => {
 
           {/* right panel */}
           <div className="flex w-full flex-1 flex-col overflow-hidden">
-            <Block
-              title={
-                <div>
-                  Member
-                  {['Master', 'Vice'].includes(myMemberShip) && !editMode && (
-                    <Button
-                      className="float-right"
-                      onClick={() => setOpenModal(true)}
-                    >
-                      Invite
-                    </Button>
-                  )}
-                </div>
-              }
-              className="mb-2 flex-1"
-            >
-              {(() => {
-                if (!isGuildMemberFetched)
+            {!guildDetail.cabin && (
+              <Block
+                title={
+                  <div>
+                    Member
+                    {['Master', 'Vice'].includes(myMemberShip) && !editMode && (
+                      <Button
+                        className="float-right"
+                        onClick={() => setOpenModal(true)}
+                      >
+                        Invite
+                      </Button>
+                    )}
+                  </div>
+                }
+                className="mb-2 flex-1"
+              >
+                {(() => {
+                  if (!isGuildMemberFetched)
+                    return (
+                      <div className="flex w-full flex-col items-center justify-center">
+                        <Loading className="text-heading-h3 text-primary-300" />
+                      </div>
+                    );
                   return (
-                    <div className="flex w-full flex-col items-center justify-center">
-                      <Loading className="text-heading-h3 text-primary-300" />
+                    <div className="flex w-full flex-col gap-1">
+                      {currentGuildMember.map((data) => (
+                        <UserItem
+                          editAble={
+                            data.membership !== 'Master' &&
+                            myMemberShip === 'Master' &&
+                            editMode
+                          }
+                          key={data.id}
+                          {...data}
+                          onItemClick={(value) =>
+                            handleMemberClick(value, data.id)
+                          }
+                        />
+                      ))}
                     </div>
                   );
-                return (
-                  <div className="flex w-full flex-col gap-1">
-                    {currentGuildMember.map((data) => (
-                      <UserItem
-                        editAble={
-                          data.membership !== 'Master' &&
-                          myMemberShip === 'Master' &&
-                          editMode
-                        }
-                        key={data.id}
-                        {...data}
-                        onItemClick={(value) =>
-                          handleMemberClick(value, data.id)
-                        }
-                      />
-                    ))}
-                  </div>
-                );
-              })()}
-            </Block>
+                })()}
+              </Block>
+            )}
             <Block
               title="Description"
               className="flex flex-1 text-paragraph-p3"

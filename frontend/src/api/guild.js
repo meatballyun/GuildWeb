@@ -20,6 +20,12 @@ export const postGuilds = ({ body }) =>
     body,
   });
 
+export const postCabin = () =>
+  fetchJson({
+    url: `${BASE_GUILD_URL}/cabin`,
+    method: 'POST',
+  });
+
 export const putGuilds = ({ body, pathParams }) =>
   fetchJson({
     url: `${BASE_GUILD_URL}/${pathParams.gid}`,
