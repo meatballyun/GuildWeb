@@ -9,6 +9,8 @@ import {
   MaterialSymbol,
   ImageUploader,
   Input,
+  validate,
+  Notification,
 } from '../../components';
 import {
   IngredientValue,
@@ -40,31 +42,8 @@ export const IngredientPage = ({ editMode = false }) => {
       : ingredientDefaultValue
   );
   const [isFetched, setIsFetched] = useState(false);
-  const form = useFormInstance({ defaultValue: ingredientDetail });
-  const { formData } = form;
-  const totalKcal = (
-    (formData?.carbs ?? 0) * 4 +
-    (formData?.pro ?? 0) * 4 +
-    (formData?.fats ?? 0) * 9
-  ).toFixed(2);
 
-  useEffect(() => {
-    if (!params.id || params.id === 'new') {
-      setIsFetched(true);
-      return;
-    }
-    (async () => {
-      setIsFetched(false);
-      const res = await api.food.getIngredientsDetail({
-        pathParams: { id: params.id },
-      });
-      const { data } = await res.json();
-      setIsFetched(true);
-      setIngredientDetail(data);
-    })();
-  }, [params.id]);
-
-  const handleSubmit = async () => {
+  const handleSubmit = async (formData) => {
     const requestBody = {
       ...formData,
       kcal: totalKcal,
@@ -89,6 +68,47 @@ export const IngredientPage = ({ editMode = false }) => {
       navigate(`/foods/ingredients/${targetId}`);
     } catch (error) {}
   };
+  const nutritionalValidate = [
+    (_, { carbs, pro, fats }) => {
+      if ((!carbs || !+carbs) && (!pro || !+pro) && (!fats || !+fats))
+        throw Error('one of carbs and pro and fats should not be empty');
+      if (carbs > 1000 || pro > 1000 || fats > 1000)
+        throw Error('carbs and pro and fats cannot over 1000');
+      if (carbs < 0 || pro < 0 || fats < 0)
+        throw Error('carbs and pro and fats cannot be less than 0');
+    },
+  ];
+  const form = useFormInstance({
+    defaultValue: ingredientDetail,
+    validateObject: {
+      name: [validate.required, validate.maxLimit(50)],
+      unit: [validate.maxLimit(50)],
+      nutation: nutritionalValidate,
+    },
+    onSubmit: handleSubmit,
+  });
+  const { formData } = form;
+  const totalKcal = (
+    (formData?.carbs ?? 0) * 4 +
+    (formData?.pro ?? 0) * 4 +
+    (formData?.fats ?? 0) * 9
+  ).toFixed(2);
+
+  useEffect(() => {
+    if (!params.id || params.id === 'new') {
+      setIsFetched(true);
+      return;
+    }
+    (async () => {
+      setIsFetched(false);
+      const res = await api.food.getIngredientsDetail({
+        pathParams: { id: params.id },
+      });
+      const { data } = await res.json();
+      setIsFetched(true);
+      setIngredientDetail(data);
+    })();
+  }, [params.id]);
 
   if (!isFetched) return <Paper row>loading</Paper>;
 
@@ -97,14 +117,13 @@ export const IngredientPage = ({ editMode = false }) => {
       <Paper row className="flex gap-2">
         {/* left panel */}
         <div className="flex w-full flex-col items-center justify-center gap-2 p-2">
-          <div className="w-full border-b-2 border-b-primary-600">
-            <Form.Item valueKey="name">
-              <Input
-                inputClassName="text-center text-heading-h1 text-primary-600"
-                placeholder="enter title..."
-              />
-            </Form.Item>
-          </div>
+          <Form.Item valueKey="name" className="w-full">
+            <Input
+              type="underline"
+              inputClassName="text-center text-heading-h1 text-primary-600"
+              placeholder="Enter Title"
+            />
+          </Form.Item>
           <div className="m-1 flex h-[50vh] w-full items-center overflow-hidden border-[20px] border-primary-200">
             <Form.Item valueKey="imageUrl" noStyle>
               <ImageUploader type="ingredient" />
@@ -122,7 +141,7 @@ export const IngredientPage = ({ editMode = false }) => {
                 <Button onClick={() => navigate(-1)} type="hollow" size="md">
                   Cancel
                 </Button>
-                <Button size="md" onClick={handleSubmit}>
+                <Button size="md" onClick={form.submit}>
                   Save
                 </Button>
               </>
@@ -184,6 +203,11 @@ export const IngredientPage = ({ editMode = false }) => {
                 </NutritionalSummaryChart>
               </div>
               <div className="w-full border-l-2 border-l-primary-200">
+                {form.validation?.nutation && (
+                  <Notification.Error>
+                    {form.validation.nutation}
+                  </Notification.Error>
+                )}
                 <Form.Item valueKey="carbs">
                   <IngredientValue
                     color="blue"

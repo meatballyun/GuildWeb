@@ -19,7 +19,7 @@ export const UserItem = ({ name, imageUrl, rank, onClick, focus }) => {
       )}
     >
       <Avatar size={28} url={imageUrl} name={name} />
-      <div className="w-full text-primary-400">{name}</div>
+      <div className="w-full truncate text-primary-400">{name}</div>
       <div
         className={classNames(
           'rounded-full px-2 text-center text-white',

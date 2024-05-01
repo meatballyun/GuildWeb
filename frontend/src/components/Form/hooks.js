@@ -67,7 +67,7 @@ export const useFormInstance = ({
   useEffect(() => {
     if (validateMode === 'onChange') validate(isFieldTouched.current);
     if (validateMode === 'onSubmit' && isFormSubmit.current)
-      validate(isFieldTouched.current);
+      validate(isFormSubmit.current || isFieldTouched.current);
   }, [validate, validateMode]);
 
   return {

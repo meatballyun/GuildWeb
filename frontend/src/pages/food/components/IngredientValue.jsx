@@ -33,7 +33,12 @@ export const IngredientValue = ({
       </div>
       <div className="ml-2 mt-2 flex w-full justify-between border-b-2 text-paragraph-p1">
         {onChange ? (
-          <Input value={value} onChange={onChange} disabled={disabled} />
+          <Input
+            value={value}
+            onChange={onChange}
+            disabled={disabled}
+            inputType="number"
+          />
         ) : (
           <span className="px-2">{value}</span>
         )}

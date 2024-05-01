@@ -23,7 +23,7 @@ export const FormItem = ({
     value: formData[valueKey],
     onChange: handleChange,
     disabled: children.props.disabled ?? disabled,
-    error: !!error,
+    error,
   });
 
   if (noStyle) return dom;
@@ -32,7 +32,7 @@ export const FormItem = ({
       className={classNames(error ? 'text-red' : 'text-primary-500', className)}
     >
       <div className={classNames('flex gap-1', layout === 'col' && 'flex-col')}>
-        <div className="mt-1 text-heading-h5">{label}:</div>
+        {label && <div className="mt-1 text-heading-h5">{label}:</div>}
         <div className="w-full">
           {dom}
           {typeof error === 'string' && (
