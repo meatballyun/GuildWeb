@@ -17,7 +17,9 @@ const guildContext = createContext({
 
 export const useGuild = () => {
   const { guildList, getGuildList } = useContext(guildContext);
-  return { guildList, getGuildList };
+  const getMyMemberShipInGuild = (gid) =>
+    guildList.find(({ id }) => id === gid)?.membership;
+  return { guildList, getGuildList, getMyMemberShipInGuild };
 };
 
 const userMeContext = createContext({

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button, Input, MaterialSymbol } from '../../../components';
-import { Paper } from '../../_layout/components';
+import { PaperLayout } from '../../_layout/components';
 import { api } from '../../../api';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { EmptyMissionDetail, MissionDetailBlock } from './MissionDetailBlock';
@@ -14,7 +14,7 @@ import {
   convertMissionTypeValue,
 } from './MissionTypeSelect';
 import { getMissionDetailBtn } from './utils';
-import { useUserMe } from '../../_layout';
+import { useGuild, useUserMe } from '../../_layout';
 
 export const MissionPage = ({ manageMode = false }) => {
   const params = useParams();
@@ -25,6 +25,8 @@ export const MissionPage = ({ manageMode = false }) => {
   const [search, setSearch] = useState('');
   const [isFetched, setIsFetched] = useState(false);
   const [selectedDetail, setSelectedDetail] = useState();
+  const { getMyMemberShipInGuild } = useGuild();
+
   const [query, setQuery] = useState({
     filter: 'all',
     missionType: '',
@@ -218,12 +220,19 @@ export const MissionPage = ({ manageMode = false }) => {
     setSelectedDetail(data);
   };
 
+  const enableManage =
+    !manageMode &&
+    ['Admin', 'Master'].includes(getMyMemberShipInGuild(params.id));
+
   return (
     <>
-      <Paper row className="flex flex-col">
-        <div className="mb-4 text-center text-heading-h1 text-primary-500">
+      <PaperLayout row>
+        <PaperLayout.Title className="relative flex items-center justify-center">
           {manageMode && (
-            <Link to={`/guilds/${params.gid}/missions`} className="float-left">
+            <Link
+              to={`/guilds/${params.gid}/missions`}
+              className="absolute left-0"
+            >
               <MaterialSymbol
                 icon="arrow_back"
                 className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full hover:bg-primary-300/50"
@@ -231,17 +240,17 @@ export const MissionPage = ({ manageMode = false }) => {
             </Link>
           )}
           {manageMode ? 'Guild Mission Manager' : 'Mission'}
-          {!manageMode && (
+          {enableManage && (
             <Button
               type="hollow"
-              className="float-right mt-2"
+              className="absolute right-0"
               onClick={() => navigate('./manage')}
               prefix={<MaterialSymbol icon="settings" />}
             >
               Manage
             </Button>
           )}
-        </div>
+        </PaperLayout.Title>
 
         <div className="mb-4 flex w-full justify-between">
           <div className="flex w-full max-w-[400px] rounded-full border border-primary-500 p-1 text-paragraph-p2 text-primary-500">
@@ -330,7 +339,7 @@ export const MissionPage = ({ manageMode = false }) => {
             <EmptyMissionDetail className="w-full" />
           )}
         </div>
-      </Paper>
+      </PaperLayout>
       <AddMissionModal
         modalStatus={modalStatus}
         onClose={() => setModalStatus({ isOpen: false })}

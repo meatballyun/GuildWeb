@@ -63,7 +63,7 @@ const validateObject = {
   ],
   maxAdventurer: [
     validate.required,
-    validate.minLimit(0, 'number'),
+    validate.minLimit(1, 'number'),
     validate.isInt,
   ],
   initiationTime: [
