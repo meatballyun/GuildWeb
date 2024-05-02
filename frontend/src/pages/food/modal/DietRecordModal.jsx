@@ -7,6 +7,7 @@ import {
   Input,
   MaterialSymbol,
   useFormInstance,
+  validate,
 } from '../../../components';
 import { Modal } from '../../../components/Modal';
 import { api } from '../../../api';
@@ -23,9 +24,19 @@ export const DietRecordModal = ({
   const [recipeList, setRecipeList] = useState([]);
   const [search, setSearch] = useState('');
   const [isFetched, setIsFetched] = useState(false);
-  const form = useFormInstance({});
 
-  useEffect(() => {}, [isOpen]);
+  const handleSubmit = async (formData) => {
+    await onFinish?.(formData);
+    onClose?.();
+  };
+  const form = useFormInstance({
+    validateObject: {
+      category: [validate.required],
+      recipe: [validate.required],
+      amount: [validate.required],
+    },
+    onSubmit: handleSubmit,
+  });
 
   useEffect(() => {
     (async () => {
@@ -41,11 +52,6 @@ export const DietRecordModal = ({
     form.setFormData(value ?? {});
   }, [value, isOpen]);
 
-  const handleClick = async () => {
-    await onFinish?.(form.formData);
-    onClose?.();
-  };
-
   return (
     <Modal
       {...props}
@@ -56,7 +62,7 @@ export const DietRecordModal = ({
         <Button
           size="md"
           className="w-full justify-center"
-          onClick={handleClick}
+          onClick={form.submit}
         >
           Submit
         </Button>

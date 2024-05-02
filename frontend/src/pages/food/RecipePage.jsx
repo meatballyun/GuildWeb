@@ -9,6 +9,8 @@ import {
   ImageUploader,
   MaterialSymbol,
   Input,
+  Notification,
+  validate,
 } from '../../components';
 import {
   FoodBar,
@@ -22,48 +24,80 @@ import { AddIngredientModal } from './modal';
 import { Link } from 'react-router-dom';
 import { useSideBar } from '../_layout/MainLayout/SideBar';
 
-const IngredientList = ({ value: valueProp = [], disabled, onChange }) => {
-  const handleCountChange = (id, value) => {
+const IngredientList = ({
+  error,
+  value: valueProp = [],
+  disabled,
+  onChange,
+}) => {
+  const handleAmountChange = (id, value) => {
+    if (typeof value === 'string' && value.includes('-')) return;
     const newValue = [...valueProp];
     const valueIndex = newValue.findIndex((val) => val.id === id);
     newValue[valueIndex].amount = value;
     onChange(newValue);
   };
 
-  return valueProp
-    .filter(({ amount }) => amount > -1)
-    .map(({ amount, id, ...ingredient }) => (
-      <FoodBar
-        {...ingredient}
-        showChart={false}
-        key={id}
-        id={id}
-        amount={
-          disabled ? (
-            amount
-          ) : (
-            <Input
-              value={amount}
-              onChange={(value) => handleCountChange(id, value)}
-            />
-          )
-        }
-        suffix={
-          !disabled && (
-            <MaterialSymbol
-              icon="delete"
-              onClick={() => handleCountChange(id, -1)}
-            />
-          )
-        }
-      />
-    ));
+  return (
+    <>
+      {valueProp
+        .filter(({ amount }) => amount > -1)
+        .map(({ amount, id, ...ingredient }) => (
+          <FoodBar
+            {...ingredient}
+            showChart={false}
+            key={id}
+            id={id}
+            amount={
+              disabled ? (
+                amount
+              ) : (
+                <Input
+                  className="min-w-10"
+                  inputType="number"
+                  value={amount}
+                  onChange={(value) => handleAmountChange(id, value)}
+                  min={0}
+                />
+              )
+            }
+            suffix={
+              !disabled && (
+                <MaterialSymbol
+                  icon="delete"
+                  onClick={() => handleAmountChange(id, -1)}
+                />
+              )
+            }
+          />
+        ))}
+      {error && (
+        <div className="flex h-full flex-1 items-center text-heading-h3 text-red">
+          <Notification.Error>{error}</Notification.Error>
+        </div>
+      )}
+    </>
+  );
+};
+
+const validateObject = {
+  name: [validate.required],
+  ingredients: [
+    ({ value }) => {
+      if (!value?.length || !value.filter(({ amount }) => amount !== -1).length)
+        throw Error('Requires at least one ingredient');
+      if (value.some(({ amount }) => amount <= 0))
+        throw Error('all ingredient amount should bigger than 0');
+    },
+  ],
 };
 
 export const RecipePage = ({ editMode }) => {
   useSideBar({ activeKey: ['foods', 'recipes'] });
   const navigate = useNavigate();
   const params = useParams();
+  const id = params.id;
+
   const [openModal, setOpenModal] = useState(false);
   const location = useLocation();
   const [recipeDetail, setRecipeDetail] = useState(
@@ -76,45 +110,50 @@ export const RecipePage = ({ editMode }) => {
         }
   );
   const [isFetched, setIsFetched] = useState(false);
-  const form = useFormInstance({ defaultValue: recipeDetail });
-  const { formData, handleInputChange } = form;
-  const { carbs, pro, fats, kcal } = getNutritionSum(formData.ingredients);
 
   useEffect(() => {
-    if (!params.id || params.id === 'new') {
+    if (!id || id === 'new') {
       setIsFetched(true);
       return;
     }
     (async () => {
       setIsFetched(false);
       const res = await api.food.getRecipesDetail({
-        pathParams: { id: params.id },
+        pathParams: { id },
       });
       const { data } = await res.json();
       setIsFetched(true);
       setRecipeDetail(data);
     })();
-  }, [params.id]);
-  console.log(formData);
+  }, [id]);
 
-  const handleSubmit = async () => {
-    const requestBody = { ...formData, carbs, pro, fats, kcal, id: params.id };
+  const handleSubmit = async (formData) => {
+    const nutrition = getNutritionSum(formData.ingredients);
+    const requestBody = { ...formData, ...nutrition, id };
     try {
-      if (params.id === 'new') {
+      if (id === 'new') {
         const res = await api.food.postRecipes({ body: requestBody });
         if (res.status !== 200) throw Error();
         const json = await res.json();
         navigate(`/foods/recipes/${json.data.id}`);
       } else {
         const res = await api.food.putRecipes({
-          pathParams: { id: params.id },
+          pathParams: { id: id },
           body: requestBody,
         });
         if (res.status !== 200) throw Error();
-        navigate(`/foods/recipes/${params.id}`);
+        navigate(`/foods/recipes/${id}`);
       }
     } catch (error) {}
   };
+
+  const form = useFormInstance({
+    defaultValue: recipeDetail,
+    validateObject,
+    onSubmit: handleSubmit,
+  });
+  const { formData, handleInputChange } = form;
+  const { carbs, pro, fats, kcal } = getNutritionSum(formData.ingredients);
 
   const handleModalClose = (newItem) => {
     setOpenModal(false);
@@ -150,14 +189,13 @@ export const RecipePage = ({ editMode }) => {
         <Paper row className="flex gap-2">
           {/* left panel */}
           <div className="flex w-full flex-col items-center justify-center gap-2 p-2">
-            <div className="w-full border-b-2 border-b-primary-600 text-center text-heading-h1 text-primary-600">
-              <Form.Item valueKey="name">
-                <Input
-                  inputClassName="text-center text-heading-h1 text-primary-600"
-                  placeholder="enter title..."
-                />
-              </Form.Item>
-            </div>
+            <Form.Item valueKey="name" className="w-full">
+              <Input
+                type="underline"
+                inputClassName="text-center text-heading-h1 text-primary-600"
+                placeholder="Enter Title"
+              />
+            </Form.Item>
             <div className="m-1 flex h-[50vh] w-full items-center overflow-hidden border-[20px] border-primary-200">
               <Form.Item valueKey="imageUrl" noStyle>
                 <ImageUploader type="ingredient" />
@@ -218,7 +256,7 @@ export const RecipePage = ({ editMode }) => {
                   <Button onClick={() => navigate(-1)} type="hollow" size="md">
                     Cancel
                   </Button>
-                  <Button size="md" onClick={handleSubmit}>
+                  <Button size="md" onClick={form.submit}>
                     Save
                   </Button>
                 </>
@@ -234,7 +272,7 @@ export const RecipePage = ({ editMode }) => {
                       Copy
                     </Button>
                   </Link>
-                  <Link to={`/foods/recipes/edit/${params.id}`}>
+                  <Link to={`/foods/recipes/edit/${id}`}>
                     <Button
                       size="md"
                       className="flex h-full items-center gap-1"

@@ -7,6 +7,7 @@ import {
   Input,
   MaterialSymbol,
   useFormInstance,
+  validate,
 } from '../../../components';
 import { Modal } from '../../../components/Modal';
 import { TextArea } from '../../../components/Form/TextArea';
@@ -52,33 +53,39 @@ const CheckList = ({ value = [], onChange }) => {
 };
 
 const validateObject = {
-  name: (value) => {
-    if (!value) return 'name is required';
-  },
-  type: (value) => {
-    if (!value) return 'type is required';
-  },
-  repetitiveTaskType: (value, { type }) => {
-    if (type === 'Repetitive' && !value)
-      return 'repetitiveTaskType is required';
-  },
-  maxAdventurer: (value) => {
-    if (!value || value === '0') return 'maxAdventurer is required';
-  },
-  initiationTime: (value) => {
-    if (!value) return 'initiationTime is required';
-    if (new Date() - new Date(value) < 0)
-      return 'initiationTime should bigger than ';
-  },
-  deadline: (value, { initiationTime }) => {
-    if (!value) return 'deadline is required';
-    if (new Date(value) - new Date(initiationTime) < 0)
-      return 'deadline should bigger than initiationTime';
-  },
-  items: (value) => {
-    if (value?.some(({ content }) => !content))
-      return 'content should not be empty';
-  },
+  name: [validate.required],
+  type: [validate.required],
+  repetitiveTaskType: [
+    ({ value }, { type }) => {
+      if (type === 'Repetitive' && !value)
+        throw Error('repetitiveTaskType is required');
+    },
+  ],
+  maxAdventurer: [
+    validate.required,
+    validate.minLimit(1, 'number'),
+    validate.isInt,
+  ],
+  initiationTime: [
+    validate.required,
+    ({ value }) => {
+      if (new Date(value) - new Date(new Date().toDateString()) < 0)
+        throw Error('initiationTime should bigger than Today');
+    },
+  ],
+  deadline: [
+    validate.required,
+    ({ value }, { initiationTime }) => {
+      if (new Date(value) - new Date(initiationTime) < 0)
+        throw Error('deadline should bigger than initiationTime');
+    },
+  ],
+  items: [
+    ({ value }) => {
+      if (value?.some(({ content }) => !content))
+        throw Error('content should not be empty');
+    },
+  ],
 };
 
 const defaultValue = {
@@ -95,7 +102,7 @@ export const AddMissionModal = ({
   ...props
 }) => {
   useEffect(() => {
-    form.setFormData({ ...modalStatus?.formData });
+    form.setFormData({ ...defaultValue, ...modalStatus?.formData });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modalStatus]);
 
@@ -177,7 +184,7 @@ export const AddMissionModal = ({
           </div>
 
           <Form.Item valueKey="maxAdventurer" label="Max Adventurer">
-            <Input type="underline" inputType="number" />
+            <Input type="underline" inputType="number" min={1} />
           </Form.Item>
           <div className="flex">
             <Form.Item

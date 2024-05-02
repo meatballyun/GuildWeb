@@ -1,8 +1,13 @@
 import { classNames } from '../../../utils';
 import { Paper } from './Paper';
 
-const Title = ({ children }) => (
-  <div className="mb-4 text-center text-heading-h1 text-primary-500">
+const Title = ({ className, children }) => (
+  <div
+    className={classNames(
+      className,
+      'mb-4 text-center text-heading-h1 text-primary-500'
+    )}
+  >
     {children}
   </div>
 );
