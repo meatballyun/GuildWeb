@@ -56,7 +56,7 @@ export const MembershipPill = ({ membership, suffix, onClick }) => {
     switch (membership) {
       case 'Master':
         return 'linear-gradient(340deg, rgba(255,210,94,1) 0%, rgba(255,241,205,1) 100%)';
-      case 'Admin':
+      case 'Vice':
         return 'linear-gradient(340deg, rgba(168,168,168,1) 0%, rgba(238,238,238,1) 100%)';
       case 'Regular':
         return COLORS['primary-200'];
@@ -94,7 +94,7 @@ const MemberShipSelect = ({ value: valueProp, onChange }) => {
             valueProp === 'Pending'
               ? [{ label: 'Delete', value: 'Delete' }]
               : [
-                  { label: 'Admin', value: 'Admin' },
+                  { label: 'Vice', value: 'Vice' },
                   { label: 'Regular', value: 'Regular' },
                   {
                     label: <span className="text-red">Delete</span>,

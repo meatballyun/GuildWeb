@@ -58,10 +58,12 @@ class TaskController {
       if (tasks?.length){
         data = await Promise.all( tasks.map( async (row) => {
           let repetitiveTaskType ='None';
+          let repetitiveTasks, isTemplate = false;
           if (row.TYPE === 'Repetitive'){
-            const repetitiveTasks = await RepetitiveTask.getRepetitiveTask(row.ID);
+            repetitiveTasks = await RepetitiveTask.getRepetitiveTask(row.ID);
             if (repetitiveTasks?.length){
               repetitiveTaskType = repetitiveTasks[0].TYPE;
+              isTemplate = true;
             }
           }
           const query = await Adventurer.getAdventurerByTaskAndUser(row.ID, req.session.passport.user);
@@ -75,6 +77,7 @@ class TaskController {
             status: row.STATUS,
             accepted: row.ACCEPTED,
             repetitiveTaskType: repetitiveTaskType,
+            isTemplate: isTemplate,
             isAccepted: isAccepted,
           }
         }));
@@ -278,7 +281,7 @@ class TaskController {
       const taskDetail = await Task.getTaskDetailById(req.params.tid);
       if (!taskDetail?.length){
         return next(ApplicationError(404, "The task cannot be found in this guild."));
-      } else if (req.member[0].MEMBERSHIP === "Admin" && req.session.passport.user !== taskDetail[0].CREATOR_ID){
+      } else if (req.member[0].MEMBERSHIP === "Vice" && req.session.passport.user !== taskDetail[0].CREATOR_ID){
         return next(new ApplicationError(403, "Only guild Master have permission to access this resource."));
       }
       
@@ -343,7 +346,7 @@ class TaskController {
       const taskDetail = await Task.getTaskDetailById(req.params.tid);
       if (!taskDetail?.length){
         return next(ApplicationError(404, "The task cannot be found in this guild."));
-      } else if (req.member[0].MEMBERSHIP === "Admin" && req.session.passport.user !== taskDetail[0].CREATOR_ID){
+      } else if (req.member[0].MEMBERSHIP === "Vice" && req.session.passport.user !== taskDetail[0].CREATOR_ID){
         return next(new ApplicationError(403, "Only guild Master have permission to access this resource."));
       }
 
@@ -376,7 +379,7 @@ class TaskController {
       const taskDetail = await Task.getTaskDetailById(req.params.tid);
       if (!taskDetail?.length){
         return next(ApplicationError(404, "The task cannot be found in this guild."));
-      } else if (req.member[0].MEMBERSHIP === "Admin" && req.session.passport.user !== taskDetail[0].CREATOR_ID){
+      } else if (req.member[0].MEMBERSHIP === "Vice" && req.session.passport.user !== taskDetail[0].CREATOR_ID){
         return next(new ApplicationError(403, "Only guild Master have permission to access this resource."));
       }
 
@@ -404,7 +407,7 @@ class TaskController {
       const taskDetail = await Task.getTaskDetailById(req.params.tid);
       if (!taskDetail?.length){
         return next(ApplicationError(404, "The task cannot be found in this guild."));
-      } else if (req.member[0].MEMBERSHIP === "Admin" && req.session.passport.user !== taskDetail[0].CREATOR_ID){
+      } else if (req.member[0].MEMBERSHIP === "Vice" && req.session.passport.user !== taskDetail[0].CREATOR_ID){
         return next(new ApplicationError(403, "Only guild Master have permission to access this resource."));
       }
 
@@ -436,7 +439,7 @@ class TaskController {
       const taskDetail = await Task.getTaskDetailById(req.params.tid);
       if (!taskDetail?.length){
         return next(ApplicationError(404, "The task cannot be found in this guild."));
-      } else if (req.member[0].MEMBERSHIP === "Admin" && req.session.passport.user !== taskDetail[0].CREATOR_ID){
+      } else if (req.member[0].MEMBERSHIP === "Vice" && req.session.passport.user !== taskDetail[0].CREATOR_ID){
         return next(new ApplicationError(403, "Only guild Master have permission to access this resource."));
       }
       
@@ -507,10 +510,11 @@ class TaskController {
       const taskDetail = await Task.getTaskDetailById(req.params.tid);
       if (!taskDetail?.length){
         return next(ApplicationError(404, "The task cannot be found in this guild."));
-      } else if (req.member[0].MEMBERSHIP === "Admin" && req.session.passport.user !== taskDetail[0].CREATOR_ID){
+      } else if (req.member[0].MEMBERSHIP === "Vice" && req.session.passport.user !== taskDetail[0].CREATOR_ID){
         return next(new ApplicationError(403));
       }
-
+      
+      if(taskDetail[0].TYPE === 'Repetitive') await RepetitiveTask.deleteRepetitiveTask(req.params.tid);
       await Adventurer.deleteAdventurerByTask(req.params.tid);
       const items = await Item.getItem(req.params.tid);
       if (items && items?.length) {

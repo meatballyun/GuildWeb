@@ -6,12 +6,12 @@ const signUp = new (require('../controllers/user/signupControllers'))();
 const login = new (require('../controllers/user/loginControllers'))();
 const userInfo = new (require('../controllers/user/userinfoControllers'))();
 const userList = new (require('../controllers/user/userListControllers'))();
-const mailUp = new (require('../controllers/email/mailControllers'))();
+const emailUp = new (require('../controllers/email/emailControllers'))();
 const notification = new (require('../controllers/notification/notificationControllers'))();
 
 
 // SignUp
-router.post('/signup', signUp.signup, mailUp.sendSignUp);
+router.post('/signup', signUp.signup, emailUp.sendSignUp);
 
 // Login、Logout
 router.post('/login', login.login);

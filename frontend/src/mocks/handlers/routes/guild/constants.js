@@ -29,7 +29,7 @@ const USERS = [
     name: 'eva',
     imageUrl: null,
     rank: 1,
-    membership: 'Admin',
+    membership: 'Vice',
   },
   {
     id: 6,
@@ -43,7 +43,7 @@ const USERS = [
     name: 'User2',
     imageUrl: null,
     rank: 1,
-    membership: 'Admin',
+    membership: 'Vice',
   },
   {
     id: 9,

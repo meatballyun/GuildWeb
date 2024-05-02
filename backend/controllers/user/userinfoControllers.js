@@ -1,6 +1,6 @@
 const User = require('../../models/userModel');
 const bcrypt = require('bcrypt');
-const ConfirmationMail = require('../../models/confirmationMailModel');
+const ConfirmationEmail = require('../../models/confirmationEmailModel');
 const ApplicationError = require('../../utils/error/applicationError.js');
 
 class UserInfoController {
@@ -37,7 +37,7 @@ class UserInfoController {
 
     async resetPassword(req, res, next) {        
         try {
-            const [confirmationMail] = await ConfirmationMail.getConfirmationMailByUserId(req.body.uid, "ForgotPassword");
+            const [confirmationMail] = await ConfirmationEmail.getConfirmationEmailsByUserId(req.body.uid, "ForgotPassword");
             if(confirmationMail.STATUS !== "Confirmed" || ((new Date(confirmationMail.CREATE_TIME).valueOf()+86400000) < new Date().valueOf())){
                 return next(new ApplicationError(403, "The verification link has expired."));
             } else if(confirmationMail.CODE === req.body.code){

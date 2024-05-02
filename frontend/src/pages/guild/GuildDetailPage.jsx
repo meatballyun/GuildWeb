@@ -96,7 +96,7 @@ export const GuildDetailPage = ({ editMode }) => {
 
   const handleMemberClick = async (value, uid) => {
     switch (value) {
-      case 'Admin':
+      case 'Vice':
       case 'Regular':
         api.guild.patchGuildsMember({
           pathParams: { gid: params.id, uid },
@@ -238,7 +238,7 @@ export const GuildDetailPage = ({ editMode }) => {
               title={
                 <div>
                   Member
-                  {['Master', 'Admin'].includes(myMemberShip) && !editMode && (
+                  {['Master', 'Vice'].includes(myMemberShip) && !editMode && (
                     <Button
                       className="float-right"
                       onClick={() => setOpenModal(true)}

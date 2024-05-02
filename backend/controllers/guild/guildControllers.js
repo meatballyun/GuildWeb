@@ -1,6 +1,11 @@
 const ApplicationError = require('../../utils/error/applicationError.js');
 const Guild = require('../../models/guildModel');
 const User = require('../../models/userModel');
+const Adventurer = require('../../models/adventurerModel');
+const Task = require('../../models/taskModel');
+const RepetitiveTask = require('../../models/repetitiveTaskModel');
+const Item = require('../../models/itemModel');
+const ItemRecord = require('../../models/itemRecordModel');
 const UserGuildRelation = require('../../models/userGuildRelationModel');
 const userInfoController = new (require('../user/userinfoControllers.js'))();
 const updateUserExp = userInfoController.updateUserExp;
@@ -10,8 +15,8 @@ const checkAuth = async (user, gid, level) => {
   const member = await UserGuildRelation.getUserGuildRelationByGuildAndUser(user, gid); 
   if ((!member?.length) && (level >= 0)){
     message = "You are not a member of this guild, or you have not been invited.";
-  } else if ((member[0].MEMBERSHIP !== "Admin" && member[0].MEMBERSHIP !== "Master") && level >= 1){
-    message = "Only guild Master and Admin have permission to access this resource.";
+  } else if ((member[0].MEMBERSHIP !== "Vice" && member[0].MEMBERSHIP !== "Master") && level >= 1){
+    message = "Only guild Master and Vice have permission to access this resource.";
   } else if ((member[0].MEMBERSHIP !== "Master") && level >= 2){
     message = "Only guild Master have permission to access this resource.";
   }
@@ -27,7 +32,7 @@ class GuildAuth {
       return next(new ApplicationError(403, message));
     }
   } 
-  async isMasterOrAdmin(req, res, next) {
+  async isMasterOrVice(req, res, next) {
     const { message, member } = await checkAuth(req.session.passport.user, req.params.gid, 1);
     if (message === "OK"){
       req.member = member;
@@ -115,11 +120,11 @@ class GuildController {
     }  
   }
 
-  async addPersonalCabin(req, res, next) {
+  async addCabin(req, res, next) {
     try {
       const description = `In your Personal Cabin, you have the flexibility to select from various task types like 'Ordinary', 'Emergency', and 'Repetitive', tailoring them to your specific needs. Additionally, you can customize the recurrence frequency, whether it's daily, weekly, or monthly, to suit your schedule. Furthermore, tasks can be further broken down into multiple sub-goals, empowering you to gain a comprehensive overview of your pending tasks and strategize your approach for more efficient planning and completion.`;
       const imageUrl = `${process.env.UPLOAD_PATH}uploads/image/guild/Castle.svg`;
-      const newGuild = await Guild.addGuild(req.session.passport.user, 'Personal Cabin', description, imageUrl, true);
+      const newGuild = await Guild.addGuild(req.session.passport.user, 'Personal Cabin', description, null, true);
       if (newGuild['insertId']){
         const newUserGuildRelation = await UserGuildRelation.addUserGuildRelation(req.session.passport.user, newGuild['insertId'], 'Master');
         if (newUserGuildRelation['affectedRows']){
@@ -128,7 +133,9 @@ class GuildController {
               {
               "success": true,  
               "message": "Data build successfully.",
-              "data": "OK"
+              "data": {
+                id: newGuild['insertId']
+              }
           });    
         }  
       }  
@@ -155,15 +162,32 @@ class GuildController {
   }  
 
   async deleteGuild(req, res, next) {
-    try {      
-      const query = await Guild.daleteGuild(req.params.gid);
+    try {
+      const tasks = await Task.getTaskByGuild(req.params.gid);
+      if (tasks && tasks?.length){
+        tasks.map(async(row) =>{
+          const taskDetail = await Task.getTaskDetailById(row.ID);
+          if(taskDetail[0].TYPE === 'Repetitive') await RepetitiveTask.deleteRepetitiveTask(row.ID);
+          await Adventurer.deleteAdventurerByTask(row.ID);
+          const items = await Item.getItem(row.ID);
+          if (items && items?.length) {
+            await Promise.all(items.map( async(i) => {
+              const itemRecord = await ItemRecord.getItemRecordByItemAndUser(i.id, req.session.passport.user);
+              if (itemRecord && itemRecord?.length){
+                await ItemRecord.deleteItemRecordByItem(itemRecord[0].ID);
+              } 
+            }))
+          }
+          await Item.deleteItems(row.ID);
+          await Task.deleteTask(row.ID);
+        })
+      }
+      const query = await Guild.deleteGuild(req.params.gid);
       if (query.affectedRows){
         return res.status(200).json({
             success: true,
-            message: "Data update successfully.",
-            data: {
-                id: req.params.gid
-            }
+            message: "Data delete successfully.",
+            data: "OK"
         });
       }      
     } catch (err) {

@@ -3,7 +3,7 @@ const connection = require('../lib/db');
 class GuildModel {
   static addGuild(LEADER_ID, NAME, DESCRIPTION, IMAGE_URL, REFUGE) {
     return new Promise((resolve, reject) => {
-      connection.query('INSERT INTO guilds(LEADER_ID, NAME, DESCRIPTION, IMAGE_URL, REFUGE) VALUES (?,?,?,?,?)', [LEADER_ID, NAME, DESCRIPTION, IMAGE_URL, REFUGE], function (err, rows) {
+      connection.query('INSERT INTO guilds(LEADER_ID, NAME, DESCRIPTION, IMAGE_URL, CABIN) VALUES (?,?,?,?,?)', [LEADER_ID, NAME, DESCRIPTION, IMAGE_URL, REFUGE], function (err, rows) {
         if (err) {
             reject(err);
         } else {
@@ -73,7 +73,7 @@ class GuildModel {
     });
   }
 
-  static daleteGuild(ID) {
+  static deleteGuild(ID) {
     return new Promise((resolve, reject) => {
       connection.query('UPDATE guilds SET ACTIVE = FALSE WHERE ID = ?', [ID], function (err, rows) {
         if (err) {

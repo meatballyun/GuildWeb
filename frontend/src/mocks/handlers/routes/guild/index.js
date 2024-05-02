@@ -36,7 +36,7 @@ export const guild = [
         success: true,
         message:
           'You have successfully accepted the invitation and joined the guild.',
-        data: getUser({ myMembership: 'Admin', availableUser: [0, 1, 2, 3] }),
+        data: getUser({ myMembership: 'Vice', availableUser: [0, 1, 2, 3] }),
       });
     return HttpResponse.json({
       success: true,

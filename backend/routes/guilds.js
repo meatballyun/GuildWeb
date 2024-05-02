@@ -16,7 +16,7 @@ router.get('/:gid', auth, guildAuth.isMember, guild.getGuildDetail);
 
 router.post('/', auth, guild.addGuild);
 
-router.post('/cabin', auth, guild.addPersonalCabin);
+router.post('/cabin', auth, guild.addCabin);
 
 router.put('/:gid', auth, guildAuth.isMaster, guild.updateGuild);
 
@@ -27,7 +27,7 @@ router.get('/:gid/invitation', auth, guildAuth.isMember, member.replyInvitation)
 
 router.get('/:gid/members', auth, guildAuth.isMember, member.getMembers);
 
-router.post('/:gid/invitation', auth, guildAuth.isMasterOrAdmin, member.sendInvitation, notification.addNotification);
+router.post('/:gid/invitation', auth, guildAuth.isMasterOrVice, member.sendInvitation, notification.addNotification);
 
 router.patch('/:gid/members/:uid', auth, guildAuth.isMember, guildAuth.isMaster, member.updateMember);
 
@@ -44,17 +44,17 @@ router.get('/:gid/tasks/:tid/accepted', auth, guildAuth.isMember, task.acceptTas
 
 router.get('/:gid/tasks/:tid/abandon', auth, guildAuth.isMember, task.abandonTask);
 
-router.post('/:gid/tasks/', auth, guildAuth.isMasterOrAdmin, task.addTask);
+router.post('/:gid/tasks/', auth, guildAuth.isMasterOrVice, task.addTask);
 
-router.put('/:gid/tasks/:tid', auth, guildAuth.isMasterOrAdmin, task.updateTask);
+router.put('/:gid/tasks/:tid', auth, guildAuth.isMasterOrVice, task.updateTask);
 
-router.patch('/:gid/tasks/:tid/complete', auth, guildAuth.isMasterOrAdmin, task.completeTask);
+router.patch('/:gid/tasks/:tid/complete', auth, guildAuth.isMasterOrVice, task.completeTask);
 
-router.patch('/:gid/tasks/:tid/fail', auth, guildAuth.isMasterOrAdmin, task.failTask);
+router.patch('/:gid/tasks/:tid/fail', auth, guildAuth.isMasterOrVice, task.failTask);
 
-router.patch('/:gid/tasks/:tid/cancel', auth, guildAuth.isMasterOrAdmin, task.cancelTask);
+router.patch('/:gid/tasks/:tid/cancel', auth, guildAuth.isMasterOrVice, task.cancelTask);
 
-router.patch('/:gid/tasks/:tid/restore', auth, guildAuth.isMasterOrAdmin, task.restoreTask);
+router.patch('/:gid/tasks/:tid/restore', auth, guildAuth.isMasterOrVice, task.restoreTask);
 
 router.patch('/:gid/tasks/:tid/submit', auth, guildAuth.isMember, task.submitTask);
 

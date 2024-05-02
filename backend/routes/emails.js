@@ -1,15 +1,15 @@
 const express = require("express")
 const router = express.Router();
-const mailUp = new (require('../controllers/email/mailControllers'))();
+const emailUp = new (require('../controllers/email/emailControllers'))();
 
-router.post('/send', mailUp.sendSignUp);
+router.post('/send', emailUp.sendSignUp);
 
-router.post('/resend', mailUp.resendSignUp, mailUp.sendSignUp);
+router.post('/resend', emailUp.resendSignUp, emailUp.sendSignUp);
 
-router.post('/reset-password', mailUp.sendResetPassword);
+router.post('/reset-password', emailUp.sendResetPassword);
 
-router.get('/validation-reset-password', mailUp.validationResetPassword);
+router.get('/validation-reset-password', emailUp.validationResetPassword);
 
-router.get('/validation-signup', mailUp.validationSignUp);
+router.get('/validation-signup', emailUp.validationSignUp);
 
 module.exports = router;

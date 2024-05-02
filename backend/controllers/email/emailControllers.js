@@ -1,9 +1,9 @@
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
-const ConfirmationMail = require('../../models/confirmationMailModel.js');
+const ConfirmationEmail = require('../../models/confirmationEmailModel.js');
 const User = require('../../models/userModel.js');
 const ApplicationError = require('../../utils/error/applicationError.js');
-const { signUpEmail, passwordResetEmail } = require('./emailTemplate');
+const { signUpEmail, passwordResetEmail } = require('./emailTemplate.js');
 
 
 const transporter = nodemailer.createTransport({
@@ -30,12 +30,12 @@ const confirmationCode = (code) => {
 class MailController {
   async sendSignUp(req, res, next) {
     try {
-      const confirmationMail = await ConfirmationMail.getConfirmationMailByUserId(req.body.uid, "SignUp");
+      const confirmationMail = await ConfirmationEmail.getConfirmationEmailsByUserId(req.body.uid, "SignUp");
       if (confirmationMail?.length) {
         return next(new ApplicationError(409, "This email address has already been signup."));
       }
       const CODE = await confirmationCode(req.body.uid + req.body.email + "SignUp");
-      await ConfirmationMail.addConfirmationMail(req.body.uid, "SignUp", CODE);
+      await ConfirmationEmail.addConfirmationEmail(req.body.uid, "SignUp", CODE);
       transporter.sendMail(signUpEmail(req.body.email, req.body.uid, CODE), function(err, info){
         if(err){
           return next(new ApplicationError(404, 'Email address not found.'));
@@ -59,7 +59,7 @@ class MailController {
       if(!user?.length){
         return next(new ApplicationError(404, "The email address you clicked on has not been registered with any account."));
       }
-      const [ query ] = await ConfirmationMail.getConfirmationMailByUserId(user[0].ID, "SignUp");
+      const [ query ] = await ConfirmationEmail.getConfirmationEmailsByUserId(user[0].ID, "SignUp");
       if (!query || query?.length) {
         req.body.uid = user[0].ID;
         next();
@@ -90,14 +90,14 @@ class MailController {
       if(!user?.length){
         return next(new ApplicationError(404, "The email address you clicked on has not been registered with any account."));
       }
-      const [ query ] = await ConfirmationMail.getConfirmationMailByUserId(user[0].ID, "SignUp");
+      const [ query ] = await ConfirmationEmail.getConfirmationEmailsByUserId(user[0].ID, "SignUp");
       if (!query || query?.length) {
         return next(new ApplicationError(404, "The email address has not been verified."));
       } else if(query.STATUS === "Pending"){
         return next(new ApplicationError(403, "The email address has not been verified."));
       } else {
         const CODE = await confirmationCode(user[0].ID + req.body.email + "ForgotPassword");
-        await ConfirmationMail.addConfirmationMail(user[0].ID, "ForgotPassword", CODE);
+        await ConfirmationEmail.addConfirmationEmail(user[0].ID, "ForgotPassword", CODE);
         transporter.sendMail(passwordResetEmail(req.body.email, user[0].ID, CODE), function(err, info){
           if(err){
             return next(new ApplicationError(404, "Email address not found."));
@@ -119,11 +119,11 @@ class MailController {
     
   async validationResetPassword(req, res, next) {
     try {
-        const [confirmationMail] = await ConfirmationMail.getConfirmationMailByUserId(req.query.uid, "ForgotPassword");
+        const [confirmationMail] = await ConfirmationEmail.getConfirmationEmailsByUserId(req.query.uid, "ForgotPassword");
         if(confirmationMail.STATUS === "Confirmed" || ((new Date(confirmationMail.CREATE_TIME).valueOf()+86400000) < new Date().valueOf())){
             return next(new ApplicationError(403, "The verification link has expired."));
         } else if(confirmationMail.CODE === req.query.code){
-            const query = await ConfirmationMail.updateConfirmationMail(req.query.uid, "Confirmed", "ForgotPassword");
+            const query = await ConfirmationEmail.updateConfirmationEmail(req.query.uid, "Confirmed", "ForgotPassword");
             if (query.affectedRows) return res.status(200).json( {
                 success: true,
                 message: "The provided confirmation code is valid and can be used for user validation.",
@@ -139,11 +139,11 @@ class MailController {
   
   async validationSignUp(req, res, next) {
     try {
-        const [confirmationMail] = await ConfirmationMail.getConfirmationMailByUserId(req.query.uid, "SignUp");
+        const [confirmationMail] = await ConfirmationEmail.getConfirmationEmailsByUserId(req.query.uid, "SignUp");
         if(confirmationMail.STATUS === "Confirmed"){
           return next(new ApplicationError(403, "The verification link has expired or the account is already activated."));
         }else if(confirmationMail.CODE === req.query.code){
-          const query = await ConfirmationMail.updateConfirmationMail(req.query.uid, "Confirmed", "SignUp");
+          const query = await ConfirmationEmail.updateConfirmationEmail(req.query.uid, "Confirmed", "SignUp");
           if(query.affectedRows){
               const rows = await User.updateUserStatus("Confirmed", confirmationMail.USER_ID);
               if (rows.affectedRows) return res.status(200).json( {
