@@ -1,16 +1,14 @@
 const connection = require('../lib/db');
 
 class TaskModel {
-  static addTask(CREATOR_ID, GUILD_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, IMAGE_URL, TYPE, MAX_ADVENTURER) {
-    const initiationTime = new Date(INITIATION_TIME);
-    const currentDate = new Date();
+  static addTask(CREATOR_ID, GUILD_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, TYPE, MAX_ADVENTURER) {
+    const currentTime = (new Date()).getTime();
     let STATUS = 'Established';
-    if (currentDate.toLocaleDateString() === initiationTime.toLocaleDateString()){      
+    if (currentTime >= INITIATION_TIME){      
       STATUS = 'In Progress';
     };
-    console.log(currentDate.toLocaleDateString(),initiationTime.toLocaleDateString(),STATUS);
     return new Promise((resolve, reject) => {
-      connection.query('INSERT INTO tasks(CREATOR_ID, GUILD_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, IMAGE_URL, TYPE, MAX_ADVENTURER, STATUS) VALUES (?,?,?,?,?,?,?,?,?,?)', [CREATOR_ID, GUILD_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, IMAGE_URL, TYPE, MAX_ADVENTURER,STATUS], function (err, rows) {
+      connection.query('INSERT INTO tasks(CREATOR_ID, GUILD_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, TYPE, MAX_ADVENTURER, STATUS) VALUES (?,?,?,?,?,?,?,?,?)', [CREATOR_ID, GUILD_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, TYPE, MAX_ADVENTURER, STATUS], function (err, rows) {
         if (err) {
             reject(err);
         } else {
@@ -113,6 +111,30 @@ class TaskModel {
   static deleteTask(TASK_ID) {
     return new Promise((resolve, reject) => {
       connection.query('UPDATE tasks SET ACTIVE = FALSE WHERE ID = ?', [TASK_ID], function (err, rows) {
+        if (err) {
+            reject(err);
+        } else {
+            resolve(rows);
+        }
+      });
+    });
+  }
+
+  static checkInitiationTimeEvent() {
+    return new Promise((resolve, reject) => {      
+      connection.query(`UPDATE tasks SET STATUS = 'In Progress' WHERE INITIATION_TIME < CURRENT_TIMESTAMP AND STATUS = 'Established' AND ACTIVE = TRUE`, function (err, rows) {
+        if (err) {
+            reject(err);
+        } else {
+            resolve(rows);
+        }
+      });
+    });
+  }
+
+  static checkDeadlineEvent() {
+    return new Promise((resolve, reject) => {
+      connection.query(`UPDATE tasks SET STATUS = 'Expired' WHERE DEADLINE < CURRENT_TIMESTAMP AND STATUS = 'In Progress' AND ACTIVE = TRUE`, function (err, rows) {
         if (err) {
             reject(err);
         } else {

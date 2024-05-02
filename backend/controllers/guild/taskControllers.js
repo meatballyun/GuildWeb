@@ -1,9 +1,7 @@
 const Task = require('../../models/taskModel');
-const RepetitiveTask = require('../../models/repetitiveTaskModel');
 const Item = require('../../models/itemModel');
 const ItemRecord = require('../../models/itemRecordModel');
 const Adventurer = require('../../models/adventurerModel');
-const UserGuildRelation = require('../../models/userGuildRelationModel');
 const User = require('../../models/userModel');
 const ApplicationError = require('../../utils/error/applicationError.js');
 const userInfoController = new (require('../user/userinfoControllers.js'))();
@@ -18,15 +16,7 @@ class TaskController {
           const tasks = await Task.getTaskDetailById(i.TASK_ID);
           if (tasks?.length){
             const task = await Promise.all( tasks.filter((row)=>{ return (row.STATUS === 'Established' || row.STATUS === 'In Progress') })
-            .map( async (row) => {
-              let repetitiveTaskType ='None';
-              if (row.TYPE === 'Repetitive'){
-                const repetitiveTasks = await RepetitiveTask.getRepetitiveTask(row.ID);
-                if (repetitiveTasks?.length){
-                  repetitiveTaskType = repetitiveTasks[0].TYPE;
-                }
-              }
-              
+            .map( async (row) => {              
               return {
                 id: row.ID,
                 creator: row.CREATOR_ID,
@@ -34,7 +24,6 @@ class TaskController {
                 type: row.TYPE,
                 status: row.STATUS,
                 accepted: row.ACCEPTED,
-                repetitiveTaskType: repetitiveTaskType,
               }
             }));
             data.push(...task);
@@ -57,15 +46,6 @@ class TaskController {
       let data;
       if (tasks?.length){
         data = await Promise.all( tasks.map( async (row) => {
-          let repetitiveTaskType ='None';
-          let repetitiveTasks, isTemplate = false;
-          if (row.TYPE === 'Repetitive'){
-            repetitiveTasks = await RepetitiveTask.getRepetitiveTask(row.ID);
-            if (repetitiveTasks?.length){
-              repetitiveTaskType = repetitiveTasks[0].TYPE;
-              isTemplate = true;
-            }
-          }
           const query = await Adventurer.getAdventurerByTaskAndUser(row.ID, req.session.passport.user);
           let isAccepted = false;
           if (query?.length) isAccepted = true;
@@ -76,8 +56,6 @@ class TaskController {
             type: row.TYPE,
             status: row.STATUS,
             accepted: row.ACCEPTED,
-            repetitiveTaskType: repetitiveTaskType,
-            isTemplate: isTemplate,
             isAccepted: isAccepted,
           }
         }));
@@ -100,12 +78,7 @@ class TaskController {
       if ( task && task.ID) {
         const [user] = await User.getUserById(task.CREATOR_ID);
         const creator = {id: user.ID, name: user.NAME, imageUrl: user.IMAGE_URL};        
-        let repetitiveTaskType, adventurers, items, isAccepted = false;
-
-        if (task.TYPE === 'Repetitive'){
-          const [ repetitiveTasks ] = await RepetitiveTask.getRepetitiveTask(task.ID);
-          repetitiveTaskType = repetitiveTasks.TYPE;
-        }
+        let adventurers, items, isAccepted = false;
 
         const query = await Adventurer.getAdventurerByTask(req.params.tid);
         adventurers = await Promise.all(query.map(async (row) => {
@@ -146,7 +119,6 @@ class TaskController {
           deadline: task.DEADLINE,
           description: task.DESCRIPTION,
           type: task.TYPE,
-          repetitiveTaskType: repetitiveTaskType,
           maxAdventurer: task.MAX_ADVENTURER ,
           adventurers: adventurers ,
           status: task.STATUS,
@@ -233,34 +205,19 @@ class TaskController {
 
   async addTask(req, res, next) {
     try {
-      const initiationTime = new Date(req.body.initiationTime);
-      const deadline = new Date(req.body.deadline);
-      if (deadline.toLocaleDateString() < initiationTime.toLocaleDateString()){      
+      const initiationTime = (new Date(req.body.initiationTime)).toISOString().replace('T', ' ').replace('Z', '');
+      const deadline = (new Date(req.body.deadline)).toISOString().replace('T', ' ').replace('Z', '');
+      if (initiationTime > deadline){      
         return next(new ApplicationError(409, "Deadline cannot be earlier than initiationTime."));
       };
-      
-      const newTask = await Task.addTask(req.session.passport.user, req.params.gid, req.body.name, req.body.initiationTime, req.body.deadline, req.body.description, req.body.imageUrl, req.body.type, req.body.maxAdventurer );
+      const newTask = await Task.addTask(req.session.passport.user, req.params.gid, req.body.name, initiationTime, deadline, req.body.description, req.body.type, req.body.maxAdventurer );
       if (newTask['insertId']){
-        let unit;
-        if (req.body.type === 'Repetitive'){
-          if (req.body.repetitiveTaskType === 'Daily') { unit = 'DAY';}
-          else if (req.body.repetitiveTaskType === 'Weekly') { unit = 'WEEK';}
-          else if (req.body.repetitiveTaskType === 'Monthly') { unit = 'MONTH';}
-          else return next(new ApplicationError(400, "Error in parameter or missing parameter 'repetitiveTaskType'."));
-          const generrationTime = await RepetitiveTask.DATE_ADD(req.body.initiationTime, 1, unit);
-          const newRepetitiveTask = await RepetitiveTask.addRepetitiveTask(newTask['insertId'] , Object.values(generrationTime[0])[0], req.body.repetitiveTaskType);
-          if (!newRepetitiveTask['affectedRows']) {
-            await Task.deleteTask(newTask['insertId']);
-            return next(new ApplicationError(400, "Error in RepetitiveTask.addRepetitiveTask()"));
-          }
-        }
         if (req.body.items) {
           await Promise.all(req.body.items.map( async(i) => {
             const query = await Item.addItem(newTask['insertId'] , i.content);
             if (!query['insertId']) return next(new ApplicationError(400, "Error in parameter or missing parameter 'CONTENT'."));
           }));
         }
-
         return res.status(200).json(
             {
             success: true,
@@ -269,7 +226,6 @@ class TaskController {
               id: newTask['insertId']
             }
         });
-
       }
     } catch (err) {
       return next(new ApplicationError(400, err));
@@ -287,32 +243,6 @@ class TaskController {
       
       const task = await Task.updateTask(req.params.tid, req.body.name, req.body.initiationTime, req.body.deadline, req.body.description, req.body.imageUrl, req.body.type, req.body.maxAdventurer);
       if (task.affectedRows){
-        if (req.body.type === 'Repetitive'){
-          let unit;
-          if (req.body.repetitiveTaskType === 'Daily') { unit = 'DAY';}
-          else if (req.body.repetitiveTaskType === 'Weekly') { unit = 'WEEK';}
-          else if (req.body.repetitiveTaskType === 'Monthly') { unit = 'MONTH';}
-          else return next(new ApplicationError(400, "Error in parameter or missing parameter 'repetitiveTaskType'."));
-
-          const generrationTime = await RepetitiveTask.DATE_ADD(req.body.initiationTime, 1, unit);
-          const getRepetitiveTask= await RepetitiveTask.getRepetitiveTask(req.params.tid);
-          if (!getRepetitiveTask?.length){
-            const newRepetitiveTask = await RepetitiveTask.addRepetitiveTask(req.params.tid, Object.values(generrationTime[0])[0], req.body.repetitiveTaskType);
-            if (!newRepetitiveTask['insertId']) return next(new ApplicationError(400, "Error in Task.addRepetitiveTask()"));
-          } else{
-            const repetitiveTask = await RepetitiveTask.updateRepetitiveTask(req.params.tid , Object.values(generrationTime[0])[0], req.body.repetitiveTaskType);
-            if (!repetitiveTask.affectedRows) 
-            return next(new ApplicationError(400, "Error in Task.updateRepetitiveTask()."));
-          }
-
-        } else {
-          const getRepetitiveTask= await RepetitiveTask.getRepetitiveTask(req.params.tid);
-          if (getRepetitiveTask?.length) {
-            await RepetitiveTask.deleteRepetitiveTask(req.params.tid)
-          }
-        }
-
-
         if (req.body.items) {
           await Promise.all((req.body.items).map( async(i) => {
             if (i.content){
@@ -421,7 +351,6 @@ class TaskController {
           } 
         }))
       }
-      
       const cancelTask = await Task.updateTaskStatus(req.params.tid, "Cancelled");
       if (!cancelTask.affectedRows) return next(new ApplicationError(400, "Error in Task.cancelTask()."));
       return res.status(200).json({
@@ -509,7 +438,7 @@ class TaskController {
     try {
       const taskDetail = await Task.getTaskDetailById(req.params.tid);
       if (!taskDetail?.length){
-        return next(ApplicationError(404, "The task cannot be found in this guild."));
+        return next(new ApplicationError(404, "The task cannot be found in this guild."));
       } else if (req.member[0].MEMBERSHIP === "Vice" && req.session.passport.user !== taskDetail[0].CREATOR_ID){
         return next(new ApplicationError(403));
       }
@@ -524,8 +453,8 @@ class TaskController {
             await ItemRecord.deleteItemRecordByItem(itemRecord[0].ID);
           } 
         }))
+        await Item.deleteItems(req.params.tid);
       }
-      await Item.deleteItems(req.params.tid);
       
       const deleteTask = await Task.deleteTask(req.params.tid);
       if (deleteTask.affectedRows){
@@ -541,6 +470,11 @@ class TaskController {
     } catch (err) {
       return next(new ApplicationError(400, err));
     }
+  }
+
+  async autoUpdateStatus() {
+    await Task.checkInitiationTimeEvent().catch(()=>console.log('checkInitiationTimeEvent error'));
+    await Task.checkDeadlineEvent().catch(()=>console.log('checkDeadlineEvent error'));
   }
 }
 

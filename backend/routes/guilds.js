@@ -1,5 +1,6 @@
 const express = require("express")
 const router = express.Router();
+const taskTemplate = new (require('../controllers/guild/taskTemplateControllers'))();
 const passport = require('../verification/passport');
 const auth = passport.authenticate('jwt', { session: true });
 const { GuildAuth, GuildController, UserGuildRelationController } = require('../controllers/guild/guildControllers');
@@ -8,6 +9,7 @@ const guildAuth = new GuildAuth();
 const member = new UserGuildRelationController();
 const notification = new (require('../controllers/notification/notificationControllers'))();
 const task = new (require('../controllers/guild/taskControllers'))();
+
 
 // Guild
 router.get('/', auth, guild.getGuilds);
@@ -33,8 +35,19 @@ router.patch('/:gid/members/:uid', auth, guildAuth.isMember, guildAuth.isMaster,
 
 router.delete('/:gid/members/:uid', auth, guildAuth.isMember, member.deleteMember);
 
+// TaskTemplate
+router.get('/:gid/task_templates', auth, guildAuth.isMasterOrVice, taskTemplate.getTaskTemplates);
+
+router.get('/:gid/task_templates/:ttid', auth, guildAuth.isMasterOrVice, taskTemplate.getTaskTemplateDetail);
+
+router.post('/:gid/task_templates', auth, guildAuth.isMasterOrVice, taskTemplate.addTaskTemplate);
+
+router.put('/:gid/task_templates/:ttid', auth, guildAuth.isMasterOrVice, taskTemplate.updateTaskTemplate);
+
+router.delete('/:gid/task_templates/:ttid', auth, guildAuth.isMasterOrVice, taskTemplate.deleteTaskTemplate);
+
 // Task
-router.get('/all/tasks', auth, task.getAllTasks);
+router.get('/all/tasks', auth, guildAuth.isMasterOrVice, task.getAllTasks);
 
 router.get('/:gid/tasks', auth, task.getTasks);
 
@@ -61,5 +74,11 @@ router.patch('/:gid/tasks/:tid/submit', auth, guildAuth.isMember, task.submitTas
 router.patch('/:gid/tasks/checkbox', auth, guildAuth.isMember, task.checkbox);
 
 router.delete('/:gid/tasks/:tid', auth, guildAuth.isMember, task.deleteTask);
+
+
+taskTemplate.autoBuildTask();
+const interval = 1 * 10 * 1000;
+setInterval(taskTemplate.autoBuildTask, interval);
+setInterval(task.autoUpdateStatus, interval);
 
 module.exports = router;
