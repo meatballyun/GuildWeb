@@ -87,32 +87,32 @@ Install frontend dependencies:
 2. Set environment variables: Create a `.env` file in the root of the backend directory and add the following variables:
     ```.ENV
     # Environment
-    NODE_ENV=development
+    NODE_ENV = development
 
     # Database
-    DB_HOST=localhost
-    DB_NAME=guildweb
-    DB_USER=root
-    DB_PASS=your_mysql_root_password
+    DB_HOST = localhost
+    DB_NAME = guildweb
+    DB_USER = root
+    DB_PASS = your_mysql_root_password
 
     # Session
-    SESSION_SECRET=your_session_secret
+    SESSION_SECRET = your_session_secret
 
     # JWT
-    JWT_SECRET=your_jwt_secret
+    JWT_SECRET = your_jwt_secret
 
     # Mail
-    MAIL_USER=your_email_username
-    MAIL_PASS=your_email_password
+    MAIL_USER = your_email_username
+    MAIL_PASS = your_email_password
 
     # Server
     PORT=3010
 
     # URL
-    FE_URL=http://localhost:3000
+    FE_URL = http://localhost:3000
 
     # Path
-    UPLOAD_PATH=uploads
+    UPLOAD_PATH = uploads
     ```
 
     Ensure you replace `your_mysql_root_password` with your MySQL root password and other placeholders with appropriate values relevant to your setup.
