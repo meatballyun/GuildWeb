@@ -86,7 +86,7 @@ const validateObject = {
     ({ value }) => {
       if (!value?.length || !value.filter(({ amount }) => amount !== -1).length)
         throw Error('Requires at least one ingredient');
-      if (value.some(({ amount }) => amount <= 0))
+      if (value.some(({ amount }) => amount === 0))
         throw Error('all ingredient amount should bigger than 0');
     },
   ],

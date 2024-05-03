@@ -1,10 +1,10 @@
 .auth-layout-container {
-  @apply text-primary-600 flex justify-center items-center h-screen;
-  background: center / cover url('../../../assets/png/background.png');
+  @apply flex h-screen items-center justify-center text-primary-600;
+  background: bottom / cover url('../../../assets/png/background.png');
 }
 
 .auth-layout-container .panel {
-  @apply px-8 pb-8 flex flex-col justify-center items-center;
+  @apply flex flex-col items-center justify-center px-8 pb-8;
   width: 600px;
   height: 720px;
   background: center / contain no-repeat url('../../../assets/png/panel.png');

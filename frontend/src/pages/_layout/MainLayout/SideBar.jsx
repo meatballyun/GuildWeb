@@ -29,6 +29,12 @@ const BASIC_SIDEBAR_LIST = [
     icon: 'restaurant',
     children: [
       {
+        label: '• overview',
+        key: 'overview',
+        route: '/foods',
+        name: 'overview',
+      },
+      {
         label: '• records',
         key: 'records',
         route: '/foods/records',

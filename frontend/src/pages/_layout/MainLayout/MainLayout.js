@@ -9,6 +9,7 @@ import {
   useState,
 } from 'react';
 import { api } from '../../../api';
+import { Footer } from '../components';
 
 const guildContext = createContext({
   guildList: [{ id: 3, imageUrl: '', name: 'rex_guild_3' }],
@@ -86,8 +87,11 @@ export const MainLayout = () => {
         <SideBarProvider>
           <div className="main-layout-container">
             <SideBar />
-            <div className="content">
-              <Outlet />
+            <div className="flex h-full w-0 flex-1 flex-col">
+              <div className="content">
+                <Outlet />
+                <Footer />
+              </div>
             </div>
           </div>
         </SideBarProvider>

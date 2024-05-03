@@ -4,6 +4,7 @@ import { COLORS } from '../../../styles';
 import { Link } from 'react-router-dom';
 
 export const ActionsButtons = ({
+  isCabin,
   editMode,
   guildId,
   myMemberShip,
@@ -38,25 +39,16 @@ export const ActionsButtons = ({
         </Button>
       </>
     );
-  if (isGuildMaster) {
-    return (
-      <Link to="edit">
-        <Button type="hollow" prefix={<MaterialSymbol icon="settings" />}>
-          Manage
-        </Button>
-      </Link>
-    );
-  }
   return (
     <>
-      {isGuildMaster && (
+      {!isCabin && isGuildMaster && (
         <Link to="edit">
           <Button type="hollow" prefix={<MaterialSymbol icon="settings" />}>
             Manage
           </Button>
         </Link>
       )}
-      {!isGuildMaster && (
+      {!isCabin && !isGuildMaster && (
         <div className="border-r-2 border-primary-300 pr-2">
           <Button
             className="h-full"

@@ -4,10 +4,12 @@ import { FoodListPage } from './FoodListPage';
 import { IngredientPage } from './IngredientPage';
 import food from './route';
 import { RecipePage } from './RecipePage';
+import { OverviewPage } from './OverviewPage';
 
 const FoodRoute = () => {
   return (
     <Routes>
+      <Route path={food.base} element={<OverviewPage />} />
       <Route path={food.records} element={<RecordPage />} />
       <Route
         path={food.ingredients.base}

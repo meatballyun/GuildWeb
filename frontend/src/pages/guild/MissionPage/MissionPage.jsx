@@ -220,9 +220,9 @@ export const MissionPage = ({ manageMode = false }) => {
     setSelectedDetail(data);
   };
 
+  const myMemberShip = getMyMemberShipInGuild(+params.gid);
   const enableManage =
-    !manageMode &&
-    ['Admin', 'Master'].includes(getMyMemberShipInGuild(params.id));
+    !manageMode && ['Admin', 'Master'].includes(myMemberShip);
 
   return (
     <>
