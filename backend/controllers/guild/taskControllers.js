@@ -6,6 +6,7 @@ const User = require('../../models/userModel');
 const ApplicationError = require('../../utils/error/applicationError.js');
 const userInfoController = new (require('../user/userinfoControllers.js'))();
 const updateUserExp = userInfoController.updateUserExp;
+
 class TaskController {
   async getAllTasks(req, res, next) {
     try {

@@ -75,10 +75,4 @@ router.patch('/:gid/tasks/checkbox', auth, guildAuth.isMember, task.checkbox);
 
 router.delete('/:gid/tasks/:tid', auth, guildAuth.isMember, task.deleteTask);
 
-
-taskTemplate.autoBuildTask();
-const interval = 1 * 10 * 1000;
-setInterval(taskTemplate.autoBuildTask, interval);
-setInterval(task.autoUpdateStatus, interval);
-
 module.exports = router;
