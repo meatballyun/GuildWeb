@@ -1,6 +1,6 @@
 # GuildWeb
 
-*Copyright © 2024 Yun-T.Z.*
+*Copyright © 2024 Yun-T.Z. All rights reserved*
 
 ## Introduction
 
