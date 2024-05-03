@@ -51,7 +51,7 @@ class AdventurerModel {
 
   static updateAdventurerByTaskAndUser(TASK_ID, USER_ID, STATUS, COMPLETED_TIME) {
     return new Promise((resolve, reject) => {
-      connection.query(`UPDATE adventurers SET STATUS = ? COMPLETED_TIME = ? WHERE TASK_ID = ? AND USER_ID = ?`, [STATUS, COMPLETED_TIME, TASK_ID, USER_ID], function (err, rows) {
+      connection.query(`UPDATE adventurers SET STATUS = ?, COMPLETED_TIME = ? WHERE TASK_ID = ? AND USER_ID = ?`, [STATUS, COMPLETED_TIME, TASK_ID, USER_ID], function (err, rows) {
         if (err) {
             reject(err);
         } else {

@@ -54,7 +54,7 @@ class TaskModel {
     });
   }
 
-  static updateTask(TASK_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, IMAGE_URL, TYPE, MAX_ADVENTURER) {
+  static updateTask(TASK_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, TYPE, MAX_ADVENTURER) {
     const initiationTime = new Date(INITIATION_TIME);
     const currentDate = new Date();
     let STATUS = 'Established';
@@ -62,7 +62,7 @@ class TaskModel {
       STATUS = 'In Progress';
     };
     return new Promise((resolve, reject) => {
-      connection.query('UPDATE tasks SET NAME = ?, INITIATION_TIME = ?, DEADLINE = ?, DESCRIPTION = ?, IMAGE_URL = ?, TYPE = ?, MAX_ADVENTURER = ?, STATUS = ? WHERE ID = ?', [NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, IMAGE_URL, TYPE, MAX_ADVENTURER, TASK_ID, STATUS], function (err, rows) {
+      connection.query('UPDATE tasks SET NAME = ?, INITIATION_TIME = ?, DEADLINE = ?, DESCRIPTION = ?, TYPE = ?, MAX_ADVENTURER = ?, STATUS = ? WHERE ID = ?', [NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, TYPE, MAX_ADVENTURER, STATUS, TASK_ID], function (err, rows) {
         if (err) {
             reject(err);
         } else {

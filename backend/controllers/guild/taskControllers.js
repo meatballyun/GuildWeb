@@ -242,7 +242,7 @@ class TaskController {
         return next(new ApplicationError(403, "Only guild Master have permission to access this resource."));
       }
       
-      const task = await Task.updateTask(req.params.tid, req.body.name, req.body.initiationTime, req.body.deadline, req.body.description, req.body.imageUrl, req.body.type, req.body.maxAdventurer);
+      const task = await Task.updateTask(req.params.tid, req.body.name, req.body.initiationTime, req.body.deadline, req.body.description, req.body.type, req.body.maxAdventurer);
       if (task.affectedRows){
         if (req.body.items) {
           await Promise.all((req.body.items).map( async(i) => {

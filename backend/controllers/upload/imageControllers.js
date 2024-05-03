@@ -1,6 +1,7 @@
 const fs = require('fs');
 const ApplicationError = require('../../utils/error/applicationError.js');
 const path = require('path');
+const UPLOAD_PATH = process.env.NODE_ENV === 'development' ? process.env.UPLOAD_PATH : process.env.API_SERVICE_URL;
 
 class ImageController {
     async saveImage(req, res, next) {
@@ -30,13 +31,20 @@ class ImageController {
             }
 
             const filename = `${Date.now()}.${imageFormat}`;
-            const path = `uploads/image/${req.body.type}/${filename}`;
-            await fs.writeFile(`public/${path}`, imageUrl.split(';base64,').pop(), { encoding: 'base64' },(err)=>{console.log(err)});
+            const path = `/uploads/image/${req.body.type}/${filename}`;
+            await fs.writeFile(`public${path}`, imageUrl.split(';base64,').pop(), { encoding: 'base64' },(err)=>{console.log(err)});
+            await fs.chmod(`public${path}`, 0o644, (err) => {
+                if (err) {
+                    console.error('Failed to set file permissions:', err);
+                } else {
+                    console.log('File permissions set successfully');
+                }
+            });
             return res.status(200).json({
                 success: true,
                 message: "Image uploaded successfully.",
                 data: { 
-                    imageUrl: `${process.env.UPLOAD_PATH}${path}`,
+                    imageUrl: `${UPLOAD_PATH}${path}`,
                 },
             });
         } catch (err) {
