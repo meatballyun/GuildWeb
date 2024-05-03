@@ -120,9 +120,9 @@ export const UsersPage = ({ friendsMode = false }) => {
           if (!friendList?.length)
             return (
               <div className="text-center text-3xl text-primary-300">
-                尼沒有朋友ㄟ QvQ
+                You have no friends in your list yet. :(
                 <br />
-                按右上角ㄉ按鈕來加加新朋朋吧
+                Hurry up and invite your friends to join!
               </div>
             );
           return (

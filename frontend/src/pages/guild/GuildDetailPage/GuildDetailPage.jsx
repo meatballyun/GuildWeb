@@ -78,7 +78,7 @@ export const GuildDetailPage = ({ editMode }) => {
       params.id === 'new' ? api.guild.postGuilds : api.guild.putGuilds;
     const res = await apiUtil({
       body: { ...formData },
-      pathParams: { id: params.id },
+      pathParams: { gid: params.id },
     });
     if (res.status === 200) {
       const json = await res.json();

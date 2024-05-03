@@ -87,7 +87,7 @@ export const MainLayout = () => {
         <SideBarProvider>
           <div className="main-layout-container">
             <SideBar />
-            <div className="flex h-full w-full flex-1 flex-col">
+            <div className="flex h-full w-0 flex-1 flex-col">
               <div className="content">
                 <Outlet />
                 <Footer />

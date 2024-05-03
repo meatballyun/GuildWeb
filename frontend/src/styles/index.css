@@ -31,4 +31,7 @@ code {
   &:hover::-webkit-scrollbar-thumb {
     @apply bg-primary-600/50;
   }
+  &.no-scrollbar::-webkit-scrollbar {
+    @apply !h-0 !w-0;
+  }
 }

@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Button, useNotification } from '../../components';
+import { Button, MaterialSymbol, useNotification } from '../../components';
 import { PaperLayout } from '../_layout/components';
 import { useSideBar } from '../_layout/MainLayout/SideBar';
 import { useGuild } from '../_layout/MainLayout/MainLayout';
@@ -96,13 +96,33 @@ export const OverviewPage = () => {
       </PaperLayout.Content>
       <div className="m-auto mt-4">
         <Dom className="max-w-[240px]" />
-        {hasGuild ? (
-          <Link to="new/edit">
-            <Button>add guild</Button>
-          </Link>
-        ) : (
-          <Button onClick={handleAddCabin}>add guild</Button>
-        )}
+        <div className="flex gap-2">
+          {!hasGuild && (
+            <Button
+              onClick={handleAddCabin}
+              prefix={<MaterialSymbol icon="roofing" />}
+            >
+              Create My Cabin
+            </Button>
+          )}
+          {hasGuild && (
+            <>
+              <Link to={`${guildList[0].id}`}>
+                <Button
+                  type="hollow"
+                  prefix={<MaterialSymbol icon="roofing" />}
+                >
+                  Enter My Cabin
+                </Button>
+              </Link>
+              <Link to="new/edit">
+                <Button prefix={<MaterialSymbol icon="add_circle" />}>
+                  Create New Guild
+                </Button>
+              </Link>
+            </>
+          )}
+        </div>
       </div>
     </PaperLayout>
   );

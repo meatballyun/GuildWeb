@@ -96,14 +96,14 @@ export const Login = () => {
         </Button>
       </Paper>
       <EmailModal
-        key={modalStatus.isOpen ?? 'woo'}
+        key={modalStatus.isOpen ? 'email' : 'emailClose'}
         header="This Email is registered but not verified yet"
         email={form.formData.email}
         onClose={() => setModalStatus({ isOpen: false })}
         isOpen={modalStatus.isOpen === 'email'}
       />
       <ForgotPasswordModal
-        key={modalStatus.isOpen ?? 'woo'}
+        key={modalStatus.isOpen ? 'forgotPassword' : 'forgotPasswordClose'}
         onClose={() => setModalStatus({ isOpen: false })}
         isOpen={modalStatus.isOpen === 'forgotPassword'}
       />
