@@ -21,7 +21,7 @@ This is a platform designed to address the need for recording various aspects of
 
 
 ## Overview
-* Click here to navigate to [GuildWeb](http://guild.yun-tz.com).
+* Click here to navigate to [GuildWeb](http://guildweb.yun-tz.com).
 * Click here to navigate to [Documentation](https://hackmd.io/@rabbit-house/S1bMt8ceA).
 
 ### Backend
