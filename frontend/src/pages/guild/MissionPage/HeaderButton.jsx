@@ -1,0 +1,70 @@
+import { Button, CheckBox } from '../../../components';
+
+export const HeaderButton = ({ value = 'all', onChange }) => {
+  return (
+    <div className="flex items-center gap-2">
+      <Button
+        onClick={() => onChange?.('all')}
+        type={value === 'all' || value === 'canAccepted' ? 'solid' : 'hollow'}
+      >
+        Mission List
+      </Button>
+      {(value === 'all' || value === 'canAccepted') && (
+        <div
+          className="flex items-center gap-1 text-paragraph-p3 text-primary-500"
+          onClick={() => onChange(value === 'all' ? 'canAccepted' : 'all')}
+        >
+          <CheckBox value={value === 'canAccepted'} />
+          only show can accepted missions
+        </div>
+      )}
+      <Button
+        onClick={() => onChange?.('inProgress')}
+        type={value === 'inProgress' ? 'solid' : 'hollow'}
+      >
+        In Progress
+      </Button>
+      <Button
+        onClick={() => onChange?.('completed')}
+        type={value === 'completed' ? 'solid' : 'hollow'}
+      >
+        Completed
+      </Button>
+      <Button
+        onClick={() => onChange?.('expired')}
+        type={value === 'expired' ? 'solid' : 'hollow'}
+      >
+        Expired
+      </Button>
+    </div>
+  );
+};
+
+export const ManageModeHeaderButton = ({
+  filter = 'all',
+  showClosed,
+  onChange,
+}) => {
+  return (
+    <div className="flex items-center gap-2">
+      <Button
+        onClick={() => onChange?.({ filter: 'all' })}
+        type={filter === 'all' ? 'solid' : 'hollow'}
+      >
+        Mission List
+      </Button>
+      <Button
+        onClick={() => onChange?.({ filter: 'mine' })}
+        type={filter === 'mine' ? 'solid' : 'hollow'}
+      >
+        Mine
+      </Button>
+      <Button
+        onClick={() => onChange?.({ filter: 'cancel' })}
+        type={filter === 'cancel' ? 'solid' : 'hollow'}
+      >
+        Cancelled
+      </Button>
+    </div>
+  );
+};

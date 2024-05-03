@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
@@ -13,4 +17,21 @@ code {
 * {
   box-sizing: border-box;
   font-family: 'Jockey One', sans-serif;
+
+  &::-webkit-scrollbar {
+    @apply w-2;
+  }
+  &::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-transparent;
+    transition: all ease 0.5s;
+  }
+  &:hover::-webkit-scrollbar-thumb {
+    @apply bg-primary-600/50;
+  }
+  &.no-scrollbar::-webkit-scrollbar {
+    @apply !h-0 !w-0;
+  }
 }

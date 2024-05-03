@@ -1,11 +1,10 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node ./bin/www"
+    "dev": "nodemon ./bin/www"
   },
   "author": "",
   "license": "ISC",
@@ -17,18 +16,29 @@
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
+    "dotenv": "^16.4.5",
     "express": "^4.18.2",
     "express-flash": "^0.0.2",
     "express-session": "^1.17.3",
     "hot-update": "^0.0.4",
+    "http-proxy-middleware": "^3.0.0",
     "https": "^1.0.0",
     "js-sha256": "^0.10.1",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "mysql": "^2.18.1",
+    "nodemailer": "^6.9.13",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0"
+  },
+  "directories": {
+    "lib": "lib"
+  },
+  "description": "",
+  "devDependencies": {
+    "nodemon": "^3.1.0",
+    "prettier": "^3.2.5"
   }
 }

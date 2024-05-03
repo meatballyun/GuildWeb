@@ -1,9 +1,10 @@
+const ApplicationError = require('../utils/error/applicationError.js');
+
 const authenticated = (req, res, next) => {
     if (req.isAuthenticated()) {
-        console.log('authenticated');
         return next();
     } else {
-        return res.status(401).json({ data: 'Unauthorized' });
+        return next(new ApplicationError(401, "Unauthorized: You do not have permission to access."));
     }
 };
 

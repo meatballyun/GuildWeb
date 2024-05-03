@@ -1,72 +1,68 @@
-const passport = require('passport')
+const passport = require('passport');
+const bcrypt = require('bcrypt');
 const LocalStrategy = require('passport-local').Strategy;
 const JwtStrategy = require('passport-jwt').Strategy;
-const connection = require('../lib/db');
-const bcrypt = require('bcrypt');
+const ExtractJwt = require('passport-jwt').ExtractJwt;
+const UserModel = require('../models/userModel.js');
+const ApplicationError = require('../utils/error/applicationError.js');
 
 passport.serializeUser(function (user, done) {
     console.log('serializeUser');
-    done(null, user);
+    done(null, user.ID);
 })
 
-passport.deserializeUser(function (id, done) {
+passport.deserializeUser(async function (id, done) {
     console.log('deserializeUser');
-    const query = 'SELECT * FROM Users WHERE id = ?';
-    connection.query(query, [id], function (err, rows) {
-        if (err) {
-            return done(err, null);
+    const query = await UserModel.getUserById(id);
+    if (query?.length) {
+        return done(null, false, { message: 'Wrong deserializeUser' });
+    }
+    done(null, JSON.parse(JSON.stringify(query[0])));
+})
+
+const jwtStrategy = new JwtStrategy({
+    secretOrKey: process.env.JWT_SECRET,
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
+}, async function (payload, done) {
+    const query = await UserModel.getUserByEmail(payload.email);
+    if (!query || query.length === 0){
+        return done(null, false, { message: 'Wrong JWT Token' });
+    } else if (payload.email !== query[0].EMAIL){
+        return done(null, false, { message: 'Wrong JWT Token' });
+    } else {
+        const exp = payload.exp
+        const iat = payload.iat
+        const curr = Math.floor(Date.now()/1000);
+        if (curr > exp || curr < iat) {
+            return done(null, false, 'Token Expired')
         }
-        done(null, JSON.parse(JSON.stringify(rows[0])));
-    });
+        return done(null, query[0])
+    }
 })
 
 const loginStrategy = new LocalStrategy({
     usernameField: 'email',
     passwordField: 'password',
     passReqToCallback: true
-}, function (req, email, password, done) {
-    console.log('============\n', email, password, '\n------------');
-    connection.query('SELECT * FROM Users WHERE email = ?', email, function (err, user, fields) {
-        if (err) { return done(err); }
-        if (!user || user.length === 0) {
-            return done(null, false, { msg: 'User not found.' })
+}, async function (req, email, password, done) {
+    const query = await UserModel.getUserByEmail(email);
+    if (!query || query.length === 0){
+        return done(null, false, 'Email not found.')
+    } else {
+        if (query[0]) {
+            bcrypt.compare(password, query[0].PASSWORD, (err, result) => {
+                if (err) {
+                    return done(null, false, err)
+                } else if (result) {
+                    return done(null, JSON.parse(JSON.stringify(query[0])));
+                } else {
+                    return done(null, false, 'Invalid password');
+                }
+            });
+        } else {
+            return done(null, false, 'Invalid user object');
         }
-        else {
-            if (user[0].password) {
-                bcrypt.compare(password, user[0].password, (err, isMatch) => {
-                    if (isMatch) {
-                        return done(null, JSON.parse(JSON.stringify(user[0])));
-                    } else {
-                        return done(null, false, { msg: 'Invalid password' });
-                    }
-                });
-            } else {
-                return done(null, false, { msg: 'Invalid user object' });
-            }
-        }
-    });
-})
-
-const jwtStrategy = new JwtStrategy({
-    secretOrKey: jwtConfig.secret,
-    jwtFromRequest: ExtractJwt.fromExtractors([
-        ExtractJwt.versionOneCompatibility({ authScheme: 'Bearer' }),
-        ExtractJwt.fromAuthHeader()
-    ])
-}, function (payload, done) {
-    connection.query('SELECT * FROM Users WHERE email = ?', payload.email, function (err, user, fields) {
-        if (err) return done(err)
-        if (!user) return done(null, false, { message: 'Wrong JWT Token' })
-        if (payload.name !== user.name) return done(null, false, { message: 'Wrong JWT Token' })
-
-        const exp = payload.exp
-        const iat = payload.iat
-        const curr = Math.floor(Date.now() / 1000);
-        if (curr > exp || curr < iat) {
-            return done(null, false, 'Token Expired')
-        }
-        return done(null, user)
-    })
+    }
 })
 
 passport.use('login', loginStrategy);

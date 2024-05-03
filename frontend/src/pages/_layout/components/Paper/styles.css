@@ -1,0 +1,17 @@
+@tailwind components;
+
+@layer components {
+  .layout-paper {
+    @apply h-full w-full px-[4vw] py-[5vh];
+    background: center / 100% 100% no-repeat url('./panel.png');
+  }
+  .layout-paper.layout-paper--row {
+    background-image: url('./panel-row.png');
+  }
+  .block-container {
+    @apply flex flex-col overflow-hidden rounded-md border-2 border-primary-600 p-[2px];
+    & .block-content {
+      @apply flex h-full overflow-auto p-2;
+    }
+  }
+}

@@ -1,10 +1,20 @@
 import { classNames } from '../../utils';
 import './styles.css';
 
+/**
+ *
+ * @param {"sm"| "md"| "lg"} size
+ * @param {"sm"| "md"| "lg"} type
+ * @returns
+ */
 export const Button = ({
   className,
+  prefix,
+  suffix,
   children,
-  size,
+  // sm, md, lg
+  size = 'sm',
+  // text, solid, solid
   type = 'solid',
   ...props
 }) => {
@@ -16,7 +26,9 @@ export const Button = ({
       )}
       {...props}
     >
+      {prefix}
       {children}
+      {suffix}
     </button>
   );
 };

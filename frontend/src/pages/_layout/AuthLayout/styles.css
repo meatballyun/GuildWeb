@@ -1,0 +1,21 @@
+.auth-layout-container {
+  @apply flex h-screen items-center justify-center text-primary-600;
+  background: bottom / cover url('../../../assets/png/background.png');
+}
+
+.auth-layout-container .panel {
+  @apply flex flex-col items-center justify-center px-8 pb-8;
+  width: 600px;
+  height: 720px;
+  background: center / contain no-repeat url('../../../assets/png/panel.png');
+  animation: shiny 2s alternate infinite linear;
+}
+
+@keyframes shiny {
+  from {
+    filter: drop-shadow(0 0 0 rgba(255, 228, 175, 0.25));
+  }
+  to {
+    filter: drop-shadow(0 0 48px rgba(255, 228, 175, 0.25));
+  }
+}
