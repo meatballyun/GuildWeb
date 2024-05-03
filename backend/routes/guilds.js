@@ -77,7 +77,7 @@ router.delete('/:gid/tasks/:tid', auth, guildAuth.isMember, task.deleteTask);
 
 
 taskTemplate.autoBuildTask();
-const interval = 1 * 10 * 1000;
+const interval = 5 * 60 * 1000;
 setInterval(taskTemplate.autoBuildTask, interval);
 setInterval(task.autoUpdateStatus, interval);
 
