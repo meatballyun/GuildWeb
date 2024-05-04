@@ -34,4 +34,7 @@ code {
   &.no-scrollbar::-webkit-scrollbar {
     @apply !h-0 !w-0;
   }
+  &.small-scrollbar::-webkit-scrollbar {
+    @apply !h-1 !w-1;
+  }
 }

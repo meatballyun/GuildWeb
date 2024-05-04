@@ -177,3 +177,29 @@ export const getAllTasks = () =>
     url: `${BASE_GUILD_URL}/all/tasks`,
     method: 'GET',
   });
+
+export const getTemplate = ({ pathParams = { gid: -1 } }) =>
+  fetchJson({
+    url: `${BASE_GUILD_URL}/${pathParams.gid}/task_templates`,
+    method: 'GET',
+  });
+
+export const getTemplateDetail = ({ pathParams = { gid: -1, ttid: -1 } }) =>
+  fetchJson({
+    url: `${BASE_GUILD_URL}/${pathParams.gid}/task_templates/${pathParams.ttid}`,
+    method: 'GET',
+  });
+
+export const postTemplate = ({ pathParams = { gid: -1, ttid: -1 }, body }) =>
+  fetchJson({
+    url: `${BASE_GUILD_URL}/${pathParams.gid}/task_templates`,
+    method: 'POST',
+    body,
+  });
+
+export const putTemplate = ({ pathParams = { gid: -1, ttid: -1 }, body }) =>
+  fetchJson({
+    url: `${BASE_GUILD_URL}/${pathParams.gid}/task_templates/${pathParams.ttid}`,
+    method: 'PUT',
+    body,
+  });
