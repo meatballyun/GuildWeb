@@ -121,6 +121,9 @@ class RecipeController {
 
     async updateRecipe(req, res, next) {
         try {
+            const [recipe] = await Recipe.getRecipesById(req.params.id);
+            if (recipe.CREATOR === req.session.passport.user) return next(new ApplicationError(409, "Your are not creator of this recipe."));
+            
             const query = await Recipe.updateRecipe(req.params.id, req.body.name, req.body.description, req.body.carbs, req.body.pro, req.body.fats, req.body.kcal, req.body.unit, req.body.imageUrl, req.body.published);
             if (!query.affectedRows) return next(new ApplicationError(404));
 
@@ -158,6 +161,9 @@ class RecipeController {
 
     async deleteRecipe(req, res, next) {
         try {
+            const [recipe] = await Recipe.getRecipesById(req.params.id);
+            if (recipe.CREATOR === req.session.passport.user) return next(new ApplicationError(409, "Your are not creator of this recipe."));
+
             const query = await Recipe.deleteRecipesById(req.params.id);
             if (query.changedRows) {
                 await RecipeIngredientRelation.deleteRecipeIngredientRelationByRecipe(req.params.id);

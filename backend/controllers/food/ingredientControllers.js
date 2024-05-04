@@ -100,6 +100,9 @@ class IngredientController {
                 }
             }
 
+            const [ingredient] = await Ingredient.getIngredientsById(req.params.id);
+            if (ingredient.CREATOR === req.session.passport.user) return next(new ApplicationError(409, "Your are not creator of this ingredient."));
+
             const query = await Ingredient.updateIngredient(req.params.id, req.body.name, req.body.description, req.body.carbs, req.body.pro, req.body.fats, req.body.kcal, req.body.unit, req.body.imageUrl, req.body.published);
             if (query.affectedRows) {
                 return res.status(200).json({
@@ -123,6 +126,9 @@ class IngredientController {
             if(relations?.length){
                 return next(new ApplicationError(409));
             }
+
+            const [ingredient] = await Ingredient.getIngredientsById(req.params.id);
+            if (ingredient.CREATOR === req.session.passport.user) return next(new ApplicationError(409, "Your are not creator of this ingredient."));
 
             const query = await Ingredient.deleteIngredientsById(req.params.id);
             if (query.changedRows) {
