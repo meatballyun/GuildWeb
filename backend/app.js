@@ -1,5 +1,5 @@
 const express = require('express');
-const {createProxyMiddleware} = require('http-proxy-middleware');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 const logger = require('morgan');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -18,18 +18,22 @@ const app = express();
 //         [`^/api`]: '',
 //     },
 // }));
+
+const ONE_DAY_MILLIE_SECEND = 24 * 60 * 60 * 1000;
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(logger('dev'));
-app.use(cors({ origin:"*" }));
+app.use(cors({ origin: '*' }));
 app.use(bodyParser.json({ limit: '5mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(session({
+app.use(
+  session({
     secret: process.env.SESSION_SECRET,
     resave: true,
     saveUninitialized: false,
-    cookie: { maxAge: 24 * 60 * 60 * 1000 }
-}));
-app.set('trust proxy', 1)
+    cookie: { maxAge: ONE_DAY_MILLIE_SECEND },
+  })
+);
+app.set('trust proxy', 1);
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(cookieParser());

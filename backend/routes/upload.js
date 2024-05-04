@@ -1,4 +1,4 @@
-const express = require("express")
+const express = require('express');
 const router = express.Router();
 const passport = require('../verification/passport');
 const auth = passport.authenticate('jwt', { session: true });

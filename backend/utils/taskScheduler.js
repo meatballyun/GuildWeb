@@ -5,10 +5,10 @@ const INTERVAL = 5 * 60 * 1000;
 const taskScheduler = {
   start: () => {
     taskTemplate.autoBuildTask();
-    task.autoUpdateStatus();    
+    task.autoUpdateStatus();
     setInterval(taskTemplate.autoBuildTask, INTERVAL);
     setInterval(task.autoUpdateStatus, INTERVAL);
-  }
+  },
 };
 
 module.exports = taskScheduler;

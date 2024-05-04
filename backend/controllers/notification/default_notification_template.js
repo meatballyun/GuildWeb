@@ -13,23 +13,23 @@ class DEFAULT_NOTIFICATION_CONTENT {
       If you are interested in our guild, we sincerely invite you to join our ranks! Please click the "Join Us" button to accept our invitation, and we will arrange for your membership.
       Sincerely,
   
-      Adventurer's Guild "${this.senderName}"`
+      Adventurer's Guild "${this.senderName}"`,
     };
-  
+
     return content;
   }
-  
+
   user() {
     const content = {
-        TITLE: `Friend Request from ${this.senderName}`,
-        DESCRIPTION: `Dear ${this.receiverName},
+      TITLE: `Friend Request from ${this.senderName}`,
+      DESCRIPTION: `Dear ${this.receiverName},
         You have received a friend request from ${this.senderName}!  They would like to add you as a friend.
         If you would like to accept their request, please click the "Accept" button.
         
         Best regards,
-        ${this.senderName}`
+        ${this.senderName}`,
     };
-  
+
     return content;
   }
 }
