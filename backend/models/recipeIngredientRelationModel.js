@@ -81,11 +81,11 @@ class RecipeIngredientRelationModel {
     });
   }
 
-  static deleteByIngredient(INGREDIENT) {
+  static deleteByIngredientAndRecipe(INGREDIENT, RECIPE) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'DELETE FROM recipeIngredientRelations WHERE RECIPES = ?',
-        INGREDIENT,
+        'DELETE FROM recipeIngredientRelations WHERE INGREDIENTS = ? AND RECIPES = ?',
+        [INGREDIENT, RECIPE],
         function (err, rows) {
           if (err) {
             reject(err);

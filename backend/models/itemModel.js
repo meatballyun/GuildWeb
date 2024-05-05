@@ -1,23 +1,7 @@
 const connection = require('../lib/db');
 
 class ItemModel {
-  static addItem(TASK_ID, CONTENT) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'INSERT INTO items(TASK_ID , CONTENT) VALUES (?,?)',
-        [TASK_ID, CONTENT],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows);
-          }
-        }
-      );
-    });
-  }
-
-  static getItem(TASK_ID) {
+  static getAll(TASK_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
         'SELECT * FROM items WHERE TASK_ID = ? AND ACTIVE = TRUE',
@@ -33,11 +17,11 @@ class ItemModel {
     });
   }
 
-  static updateItem(TASK_ID, CONTENT) {
+  static create(TASK_ID, CONTENT) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'UPDATE items SET CONTENT = ? WHERE TASK_ID = ?',
-        [CONTENT, TASK_ID],
+        'INSERT INTO items(TASK_ID , CONTENT) VALUES (?,?)',
+        [TASK_ID, CONTENT],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -49,7 +33,23 @@ class ItemModel {
     });
   }
 
-  static deleteItem(ID) {
+  static update(ID, CONTENT) {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        'UPDATE items SET CONTENT = ? WHERE ID = ?',
+        [CONTENT, ID],
+        function (err, rows) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows);
+          }
+        }
+      );
+    });
+  }
+
+  static delete(ID) {
     return new Promise((resolve, reject) => {
       connection.query('UPDATE items SET ACTIVE = FALSE WHERE ID = ?', [ID], function (err, rows) {
         if (err) {
@@ -61,7 +61,7 @@ class ItemModel {
     });
   }
 
-  static deleteItems(TASK_ID) {
+  static deleteAll(TASK_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
         'UPDATE items SET ACTIVE = FALSE WHERE TASK_ID = ?',

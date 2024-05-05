@@ -1,9 +1,9 @@
+const ApplicationError = require('../../utils/error/applicationError.js');
 const Ingredient = require('../../models/ingredientModel.js');
 const Recipe = require('../../models/recipeModel.js');
 const RecipeIngredientRelation = require('../../models/recipeIngredientRelationModel.js');
 const userInfoController = new (require('../user/userinfoControllers.js'))();
 const updateUserExp = userInfoController.updateUserExp;
-const ApplicationError = require('../../utils/error/applicationError.js');
 
 class IngredientController {
   async getIngredients(req, res, next) {
@@ -101,12 +101,32 @@ class IngredientController {
       req.body.imageUrl,
       req.body.published
     );
+
+    if (relations?.length) {
+      for (const relation of relations) {
+        const query = await RecipeIngredientRelation.getAllByRecipe(relation.RECIPES);
+        let carbs = 0,
+          pro = 0,
+          fats = 0,
+          kcal = 0;
+        for (const q of query) {
+          const [ingredient] = await Ingredient.getOne(q.INGREDIENTS);
+          carbs += ingredient.CARBS * q.AMOUNT;
+          pro += ingredient.PRO * q.AMOUNT;
+          fats += ingredient.FATS * q.AMOUNT;
+          kcal += ingredient.KCAL * q.AMOUNT;
+        }
+        await Recipe.updateNutrition(relation.RECIPES, carbs, pro, fats, kcal);
+      }
+    }
+
     if (query.affectedRows) return res.status(200).json({ data: { id: req.params.id } });
     return next(new ApplicationError(404));
   }
 
   async deleteIngredients(req, res, next) {
     const relations = await RecipeIngredientRelation.getAllByIngredient(req.params.id);
+    console.log(relations);
     if (relations?.length) {
       return next(new ApplicationError(409));
     }

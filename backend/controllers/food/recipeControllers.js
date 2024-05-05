@@ -1,8 +1,10 @@
+const ApplicationError = require('../../utils/error/applicationError.js');
+const DietRecord = require('../../models/dietRecordModel.js');
 const Ingredient = require('../../models/ingredientModel.js');
 const Recipe = require('../../models/recipeModel.js');
 const RecipeIngredientRelation = require('../../models/recipeIngredientRelationModel.js');
-const DietRecord = require('../../models/dietRecordModel.js');
-const ApplicationError = require('../../utils/error/applicationError.js');
+const userInfoController = new (require('../user/userinfoControllers.js'))();
+const updateUserExp = userInfoController.updateUserExp;
 
 class RecipeController {
   async getRecipes(req, res, next) {
@@ -113,8 +115,9 @@ class RecipeController {
 
     if (req.body.published) {
       const relations = await RecipeIngredientRelation.getAllByRecipe(newRecipe['insertId']);
-      relations.map(async (relation) => await Ingredient.publish(relation.INGREDIENTS));
+      relations.map(async (relation) => await Ingredient.publishTorF(relation.INGREDIENTS, 1));
     }
+    updateUserExp(1, req.session.passport.user);
 
     return res.status(200).json({ data: { id: newRecipe['insertId'] } });
   }
@@ -122,7 +125,7 @@ class RecipeController {
   async updateRecipe(req, res, next) {
     const [recipe] = await Recipe.getOne(req.params.id);
     if (recipe.CREATOR !== req.session.passport.user) return next(new ApplicationError(409));
-    const query = await Recipe.updateRecipe(
+    const query = await Recipe.update(
       req.params.id,
       req.body.name,
       req.body.description,
@@ -139,12 +142,22 @@ class RecipeController {
     await Promise.all(
       req.body.ingredients.map(async (ingredient) => {
         const getRelations = await RecipeIngredientRelation.getOne(ingredient.id, req.params.id);
-        if (getRelations?.length)
+        if (getRelations?.length) {
+          if (ingredient.amount === -1) {
+            await RecipeIngredientRelation.deleteByIngredientAndRecipe(
+              ingredient.id,
+              req.params.id
+            );
+            return;
+          }
+          if (req.body.published) await Ingredient.publishTorF(ingredient.id, req.body.published);
           return await RecipeIngredientRelation.update(
-            ingredient.id,
+            ingredient.ID,
             req.params.id,
             ingredient.amount
           );
+        }
+
         const [q] = await Ingredient.getOne(ingredient.id);
         if (q.CREATOR === req.session.passport.user)
           return await RecipeIngredientRelation.create(
@@ -162,7 +175,7 @@ class RecipeController {
           q.KCAL,
           q.UNIT,
           q.IMAGE_URL,
-          false
+          req.body.published
         );
         return await RecipeIngredientRelation.create(
           copyIngredient['insertId'],
@@ -171,13 +184,6 @@ class RecipeController {
         );
       })
     );
-
-    if (req.body.published) {
-      const relations = await RecipeIngredientRelation.getAllByRecipe(req.params.id);
-      relations.map(async (relation) => {
-        await Ingredient.publish(relation.INGREDIENTS);
-      });
-    }
 
     return res.status(200).json({ data: { id: req.params.id } });
   }

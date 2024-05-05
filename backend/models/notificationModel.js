@@ -1,23 +1,7 @@
 const connection = require('../lib/db');
 
 class NotificationModel {
-  static addNotification(SENDER_ID, RECIPIENT_ID, TITLE, DESCRIPTION, TYPE) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'INSERT INTO notifications(SENDER_ID , RECIPIENT_ID, TITLE, DESCRIPTION, TYPE) VALUES (?,?,?,?,?)',
-        [SENDER_ID, RECIPIENT_ID, TITLE, DESCRIPTION, TYPE],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows);
-          }
-        }
-      );
-    });
-  }
-
-  static getNotification(ID) {
+  static getOne(ID) {
     return new Promise((resolve, reject) => {
       connection.query(
         'SELECT * FROM notifications WHERE ID = ? AND ACTIVE = TRUE',
@@ -33,7 +17,7 @@ class NotificationModel {
     });
   }
 
-  static getNotifications(RECIPIENT_ID) {
+  static getAll(RECIPIENT_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
         'SELECT * FROM notifications WHERE RECIPIENT_ID = ? AND ACTIVE = TRUE ORDER BY CREATE_TIME DESC',
@@ -49,11 +33,11 @@ class NotificationModel {
     });
   }
 
-  static uesNotification(ID) {
+  static create(SENDER_ID, RECIPIENT_ID, TITLE, DESCRIPTION, TYPE) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'UPDATE notifications SET USED = TRUE WHERE ID = ?',
-        [ID],
+        'INSERT INTO notifications(SENDER_ID , RECIPIENT_ID, TITLE, DESCRIPTION, TYPE) VALUES (?,?,?,?,?)',
+        [SENDER_ID, RECIPIENT_ID, TITLE, DESCRIPTION, TYPE],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -65,7 +49,7 @@ class NotificationModel {
     });
   }
 
-  static readNotifications(ID) {
+  static read(ID) {
     return new Promise((resolve, reject) => {
       connection.query(
         'UPDATE notifications SET `READ` = TRUE WHERE ID = ?',
@@ -81,7 +65,23 @@ class NotificationModel {
     });
   }
 
-  static deleteNotification(ID) {
+  static uesd(ID) {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        'UPDATE notifications SET USED = TRUE WHERE ID = ?',
+        [ID],
+        function (err, rows) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows);
+          }
+        }
+      );
+    });
+  }
+
+  static delete(ID) {
     return new Promise((resolve, reject) => {
       connection.query(
         'UPDATE notifications SET ACTIVE = FALSE WHERE ID = ?',

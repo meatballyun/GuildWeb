@@ -97,16 +97,12 @@ class IngredientModel {
     });
   }
 
-  static publish(ID) {
+  static publishTorF(ID, TorF) {
+    console.log(ID, TorF);
     return new Promise((resolve, reject) => {
       connection.query(
-        `UPDATE ingredients 
-        SET PUBLISHED = CASE 
-          WHEN PUBLISHED = TRUE THEN FALSE 
-          ELSE TRUE 
-        END 
-        WHERE ID = ?;`,
-        [ID],
+        `UPDATE ingredients SET PUBLISHED = ? WHERE ID = ?;`,
+        [TorF, ID],
         function (err, rows) {
           if (err) {
             reject(err);

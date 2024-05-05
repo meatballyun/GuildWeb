@@ -131,6 +131,22 @@ class RecipeModel {
     });
   }
 
+  static updateNutrition(ID, CARBS, PRO, FATS, KCAL) {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        'UPDATE recipes SET CARBS = ?, PRO = ?, FATS = ?, KCAL = ? WHERE ID = ?',
+        [CARBS, PRO, FATS, KCAL, ID],
+        function (err, rows) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows);
+          }
+        }
+      );
+    });
+  }
+
   static delete(ID) {
     return new Promise((resolve, reject) => {
       connection.query('UPDATE recipes SET ACTIVE = FALSE WHERE ID = ?', ID, function (err, rows) {

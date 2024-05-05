@@ -1,39 +1,7 @@
 const connection = require('../lib/db');
 
 class GuildModel {
-  static addGuild(LEADER_ID, NAME, DESCRIPTION, IMAGE_URL, REFUGE) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'INSERT INTO guilds(LEADER_ID, NAME, DESCRIPTION, IMAGE_URL, CABIN) VALUES (?,?,?,?,?)',
-        [LEADER_ID, NAME, DESCRIPTION, IMAGE_URL, REFUGE],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows);
-          }
-        }
-      );
-    });
-  }
-
-  static updateGuild(ID, NAME, DESCRIPTION, IMAGE_URL) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE guilds SET NAME = ? , DESCRIPTION = ?, IMAGE_URL = ? WHERE ID = ?',
-        [NAME, DESCRIPTION, IMAGE_URL, ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows);
-          }
-        }
-      );
-    });
-  }
-
-  static getGuild(ID) {
+  static getOne(ID) {
     return new Promise((resolve, reject) => {
       connection.query(
         'SELECT * FROM guilds WHERE ID = ? AND ACTIVE = TRUE',
@@ -49,11 +17,11 @@ class GuildModel {
     });
   }
 
-  static getGuildByIdAndName(ID, NAME) {
+  static create(LEADER_ID, NAME, DESCRIPTION, IMAGE_URL, CABIN) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM guilds WHERE ID = ? AND NAME LIKE ? AND ACTIVE = TRUE',
-        [ID, '%' + NAME + '%'],
+        'INSERT INTO guilds(LEADER_ID, NAME, DESCRIPTION, IMAGE_URL, CABIN) VALUES (?,?,?,?,?)',
+        [LEADER_ID, NAME, DESCRIPTION, IMAGE_URL, CABIN],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -65,27 +33,11 @@ class GuildModel {
     });
   }
 
-  static getGuildsByLeader(LEADER_ID) {
+  static update(ID, NAME, DESCRIPTION, IMAGE_URL) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM guilds WHERE LEADER_ID = ? AND ACTIVE = TRUE',
-        [LEADER_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows);
-          }
-        }
-      );
-    });
-  }
-
-  static getGuildsByLeaderAndName(LEADER_ID, NAME) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM guilds WHERE LEADER_ID = ? AND NAME LIKE ? AND ACTIVE = TRUE',
-        [LEADER_ID, '%' + NAME + '%'],
+        'UPDATE guilds SET NAME = ? , DESCRIPTION = ?, IMAGE_URL = ? WHERE ID = ?',
+        [NAME, DESCRIPTION, IMAGE_URL, ID],
         function (err, rows) {
           if (err) {
             reject(err);

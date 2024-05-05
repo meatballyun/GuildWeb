@@ -5,7 +5,7 @@ const signUpEmail = (EMAIL, ID, CODE) => {
       process.env.NODE_ENV === 'development' ? process.env.FE_URL : process.env.API_SERVICE_URL;
 
     return {
-      from: process.env.MAIL_USER,
+      from: process.env.MAIL_ADDRESS,
       to: ADDRESS,
       subject: 'Hello User',
       html: `
@@ -25,7 +25,7 @@ const passwordResetEmail = (EMAIL, ID, CODE) => {
       process.env.NODE_ENV === 'development' ? process.env.FE_URL : process.env.API_SERVICE_URL;
 
     return {
-      from: process.env.MAIL_USER,
+      from: process.env.MAIL_ADDRESS,
       to: ADDRESS,
       subject: 'Password Reset Request',
       html: `

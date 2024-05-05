@@ -1,47 +1,7 @@
 const connection = require('../lib/db');
 
 class TaskModel {
-  static addTask(
-    CREATOR_ID,
-    GUILD_ID,
-    NAME,
-    INITIATION_TIME,
-    DEADLINE,
-    DESCRIPTION,
-    TYPE,
-    MAX_ADVENTURER
-  ) {
-    const currentTime = new Date().getTime();
-    let STATUS = 'Established';
-    if (currentTime >= INITIATION_TIME) {
-      STATUS = 'In Progress';
-    }
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'INSERT INTO tasks(CREATOR_ID, GUILD_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, TYPE, MAX_ADVENTURER, STATUS) VALUES (?,?,?,?,?,?,?,?,?)',
-        [
-          CREATOR_ID,
-          GUILD_ID,
-          NAME,
-          INITIATION_TIME,
-          DEADLINE,
-          DESCRIPTION,
-          TYPE,
-          MAX_ADVENTURER,
-          STATUS,
-        ],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows);
-          }
-        }
-      );
-    });
-  }
-
-  static getTaskDetailById(ID) {
+  static getOne(ID) {
     return new Promise((resolve, reject) => {
       connection.query(
         'SELECT * FROM tasks WHERE ID = ? AND ACTIVE = TRUE',
@@ -57,7 +17,7 @@ class TaskModel {
     });
   }
 
-  static getTaskByGuild(GUILD_ID) {
+  static getAllByGuild(GUILD_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
         'SELECT * FROM tasks WHERE GUILD_ID = ? AND ACTIVE = TRUE',
@@ -73,7 +33,7 @@ class TaskModel {
     });
   }
 
-  static getTaskByGuildAndName(GUILD_ID, NAME) {
+  static getAllByGuildAndName(GUILD_ID, NAME) {
     return new Promise((resolve, reject) => {
       connection.query(
         'SELECT * FROM tasks WHERE GUILD_ID = ? AND NAME LIKE ? AND ACTIVE = TRUE',
@@ -89,7 +49,28 @@ class TaskModel {
     });
   }
 
-  static updateTask(TASK_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, TYPE, MAX_ADVENTURER) {
+  static create(CREATOR_ID, GUILD_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, TYPE, MAX_ADVENTURER) {
+    const currentTime = new Date().getTime();
+    let STATUS = 'Established';
+    if (currentTime >= new Date(INITIATION_TIME).getTime()) {
+      STATUS = 'In Progress';
+    }
+    return new Promise((resolve, reject) => {
+      connection.query(
+        'INSERT INTO tasks(CREATOR_ID, GUILD_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, TYPE, MAX_ADVENTURER, STATUS) VALUES (?,?,?,?,?,?,?,?,?)',
+        [CREATOR_ID, GUILD_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, TYPE, MAX_ADVENTURER, STATUS],
+        function (err, rows) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows);
+          }
+        }
+      );
+    });
+  }
+
+  static updateDetail(TASK_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, TYPE, MAX_ADVENTURER) {
     const initiationTime = new Date(INITIATION_TIME);
     const currentDate = new Date();
     let STATUS = 'Established';
@@ -111,7 +92,7 @@ class TaskModel {
     });
   }
 
-  static updateTaskStatus(TASK_ID, STATUS) {
+  static updateStatus(TASK_ID, STATUS) {
     return new Promise((resolve, reject) => {
       connection.query(
         `UPDATE tasks SET STATUS = ?, ADVENTURER = 0 WHERE ID = ?`,
@@ -127,7 +108,7 @@ class TaskModel {
     });
   }
 
-  static acceptTask(TASK_ID, ADVENTURER) {
+  static accept(TASK_ID, ADVENTURER) {
     return new Promise((resolve, reject) => {
       connection.query(
         'UPDATE tasks SET ADVENTURER = ? WHERE ID = ?',
@@ -159,7 +140,7 @@ class TaskModel {
     });
   }
 
-  static deleteTask(TASK_ID) {
+  static delete(TASK_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
         'UPDATE tasks SET ACTIVE = FALSE WHERE ID = ?',

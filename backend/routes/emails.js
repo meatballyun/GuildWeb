@@ -1,13 +1,15 @@
 const express = require('express');
 const router = express.Router();
+const awaitHandlerFactory = require('../utils/awaitHandlerFactory');
 const emailUp = new (require('../controllers/email/emailControllers'))();
 
-router.post('/send', emailUp.sendSignUp);
-router.post('/resend', emailUp.resendSignUp, emailUp.sendSignUp);
-router.post('/reset-password', emailUp.sendResetPassword);
+// send email
+router.post('/send', awaitHandlerFactory(emailUp.sendSignUp));
+router.post('/resend', awaitHandlerFactory(emailUp.resendSignUp), awaitHandlerFactory(emailUp.sendSignUp));
+router.post('/reset-password', awaitHandlerFactory(emailUp.sendResetPassword));
 
 // validation
-router.get('/validation-reset-password', emailUp.validationResetPassword);
-router.get('/validation-signup', emailUp.validationSignUp);
+router.get('/validation-reset-password', awaitHandlerFactory(emailUp.validationResetPassword));
+router.get('/validation-signup', awaitHandlerFactory(emailUp.validationSignUp));
 
 module.exports = router;

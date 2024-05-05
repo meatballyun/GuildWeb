@@ -1,14 +1,13 @@
+const ApplicationError = require('../../utils/error/applicationError.js');
 const DietRecord = require('../../models/dietRecordModel.js');
 const Recipe = require('../../models/recipeModel.js');
 const User = require('../../models/userModel.js');
-
 const userInfoController = new (require('../user/userinfoControllers.js'))();
 const updateUserExp = userInfoController.updateUserExp;
-const ApplicationError = require('../../utils/error/applicationError.js');
 
 class DietRecordController {
   async getDietRecords(req, res, next) {
-    const [userinfo] = await User.getUserById(req.session.passport.user);
+    const [userinfo] = await User.getOneById(req.session.passport.user);
     const query = await DietRecord.getAllByDate(req.session.passport.user, req.query.date);
     if (query?.length) {
       const dietRecords = await Promise.all(

@@ -1,23 +1,7 @@
 const connection = require('../lib/db');
 
 class TemplateItemModel {
-  static addTemplateItem(TEMPLATE_ID, CONTENT) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'INSERT INTO templateItems(TEMPLATE_ID , CONTENT) VALUES (?,?)',
-        [TEMPLATE_ID, CONTENT],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows);
-          }
-        }
-      );
-    });
-  }
-
-  static getTemplateItem(TEMPLATE_ID) {
+  static getAll(TEMPLATE_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
         'SELECT * FROM templateItems WHERE TEMPLATE_ID = ? AND ACTIVE = TRUE',
@@ -33,7 +17,23 @@ class TemplateItemModel {
     });
   }
 
-  static updateTemplateItem(ID, CONTENT) {
+  static create(TEMPLATE_ID, CONTENT) {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        'INSERT INTO templateItems(TEMPLATE_ID , CONTENT) VALUES (?,?)',
+        [TEMPLATE_ID, CONTENT],
+        function (err, rows) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows);
+          }
+        }
+      );
+    });
+  }
+
+  static update(ID, CONTENT) {
     return new Promise((resolve, reject) => {
       connection.query(
         'UPDATE templateItems SET CONTENT = ? WHERE ID = ?',
@@ -49,7 +49,7 @@ class TemplateItemModel {
     });
   }
 
-  static deleteTemplateItem(ID) {
+  static delete(ID) {
     return new Promise((resolve, reject) => {
       connection.query(
         'UPDATE templateItems SET ACTIVE = FALSE WHERE ID  = ?',
@@ -65,7 +65,7 @@ class TemplateItemModel {
     });
   }
 
-  static deleteTemplateItemByTTId(TEMPLATE_ID) {
+  static deleteByTaskTemplate(TEMPLATE_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
         'UPDATE templateItems SET ACTIVE = FALSE WHERE TEMPLATE_ID  = ?',

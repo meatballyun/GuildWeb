@@ -4,59 +4,28 @@ const path = require('path');
 const UPLOAD_PATH =
   process.env.NODE_ENV === 'development' ? process.env.UPLOAD_PATH : process.env.API_SERVICE_URL;
 
+const MaxFileSizeMB = 5;
 class ImageController {
   async saveImage(req, res, next) {
+    const imageUrl = req.body.image;
+    const fileSizeMB = Buffer.byteLength(imageUrl, 'base64') / (1024 * 1024);
+    if (fileSizeMB > MaxFileSizeMB) return next(new ApplicationError(413));
+  
+    if (!imageUrl || !imageUrl.startsWith('data:image')) return next(new ApplicationError(415));
+    const imageFormatMatch = imageUrl.match(/^data:image\/(\w+);base64,/);
+    if (!imageFormatMatch) return next(new ApplicationError(415));
+    const imageFormat = imageFormatMatch[1].toLowerCase();
+    const supportedFormats = ['jpeg', 'jpg', 'png', 'gif'];
+    if (!supportedFormats.includes(imageFormat)) return next(new ApplicationError(415));
+      
+    const filename = `${Date.now()}.${imageFormat}`;
+    const path = `/uploads/image/${req.body.type}/${filename}`;
     try {
-      const imageUrl = req.body.image;
-      const maxFileSizeMB = 5;
-      const fileSizeMB = Buffer.byteLength(imageUrl, 'base64') / (1024 * 1024);
-      if (fileSizeMB > maxFileSizeMB) {
-        return res.status(413).json({
-          success: false,
-          message: `File size exceeds the limit of ${maxFileSizeMB} MB.`,
-          data: 'Payload Too Large',
-        });
-      }
-
-      if (!imageUrl || !imageUrl.startsWith('data:image')) {
-        return next(new ApplicationError(415));
-      }
-      const imageFormatMatch = imageUrl.match(/^data:image\/(\w+);base64,/);
-      if (!imageFormatMatch) {
-        return next(new ApplicationError(415));
-      }
-      const imageFormat = imageFormatMatch[1].toLowerCase();
-      const supportedFormats = ['jpeg', 'jpg', 'png', 'gif'];
-      if (!supportedFormats.includes(imageFormat)) {
-        throw new Error('Unsupported image format.');
-      }
-
-      const filename = `${Date.now()}.${imageFormat}`;
-      const path = `/uploads/image/${req.body.type}/${filename}`;
-      await fs.writeFile(
-        `public${path}`,
-        imageUrl.split(';base64,').pop(),
-        { encoding: 'base64' },
-        (err) => {
-          console.log(err);
-        }
-      );
-      await fs.chmod(`public${path}`, 0o644, (err) => {
-        if (err) {
-          console.error('Failed to set file permissions:', err);
-        } else {
-          console.log('File permissions set successfully');
-        }
-      });
-      return res.status(200).json({
-        success: true,
-        message: 'Image uploaded successfully.',
-        data: {
-          imageUrl: `${UPLOAD_PATH}${path}`,
-        },
-      });
+      await fs.promises.writeFile(`public${path}`, imageUrl.split(';base64,').pop(), { encoding: 'base64' });  
+      await fs.promises.chmod(`public${path}`, 0o644);  
+      return res.status(200).json({ data: { imageUrl: `${UPLOAD_PATH}${path}` } });
     } catch (err) {
-      return next(new ApplicationError(400, err));
+      return next(new ApplicationError(500, err));
     }
   }
 

@@ -14,32 +14,7 @@ class TaskTemplateModel {
     });
   }
 
-  static addTaskTemplate(
-    CREATOR_ID,
-    GUILD_ID,
-    NAME,
-    DESCRIPTION,
-    GENERATION_TIME,
-    DEADLINE,
-    TYPE,
-    MAX_ADVENTURER
-  ) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'INSERT INTO taskTemplates(CREATOR_ID, GUILD_ID, NAME, DESCRIPTION,  GENERATION_TIME, DEADLINE, TYPE, MAX_ADVENTURER) VALUES (?,?,?,?,?,?,?,?)',
-        [CREATOR_ID, GUILD_ID, NAME, DESCRIPTION, GENERATION_TIME, DEADLINE, TYPE, MAX_ADVENTURER],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows);
-          }
-        }
-      );
-    });
-  }
-
-  static getTaskTemplateById(ID) {
+  static getOne(ID) {
     return new Promise((resolve, reject) => {
       connection.query(
         'SELECT * FROM taskTemplates WHERE ID = ? AND ACTIVE = TRUE',
@@ -55,7 +30,7 @@ class TaskTemplateModel {
     });
   }
 
-  static getTaskTemplate() {
+  static getAll() {
     return new Promise((resolve, reject) => {
       connection.query(
         'SELECT * FROM taskTemplates WHERE ENABLED = TRUE AND ACTIVE = TRUE',
@@ -70,11 +45,9 @@ class TaskTemplateModel {
     });
   }
 
-  static getTaskTemplateByGuildId(GUILD_ID) {
+  static getAllByGuild(GUILD_ID) {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM taskTemplates WHERE GUILD_ID = ? AND ACTIVE = TRUE',
-        [GUILD_ID],
+      connection.query('SELECT * FROM taskTemplates WHERE GUILD_ID = ? AND ACTIVE = TRUE', [GUILD_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -86,11 +59,10 @@ class TaskTemplateModel {
     });
   }
 
-  static getTaskTemplateByGuildIdAndName(GUILD_ID, NAME) {
+  static getAllByGuildAndName(GUILD_ID, NAME) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM taskTemplates WHERE GUILD_ID = ? AND NAME LIKE ? AND ACTIVE = TRUE',
-        [GUILD_ID, '%' + NAME + '%'],
+        'SELECT * FROM taskTemplates WHERE GUILD_ID = ? AND NAME LIKE ? AND ACTIVE = TRUE', [GUILD_ID, '%' + NAME + '%'],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -102,16 +74,25 @@ class TaskTemplateModel {
     });
   }
 
-  static updateTaskTemplate(
+  static create(CREATOR_ID, GUILD_ID, NAME, DESCRIPTION, GENERATION_TIME, DEADLINE, TYPE, MAX_ADVENTURER) {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        'INSERT INTO taskTemplates(CREATOR_ID, GUILD_ID, NAME, DESCRIPTION,  GENERATION_TIME, DEADLINE, TYPE, MAX_ADVENTURER) VALUES (?,?,?,?,?,?,?,?)',
+        [CREATOR_ID, GUILD_ID, NAME, DESCRIPTION, GENERATION_TIME, DEADLINE, TYPE, MAX_ADVENTURER],
+        function (err, rows) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows);
+          }
+        }
+      );
+    });
+  }
+
+  static update(
     ID,
-    ENABLED,
-    NAME,
-    DESCRIPTION,
-    GENERATION_TIME,
-    DEADLINE,
-    TYPE,
-    MAX_ADVENTURER
-  ) {
+    ENABLED, NAME, DESCRIPTION, GENERATION_TIME, DEADLINE, TYPE, MAX_ADVENTURER) {
     return new Promise((resolve, reject) => {
       connection.query(
         'UPDATE taskTemplates SET  ENABLED = ?, NAME = ?, DESCRIPTION = ?,  GENERATION_TIME = ?, DEADLINE = ?, TYPE = ?, MAX_ADVENTURER = ? WHERE ID = ?',
@@ -127,11 +108,10 @@ class TaskTemplateModel {
     });
   }
 
-  static updateTaskTemplateTime(ID, GENERATION_TIME, DEADLINE) {
+  static updateTime(ID, GENERATION_TIME, DEADLINE) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'UPDATE taskTemplates SET GENERATION_TIME = ?, DEADLINE = ? WHERE ID = ?',
-        [GENERATION_TIME, DEADLINE, ID],
+        'UPDATE taskTemplates SET GENERATION_TIME = ?, DEADLINE = ? WHERE ID = ?', [GENERATION_TIME, DEADLINE, ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -143,11 +123,9 @@ class TaskTemplateModel {
     });
   }
 
-  static deleteTaskTemplate(ID) {
+  static delete(ID) {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE taskTemplates SET ACTIVE = FALSE WHERE ID = ?',
-        [ID],
+      connection.query('UPDATE taskTemplates SET ACTIVE = FALSE WHERE ID = ?', [ID],
         function (err, rows) {
           if (err) {
             reject(err);

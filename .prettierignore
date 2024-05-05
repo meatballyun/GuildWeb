@@ -1,0 +1,3 @@
+backend/routes/*.js
+backend/models/*.js
+backend/controllers/upload/imageControllers.js
