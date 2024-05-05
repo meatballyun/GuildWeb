@@ -15,38 +15,63 @@ const extractTextFromChildren = (label) => {
   return text;
 };
 
-export const Dropdown = forwardRef(({ menuItem, onItemClick }, ref) => {
-  return (
-    <div className="dropdown-select__options" ref={ref}>
-      {menuItem.map((item) => (
-        <div
-          key={item.value}
-          className="dropdown-select__option"
-          onClick={() => onItemClick?.(item.value, item)}
-        >
-          {item.label}
-        </div>
-      ))}
-    </div>
-  );
-});
+export const Dropdown = forwardRef(
+  ({ menuItem, selectValue, onItemClick, ...props }, ref) => {
+    return (
+      <div className="dropdown-select__options" ref={ref} {...props}>
+        {menuItem.map((item) => {
+          const selected = selectValue?.includes(item.value);
+          return (
+            <div
+              key={`${item.value}`}
+              className={classNames(
+                'dropdown-select__option',
+                selected && 'selected'
+              )}
+              onClick={() => onItemClick?.(item.value, item)}
+            >
+              {item.label}
+              {selected ? (
+                <MaterialSymbol
+                  icon="done"
+                  size={16}
+                  weight={800}
+                  className="float-end text-primary-400"
+                />
+              ) : (
+                <div className="pr-4" />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+);
 
 export const DropdownSelect = ({
   options = [],
   placeholder,
   renderValue,
   value: valueProp,
+  mode,
   disabled,
   className,
   onChange: onChangeProp,
+  customTrigger,
 }) => {
   const inputRef = useRef();
   const dropdownRef = useRef();
+  const [inputRect, setInputRect] = useState();
 
   const [searchValue, setSearchValue] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(valueProp);
-  const currentValue = valueProp ?? selectedOption;
+  const currentValue = (() => {
+    const data = valueProp ?? selectedOption;
+    if (!data || Array.isArray(data)) return data;
+    return [data];
+  })();
   const onChange = onChangeProp ?? setSelectedOption;
 
   useEffect(() => {
@@ -54,15 +79,27 @@ export const DropdownSelect = ({
   }, [valueProp]);
 
   const selectValue = useMemo(() => {
-    const selectOption = options.find(({ value }) => value === currentValue);
-    if (renderValue) return renderValue(currentValue, selectOption ?? {});
-    return selectOption?.label ?? currentValue;
+    const selectOptions = options.filter(({ value }) =>
+      currentValue?.includes(value)
+    );
+    if (renderValue) return renderValue(currentValue, selectOptions ?? {});
+    return selectOptions?.map(({ label }) => label).join(' ') ?? currentValue;
   }, [currentValue, options, renderValue]);
 
+  const getNextValue = (newValue) =>
+    currentValue?.includes(newValue)
+      ? currentValue?.filter((value) => value !== newValue)
+      : [...(currentValue ?? []), newValue];
+
   const handleOptionClick = (newValue) => {
-    onChange(newValue);
+    if (mode === 'multiple') {
+      onChange(getNextValue(newValue), newValue);
+      return;
+    }
+    onChange([newValue], newValue);
     setIsOpen(false);
   };
+
   useEffect(() => {
     setSearchValue('');
   }, [isOpen]);
@@ -76,34 +113,70 @@ export const DropdownSelect = ({
 
   useEffect(() => {
     const clickHandler = (e) => {
-      if (!e.target.contains(inputRef.current)) return;
+      if (
+        inputRef.current.contains(e.target) ||
+        dropdownRef.current?.contains(e.target)
+      )
+        return;
       setIsOpen(false);
     };
     window.addEventListener('click', clickHandler);
     return () => {
       window.removeEventListener('click', clickHandler);
     };
-  });
+  }, []);
+
+  useEffect(() => {
+    if (!inputRef.current) return;
+    const resetPos = () => {
+      if (!inputRef.current) return;
+      const rect = inputRef.current.getBoundingClientRect();
+      setInputRect(rect);
+    };
+    resetPos();
+
+    const observer = new ResizeObserver(resetPos);
+    observer.observe(inputRef.current);
+    return () => {
+      observer.disconnect();
+    };
+  }, [isOpen]);
 
   return (
     <div className={classNames('dropdown-select', className)} ref={inputRef}>
-      <div
-        className="dropdown-select__selected flex text-paragraph-p3"
-        onClick={() => !disabled && setIsOpen(!isOpen)}
-      >
-        <Input
-          noFill
-          disabled={disabled}
-          value={isOpen ? searchValue : selectValue}
-          placeholder={placeholder}
-          onChange={setSearchValue}
-          className="w-full"
-        />
-        <MaterialSymbol icon="arrow_drop_down" size={24} />
-      </div>
-      {isOpen && (
-        <Dropdown menuItem={filterOptions} onItemClick={handleOptionClick} />
+      {customTrigger?.({ isOpen, setIsOpen, selectValue, currentValue }) ?? (
+        <div
+          className="dropdown-select__selected  flex p-0 text-paragraph-p3"
+          onClick={() => !disabled && setIsOpen(!isOpen)}
+        >
+          <Input
+            noFill
+            disabled={disabled}
+            value={isOpen ? searchValue : selectValue}
+            placeholder={selectValue ?? placeholder}
+            onChange={setSearchValue}
+            className="w-full"
+          />
+          <MaterialSymbol icon="arrow_drop_down" size={24} />
+        </div>
       )}
+      {isOpen &&
+        inputRect &&
+        createPortal(
+          <Dropdown
+            ref={dropdownRef}
+            style={{
+              position: 'absolute',
+              top: inputRect.top + inputRect.height,
+              left: inputRect.left,
+              minWidth: inputRect.width,
+            }}
+            menuItem={filterOptions}
+            selectValue={currentValue}
+            onItemClick={handleOptionClick}
+          />,
+          document.body
+        )}
     </div>
   );
 };

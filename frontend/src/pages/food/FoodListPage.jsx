@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { api } from '../../api';
-import { FoodBar } from './components';
-import { Button, Input, MaterialSymbol } from '../../components';
-import { Paper } from '../_layout/components';
 import { Link } from 'react-router-dom';
+import { api } from '../../api';
+import { Button, Input, MaterialSymbol, useDialog } from '../../components';
+import { Paper } from '../_layout/components';
 import { useSideBar } from '../_layout/MainLayout/SideBar';
+import { FoodBar } from './components';
 
 export const FoodListPage = ({ title }) => {
   useSideBar({ activeKey: ['foods', title.toLowerCase()] });
@@ -12,6 +12,7 @@ export const FoodListPage = ({ title }) => {
   const [search, setSearch] = useState('');
   const [isFetched, setIsFetched] = useState(false);
   const [published, setPublished] = useState(false);
+  const { promptDialog, dialog } = useDialog();
 
   const fetchData = useCallback(async () => {
     const apiUtil =
@@ -29,15 +30,31 @@ export const FoodListPage = ({ title }) => {
     })();
   }, [fetchData]);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (foodItem) => {
+    const confirmDelete = await new Promise((resolve) => {
+      promptDialog({
+        onHide: () => resolve(false),
+        header: 'Confirm Delete',
+        footButton: [
+          { type: 'hollow', text: 'Cancel' },
+          { onClick: () => resolve(true), text: 'Delete' },
+        ],
+        description: `Are You sure you want to delete "${foodItem.name}" ?\nThis action cannot be undone.`,
+      });
+    });
+    if (!confirmDelete) return;
     const apiUtil =
       title === 'Ingredients'
         ? api.food.deleteIngredients
         : api.food.deleteRecipes;
-    const res = await apiUtil({ pathParams: { id } });
-    if (res.status === 200) {
-      fetchData();
-    }
+    const res = await apiUtil({ pathParams: { id: foodItem.id } });
+    if (res.status === 200) return fetchData();
+    if (res.status === 409)
+      promptDialog({
+        header: 'Delete Fail',
+        description: `"${foodItem.name}" Delete Fail.\nThe ${title} is currently being used.`,
+        footButton: [{ type: 'hollow', text: 'OK' }],
+      });
   };
 
   return (
@@ -90,16 +107,20 @@ export const FoodListPage = ({ title }) => {
                   <FoodBar
                     {...foodItem}
                     suffix={
-                      <div
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleDelete(foodItem.id);
-                        }}
-                        className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full border border-primary-600 text-primary-600 hover:bg-primary-600/20"
-                      >
-                        <MaterialSymbol icon="delete" size={20} />
-                      </div>
+                      foodItem.isOwned ? (
+                        <div
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleDelete(foodItem);
+                          }}
+                          className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full border border-primary-600 text-primary-600 hover:bg-primary-600/20"
+                        >
+                          <MaterialSymbol icon="delete" size={20} />
+                        </div>
+                      ) : (
+                        <div className="pr-6" />
+                      )
                     }
                   />
                 </Link>
@@ -108,6 +129,7 @@ export const FoodListPage = ({ title }) => {
           );
         })()}
       </div>
+      {dialog}
     </Paper>
   );
 };

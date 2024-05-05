@@ -29,19 +29,24 @@ const CheckList = ({ value = [], onChange }) => {
   };
 
   const handleItemRemove = (index) => {
-    const newValue = [...value].filter((_, i) => i !== index);
+    const newValue = [...value];
+    newValue[index].content = null;
     onChange(newValue);
   };
 
   return (
     <div className="flex flex-col gap-2">
-      {value?.map(({ content }, i) => (
-        <CheckListItem
-          value={content}
-          onChange={(v) => handleItemChange(v, i)}
-          onRemove={() => handleItemRemove(i)}
-        />
-      ))}
+      {value?.map(({ content }, i) => {
+        if (content === null) return null;
+        return (
+          <CheckListItem
+            key={i}
+            value={content}
+            onChange={(v) => handleItemChange(v, i)}
+            onRemove={() => handleItemRemove(i)}
+          />
+        );
+      })}
       <Button
         type="hollow"
         onClick={() => onChange([...value, { content: '' }])}
@@ -76,13 +81,16 @@ const validateObject = {
   deadline: [
     validate.required,
     ({ value }, { initiationTime }) => {
-      if (new Date(value) - new Date(initiationTime) < 0)
+      if (
+        new Date(value) - new Date(new Date(initiationTime).toDateString()) <
+        0
+      )
         throw Error('deadline should bigger than initiationTime');
     },
   ],
   items: [
     ({ value }) => {
-      if (value?.some(({ content }) => !content))
+      if (value?.some(({ content }) => !content && content !== null))
         throw Error('content should not be empty');
     },
   ],
@@ -99,70 +107,66 @@ export const AddMissionModal = ({
   modalStatus,
   onClose,
   onFinish,
+  mode,
   ...props
 }) => {
-  useEffect(() => {
-    form.setFormData({ ...defaultValue, ...modalStatus?.formData });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modalStatus]);
-
   const form = useFormInstance({
     validateObject,
     onSubmit: async (formData) => {
-      await onFinish?.(formData);
+      const currentType = Array.isArray(formData.type)
+        ? formData.type[0]
+        : formData.type;
+
+      await onFinish?.({ ...formData, type: currentType });
       onClose?.();
     },
     defaultValue,
   });
+
+  useEffect(() => {
+    form.setFormData({ ...defaultValue, ...modalStatus.formData });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modalStatus]);
 
   return (
     <Modal
       {...props}
       isOpen={modalStatus.isOpen}
       onClose={onClose}
-      header="Add Mission"
-      footButton={
-        <Button
-          size="md"
-          className="w-full justify-center"
-          onClick={form.submit}
-        >
-          Submit
-        </Button>
+      header={
+        mode === 'template'
+          ? `${modalStatus.type ?? 'Add'} Template Mission`
+          : `${modalStatus.type ?? 'Add'} Mission`
       }
+      footButton={[{ onClick: form.submit, text: 'Submit' }]}
     >
       <Form form={form}>
         <div className="flex h-[500px] w-full flex-col gap-4 overflow-auto p-2">
           <Form.Item valueKey="name" label="Name">
             <Input type="underline" />
           </Form.Item>
-          <div className="flex gap-2">
-            <Form.Item valueKey="type" label="type" className="w-full">
-              <DropdownSelect
-                placeholder="select type"
-                options={[
-                  {
-                    value: 'Ordinary',
-                    label: 'Ordinary',
-                  },
-                  {
-                    value: 'Emergency',
-                    label: 'Emergency',
-                  },
-                  {
-                    value: 'Repetitive',
-                    label: 'Repetitive',
-                  },
-                ]}
-              />
-            </Form.Item>
-            {form.formData.type === 'Repetitive' && (
-              <Form.Item
-                valueKey="repetitiveTaskType"
-                label="Repetitive Tasks Type"
-                className="w-full"
-              >
+          <div className="grid grid-cols-2 gap-2">
+            {mode === 'manage' && (
+              <Form.Item valueKey="type" label="type" className="w-full">
                 <DropdownSelect
+                  placeholder="select type"
+                  options={[
+                    {
+                      value: 'Ordinary',
+                      label: 'Ordinary',
+                    },
+                    {
+                      value: 'Emergency',
+                      label: 'Emergency',
+                    },
+                  ]}
+                />
+              </Form.Item>
+            )}
+            {mode === 'template' && (
+              <Form.Item valueKey="type" label="Type">
+                <DropdownSelect
+                  className="w-full"
                   placeholder="select repetitive Task Type"
                   options={[
                     {
@@ -181,15 +185,19 @@ export const AddMissionModal = ({
                 />
               </Form.Item>
             )}
-          </div>
 
-          <Form.Item valueKey="maxAdventurer" label="Max Adventurer">
-            <Input type="underline" inputType="number" min={1} />
-          </Form.Item>
+            <Form.Item
+              valueKey="maxAdventurer"
+              className="w-full"
+              label="Max Adventurer"
+            >
+              <Input type="underline" inputType="number" min={1} />
+            </Form.Item>
+          </div>
           <div className="flex">
             <Form.Item
               valueKey="initiationTime"
-              label="InitiationTime"
+              label={mode === 'template' ? 'GenerationTime' : 'InitiationTime'}
               className="w-full"
             >
               <DatePicker />

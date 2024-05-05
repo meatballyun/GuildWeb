@@ -1,0 +1,13 @@
+const ApplicationError = require('./error/applicationError');
+
+const awaitHandlerFactory = (func) => {
+  return async (req, res, next) => {
+    try {
+      await func(req, res, next);
+    } catch (err) {
+      next(new ApplicationError(400));
+    }
+  };
+};
+
+module.exports = awaitHandlerFactory;

@@ -6,7 +6,16 @@
   @apply flex h-full p-4;
 }
 .modal {
-  @apply bg-paper m-auto flex max-h-full w-[500px] flex-col rounded-md;
+  &.sm {
+    @apply w-[400px];
+  }
+  &.md {
+    @apply w-[600px];
+  }
+  &.lg {
+    @apply w-[720px];
+  }
+  @apply m-auto flex max-h-full flex-col rounded-md bg-paper;
 }
 .modal-content {
   @apply max-h-full flex-1 p-2;

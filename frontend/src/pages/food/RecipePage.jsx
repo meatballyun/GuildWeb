@@ -11,6 +11,7 @@ import {
   Input,
   Notification,
   validate,
+  useDialog,
 } from '../../components';
 import {
   FoodBar,
@@ -94,6 +95,7 @@ const validateObject = {
 
 export const RecipePage = ({ editMode }) => {
   useSideBar({ activeKey: ['foods', 'recipes'] });
+  const { promptDialog, dialog } = useDialog();
   const navigate = useNavigate();
   const params = useParams();
   const id = params.id;
@@ -130,6 +132,32 @@ export const RecipePage = ({ editMode }) => {
   const handleSubmit = async (formData) => {
     const nutrition = getNutritionSum(formData.ingredients);
     const requestBody = { ...formData, ...nutrition, id };
+    console.log(
+      formData,
+      formData.published,
+      formData.ingredients
+        .filter(({ amount }) => amount > 0)
+        .some(({ published }) => !published)
+    );
+    if (
+      formData.published &&
+      formData.ingredients
+        .filter(({ amount }) => amount > 0)
+        .some(({ published }) => !published)
+    ) {
+      const dialogRes = await new Promise((resolve) =>
+        promptDialog({
+          onHide: () => resolve(false),
+          header: 'Warning',
+          description: `If you make this recipe public, the ingredients used will also become public.\nAre you sure you want to proceed with this action?`,
+          footButton: [
+            { type: 'hollow', text: 'Cancel' },
+            { text: 'OK', onClick: () => resolve(true) },
+          ],
+        })
+      );
+      if (!dialogRes) return;
+    }
     try {
       if (id === 'new') {
         const res = await api.food.postRecipes({ body: requestBody });
@@ -185,6 +213,7 @@ export const RecipePage = ({ editMode }) => {
 
   return (
     <>
+      {dialog}
       <Form form={form} onSubmit disabled={!editMode}>
         <Paper row className="flex gap-2">
           {/* left panel */}

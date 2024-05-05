@@ -58,7 +58,7 @@ export const NutritionalSummaryChart = ({
   return (
     <div
       className={classNames(
-        'flex flex-col items-center justify-center text-primary-600',
+        'relative flex flex-col items-center justify-center text-primary-600',
         className
       )}
       style={{ width: size - 20, height: size - 20 }}

@@ -9,15 +9,10 @@ const notifications = require('./notifications.js');
 const taskScheduler = require('../utils/taskScheduler');
 
 router.use('/users', users);
-
 router.use('/emails', emails);
-
 router.use('/upload', upload);
-
 router.use('/foods', foods);
-
 router.use('/guilds', guilds);
-
 router.use('/notifications', notifications);
 
 taskScheduler.start();

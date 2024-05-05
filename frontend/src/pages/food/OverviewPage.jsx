@@ -59,10 +59,18 @@ export const OverviewPage = () => {
         <div className="flex h-full flex-col items-center gap-4">
           <PaperLayout.Content className="overflow-auto whitespace-pre-wrap text-primary-600">
             <div className="flex h-full flex-col gap-4">
-              {data.map(({ type, content }) => {
+              {data.map(({ type, content }, i) => {
                 if (type === 'title')
-                  return <div className="text-heading-h2">{content}</div>;
-                return <div className="text-paragraph-p3">{content}</div>;
+                  return (
+                    <div key={i} className="text-heading-h2">
+                      {content}
+                    </div>
+                  );
+                return (
+                  <div key={i} className="text-paragraph-p3">
+                    {content}
+                  </div>
+                );
               })}
             </div>
           </PaperLayout.Content>
