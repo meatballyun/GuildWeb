@@ -12,6 +12,7 @@ export const Button = ({
   prefix,
   suffix,
   children,
+  text,
   // sm, md, lg
   size = 'sm',
   // text, solid, solid
@@ -28,6 +29,7 @@ export const Button = ({
     >
       {prefix}
       {children}
+      {text}
       {suffix}
     </button>
   );

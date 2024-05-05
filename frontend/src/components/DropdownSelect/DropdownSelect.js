@@ -111,7 +111,6 @@ export const DropdownSelect = ({
 
   useEffect(() => {
     const clickHandler = (e) => {
-      console.log(inputRef.current.contains(e.target));
       if (
         inputRef.current.contains(e.target) ||
         dropdownRef.current?.contains(e.target)
