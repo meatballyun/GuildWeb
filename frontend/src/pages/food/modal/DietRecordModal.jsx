@@ -58,15 +58,7 @@ export const DietRecordModal = ({
       isOpen={isOpen}
       onClose={onClose}
       header="Add Diet Record"
-      footButton={
-        <Button
-          size="md"
-          className="w-full justify-center"
-          onClick={form.submit}
-        >
-          Submit
-        </Button>
-      }
+      footButton={[{ onClick: form.submit, text: 'Submit' }]}
     >
       <Form form={form}>
         <div className="flex h-[500px] w-full flex-col gap-2 overflow-hidden p-2">

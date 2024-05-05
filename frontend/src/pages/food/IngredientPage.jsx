@@ -11,6 +11,7 @@ import {
   Input,
   validate,
   Notification,
+  useDialog,
 } from '../../components';
 import {
   IngredientValue,
@@ -32,6 +33,7 @@ const ingredientDefaultValue = {
 };
 export const IngredientPage = ({ editMode = false }) => {
   useSideBar({ activeKey: ['foods', 'ingredients'] });
+  const { promptDialog, dialog } = useDialog();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -62,6 +64,14 @@ export const IngredientPage = ({ editMode = false }) => {
           },
           body: requestBody,
         });
+        if (res.status === 409) {
+          promptDialog({
+            header: 'Submit Error',
+            description:
+              'The ingredient is used in public recipes, so it cannot be adjusted to private',
+            footButton: [{ type: 'hollow', text: 'OK' }],
+          });
+        }
         if (res.status !== 200) throw Error();
         targetId = params.id;
       }
@@ -114,6 +124,7 @@ export const IngredientPage = ({ editMode = false }) => {
 
   return (
     <Form form={form} disabled={!editMode}>
+      {dialog}
       <Paper row className="flex gap-2">
         {/* left panel */}
         <div className="flex w-full flex-col items-center justify-center gap-2 p-2">
@@ -147,7 +158,10 @@ export const IngredientPage = ({ editMode = false }) => {
               </>
             ) : (
               <>
-                <Link to="/foods/ingredients/edit/new" state={ingredientDetail}>
+                <Link
+                  to="/foods/ingredients/edit/new"
+                  state={{ ...ingredientDetail, published: false }}
+                >
                   <Button
                     type="hollow"
                     size="md"

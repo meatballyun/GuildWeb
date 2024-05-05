@@ -90,6 +90,7 @@ export const RecordPage = () => {
           <div className="max-w-[640px] flex-1 space-y-4">
             {CALORIES.map(({ key, ...data }) => (
               <CalorieBar
+                key={key}
                 value={foodNutritionSum[key]}
                 target={dailyFood.target[key]}
                 {...data}
@@ -118,7 +119,11 @@ export const RecordPage = () => {
               <div className="flex flex-col items-start gap-2" key={category}>
                 <Category category={category} />
                 {foodList.map(({ recipe, amount, id }) => (
-                  <Link to={`/foods/recipes/${recipe.id}`} className="w-full">
+                  <Link
+                    to={`/foods/recipes/${recipe.id}`}
+                    key={id}
+                    className="w-full"
+                  >
                     <FoodBar
                       key={id}
                       {...recipe}
