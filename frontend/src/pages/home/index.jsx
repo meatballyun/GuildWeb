@@ -1,16 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../../api';
 import { Button, Loading, MaterialSymbol } from '../../components';
+import { formateIsoDate, getNutritionSum } from '../../utils';
 import { useSideBar } from '../_layout/MainLayout/SideBar';
 import { Block, PaperLayout } from '../_layout/components';
 import { CalorieBar } from '../food/RecordPage/CalorieBar';
 import { CALORIES } from '../food/RecordPage/RecordPage';
-import './styles.css';
-import { formateDate, formateIsoDate, getNutritionSum } from '../../utils';
 import { NutritionalSummaryChart } from '../food/components';
-import { Link } from 'react-router-dom';
-import { HeaderButton } from '../guild/MissionPage/HeaderButton';
 import { MissionBar } from '../guild/MissionPage/MissionBar';
+import './styles.css';
 
 const RecordBlock = () => {
   const [dailyFood, setDailyFood] = useState();
@@ -156,8 +155,14 @@ const MissionBlock = () => {
               );
             return (
               <div className="mt-4 flex h-full w-full flex-col items-start gap-2">
-                {filteredMission.map(({ id, ...data }) => (
-                  <MissionBar key={id} {...data} />
+                {filteredMission.map(({ id, gid, ...data }) => (
+                  <Link
+                    className="w-full"
+                    key={id}
+                    to={`guilds/${gid}/missions?focus-mission-id=${id}`}
+                  >
+                    <MissionBar {...data} />
+                  </Link>
                 ))}
               </div>
             );

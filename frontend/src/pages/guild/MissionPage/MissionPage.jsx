@@ -2,7 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button, Input, Loading, MaterialSymbol } from '../../../components';
 import { PaperLayout } from '../../_layout/components';
 import { api } from '../../../api';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 import { EmptyMissionDetail, MissionDetailBlock } from './MissionDetailBlock';
 import { useSideBar } from '../../_layout/MainLayout/SideBar';
 import { AddMissionModal } from '../modal';
@@ -18,6 +23,8 @@ import { useGuild, useUserMe } from '../../_layout';
  */
 export const MissionPage = ({ mode }) => {
   const params = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   useSideBar({ activeKey: ['guilds', params.gid] });
   const { userMe } = useUserMe();
   const navigate = useNavigate();
@@ -111,29 +118,43 @@ export const MissionPage = ({ mode }) => {
     })();
   }, [fetchMissions]);
 
-  const fetchMissionDetail = async (id) => {
+  const focusMissionId = useMemo(() => {
+    const id = searchParams.get('focus-mission-id');
+    if (!id) return null;
+    return +id;
+  }, [searchParams]);
+
+  const fetchMissionDetail = useCallback(async () => {
+    if (!focusMissionId) return;
     const res =
       mode === 'template'
         ? await api.guild.getTemplateDetail({
-            pathParams: { gid: params.gid, ttid: id },
+            pathParams: { gid: params.gid, ttid: focusMissionId },
           })
         : await api.guild.getGuildsTasksDetail({
-            pathParams: { gid: params.gid, tid: id },
+            pathParams: { gid: params.gid, tid: focusMissionId },
           });
+    if (res.status !== 200) return;
     const json = await res.json();
     return json.data;
-  };
-  const handleMissionClick = async (id) => {
-    const data = await fetchMissionDetail(id);
-    setSelectedDetail(data);
-  };
+  }, [focusMissionId, mode, params.gid]);
+
+  useEffect(() => {
+    (async () => {
+      const data = await fetchMissionDetail();
+      if (data) setSelectedDetail(data);
+    })();
+  }, [fetchMissionDetail]);
+
+  const handleMissionClick = (id) =>
+    setSearchParams({ 'focus-mission-id': id });
 
   const handleSubmitModal = async (value) => {
     const newDataId = await handleEditTasksFinish({
       type: modalStatus.type,
       mode,
       gid: params.gid,
-      selectedId: selectedDetail?.id,
+      selectedId: focusMissionId,
       value,
     });
     if (!newDataId) return;
@@ -154,43 +175,43 @@ export const MissionPage = ({ mode }) => {
 
       case 'accept': {
         await api.guild.getGuildsTasksAccepted({
-          pathParams: { gid: params.gid, tid: selectedDetail.id },
+          pathParams: { gid: params.gid, tid: focusMissionId },
         });
-        const data = await fetchMissionDetail(selectedDetail.id);
+        const data = await fetchMissionDetail();
         setSelectedDetail(data);
         break;
       }
 
       case 'complete': {
         await api.guild.patchGuildsTasksComplete({
-          pathParams: { gid: params.gid, tid: selectedDetail.id },
+          pathParams: { gid: params.gid, tid: focusMissionId },
         });
-        const data = await fetchMissionDetail(selectedDetail.id);
+        const data = await fetchMissionDetail();
         setSelectedDetail(data);
         break;
       }
 
       case 'submit': {
         await api.guild.patchGuildsTasksSubmit({
-          pathParams: { gid: params.gid, tid: selectedDetail.id },
+          pathParams: { gid: params.gid, tid: focusMissionId },
         });
-        const data = await fetchMissionDetail(selectedDetail.id);
+        const data = await fetchMissionDetail();
         setSelectedDetail(data);
         break;
       }
 
       case 'abandon': {
         await api.guild.getGuildsTasksAbandon({
-          pathParams: { gid: params.gid, tid: selectedDetail.id },
+          pathParams: { gid: params.gid, tid: focusMissionId },
         });
-        const data = await fetchMissionDetail(selectedDetail.id);
+        const data = await fetchMissionDetail();
         setSelectedDetail(data);
         break;
       }
 
       case 'restore':
         await api.guild.patchGuildsTasksRestore({
-          pathParams: { gid: params.gid, tid: selectedDetail.id },
+          pathParams: { gid: params.gid, tid: focusMissionId },
         });
         await fetchMissions();
         setSelectedDetail(undefined);
@@ -198,10 +219,10 @@ export const MissionPage = ({ mode }) => {
 
       case 'cancel': {
         await api.guild.patchGuildsTasksCancel({
-          pathParams: { gid: params.gid, tid: selectedDetail.id },
+          pathParams: { gid: params.gid, tid: focusMissionId },
         });
         await fetchMissions();
-        const data = await fetchMissionDetail(selectedDetail.id);
+        const data = await fetchMissionDetail();
         setSelectedDetail(data);
         break;
       }
@@ -209,18 +230,18 @@ export const MissionPage = ({ mode }) => {
       case 'disable':
       case 'enable': {
         await api.guild.putTemplate({
-          pathParams: { gid: params.gid, ttid: selectedDetail.id },
+          pathParams: { gid: params.gid, ttid: focusMissionId },
           body: { ...selectedDetail, enabled: !selectedDetail.enabled },
         });
         await fetchMissions();
-        const data = await fetchMissionDetail(selectedDetail.id);
+        const data = await fetchMissionDetail();
         setSelectedDetail(data);
         break;
       }
 
       case 'delete':
         await api.guild.deleteGuildsTasks({
-          pathParams: { gid: params.gid, tid: selectedDetail.id },
+          pathParams: { gid: params.gid, tid: focusMissionId },
         });
         await fetchMissions();
         setSelectedDetail(undefined);
@@ -234,7 +255,7 @@ export const MissionPage = ({ mode }) => {
       pathParams: { gid: params.gid },
       body: { itemRecordId },
     });
-    const data = await fetchMissionDetail(selectedDetail.id);
+    const data = await fetchMissionDetail();
     setSelectedDetail(data);
   };
 
@@ -348,37 +369,41 @@ export const MissionPage = ({ mode }) => {
               </Button>
             )}
           </div>
-          {selectedDetail ? (
-            <MissionDetailBlock
-              key={selectedDetail.id}
-              detail={selectedDetail}
-              className="w-full"
-              onCheckItemClick={handleCheckboxClick}
-              mode={mode}
-              headerBtn={
-                mode && (
-                  <MaterialSymbol
-                    onClick={() => {
-                      setModalStatus({
-                        isOpen: true,
-                        formData: selectedDetail,
-                      });
-                    }}
-                    icon="content_copy"
-                    className="float-right cursor-pointer rounded-full hover:bg-primary-300/50"
-                  />
-                )
-              }
-              footerBtn={getMissionDetailBtn({
-                detail: selectedDetail,
-                mode,
-                onBtnClick: handleBtnClick,
-                userId: userMe.id,
-              })}
-            />
-          ) : (
-            <EmptyMissionDetail className="w-full" />
-          )}
+          {(() => {
+            if (!focusMissionId)
+              return <EmptyMissionDetail className="w-full" />;
+            if (!selectedDetail)
+              return <EmptyMissionDetail className="w-full" />;
+            return (
+              <MissionDetailBlock
+                key={selectedDetail.id}
+                detail={selectedDetail}
+                className="w-full"
+                onCheckItemClick={handleCheckboxClick}
+                mode={mode}
+                headerBtn={
+                  mode && (
+                    <MaterialSymbol
+                      onClick={() => {
+                        setModalStatus({
+                          isOpen: true,
+                          formData: selectedDetail,
+                        });
+                      }}
+                      icon="content_copy"
+                      className="float-right cursor-pointer rounded-full hover:bg-primary-300/50"
+                    />
+                  )
+                }
+                footerBtn={getMissionDetailBtn({
+                  detail: selectedDetail,
+                  mode,
+                  onBtnClick: handleBtnClick,
+                  userId: userMe.id,
+                })}
+              />
+            );
+          })()}
         </div>
       </PaperLayout>
       <AddMissionModal

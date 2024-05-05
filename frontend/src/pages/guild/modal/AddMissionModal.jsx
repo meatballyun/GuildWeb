@@ -29,20 +29,24 @@ const CheckList = ({ value = [], onChange }) => {
   };
 
   const handleItemRemove = (index) => {
-    const newValue = [...value].filter((_, i) => i !== index);
+    const newValue = [...value];
+    newValue[index].content = null;
     onChange(newValue);
   };
 
   return (
     <div className="flex flex-col gap-2">
-      {value?.map(({ content }, i) => (
-        <CheckListItem
-          key={i}
-          value={content}
-          onChange={(v) => handleItemChange(v, i)}
-          onRemove={() => handleItemRemove(i)}
-        />
-      ))}
+      {value?.map(({ content }, i) => {
+        if (content === null) return null;
+        return (
+          <CheckListItem
+            key={i}
+            value={content}
+            onChange={(v) => handleItemChange(v, i)}
+            onRemove={() => handleItemRemove(i)}
+          />
+        );
+      })}
       <Button
         type="hollow"
         onClick={() => onChange([...value, { content: '' }])}
@@ -86,7 +90,7 @@ const validateObject = {
   ],
   items: [
     ({ value }) => {
-      if (value?.some(({ content }) => !content))
+      if (value?.some(({ content }) => !content && content !== null))
         throw Error('content should not be empty');
     },
   ],
@@ -113,12 +117,7 @@ export const AddMissionModal = ({
         ? formData.type[0]
         : formData.type;
 
-      // const currentItem = modalStatus.formData?.item ? [] : formData.item;
-      await onFinish?.({
-        ...formData,
-        // item: currentItem,
-        type: currentType,
-      });
+      await onFinish?.({ ...formData, type: currentType });
       onClose?.();
     },
     defaultValue,
@@ -134,7 +133,11 @@ export const AddMissionModal = ({
       {...props}
       isOpen={modalStatus.isOpen}
       onClose={onClose}
-      header={mode === 'template' ? 'Add Template Mission' : 'Add Mission'}
+      header={
+        mode === 'template'
+          ? `${modalStatus.type ?? 'Add'} Template Mission`
+          : `${modalStatus.type ?? 'Add'} Mission`
+      }
       footButton={[{ onClick: form.submit, text: 'Submit' }]}
     >
       <Form form={form}>

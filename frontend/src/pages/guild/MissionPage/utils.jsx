@@ -1,11 +1,10 @@
 import { api } from '../../../api';
 import { MaterialSymbol } from '../../../components';
 import { COLORS } from '../../../styles';
-import { formateIsoDate } from '../../../utils';
+import { endOfDate, startOfDate } from '../../../utils';
 
 const getBasicMissionBtnProps = ({
   status,
-  accepted,
   isAccepted,
   adventurers,
   maxAccept,
@@ -167,47 +166,48 @@ export const getMissionDetailBtn = ({ detail, mode, userId, onBtnClick }) => {
   });
 };
 
-export const handleEditTasksFinish = async ({
-  type,
-  mode,
-  gid,
-  selectedId,
-  value,
-}) => {
+const taskApi = async ({ type, mode, gid, selectedId, value }) => {
+  const startDate = startOfDate(value.initiationTime).toISOString();
+  const endDate = endOfDate(value.deadline).toISOString();
+
   if (mode === 'template') {
     const { initiationTime, deadline, ...otherValue } = value;
-    const data = await api.guild.postTemplate({
-      pathParams: { gid },
-      body: {
-        ...otherValue,
-        generationTime: initiationTime ? new Date(initiationTime) : new Date(),
-        deadline: deadline ? new Date(deadline) : new Date(),
-      },
+    const requestBody = {
+      ...otherValue,
+      generationTime: startDate,
+      deadline: endDate,
+    };
+    if (type === 'edit') {
+      return api.guild.postTemplate({
+        pathParams: { gid },
+        body: requestBody,
+      });
+    }
+    return api.guild.putTemplate({
+      pathParams: { gid, ttid: selectedId },
+      body: requestBody,
     });
-    const json = await data.json();
-    return json.data.id;
   }
+  const requestBody = {
+    ...value,
+    taskId: selectedId,
+    initiationTime: startDate,
+    deadline: endDate,
+  };
   if (type === 'edit') {
-    const data = await api.guild.putGuildsTasks({
+    return api.guild.putGuildsTasks({
       pathParams: { gid, tid: selectedId },
-      body: {
-        ...value,
-        taskId: selectedId,
-        initiationTime: formateIsoDate(value.initiationTime ?? new Date()),
-        deadline: formateIsoDate(value.deadline ?? new Date()),
-      },
+      body: requestBody,
     });
-    const json = await data.json();
-    return json.data.id;
   }
-  const data = await api.guild.postGuildsTasks({
+  return api.guild.postGuildsTasks({
     pathParams: { gid },
-    body: {
-      ...value,
-      initiationTime: formateIsoDate(value.initiationTime ?? new Date()),
-      deadline: formateIsoDate(value.deadline ?? new Date()),
-    },
+    body: requestBody,
   });
+};
+
+export const handleEditTasksFinish = async (param) => {
+  const data = await taskApi(param);
   const json = await data.json();
   return json.data.id;
 };
