@@ -1,7 +1,7 @@
 import { formateDate } from '../utils';
 import { MaterialSymbol } from './MaterialSymbol';
 
-const ONE_DAY_MILLISECOND = 1000 * 60 * 60 * 24;
+export const ONE_DAY_MILLISECOND = 1000 * 60 * 60 * 24;
 
 export const DatePicker = ({ value: valueProp = new Date(), onChange }) => {
   const handleDateChange = (value) => {

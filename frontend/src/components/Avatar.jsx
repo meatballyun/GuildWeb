@@ -29,10 +29,10 @@ export const Avatar = ({ className, size, url, name = '' }) => {
 export const AvatarGroup = ({ userList, extraFix, size }) => {
   return (
     <div className="flex -space-x-2">
-      {userList.map(({ name, ...user }, i) => (
-        <div className="relative">
+      {userList.map(({ name, id, ...user }) => (
+        <div className="relative" key={id}>
           {extraFix?.({ name, ...user })}
-          <Avatar size={size} key={i} name={name} {...user} />
+          <Avatar size={size} name={name} {...user} />
         </div>
       ))}
     </div>

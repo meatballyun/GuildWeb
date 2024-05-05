@@ -24,15 +24,15 @@ export const MissionStatusWithColor = ({ status, className }) => {
   return <div className={classNames(className, colorClassName)}>{status}</div>;
 };
 
-export const MissionPill = ({ type, repetitiveTaskType, onClick, suffix }) => {
+export const MissionPill = ({ type, onClick, suffix }) => {
   const { background, text } = (() => {
     switch (type) {
-      case 'Repetitive':
-        if (repetitiveTaskType === 'Daily')
-          return { background: COLORS.green, text: repetitiveTaskType };
-        if (repetitiveTaskType === 'Weekly')
-          return { background: COLORS.blue, text: repetitiveTaskType };
-        return { background: COLORS.orange, text: repetitiveTaskType };
+      case 'Daily':
+        return { background: COLORS.green, text: type };
+      case 'Weekly':
+        return { background: COLORS.blue, text: type };
+      case 'Monthly':
+        return { background: COLORS.orange, text: type };
       case 'Ordinary':
         return { background: COLORS['primary-200'], text: type };
       case 'Emergency':
@@ -69,10 +69,12 @@ export const MembershipPill = ({ membership, suffix, onClick }) => {
     }
   })();
 
+  const fixedMembership = membership === 'Vice' ? 'Vice Master' : membership;
+
   if (!background) return null;
   return (
     <Pill onClick={onClick} style={{ background }}>
-      {membership}
+      {fixedMembership}
       {suffix}
     </Pill>
   );
@@ -94,7 +96,7 @@ const MemberShipSelect = ({ value: valueProp, onChange }) => {
             valueProp === 'Pending'
               ? [{ label: 'Delete', value: 'Delete' }]
               : [
-                  { label: 'Vice', value: 'Vice' },
+                  { label: 'Vice Master', value: 'Vice' },
                   { label: 'Regular', value: 'Regular' },
                   {
                     label: <span className="text-red">Delete</span>,

@@ -7,6 +7,7 @@ export const EmailModal = ({
   email,
   sendEmailTime: propSendEmailTime,
   isOpen,
+  description,
   ...props
 }) => {
   const [sendEmailTime, setSendEmailTime] = useState(new Date().valueOf());
@@ -42,9 +43,8 @@ export const EmailModal = ({
 
   return (
     <Modal {...props} isOpen={isOpen}>
-      <div className="flex h-40 flex-col items-center justify-center gap-4 text-center text-paragraph-p3">
-        Didn’t receive it? Click the button below to resend the verification
-        email
+      <div className="flex h-40 flex-col items-center justify-center gap-4 whitespace-pre-wrap text-center text-paragraph-p3">
+        {description}
       </div>
       <div>
         <Button
@@ -56,7 +56,7 @@ export const EmailModal = ({
           {(() => {
             if (loading) return <Loading />;
             if (count > 0)
-              return `After ${count} seconds, you can try resending the verification email.`;
+              return `After ${count} seconds, you can resend the verification email again.`;
             return 'resend the verification email';
           })()}
         </Button>

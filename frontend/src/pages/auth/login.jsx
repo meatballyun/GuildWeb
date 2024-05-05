@@ -71,7 +71,11 @@ export const Login = () => {
           {<Notification />}
           <Form form={form}>
             <div className="flex w-[240px] flex-col gap-4">
-              <Form.Item valueKey="email" label="E-MAIL">
+              <Form.Item
+                normalize={(v) => v.replaceAll(' ', '')}
+                valueKey="email"
+                label="E-MAIL"
+              >
                 <Input type="underline" />
               </Form.Item>
               <Form.Item valueKey="password" label="PASSWORD">
@@ -98,6 +102,7 @@ export const Login = () => {
       <EmailModal
         key={modalStatus.isOpen ? 'email' : 'emailClose'}
         header="This Email is registered but not verified yet"
+        description="Didn’t receive it? Click the button below to resend the verification email"
         email={form.formData.email}
         onClose={() => setModalStatus({ isOpen: false })}
         isOpen={modalStatus.isOpen === 'email'}

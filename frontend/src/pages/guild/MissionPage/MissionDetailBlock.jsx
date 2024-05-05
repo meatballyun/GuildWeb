@@ -37,12 +37,14 @@ export const MissionDetailBlock = ({
   onCheckItemClick,
   headerBtn,
   footerBtn,
+  mode,
 }) => {
   const {
     type,
     repetitiveTaskType,
     name,
     initiationTime,
+    generationTime,
     deadline,
     status,
     description,
@@ -66,59 +68,75 @@ export const MissionDetailBlock = ({
       <div className="flex h-full w-full flex-col">
         <div className="flex h-full w-full flex-col items-start gap-2 overflow-auto pb-2">
           <Block.Item label="Creator">
-            <div className="flex items-center">
-              <Avatar size={24} url={creator.imageUrl} name={creator.name} />
-              <span className="ml-1">{creator.name}</span>
-            </div>
+            {creator && (
+              <div className="flex items-center">
+                <Avatar size={24} url={creator.imageUrl} name={creator.name} />
+                <span className="ml-1">{creator.name}</span>
+              </div>
+            )}
           </Block.Item>
           <Block.Item label="Type">
             <MissionPill type={type} repetitiveTaskType={repetitiveTaskType} />
           </Block.Item>
-          <Block.Item label="Time">
-            {formateDate(initiationTime)} ~ {formateDate(deadline)}
-          </Block.Item>
-          <Block.Item label="Status">
-            <div className="flex items-center gap-2">
-              <MissionStatusWithColor
-                className="border-r-2 border-primary-200 pr-2"
-                status={status}
-              />
-              <span>
-                adventurers ({adventurers.length}/{maxAdventurer}):
-              </span>
-              {(() => {
-                if (!adventurers?.length) return 'None';
-                return (
-                  <AvatarGroup
-                    extraFix={({ status }) => {
-                      if (status === 'Completed')
-                        return (
-                          <div className="absolute -left-[2px] -top-[2px] z-10 flex h-[10px] w-[10px] items-center justify-center rounded-full border border-primary-100 bg-green text-primary-100">
-                            <MaterialSymbol icon="done" size={8} weight={800} />
-                          </div>
-                        );
-                      if (status === 'Failed')
-                        return (
-                          <div className="absolute -left-[2px] -top-[2px] z-10 flex h-[10px] w-[10px] items-center justify-center rounded-full border border-primary-100 bg-red text-primary-100">
-                            <MaterialSymbol
-                              icon="close"
-                              size={8}
-                              weight={800}
-                            />
-                          </div>
-                        );
-                    }}
-                    userList={adventurers.map(({ imageUrl, name, status }) => ({
-                      url: imageUrl,
-                      name,
-                      status,
-                    }))}
-                    size={24}
-                  />
-                );
-              })()}
-            </div>
-          </Block.Item>
+          {mode === 'template' ? (
+            <Block.Item label="Time">
+              {formateDate(generationTime)} ~ {formateDate(deadline)}
+            </Block.Item>
+          ) : (
+            <Block.Item label="Time">
+              {formateDate(initiationTime)} ~ {formateDate(deadline)}
+            </Block.Item>
+          )}
+          {mode !== 'template' && (
+            <Block.Item label="Status">
+              <div className="flex items-center gap-2">
+                <MissionStatusWithColor
+                  className="border-r-2 border-primary-200 pr-2"
+                  status={status}
+                />
+                <span>
+                  adventurers ({adventurers?.length ?? 0}/{maxAdventurer}):
+                </span>
+                {(() => {
+                  if (!adventurers?.length) return 'None';
+                  return (
+                    <AvatarGroup
+                      extraFix={({ status }) => {
+                        if (status === 'Completed')
+                          return (
+                            <div className="absolute -left-[2px] -top-[2px] z-10 flex h-[10px] w-[10px] items-center justify-center rounded-full border border-primary-100 bg-green text-primary-100">
+                              <MaterialSymbol
+                                icon="done"
+                                size={8}
+                                weight={800}
+                              />
+                            </div>
+                          );
+                        if (status === 'Failed')
+                          return (
+                            <div className="absolute -left-[2px] -top-[2px] z-10 flex h-[10px] w-[10px] items-center justify-center rounded-full border border-primary-100 bg-red text-primary-100">
+                              <MaterialSymbol
+                                icon="close"
+                                size={8}
+                                weight={800}
+                              />
+                            </div>
+                          );
+                      }}
+                      userList={adventurers.map(
+                        ({ imageUrl, name, status }) => ({
+                          url: imageUrl,
+                          name,
+                          status,
+                        })
+                      )}
+                      size={24}
+                    />
+                  );
+                })()}
+              </div>
+            </Block.Item>
+          )}
           <Block.Item
             label="Description"
             className="mt-2 min-h-40 w-full rounded-lg bg-primary-100"
