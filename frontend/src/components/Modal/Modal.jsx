@@ -38,7 +38,11 @@ export const ModalContent = forwardRef(
             {footButton && (
               <div className="flex gap-2 border-t-2 border-primary-200/30 p-2">
                 {footButton.map((props, i) => (
-                  <Button {...props} key={props.key ?? i} />
+                  <Button
+                    className="w-full justify-center"
+                    {...props}
+                    key={props.key ?? i}
+                  />
                 ))}
               </div>
             )}
@@ -66,11 +70,6 @@ export const Modal = ({
     if (!allowCloseOutside) return;
     const clickHandler = (e) => {
       if (modalRef.current.contains(e.target)) return;
-      console.log(
-        modalRef.current,
-        e.target,
-        modalRef.current.contains(e.target)
-      );
       onClose(false);
     };
     window.addEventListener('click', clickHandler);

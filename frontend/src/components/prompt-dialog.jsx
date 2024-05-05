@@ -29,7 +29,6 @@ const BasicPromptDialog = ({
             onClick?.();
             onClose?.();
           },
-          className: 'w-full justify-center',
           ...buttonProps,
         })
       )}

@@ -21,8 +21,8 @@
 }
 
 .dropdown-select__option {
-  @apply relative my-1 cursor-pointer rounded-sm p-2;
-  &::after {
+  @apply relative my-1 flex cursor-pointer items-center justify-between rounded-sm p-2;
+  &:not(:last-child)::after {
     content: '';
     position: absolute;
     bottom: -2.5px;

@@ -31,13 +31,15 @@ export const Dropdown = forwardRef(
               onClick={() => onItemClick?.(item.value, item)}
             >
               {item.label}
-              {selected && (
+              {selected ? (
                 <MaterialSymbol
                   icon="done"
                   size={16}
                   weight={800}
                   className="float-end text-primary-400"
                 />
+              ) : (
+                <div className="pr-4" />
               )}
             </div>
           );
@@ -125,7 +127,9 @@ export const DropdownSelect = ({
   }, []);
 
   useEffect(() => {
+    if (!inputRef.current) return;
     const resetPos = () => {
+      if (!inputRef.current) return;
       const rect = inputRef.current.getBoundingClientRect();
       setInputRect(rect);
     };

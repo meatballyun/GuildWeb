@@ -61,14 +61,17 @@ export const DietRecordModal = ({
       footButton={[{ onClick: form.submit, text: 'Submit' }]}
     >
       <Form form={form}>
-        <div className="flex h-[500px] w-full flex-col gap-2 overflow-hidden p-2">
+        <div className="flex w-full flex-col gap-2 overflow-hidden p-2">
           <Form.Item valueKey="date" label="Date">
             <DatePicker />
           </Form.Item>
           <Form.Item valueKey="category" label="Category">
             <DropdownSelect
               placeholder="select category"
-              renderValue={(_, { custom }) => custom?.label}
+              renderValue={(_, option) => {
+                const { custom } = option?.[0] ?? {};
+                return custom?.label;
+              }}
               options={CATEGORIES.map(({ value, label, color }) => ({
                 value,
                 label: <span style={{ color }}>{label}</span>,
@@ -80,7 +83,10 @@ export const DietRecordModal = ({
             <Form.Item valueKey="recipe" className="w-1/2" label="Recipe">
               <DropdownSelect
                 placeholder="select recipe"
-                renderValue={(_, { custom }) => custom?.recipe?.name}
+                renderValue={(_, option) => {
+                  const { custom } = option?.[0] ?? {};
+                  return custom?.recipe?.name;
+                }}
                 options={recipeList.map((recipe) => ({
                   value: recipe.id,
                   label: <FoodBar {...recipe} className="!bg-white/0 p-0" />,
