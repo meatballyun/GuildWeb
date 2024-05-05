@@ -77,7 +77,7 @@ const getGuildSidebarItem = (guilds = []) => ({
     },
     ...guilds.map(({ id, name, imageUrl }) => ({
       label: (
-        <div className="flex items-start gap-1">
+        <div key={id} className="flex items-start gap-1">
           <Avatar size={20} name={name} className="mt-[2px]" url={imageUrl} />
           {name}
         </div>
@@ -179,8 +179,8 @@ const MenuItem = ({ children, route, icon, label, name, ...props }) => {
           <div className="ml-4 grid gap-2 border-l-2 border-dotted border-primary-300 pl-2 pt-2">
             {children.map(({ name: childName, ...childProp }) => (
               <MenuItem
-                name={[...currentName, childName]}
                 key={childName}
+                name={[...currentName, childName]}
                 {...childProp}
               />
             ))}

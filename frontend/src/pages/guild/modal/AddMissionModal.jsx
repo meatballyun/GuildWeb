@@ -37,6 +37,7 @@ const CheckList = ({ value = [], onChange }) => {
     <div className="flex flex-col gap-2">
       {value?.map(({ content }, i) => (
         <CheckListItem
+          key={i}
           value={content}
           onChange={(v) => handleItemChange(v, i)}
           onRemove={() => handleItemRemove(i)}
@@ -134,15 +135,7 @@ export const AddMissionModal = ({
       isOpen={modalStatus.isOpen}
       onClose={onClose}
       header={mode === 'template' ? 'Add Template Mission' : 'Add Mission'}
-      footButton={
-        <Button
-          size="md"
-          className="w-full justify-center"
-          onClick={form.submit}
-        >
-          Submit
-        </Button>
-      }
+      footButton={[{ onClick: form.submit, text: 'Submit' }]}
     >
       <Form form={form}>
         <div className="flex h-[500px] w-full flex-col gap-4 overflow-auto p-2">
