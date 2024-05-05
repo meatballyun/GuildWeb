@@ -46,7 +46,7 @@ export const ValidationPage = () => {
             return (
               <>
                 <div>Verification successful.</div>
-                <div>Automatically redirecting in five seconds.</div>
+                <div>Automatically redirecting in 5 seconds.</div>
                 <div>If not redirected, please click the button below.</div>
                 <Link to="/login">
                   <Button type="hollow">go to Login page</Button>

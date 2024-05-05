@@ -91,6 +91,7 @@ export const SignUp = () => {
       <EmailModal
         {...modalStatus}
         header="The verification Email has been sent"
+        description={`Certification confirmation should take a few minutes, or check your spam folder for the verification email.\n\nDidn’t receive it? Click the button below to resend the verification email`}
         onClose={() => setModalStatus({ isOpen: false })}
         email={form.formData.email}
       />
