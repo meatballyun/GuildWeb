@@ -15,10 +15,12 @@ const signUpEmail = (EMAIL, ID, CODE) => {{
     }
 }}
 
+// 使用 UPPER_CASE 來命名的部分，再去看一下網路上大家常用的做法吧，全大寫通常是用來當作 Constant 或 Global Variable 的
 const passwordResetEmail = (EMAIL, ID, CODE) => {{
   const ADDRESS = process.env.NODE_ENV === 'development' ? process.env.TEST_MAIL : EMAIL;
   const VALIDATION_URL = process.env.NODE_ENV === 'development' ? process.env.FE_URL : process.env.API_SERVICE_URL;
 
+  // 使用 string 組裝 SQL Query 的話，最好是注意一下 sql injection 的問題，至少 escape 掉有可能有風險的 characters 吧
   return {
     from: process.env.MAIL_USER,
     to: ADDRESS,

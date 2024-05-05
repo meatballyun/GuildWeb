@@ -15,6 +15,8 @@ const transporter = nodemailer.createTransport({
   socketTimeout: 60000
 });
 
+
+// 他的名稱 confirmationCode 是名詞，用來當 function 名稱是有什麼理由？
 const confirmationCode = (code) => {
   return new Promise((resolve, reject) => {
     bcrypt.hash(code, 10, function (err, hash) {
@@ -34,10 +36,15 @@ class MailController {
       if (confirmationMail?.length) {
         return next(new ApplicationError(409, "This email address has already been signup."));
       }
+
+      // 你使用 UPPER_CASE 有特別含意嗎？通常來說 UPPER_CASE 的 variable 代表的意義是：Constants Variable 或是 Global Variable
       const CODE = await confirmationCode(req.body.uid + req.body.email + "SignUp");
       await ConfirmationEmail.addConfirmationEmail(req.body.uid, "SignUp", CODE);
+
       transporter.sendMail(signUpEmail(req.body.email, req.body.uid, CODE), function(err, info){
         if(err){
+          // 建議你可以看看兩個東西，一個是 Early Return，當你寫越多 if, else 你的 procedure 越巢狀，之後越難維護，Early Return 是一個解決的方法
+          // 然後你都已經定義 Custom Error 而且也有寫 Error Handler 了，有錯就直接 throw 了吧
           return next(new ApplicationError(404, 'Email address not found.'));
         } else{
           console.log("Email sent: " + info.response);
@@ -49,6 +56,7 @@ class MailController {
         }
       })
     } catch (err) {
+      // 這邊如果有預期外的錯誤應該是 500 (Internal Error) 吧？ 而不是 400 (Bad Request)
       return next(new ApplicationError(400, err));
     }
   }
@@ -56,10 +64,15 @@ class MailController {
   async resendSignUp(req, res, next) {
     try {
       const user = await User.getUserByEmail(req.body.email);
+      
+      // 這個就是 Early Return
       if(!user?.length){
         return next(new ApplicationError(404, "The email address you clicked on has not been registered with any account."));
       }
-      const [ query ] = await ConfirmationEmail.getConfirmationEmailsByUserId(user[0].ID, "SignUp");
+
+      // 你的 prettier 是不是沒有設定好，還是你根本沒有使用 prettier，為什麼有些會是 `[ variable ]` 有些會是 `[variable]`
+      const [ query ] = await ConfirmationEmail.getConfirmationEmailsByUserId(user.ID, "SignUp");
+      // 那這邊為什麼又不使用 Early Return 了？
       if (!query || query?.length) {
         req.body.uid = user[0].ID;
         next();
@@ -84,37 +97,45 @@ class MailController {
     }
   }
 
+  // 這個當範例，我直接改一次寫法
   async sendResetPassword(req, res, next) {
-    try {
-      const user = await User.getUserByEmail(req.body.email);
-      if(!user?.length){
-        return next(new ApplicationError(404, "The email address you clicked on has not been registered with any account."));
-      }
-      const [ query ] = await ConfirmationEmail.getConfirmationEmailsByUserId(user[0].ID, "SignUp");
-      if (!query || query?.length) {
-        return next(new ApplicationError(404, "The email address has not been verified."));
-      } else if(query.STATUS === "Pending"){
-        return next(new ApplicationError(403, "The email address has not been verified."));
-      } else {
-        const CODE = await confirmationCode(user[0].ID + req.body.email + "ForgotPassword");
-        await ConfirmationEmail.addConfirmationEmail(user[0].ID, "ForgotPassword", CODE);
-        transporter.sendMail(passwordResetEmail(req.body.email, user[0].ID, CODE), function(err, info){
-          if(err){
-            return next(new ApplicationError(404, "Email address not found."));
-          } else{
-            console.log("Email sent: " + info.response);
-            return res.status(200).json({
-              success: true,
-              message: "Email send successfully.",
-              data: "OK"
-            });
-          }
-        })
-      }
-      
-    } catch (err) {
-      return next(new ApplicationError(400, err));
+    const users = await User.getUserByEmail(req.body.email);
+
+    // Check if the current exits
+    const user = users?.[0]
+    if (!user) {
+      throw new ApplicationError(404, "The email address you clicked on has not been registered with any account.")
     }
+
+    // Check if the confirmation email exists
+    const confirmationEmail = (await ConfirmationEmail.getConfirmationEmailsByUserId(user.ID, "SignUp"))?.[0];
+    if (!confirmationEmail) {
+      throw new ApplicationError(404, "The email address has not been verified.")
+    }
+
+    // Prevent the email status is pending
+    if (confirmationEmail.STATUS === "Pending") {
+      // 順帶問一下，這個 403 是寫錯？
+      throw new ApplicationError(403, "The email address has not been verified.")
+    }
+
+    // 命名不夠好，單看下面這段 Code 我看不懂邏輯 (所以我就不調整了)
+    const code = await confirmationCode(user.ID + req.body.email + "ForgotPassword");
+    await ConfirmationEmail.addConfirmationEmail(user.ID, "ForgotPassword", code);
+
+    // Send Email
+    await new Promise((resolve, reject) => transporter.sendMail(passwordResetEmail(req.body.email, user.ID, code), function (err, info) {
+      if (err) {
+        return reject(new ApplicationError(404, "Email address not found."));
+      }
+      resolve(info)
+    }))
+
+    return res.status(200).json({
+      success: true,
+      message: "Email send successfully.",
+      data: "OK"
+    });
   }
     
   async validationResetPassword(req, res, next) {

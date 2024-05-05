@@ -10,6 +10,8 @@ class DietRecordController {
     async getDietRecords(req, res, next) {
         try {
             const [ userinfo ] = await User.getUserById(req.session.passport.user);
+
+            // 命名 query 真的不好理解，可以改命名 dietRecords 之類的嗎？
             const query = await DietRecord.getDietRecord(req.session.passport.user, req.query.date);
             if(query?.length){
                 const dietRecords = await Promise.all(query.map(async (rows) => {
@@ -33,6 +35,7 @@ class DietRecordController {
                 }));
                 const data = {
                     target: {
+                        // 建議可以裝一下 Code Spell Checker 的套件，userinfo 會被標上藍線，你就會注意到可能要改成 userInfo 了
                         carbs: userinfo.CARBS,
                         pro: userinfo.PRO,
                         fats: userinfo.FATS,
