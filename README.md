@@ -30,12 +30,11 @@ This is a platform designed to address the need for recording various aspects of
 * `/backend/lib/db.js` - creates a database connection.
 * `/backend/models/*` - handle database operations.
 * `/backend/controllers/*` - handle request processing and business logic in the application.
-* `/backend/utils/*` - handles error message processing.
+* `/backend/utils/*` - common utility functions and modules.
 * `/backend/verification/*` - manages user authentication.
 * `/backend/public/uploads/*` - manages file upload and store.
 
 ### Frontend
-
 - `/frontend/public/*` - assets on public path
 - `/frontend/src/api/*` - functions related to the API
 - `/frontend/src/assets/*` - the static assets including images
@@ -88,31 +87,32 @@ Install frontend dependencies:
     ```.ENV
     # Environment
     NODE_ENV = development
-
+    
     # Database
     DB_HOST = localhost
-    DB_NAME = guildweb
     DB_USER = root
     DB_PASS = your_mysql_root_password
-
+    DB_DATABASE = guildweb
+    
     # Session
     SESSION_SECRET = your_session_secret
-
+    
     # JWT
     JWT_SECRET = your_jwt_secret
-
+    
     # Mail
-    MAIL_USER = your_email_username
+    MAIL_ADDRESS = your_email_address
     MAIL_PASS = your_email_password
-
+    
     # Server
-    PORT=3010
-
-    # URL
-    FE_URL = http://localhost:3000
-
-    # Path
-    UPLOAD_PATH = uploads
+    FE_URL = http://localhost
+    FE_PORT = 3000
+    BE_URL = http://localhost
+    BE_PORT = 3001
+    API_SERVICE_URL = your_service_url
+    
+    # Version
+    VERSION = "1.0.0"
     ```
 
     Ensure you replace `your_mysql_root_password` with your MySQL root password and other placeholders with appropriate values relevant to your setup.
