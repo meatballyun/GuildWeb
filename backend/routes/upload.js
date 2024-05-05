@@ -7,6 +7,4 @@ const imageController = new (require('../controllers/upload/imageControllers'))(
 
 router.post('/images', auth, awaitHandlerFactory(imageController.saveImage));
 
-//router.delete('/images/:url', auth, imageController.saveImage);
-
 module.exports = router;

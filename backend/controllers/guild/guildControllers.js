@@ -117,7 +117,7 @@ class GuildController {
 
   async addCabin(req, res, next) {
     const description = `In your Personal Cabin, you have the flexibility to select from various task types like 'Ordinary', 'Emergency', and 'Repetitive', tailoring them to your specific needs. Additionally, you can customize the recurrence frequency, whether it's daily, weekly, or monthly, to suit your schedule. Furthermore, tasks can be further broken down into multiple sub-goals, empowering you to gain a comprehensive overview of your pending tasks and strategize your approach for more efficient planning and completion.`;
-    const imageUrl = `${process.env.UPLOAD_PATH}uploads/image/guild/Castle.svg`;
+    const imageUrl = `${process.env.API_SERVICE_URL}uploads/image/guild/Castle.svg`;
     const newGuild = await Guild.create(
       req.session.passport.user,
       'Personal Cabin',
