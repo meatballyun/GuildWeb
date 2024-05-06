@@ -46,7 +46,6 @@ class RecipeModel {
   }
 
   static getAllByUserAndName(CREATOR, NAME) {
-    console.log(NAME);
     return new Promise((resolve, reject) => {
       connection.query(
         'SELECT * FROM recipes WHERE CREATOR = ? AND NAME LIKE ? AND ACTIVE = TRUE',
@@ -66,7 +65,7 @@ class RecipeModel {
     return new Promise((resolve, reject) => {
       connection.query(
         'SELECT * FROM recipes WHERE CREATOR != ? AND NAME = ? AND PUBLISHED = TRUE AND ACTIVE = TRUE',
-        [CREATOR, NAME],
+        [CREATOR, '%' + NAME + '%'],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -78,11 +77,11 @@ class RecipeModel {
     });
   }
 
-  static create(CREATOR, NAME, DESCRIPTION, CARBS, PRO, FATS, KCAL, UNIT, IMAGE_URL, PUBLISHED) {
+  static create(creator, {name, description, carbs, pro, fats, kcal, unit, imageUrl, published }) {
     return new Promise((resolve, reject) => {
       connection.query(
         'INSERT INTO recipes(CREATOR, NAME, DESCRIPTION, CARBS, PRO, FATS, KCAL, UNIT, IMAGE_URL, PUBLISHED) VALUES (?,?,?,?,?,?,?,?,?,?)',
-        [CREATOR, NAME, DESCRIPTION, CARBS, PRO, FATS, KCAL, UNIT, IMAGE_URL, PUBLISHED],
+        [creator, name, description, carbs, pro, fats, kcal, unit, imageUrl, published ],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -115,11 +114,11 @@ class RecipeModel {
     });
   }
 
-  static update(ID, NAME, DESCRIPTION, CARBS, PRO, FATS, KCAL, UNIT, IMAGE_URL, PUBLISHED) {
+  static update(id, { name, description, carbs, pro, fats, kcal, unit, imageUrl, published }) {
     return new Promise((resolve, reject) => {
       connection.query(
         'UPDATE recipes SET NAME = ?, DESCRIPTION = ?, CARBS = ?, PRO = ?, FATS = ?, KCAL = ?, UNIT = ?, IMAGE_URL = ?, PUBLISHED = ? WHERE ID = ?',
-        [NAME, DESCRIPTION, CARBS, PRO, FATS, KCAL, UNIT, IMAGE_URL, PUBLISHED, ID],
+        [name, description, carbs, pro, fats, kcal, unit, imageUrl, published , id],
         function (err, rows) {
           if (err) {
             reject(err);

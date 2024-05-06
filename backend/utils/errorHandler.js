@@ -8,7 +8,7 @@ module.exports = (err, req, res, next) => {
     'Error';
   if (process.env.NODE_ENV === 'development') console.log(err.stack);
 
-  res.status(err.statusCode).json({
+  return res.status(err.statusCode).json({
     success: false,
     message: err.message,
     data: err.status,

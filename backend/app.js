@@ -1,5 +1,4 @@
 const express = require('express');
-const { createProxyMiddleware } = require('http-proxy-middleware');
 const logger = require('morgan');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -11,18 +10,15 @@ const errorHandler = require('./utils/errorHandler.js');
 const path = require('path');
 const app = express();
 
-// app.use('/api', createProxyMiddleware({
-//     target: process.env.API_SERVICE_URL,
-//     changeOrigin: true,
-//     pathRewrite: {
-//         [`^/api`]: '',
-//     },
-// }));
-
 const ONE_DAY_MILLIE_SECEND = 24 * 60 * 60 * 1000;
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(logger('dev'));
-app.use(cors({ origin: '*' }));
+const corsOptions = {
+  origin: '*',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+app.use(cors(corsOptions));
 app.use(bodyParser.json({ limit: '5mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(

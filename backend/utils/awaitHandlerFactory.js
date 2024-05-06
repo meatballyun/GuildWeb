@@ -5,7 +5,7 @@ const awaitHandlerFactory = (func) => {
     try {
       await func(req, res, next);
     } catch (err) {
-      next(new ApplicationError(400));
+      next(err);
     }
   };
 };

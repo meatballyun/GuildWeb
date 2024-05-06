@@ -68,8 +68,8 @@ class IngredientModel {
   static getAllByNotUserAndName(CREATOR, NAME) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM ingredients WHERE CREATOR != ? AND NAME = ? AND ACTIVE = TRUE AND PUBLISHED = TRUE',
-        [CREATOR, NAME],
+        'SELECT * FROM ingredients WHERE CREATOR != ? AND NAME LIKE ? AND ACTIVE = TRUE AND PUBLISHED = TRUE',
+        [CREATOR, '%' + NAME + '%'],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -81,7 +81,23 @@ class IngredientModel {
     });
   }
 
-  static create(CREATOR, NAME, DESCRIPTION, CARBS, PRO, FATS, KCAL, UNIT, IMAGE_URL, PUBLISHED) {
+  static create(creator, {name, description, carbs, pro, fats, kcal, unit, imageUrl, published }) {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      'INSERT INTO ingredients(CREATOR, NAME, DESCRIPTION, CARBS, PRO, FATS, KCAL, UNIT, IMAGE_URL, PUBLISHED) VALUES (?,?,?,?,?,?,?,?,?,?)',
+      [creator, name, description, carbs, pro, fats, kcal, unit, imageUrl, published],
+      function (err, rows) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      }
+    );
+  });
+  }
+
+  static copy(CREATOR, {NAME, DESCRIPTION, CARBS, PRO, FATS, KCAL, UNIT, IMAGE_URL }, PUBLISHED) {
     return new Promise((resolve, reject) => {
       connection.query(
         'INSERT INTO ingredients(CREATOR, NAME, DESCRIPTION, CARBS, PRO, FATS, KCAL, UNIT, IMAGE_URL, PUBLISHED) VALUES (?,?,?,?,?,?,?,?,?,?)',
@@ -95,14 +111,13 @@ class IngredientModel {
         }
       );
     });
-  }
+    }
 
-  static publishTorF(ID, TorF) {
-    console.log(ID, TorF);
+  static published(ID, TF) {
     return new Promise((resolve, reject) => {
       connection.query(
         `UPDATE ingredients SET PUBLISHED = ? WHERE ID = ?;`,
-        [TorF, ID],
+        [TF, ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -114,11 +129,11 @@ class IngredientModel {
     });
   }
 
-  static update(ID, NAME, DESCRIPTION, CARBS, PRO, FATS, KCAL, UNIT, IMAGE_URL, PUBLISHED) {
+  static update(id, {name, description, carbs, pro, fats, kcal, unit, imageUrl, published }) {
     return new Promise((resolve, reject) => {
       connection.query(
         'UPDATE ingredients SET NAME = ?, DESCRIPTION = ?, CARBS = ?, PRO = ?, FATS = ?, KCAL = ?, UNIT = ?, IMAGE_URL = ?, PUBLISHED = ? WHERE ID = ?',
-        [NAME, DESCRIPTION, CARBS, PRO, FATS, KCAL, UNIT, IMAGE_URL, PUBLISHED, ID],
+        [name, description, carbs, pro, fats, kcal, unit, imageUrl, published , id],
         function (err, rows) {
           if (err) {
             reject(err);

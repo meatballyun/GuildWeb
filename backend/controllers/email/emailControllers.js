@@ -19,10 +19,10 @@ class MailController {
     const confirmationMail = await ConfirmationEmail.getAllByUser(req.body.uid, 'SignUp');
     if (confirmationMail?.length) return next(new ApplicationError(409));
 
-    const CODE = await hashCode(req.body.uid + req.body.email + 'SignUp');
-    await ConfirmationEmail.create(req.body.uid, 'SignUp', CODE);
+    const code = await hashCode(req.body.uid + req.body.email + 'SignUp');
+    await ConfirmationEmail.create(req.body.uid, 'SignUp', code);
 
-    transporter.sendMail(signUpEmail(req.body.email, req.body.uid, CODE), function (err, info) {
+    transporter.sendMail(signUpEmail(req.body.email, req.body.uid, code), function (err, info) {
       if (err) return next(new ApplicationError(404));
       console.log('Email sent: ' + info.response);
       return res.status(200).json({ data: 'OK' });
@@ -59,10 +59,10 @@ class MailController {
 
     if (query.STATUS === 'Pending') return next(new ApplicationError(403));
 
-    const CODE = await hashCode(user[0].ID + req.body.email + 'ForgotPassword');
-    await ConfirmationEmail.create(user[0].ID, 'ForgotPassword', CODE);
+    const code = await hashCode(user[0].ID + req.body.email + 'ForgotPassword');
+    await ConfirmationEmail.create(user[0].ID, 'ForgotPassword', code);
     transporter.sendMail(
-      passwordResetEmail(req.body.email, user[0].ID, CODE),
+      passwordResetEmail(req.body.email, user[0].ID, code),
       function (err, info) {
         if (err) return next(new ApplicationError(404));
 

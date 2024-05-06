@@ -1,11 +1,11 @@
 const connection = require('../lib/db');
 
 class RecipeIngredientRelationModel {
-  static getAllByIngredient(INGREDIENTS) {
+  static getAllByIngredient(INGREDIENT) {
     return new Promise((resolve, reject) => {
       connection.query(
         'SELECT * FROM recipeIngredientRelations WHERE INGREDIENTS = ? AND RECIPES IN (SELECT ID FROM recipes WHERE ACTIVE = TRUE)',
-        INGREDIENTS,
+        INGREDIENT,
         function (err, rows) {
           if (err) {
             reject(err);

@@ -1,6 +1,22 @@
 const connection = require('../lib/db');
 
 class DietRecordModel {
+  static getOne(ID) {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        'SELECT * FROM dietRecords WHERE ID = ? AND ACTIVE = TRUE',
+        [ID],
+        function (err, rows) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows);
+          }
+        }
+      );
+    });
+  }
+
   static getAllByDate(CREATOR, DIET_DATE) {
     return new Promise((resolve, reject) => {
       connection.query(

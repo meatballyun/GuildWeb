@@ -3,7 +3,6 @@ const router = express.Router();
 const passport = require('../verification/passport');
 const auth = passport.authenticate('jwt', { session: true });
 const awaitHandlerFactory = require('../utils/awaitHandlerFactory');
-
 const ingredient = new (require('../controllers/food/ingredientControllers'))();
 const recipe = new (require('../controllers/food/recipeControllers'))();
 const dietRecord = new (require('../controllers/food/dietRecordControllers'))();
