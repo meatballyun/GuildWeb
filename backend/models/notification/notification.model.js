@@ -65,7 +65,7 @@ class NotificationModel {
     });
   }
 
-  static uesd(ID) {
+  static use(ID) {
     return new Promise((resolve, reject) => {
       connection.query(
         'UPDATE notifications SET USED = TRUE WHERE ID = ?',

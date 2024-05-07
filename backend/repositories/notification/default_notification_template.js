@@ -32,6 +32,27 @@ class DEFAULT_NOTIFICATION_CONTENT {
 
     return content;
   }
+
+  system() {
+    const content = {
+      TITLE: 'Welcome to GuildWeb!',
+      DESCRIPTION: `Dear ${this.receiverName},
+        Welcome to GuildWeb! We're thrilled to have you join our community dedicated to health and organization.
+        
+        With GuildWeb, you have access to a powerful platform for managing your daily nutrition goals, tracking your tasks, and collaborating with others to achieve shared objectives. 
+        Whether you're looking to optimize your diet, streamline your tasks, or engage in group activities, GuildWeb is here to support you every step of the way.
+        
+        We're excited for you to explore all the features and benefits our platform has to offer. Should you have any questions or need assistance, please don't hesitate to reach out to our support team.
+
+        Once again, welcome to GuildWeb! We're excited to embark on this journey with you.
+        
+        Best regards,
+        Yun-T.Z.
+        GuildWeb Team`,
+    };
+
+    return content;
+  }
 }
 
 module.exports = DEFAULT_NOTIFICATION_CONTENT;
