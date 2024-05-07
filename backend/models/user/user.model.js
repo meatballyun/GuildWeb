@@ -29,7 +29,7 @@ class UserModel {
     });
   }
 
-  static getAll(NAME) {
+  static getAllByName(NAME) {
     return new Promise((resolve, reject) => {
       connection.query(
         `SELECT * FROM users WHERE NAME LIKE ? AND STATUS = 'Confirmed'`,
@@ -93,11 +93,11 @@ class UserModel {
     });
   }
 
-  static updateInfo(ID, NAME, IMAGE_URL, CARBS, PRO, FATS, KCAL) {
+  static updateInfo(ID, { name, imageUrl, carbs, pro, fats, kcal }) {
     return new Promise((resolve, reject) => {
       connection.query(
         'UPDATE users SET NAME =?, IMAGE_URL = ?, CARBS = ?, PRO = ?, FATS = ?, KCAL = ? WHERE ID = ?',
-        [NAME, IMAGE_URL, CARBS, PRO, FATS, KCAL, ID],
+        [name, imageUrl, carbs, pro, fats, kcal, ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -109,7 +109,7 @@ class UserModel {
     });
   }
 
-  static updateExp(EXP, ID) {
+  static updateExp(ID, EXP) {
     return new Promise((resolve, reject) => {
       connection.query('UPDATE users SET EXP = ? WHERE ID = ?', [EXP, ID], function (err, rows) {
         if (err) {
@@ -121,7 +121,7 @@ class UserModel {
     });
   }
 
-  static upgrade(RANK, ID) {
+  static upgrade(ID, RANK) {
     return new Promise((resolve, reject) => {
       connection.query(
         'UPDATE users SET `RANK` = ? WHERE ID = ?',

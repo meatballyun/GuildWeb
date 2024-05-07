@@ -15,7 +15,7 @@ class IngredientController {
 
   async createIngredient(req, res, next) {
     const data = await IngredientRepository.create(req.session.passport.user, req.body);
-    updateUserExp(1, req.session.passport.user);
+    updateUserExp(req.session.passport.user, 1);
     return res.status(200).json({ data: data });
   }
 
@@ -30,7 +30,7 @@ class IngredientController {
 
   async deleteIngredients(req, res, next) {
     const result = await IngredientRepository.delete(req.session.passport.user, req.params.id);
-    updateUserExp(-1, req.session.passport.user);
+    updateUserExp(req.session.passport.user, -1);
     return res.status(200).json({ result });
   }
 }

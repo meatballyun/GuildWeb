@@ -50,26 +50,25 @@ class NotificationRepository {
   }
 
   async create({ senderId, recipientId, type }) {
-    const defaultContent = await new Promise(async () => {
+    const defaultContent = await new Promise(async (resolve, reject) => {
       const [recipient] = await User.getOneById(recipientId);
       if (type === 'Guild') {
         const [sender] = await Guild.getGuild(senderId);
         const notificationContent = new DEFAULT_NOTIFICATION_CONTENT(sender.NAME, recipient.NAME);
         const content = notificationContent.guild();
-        return content;
+        resolve(content);
       }
       if (type === 'User') {
         const [sender] = await User.getOneById(senderId);
         const notificationContent = new DEFAULT_NOTIFICATION_CONTENT(sender.NAME, recipient.NAME);
         const content = notificationContent.user();
-        return content;
+        resolve(content);
       }
       const [sender] = await User.getOneById(senderId);
       const notificationContent = new DEFAULT_NOTIFICATION_CONTENT(sender.NAME, recipient.NAME);
       const content = notificationContent.system();
-      return content;
+      resolve(content);
     });
-
     const newNotification = await Notification.create(
       senderId,
       recipientId,
@@ -77,7 +76,7 @@ class NotificationRepository {
       defaultContent.DESCRIPTION,
       type
     );
-    const hasNewNotification = newNotification[insertId];
+    const hasNewNotification = newNotification['insertId'];
     if (hasNewNotification) {
       return 'OK';
     }

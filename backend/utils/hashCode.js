@@ -9,8 +9,10 @@ const hasher = async (code) => {
 
 const comparer = async (password, code) => {
   bcrypt.compare(password, code, (err, result) => {
+    console.log(err);
     if (err) return err;
     if (result) return true;
+    console.log(result);
     return 'Invalid password';
   });
 };
