@@ -1,11 +1,11 @@
-const connection = require('../lib/db');
+const connection = require('../../lib/db');
 
-class UserGuildRelationModel {
-  static getOneByGuildAndUser(USER_ID, GUILD_ID) {
+class UserModel {
+  static getOneById(ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM userGuildRelations WHERE USER_ID = ? AND GUILD_ID = ?',
-        [USER_ID, GUILD_ID],
+        `SELECT * FROM users WHERE ID = ? AND STATUS = 'Confirmed'`,
+        ID,
         function (err, rows) {
           if (err) {
             reject(err);
@@ -17,11 +17,23 @@ class UserGuildRelationModel {
     });
   }
 
-  static getAllByGuild(GUILD_ID) {
+  static getOneByEmail(EMAIL) {
+    return new Promise((resolve, reject) => {
+      connection.query('SELECT * FROM users WHERE EMAIL = ?', EMAIL, function (err, num) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(num);
+        }
+      });
+    });
+  }
+
+  static getAll(NAME) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM userGuildRelations WHERE GUILD_ID = ?',
-        [GUILD_ID],
+        `SELECT * FROM users WHERE NAME LIKE ? AND STATUS = 'Confirmed'`,
+        ['%' + NAME + '%'],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -33,11 +45,11 @@ class UserGuildRelationModel {
     });
   }
 
-  static getAllByUser(USER_ID) {
+  static create(NAME, EMAIL, PASSWORD) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM userGuildRelations WHERE USER_ID = ?',
-        [USER_ID],
+        'INSERT INTO users(NAME, EMAIL, PASSWORD) VALUES (?,?,?)',
+        [NAME, EMAIL, PASSWORD],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -49,11 +61,11 @@ class UserGuildRelationModel {
     });
   }
 
-  static getAllByUserAndName(USER_ID, NAME) {
+  static updateStatus(STATUS, ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT ugr.GUILD_ID FROM userGuildRelations ugr INNER JOIN guilds g ON ugr.GUILD_ID = g.ID WHERE ugr.USER_ID = ? AND g.ACTIVE=TRUE AND g.NAME LIKE ?',
-        [USER_ID, '%' + NAME + '%'],
+        'UPDATE users SET STATUS = ? WHERE ID = ?',
+        [STATUS, ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -65,11 +77,11 @@ class UserGuildRelationModel {
     });
   }
 
-  static create(USER_ID, GUILD_ID, MEMBERSHIP) {
+  static updatePassword(ID, PASSWORD) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'INSERT INTO userGuildRelations(USER_ID, GUILD_ID, MEMBERSHIP) VALUES (?,?,?)',
-        [USER_ID, GUILD_ID, MEMBERSHIP],
+        'UPDATE users SET PASSWORD = ? WHERE ID = ?',
+        [PASSWORD, ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -81,11 +93,11 @@ class UserGuildRelationModel {
     });
   }
 
-  static update(USER_ID, GUILD_ID, MEMBERSHIP) {
+  static updateInfo(ID, NAME, IMAGE_URL, CARBS, PRO, FATS, KCAL) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'UPDATE userGuildRelations SET MEMBERSHIP = ? WHERE USER_ID = ? AND GUILD_ID = ? ',
-        [MEMBERSHIP, USER_ID, GUILD_ID],
+        'UPDATE users SET NAME =?, IMAGE_URL = ?, CARBS = ?, PRO = ?, FATS = ?, KCAL = ? WHERE ID = ?',
+        [NAME, IMAGE_URL, CARBS, PRO, FATS, KCAL, ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -97,11 +109,23 @@ class UserGuildRelationModel {
     });
   }
 
-  static delete(USER_ID, GUILD_ID) {
+  static updateExp(EXP, ID) {
+    return new Promise((resolve, reject) => {
+      connection.query('UPDATE users SET EXP = ? WHERE ID = ?', [EXP, ID], function (err, rows) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      });
+    });
+  }
+
+  static upgrade(RANK, ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'DELETE FROM userGuildRelations WHERE USER_ID = ? AND GUILD_ID = ? ',
-        [USER_ID, GUILD_ID],
+        'UPDATE users SET `RANK` = ? WHERE ID = ?',
+        [RANK, ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -114,4 +138,4 @@ class UserGuildRelationModel {
   }
 }
 
-module.exports = UserGuildRelationModel;
+module.exports = UserModel;

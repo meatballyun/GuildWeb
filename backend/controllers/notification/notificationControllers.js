@@ -1,6 +1,6 @@
 const ApplicationError = require('../../utils/error/applicationError.js');
-const Guild = require('../../models/guildModel.js');
-const Notification = require('../../models/notificationModel.js');
+const Guild = require('../../models/guild/guild.model.js');
+const Notification = require('../../models/notification/notification.model.js');
 const DEFAULT_NOTIFICATION_CONTENT = require('./default_notification_template.js');
 const User = require('../../models/userModel.js');
 

@@ -1,4 +1,4 @@
-const connection = require('../lib/db');
+const connection = require('../../lib/db');
 
 class TaskModel {
   static getOne(ID) {
@@ -49,7 +49,16 @@ class TaskModel {
     });
   }
 
-  static create(CREATOR_ID, GUILD_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, TYPE, MAX_ADVENTURER) {
+  static create(
+    CREATOR_ID,
+    GUILD_ID,
+    NAME,
+    INITIATION_TIME,
+    DEADLINE,
+    DESCRIPTION,
+    TYPE,
+    MAX_ADVENTURER
+  ) {
     const currentTime = new Date().getTime();
     let STATUS = 'Established';
     if (currentTime >= new Date(INITIATION_TIME).getTime()) {
@@ -58,7 +67,17 @@ class TaskModel {
     return new Promise((resolve, reject) => {
       connection.query(
         'INSERT INTO tasks(CREATOR_ID, GUILD_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, TYPE, MAX_ADVENTURER, STATUS) VALUES (?,?,?,?,?,?,?,?,?)',
-        [CREATOR_ID, GUILD_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, TYPE, MAX_ADVENTURER, STATUS],
+        [
+          CREATOR_ID,
+          GUILD_ID,
+          NAME,
+          INITIATION_TIME,
+          DEADLINE,
+          DESCRIPTION,
+          TYPE,
+          MAX_ADVENTURER,
+          STATUS,
+        ],
         function (err, rows) {
           if (err) {
             reject(err);

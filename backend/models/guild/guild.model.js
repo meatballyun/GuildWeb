@@ -1,4 +1,4 @@
-const connection = require('../lib/db');
+const connection = require('../../lib/db');
 
 class GuildModel {
   static getOne(ID) {

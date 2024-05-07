@@ -1,11 +1,11 @@
-const connection = require('../lib/db');
+const connection = require('../../lib/db');
 
-class NotificationModel {
-  static getOne(ID) {
+class TemplateItemModel {
+  static getAll(TEMPLATE_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM notifications WHERE ID = ? AND ACTIVE = TRUE',
-        [ID],
+        'SELECT * FROM templateItems WHERE TEMPLATE_ID = ? AND ACTIVE = TRUE',
+        [TEMPLATE_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -17,11 +17,11 @@ class NotificationModel {
     });
   }
 
-  static getAll(RECIPIENT_ID) {
+  static create(TEMPLATE_ID, CONTENT) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM notifications WHERE RECIPIENT_ID = ? AND ACTIVE = TRUE ORDER BY CREATE_TIME DESC',
-        [RECIPIENT_ID],
+        'INSERT INTO templateItems(TEMPLATE_ID , CONTENT) VALUES (?,?)',
+        [TEMPLATE_ID, CONTENT],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -33,43 +33,11 @@ class NotificationModel {
     });
   }
 
-  static create(SENDER_ID, RECIPIENT_ID, TITLE, DESCRIPTION, TYPE) {
+  static update(ID, CONTENT) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'INSERT INTO notifications(SENDER_ID , RECIPIENT_ID, TITLE, DESCRIPTION, TYPE) VALUES (?,?,?,?,?)',
-        [SENDER_ID, RECIPIENT_ID, TITLE, DESCRIPTION, TYPE],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows);
-          }
-        }
-      );
-    });
-  }
-
-  static read(ID) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE notifications SET `READ` = TRUE WHERE ID = ?',
-        [ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows);
-          }
-        }
-      );
-    });
-  }
-
-  static uesd(ID) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE notifications SET USED = TRUE WHERE ID = ?',
-        [ID],
+        'UPDATE templateItems SET CONTENT = ? WHERE ID = ?',
+        [CONTENT, ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -84,8 +52,24 @@ class NotificationModel {
   static delete(ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'UPDATE notifications SET ACTIVE = FALSE WHERE ID = ?',
+        'UPDATE templateItems SET ACTIVE = FALSE WHERE ID  = ?',
         [ID],
+        function (err, rows) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows);
+          }
+        }
+      );
+    });
+  }
+
+  static deleteByTaskTemplate(TEMPLATE_ID) {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        'UPDATE templateItems SET ACTIVE = FALSE WHERE TEMPLATE_ID  = ?',
+        [TEMPLATE_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -98,4 +82,4 @@ class NotificationModel {
   }
 }
 
-module.exports = NotificationModel;
+module.exports = TemplateItemModel;

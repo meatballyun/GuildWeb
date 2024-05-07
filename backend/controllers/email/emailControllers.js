@@ -1,9 +1,9 @@
-const hashCode = require('../../utils/hashCode.js');
+const { hasher } = require('../../utils/hashCode.js');
 const nodemailer = require('nodemailer');
 const { signUpEmail, passwordResetEmail } = require('./emailTemplate.js');
 const ApplicationError = require('../../utils/error/applicationError.js');
-const ConfirmationEmail = require('../../models/confirmationEmailModel.js');
-const User = require('../../models/userModel.js');
+const ConfirmationEmail = require('../../models/email/confirmationEmail.model.js');
+const User = require('../../models/user/user.model.js');
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -19,7 +19,7 @@ class MailController {
     const confirmationMail = await ConfirmationEmail.getAllByUser(req.body.uid, 'SignUp');
     if (confirmationMail?.length) return next(new ApplicationError(409));
 
-    const code = await hashCode(req.body.uid + req.body.email + 'SignUp');
+    const code = await hasher(req.body.uid + req.body.email + 'SignUp');
     await ConfirmationEmail.create(req.body.uid, 'SignUp', code);
 
     transporter.sendMail(signUpEmail(req.body.email, req.body.uid, code), function (err, info) {
@@ -59,7 +59,7 @@ class MailController {
 
     if (query.STATUS === 'Pending') return next(new ApplicationError(403));
 
-    const code = await hashCode(user[0].ID + req.body.email + 'ForgotPassword');
+    const code = await hasher(user[0].ID + req.body.email + 'ForgotPassword');
     await ConfirmationEmail.create(user[0].ID, 'ForgotPassword', code);
     transporter.sendMail(
       passwordResetEmail(req.body.email, user[0].ID, code),

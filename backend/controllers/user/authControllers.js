@@ -1,7 +1,7 @@
 const passport = require('../../verification/passport.js');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const User = require('../../models/userModel');
+const User = require('../../models/user/user.model.js');
 const ApplicationError = require('../../utils/error/applicationError.js');
 
 class LogInController {

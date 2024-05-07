@@ -1,4 +1,4 @@
-const connection = require('../lib/db');
+const connection = require('../../lib/db');
 
 class ConfirmationEmailModel {
   static getAllByUser(USER_ID, TYPE) {

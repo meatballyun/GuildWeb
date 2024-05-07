@@ -1,10 +1,10 @@
-const connection = require('../lib/db');
+const connection = require('../../lib/db');
 
-class DietRecordModel {
+class NotificationModel {
   static getOne(ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM dietRecords WHERE ID = ? AND ACTIVE = TRUE',
+        'SELECT * FROM notifications WHERE ID = ? AND ACTIVE = TRUE',
         [ID],
         function (err, rows) {
           if (err) {
@@ -17,11 +17,11 @@ class DietRecordModel {
     });
   }
 
-  static getAllByDate(CREATOR, DIET_DATE) {
+  static getAll(RECIPIENT_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM dietRecords WHERE CREATOR = ? AND DIET_DATE = ? AND ACTIVE = TRUE',
-        [CREATOR, DIET_DATE],
+        'SELECT * FROM notifications WHERE RECIPIENT_ID = ? AND ACTIVE = TRUE ORDER BY CREATE_TIME DESC',
+        [RECIPIENT_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -33,11 +33,11 @@ class DietRecordModel {
     });
   }
 
-  static getAllByRecipe(CREATOR, RECIPES) {
+  static create(SENDER_ID, RECIPIENT_ID, TITLE, DESCRIPTION, TYPE) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM dietRecords WHERE CREATOR = ? AND RECIPES = ? AND ACTIVE = TRUE',
-        [CREATOR, RECIPES],
+        'INSERT INTO notifications(SENDER_ID , RECIPIENT_ID, TITLE, DESCRIPTION, TYPE) VALUES (?,?,?,?,?)',
+        [SENDER_ID, RECIPIENT_ID, TITLE, DESCRIPTION, TYPE],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -49,11 +49,27 @@ class DietRecordModel {
     });
   }
 
-  static create(CREATOR, DIET_DATE, CATEGORY, RECIPES, AMOUNT) {
+  static read(ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'INSERT INTO dietRecords(CREATOR, DIET_DATE, CATEGORY, RECIPES, AMOUNT) VALUES (?,?,?,?,?)',
-        [CREATOR, DIET_DATE, CATEGORY, RECIPES, AMOUNT],
+        'UPDATE notifications SET `READ` = TRUE WHERE ID = ?',
+        [ID],
+        function (err, rows) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows);
+          }
+        }
+      );
+    });
+  }
+
+  static uesd(ID) {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        'UPDATE notifications SET USED = TRUE WHERE ID = ?',
+        [ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -68,7 +84,7 @@ class DietRecordModel {
   static delete(ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'UPDATE dietRecords SET ACTIVE = FALSE WHERE ID = ?',
+        'UPDATE notifications SET ACTIVE = FALSE WHERE ID = ?',
         [ID],
         function (err, rows) {
           if (err) {
@@ -82,4 +98,4 @@ class DietRecordModel {
   }
 }
 
-module.exports = DietRecordModel;
+module.exports = NotificationModel;

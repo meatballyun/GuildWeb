@@ -1,6 +1,6 @@
 const ApplicationError = require('../../utils/error/applicationError.js');
-const User = require('../../models/userModel');
-const UserFriend = require('../../models/userFriendModel');
+const User = require('../../models/user/user.model');
+const UserFriend = require('../../models/user/userFriend.model');
 const userInfoController = new (require('../user/userinfoControllers.js'))();
 const updateUserExp = userInfoController.updateUserExp;
 

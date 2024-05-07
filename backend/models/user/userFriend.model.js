@@ -1,11 +1,11 @@
-const connection = require('../lib/db');
+const connection = require('../../lib/db');
 
-class ItemRecordModel {
-  static getOne(ID) {
+class UserFriendModel {
+  static getStatus(USER1_ID, USER2_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM itemRecords WHERE ID = ? AND ACTIVE = TRUE',
-        [ID],
+        'SELECT STATUS FROM userFriends WHERE USER1_ID = ? AND USER2_ID = ?',
+        [USER1_ID, USER2_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -17,11 +17,11 @@ class ItemRecordModel {
     });
   }
 
-  static getAllByItem(ITEM_ID) {
+  static getAllById(USER_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM itemRecords WHERE ITEMS_ID = ? AND ACTIVE = TRUE',
-        [ITEM_ID],
+        `SELECT u.ID, u.NAME, u.IMAGE_URL, u.RANK FROM users u INNER JOIN userFriends uf ON (u.ID = uf.USER1_ID OR u.ID = uf.USER2_ID) WHERE uf.STATUS = 'Confirmed' AND (uf.USER1_ID = ? OR uf.USER2_ID = ?)`,
+        [USER_ID, USER_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -33,11 +33,11 @@ class ItemRecordModel {
     });
   }
 
-  static getAllByItemAndUser(ITEM_ID, USER_ID) {
+  static getAllByIdAndName(USER_ID, NAME) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM itemRecords WHERE ITEMS_ID = ? AND USER_ID = ? AND ACTIVE = TRUE',
-        [ITEM_ID, USER_ID],
+        `SELECT u.ID, u.NAME, u.IMAGE_URL, u.RANK FROM users u INNER JOIN userFriends uf ON (u.ID = uf.USER1_ID OR u.ID = uf.USER2_ID) WHERE uf.STATUS = 'Confirmed' AND (uf.USER1_ID = ? OR uf.USER2_ID = ?) AND u.NAME LIKE ?`,
+        [USER_ID, USER_ID, '%' + NAME + '%'],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -49,11 +49,11 @@ class ItemRecordModel {
     });
   }
 
-  static create(ITEMS_ID, CONTENT, USER_ID) {
+  static create(USER1_ID, USER2_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'INSERT INTO itemRecords(ITEMS_ID , CONTENT, USER_ID) VALUES (?,?,?)',
-        [ITEMS_ID, CONTENT, USER_ID],
+        'INSERT INTO userFriends (USER1_ID, USER2_ID) VALUES (?,?)',
+        [USER1_ID, USER2_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -65,11 +65,11 @@ class ItemRecordModel {
     });
   }
 
-  static update(ID, STATUS) {
+  static update(USER1_ID, USER2_ID, STATUS) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'UPDATE itemRecords SET STATUS = ? WHERE ID = ?',
-        [STATUS, ID],
+        'UPDATE userFriends SET STATUS = ? WHERE (USER1_ID = ? AND USER2_ID = ?) OR (USER1_ID = ? AND USER2_ID = ?)',
+        [STATUS, USER1_ID, USER2_ID, USER2_ID, USER1_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -81,27 +81,11 @@ class ItemRecordModel {
     });
   }
 
-  static deleteOne(ID) {
+  static delete(USER1_ID, USER2_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'UPDATE itemRecords SET ACTIVE = FALSE WHERE ID =?',
-        [ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows);
-          }
-        }
-      );
-    });
-  }
-
-  static deleteAllByItem(ITEMS_ID) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE itemRecords SET ACTIVE = FALSE WHERE ITEMS_ID =?',
-        [ITEMS_ID],
+        'DELETE FROM userFriends WHERE (USER1_ID = ? AND USER2_ID = ?) OR (USER1_ID = ? AND USER2_ID = ?)',
+        [USER1_ID, USER2_ID, USER2_ID, USER1_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -114,4 +98,4 @@ class ItemRecordModel {
   }
 }
 
-module.exports = ItemRecordModel;
+module.exports = UserFriendModel;

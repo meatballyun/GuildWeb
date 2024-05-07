@@ -1,8 +1,8 @@
-const ApplicationError = require('../utils/error/applicationError.js');
-const convertToCamelCase = require('../utils/convertToCamelCase.js');
-const DietRecord = require('../models/dietRecord.model.js');
-const Recipe = require('../models/recipe.model.js');
-const User = require('../models/userModel.js');
+const ApplicationError = require('../../utils/error/applicationError.js');
+const convertToCamelCase = require('../../utils/convertToCamelCase.js');
+const DietRecord = require('../../models/food/dietRecord.model.js');
+const Recipe = require('../../models/food/recipe.model.js');
+const User = require('../../models/user/user.model.js');
 
 class DietRecordRepository {
   async getAll(uid, date) {

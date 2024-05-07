@@ -1,7 +1,7 @@
-const hashCode = require('../../utils/hashCode.js');
+const { hashCode } = require('../../utils/hashCode.js');
 const ApplicationError = require('../../utils/error/applicationError.js');
-const ConfirmationEmail = require('../../models/confirmationEmailModel');
-const User = require('../../models/userModel');
+const ConfirmationEmail = require('../../models/email/confirmationEmail.model.js');
+const User = require('../../models/user/user.model.js');
 
 class UserInfoController {
   async getUserInfo(req, res, next) {
@@ -37,7 +37,7 @@ class UserInfoController {
       return next(new ApplicationError(403));
 
     if (confirmationMail.CODE === req.body.code) {
-      const password = hashCode(req.body.password);
+      const password = hasher(req.body.password);
       const query = await User.updatePassword(req.body.uid, password);
       if (query.affectedRows) {
         return res.status(200).json({ data: 'OK' });

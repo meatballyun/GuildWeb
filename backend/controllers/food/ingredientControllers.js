@@ -1,4 +1,4 @@
-const IngredientRepository = new (require('../../repositories/ingredient.repository'))();
+const IngredientRepository = new (require('../../repositories/food/ingredient.repository.js'))();
 const userInfoController = new (require('../user/userinfoControllers.js'))();
 const updateUserExp = userInfoController.updateUserExp;
 

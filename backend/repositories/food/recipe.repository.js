@@ -1,10 +1,10 @@
-const ApplicationError = require('../utils/error/applicationError.js');
-const convertToCamelCase = require('../utils/convertToCamelCase.js');
-const DietRecord = require('../models/dietRecord.model.js');
-const Ingredient = require('../models/ingredient.model.js');
-const Recipe = require('../models/recipe.model.js');
-const RecipeIngredientRelation = require('../models/recipeIngredientRelation.model.js');
-const IngredientRepository = new (require('./ingredient.repository'))();
+const ApplicationError = require('../../utils/error/applicationError.js');
+const convertToCamelCase = require('../../utils/convertToCamelCase.js');
+const DietRecord = require('../../models/food/dietRecord.model.js');
+const Ingredient = require('../../models/food/ingredient.model.js');
+const Recipe = require('../../models/food/recipe.model.js');
+const RecipeIngredientRelation = require('../../models/food/recipeIngredientRelation.model.js');
+const IngredientRepository = new (require('./ingredient.repository.js'))();
 
 class RecipeRepository {
   async getAll(uid, query) {

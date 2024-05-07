@@ -1,11 +1,11 @@
-const connection = require('../lib/db');
+const connection = require('../../lib/db');
 
-class RecipeIngredientRelationModel {
-  static getAllByIngredient(INGREDIENT) {
+class AdventurerModel {
+  static getOne(TASK_ID, USER_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM recipeIngredientRelations WHERE INGREDIENTS = ? AND RECIPES IN (SELECT ID FROM recipes WHERE ACTIVE = TRUE)',
-        INGREDIENT,
+        `SELECT * FROM adventurers WHERE TASK_ID = ? AND USER_ID = ?`,
+        [TASK_ID, USER_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -17,11 +17,11 @@ class RecipeIngredientRelationModel {
     });
   }
 
-  static getAllByRecipe(RECIPES) {
+  static getAllByTask(TASK_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM recipeIngredientRelations WHERE RECIPES = ? AND AMOUNT > 0',
-        RECIPES,
+        `SELECT * FROM adventurers WHERE TASK_ID = ?`,
+        [TASK_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -33,11 +33,11 @@ class RecipeIngredientRelationModel {
     });
   }
 
-  static getOne(INGREDIENTS, RECIPES) {
+  static getAllByUser(USER_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM recipeIngredientRelations WHERE INGREDIENTS = ? AND RECIPES = ?',
-        [INGREDIENTS, RECIPES],
+        `SELECT * FROM adventurers WHERE USER_ID = ?`,
+        [USER_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -49,11 +49,11 @@ class RecipeIngredientRelationModel {
     });
   }
 
-  static create(INGREDIENTS, RECIPES, AMOUNT) {
+  static create(TASK_ID, USER_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'INSERT INTO recipeIngredientRelations(INGREDIENTS, RECIPES, AMOUNT) VALUES (?,?,?)',
-        [INGREDIENTS, RECIPES, AMOUNT],
+        `INSERT INTO adventurers(TASK_ID , USER_ID, ACCEPTANCE_TIME, STATUS) VALUES (?, ?, CURDATE(), 'Accepted')`,
+        [TASK_ID, USER_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -65,11 +65,11 @@ class RecipeIngredientRelationModel {
     });
   }
 
-  static update(INGREDIENTS, RECIPES, AMOUNT) {
+  static update(TASK_ID, USER_ID, STATUS, COMPLETED_TIME) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'UPDATE recipeIngredientRelations SET AMOUNT = ? WHERE INGREDIENTS = ? AND RECIPES = ?',
-        [AMOUNT, INGREDIENTS, RECIPES],
+        `UPDATE adventurers SET STATUS = ?, COMPLETED_TIME = ? WHERE TASK_ID = ? AND USER_ID = ?`,
+        [STATUS, COMPLETED_TIME, TASK_ID, USER_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -81,11 +81,11 @@ class RecipeIngredientRelationModel {
     });
   }
 
-  static deleteByIngredientAndRecipe(INGREDIENT, RECIPE) {
+  static updateStatus(TASK_ID, USER_ID, STATUS) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'DELETE FROM recipeIngredientRelations WHERE INGREDIENTS = ? AND RECIPES = ?',
-        [INGREDIENT, RECIPE],
+        `UPDATE adventurers SET STATUS = ? WHERE TASK_ID = ? AND USER_ID = ?`,
+        [STATUS, TASK_ID, USER_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -97,11 +97,27 @@ class RecipeIngredientRelationModel {
     });
   }
 
-  static deleteByRecipe(RECIPES) {
+  static deleteByTask(TASK_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'DELETE FROM recipeIngredientRelations WHERE RECIPES = ?',
-        RECIPES,
+        `DELETE FROM adventurers WHERE TASK_ID = ?`,
+        [TASK_ID],
+        function (err, rows) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows);
+          }
+        }
+      );
+    });
+  }
+
+  static deleteByTaskAndUser(TASK_ID, USER_ID) {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        `DELETE FROM adventurers WHERE TASK_ID = ? AND USER_ID = ?`,
+        [TASK_ID, USER_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -114,4 +130,4 @@ class RecipeIngredientRelationModel {
   }
 }
 
-module.exports = RecipeIngredientRelationModel;
+module.exports = AdventurerModel;

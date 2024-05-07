@@ -1,4 +1,4 @@
-const connection = require('../lib/db');
+const connection = require('../../lib/db');
 
 class ItemModel {
   static getAll(TASK_ID) {

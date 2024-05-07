@@ -1,11 +1,11 @@
-const connection = require('../lib/db');
+const connection = require('../../lib/db');
 
-class AdventurerModel {
-  static getOne(TASK_ID, USER_ID) {
+class RecipeIngredientRelationModel {
+  static getAllByIngredient(INGREDIENT) {
     return new Promise((resolve, reject) => {
       connection.query(
-        `SELECT * FROM adventurers WHERE TASK_ID = ? AND USER_ID = ?`,
-        [TASK_ID, USER_ID],
+        'SELECT * FROM recipeIngredientRelations WHERE INGREDIENTS = ? AND RECIPES IN (SELECT ID FROM recipes WHERE ACTIVE = TRUE)',
+        INGREDIENT,
         function (err, rows) {
           if (err) {
             reject(err);
@@ -17,11 +17,11 @@ class AdventurerModel {
     });
   }
 
-  static getAllByTask(TASK_ID) {
+  static getAllByRecipe(RECIPES) {
     return new Promise((resolve, reject) => {
       connection.query(
-        `SELECT * FROM adventurers WHERE TASK_ID = ?`,
-        [TASK_ID],
+        'SELECT * FROM recipeIngredientRelations WHERE RECIPES = ? AND AMOUNT > 0',
+        RECIPES,
         function (err, rows) {
           if (err) {
             reject(err);
@@ -33,11 +33,11 @@ class AdventurerModel {
     });
   }
 
-  static getAllByUser(USER_ID) {
+  static getOne(INGREDIENTS, RECIPES) {
     return new Promise((resolve, reject) => {
       connection.query(
-        `SELECT * FROM adventurers WHERE USER_ID = ?`,
-        [USER_ID],
+        'SELECT * FROM recipeIngredientRelations WHERE INGREDIENTS = ? AND RECIPES = ?',
+        [INGREDIENTS, RECIPES],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -49,11 +49,11 @@ class AdventurerModel {
     });
   }
 
-  static create(TASK_ID, USER_ID) {
+  static create(INGREDIENTS, RECIPES, AMOUNT) {
     return new Promise((resolve, reject) => {
       connection.query(
-        `INSERT INTO adventurers(TASK_ID , USER_ID, ACCEPTANCE_TIME, STATUS) VALUES (?, ?, CURDATE(), 'Accepted')`,
-        [TASK_ID, USER_ID],
+        'INSERT INTO recipeIngredientRelations(INGREDIENTS, RECIPES, AMOUNT) VALUES (?,?,?)',
+        [INGREDIENTS, RECIPES, AMOUNT],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -65,11 +65,11 @@ class AdventurerModel {
     });
   }
 
-  static update(TASK_ID, USER_ID, STATUS, COMPLETED_TIME) {
+  static update(INGREDIENTS, RECIPES, AMOUNT) {
     return new Promise((resolve, reject) => {
       connection.query(
-        `UPDATE adventurers SET STATUS = ?, COMPLETED_TIME = ? WHERE TASK_ID = ? AND USER_ID = ?`,
-        [STATUS, COMPLETED_TIME, TASK_ID, USER_ID],
+        'UPDATE recipeIngredientRelations SET AMOUNT = ? WHERE INGREDIENTS = ? AND RECIPES = ?',
+        [AMOUNT, INGREDIENTS, RECIPES],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -81,11 +81,11 @@ class AdventurerModel {
     });
   }
 
-  static updateStatus(TASK_ID, USER_ID, STATUS) {
+  static deleteByIngredientAndRecipe(INGREDIENT, RECIPE) {
     return new Promise((resolve, reject) => {
       connection.query(
-        `UPDATE adventurers SET STATUS = ? WHERE TASK_ID = ? AND USER_ID = ?`,
-        [STATUS, TASK_ID, USER_ID],
+        'DELETE FROM recipeIngredientRelations WHERE INGREDIENTS = ? AND RECIPES = ?',
+        [INGREDIENT, RECIPE],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -97,27 +97,11 @@ class AdventurerModel {
     });
   }
 
-  static deleteByTask(TASK_ID) {
+  static deleteByRecipe(RECIPES) {
     return new Promise((resolve, reject) => {
       connection.query(
-        `DELETE FROM adventurers WHERE TASK_ID = ?`,
-        [TASK_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows);
-          }
-        }
-      );
-    });
-  }
-
-  static deleteByTaskAndUser(TASK_ID, USER_ID) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        `DELETE FROM adventurers WHERE TASK_ID = ? AND USER_ID = ?`,
-        [TASK_ID, USER_ID],
+        'DELETE FROM recipeIngredientRelations WHERE RECIPES = ?',
+        RECIPES,
         function (err, rows) {
           if (err) {
             reject(err);
@@ -130,4 +114,4 @@ class AdventurerModel {
   }
 }
 
-module.exports = AdventurerModel;
+module.exports = RecipeIngredientRelationModel;
