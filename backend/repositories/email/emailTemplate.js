@@ -1,12 +1,13 @@
-const ADDRESS = process.env.NODE_ENV === 'development' ? process.env.TEST_MAIL : EMAIL;
+const ADDRESS = process.env.NODE_ENV === 'development' ? process.env.TEST_MAIL : false;
 const VALIDATION_URL =
-  process.env.NODE_ENV === 'development' ? process.env.FE_URL : process.env.API_SERVICE_URL;
+  process.env.NODE_ENV === 'development' ? process.env.DEV_FE_URL : process.env.API_SERVICE_URL;
 
 const signUpEmail = (EMAIL, ID, CODE) => {
+  if (ADDRESS) EMAIL = ADDRESS;
   {
     return {
       from: process.env.MAIL_ADDRESS,
-      to: ADDRESS,
+      to: EMAIL,
       subject: 'Hello User',
       html: `
           <p>This email sincerely invites you to join Guild.</p>
@@ -19,10 +20,11 @@ const signUpEmail = (EMAIL, ID, CODE) => {
 };
 
 const passwordResetEmail = (EMAIL, ID, CODE) => {
+  if (ADDRESS) EMAIL = ADDRESS;
   {
     return {
       from: process.env.MAIL_ADDRESS,
-      to: ADDRESS,
+      to: EMAIL,
       subject: 'Password Reset Request',
       html: `
       <p>Hello,</p>

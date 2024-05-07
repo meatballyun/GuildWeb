@@ -5,7 +5,7 @@ const emailUp = new (require('../controllers/email/emailControllers'))();
 
 // send email
 router.post('/send', awaitHandlerFactory(emailUp.sendSignUp));
-router.post('/resend', awaitHandlerFactory(emailUp.resendSignUp), awaitHandlerFactory(emailUp.sendSignUp));
+router.post('/resend', awaitHandlerFactory(emailUp.resendSignUp));
 router.post('/reset-password', awaitHandlerFactory(emailUp.sendResetPassword));
 
 // validation

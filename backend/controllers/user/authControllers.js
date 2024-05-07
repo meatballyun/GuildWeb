@@ -14,7 +14,6 @@ class AuthController {
         if (user.STATUS === 'Pending') throw new ApplicationError(403);
 
         req.login(user, (err) => {
-          console.log(user.NAME);
           if (err) throw new ApplicationError(403, err);
           const currentTimestamp = Math.floor(Date.now() / 1000);
           const payload = {
@@ -24,7 +23,6 @@ class AuthController {
             iat: currentTimestamp,
           };
           const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
-          console.log(token);
           return res.status(200).json({ data: { token } });
         });
       } catch (err) {
