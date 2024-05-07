@@ -1,27 +1,23 @@
-const connection = require('../lib/db');
+const connection = require('../../lib/db');
 
-class IngredientModel {
+class RecipeModel {
   static getOne(ID) {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM ingredients WHERE ID = ? AND ACTIVE = TRUE',
-        ID,
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows);
-          }
+      connection.query('SELECT * FROM recipes WHERE ID = ?', ID, function (err, rows) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows);
         }
-      );
+      });
     });
   }
 
   static getAllByUser(CREATOR) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM ingredients WHERE CREATOR = ? AND ACTIVE = TRUE',
-        [CREATOR],
+        'SELECT * FROM recipes WHERE CREATOR = ? AND ACTIVE = TRUE',
+        CREATOR,
         function (err, rows) {
           if (err) {
             reject(err);
@@ -36,8 +32,8 @@ class IngredientModel {
   static getAllByNotUser(CREATOR) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM ingredients WHERE CREATOR != ? AND ACTIVE = TRUE AND PUBLISHED = TRUE',
-        [CREATOR],
+        'SELECT * FROM recipes WHERE CREATOR != ? AND PUBLISHED = TRUE AND ACTIVE = TRUE',
+        CREATOR,
         function (err, rows) {
           if (err) {
             reject(err);
@@ -52,7 +48,7 @@ class IngredientModel {
   static getAllByUserAndName(CREATOR, NAME) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM ingredients WHERE CREATOR = ? AND NAME LIKE ? AND ACTIVE = TRUE',
+        'SELECT * FROM recipes WHERE CREATOR = ? AND NAME LIKE ? AND ACTIVE = TRUE',
         [CREATOR, '%' + NAME + '%'],
         function (err, rows) {
           if (err) {
@@ -68,8 +64,8 @@ class IngredientModel {
   static getAllByNotUserAndName(CREATOR, NAME) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM ingredients WHERE CREATOR != ? AND NAME = ? AND ACTIVE = TRUE AND PUBLISHED = TRUE',
-        [CREATOR, NAME],
+        'SELECT * FROM recipes WHERE CREATOR != ? AND NAME = ? AND PUBLISHED = TRUE AND ACTIVE = TRUE',
+        [CREATOR, '%' + NAME + '%'],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -81,11 +77,11 @@ class IngredientModel {
     });
   }
 
-  static create(CREATOR, NAME, DESCRIPTION, CARBS, PRO, FATS, KCAL, UNIT, IMAGE_URL, PUBLISHED) {
+  static create(creator, { name, description, carbs, pro, fats, kcal, unit, imageUrl, published }) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'INSERT INTO ingredients(CREATOR, NAME, DESCRIPTION, CARBS, PRO, FATS, KCAL, UNIT, IMAGE_URL, PUBLISHED) VALUES (?,?,?,?,?,?,?,?,?,?)',
-        [CREATOR, NAME, DESCRIPTION, CARBS, PRO, FATS, KCAL, UNIT, IMAGE_URL, PUBLISHED],
+        'INSERT INTO recipes(CREATOR, NAME, DESCRIPTION, CARBS, PRO, FATS, KCAL, UNIT, IMAGE_URL, PUBLISHED) VALUES (?,?,?,?,?,?,?,?,?,?)',
+        [creator, name, description, carbs, pro, fats, kcal, unit, imageUrl, published],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -97,12 +93,16 @@ class IngredientModel {
     });
   }
 
-  static publishTorF(ID, TorF) {
-    console.log(ID, TorF);
+  static publish(ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        `UPDATE ingredients SET PUBLISHED = ? WHERE ID = ?;`,
-        [TorF, ID],
+        `UPDATE recipes 
+        SET PUBLISHED = CASE 
+          WHEN PUBLISHED = TRUE THEN FALSE 
+          ELSE TRUE 
+        END 
+        WHERE ID = ?;`,
+        [ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -114,11 +114,27 @@ class IngredientModel {
     });
   }
 
-  static update(ID, NAME, DESCRIPTION, CARBS, PRO, FATS, KCAL, UNIT, IMAGE_URL, PUBLISHED) {
+  static update(id, { name, description, carbs, pro, fats, kcal, unit, imageUrl, published }) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'UPDATE ingredients SET NAME = ?, DESCRIPTION = ?, CARBS = ?, PRO = ?, FATS = ?, KCAL = ?, UNIT = ?, IMAGE_URL = ?, PUBLISHED = ? WHERE ID = ?',
-        [NAME, DESCRIPTION, CARBS, PRO, FATS, KCAL, UNIT, IMAGE_URL, PUBLISHED, ID],
+        'UPDATE recipes SET NAME = ?, DESCRIPTION = ?, CARBS = ?, PRO = ?, FATS = ?, KCAL = ?, UNIT = ?, IMAGE_URL = ?, PUBLISHED = ? WHERE ID = ?',
+        [name, description, carbs, pro, fats, kcal, unit, imageUrl, published, id],
+        function (err, rows) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows);
+          }
+        }
+      );
+    });
+  }
+
+  static updateNutrition(ID, CARBS, PRO, FATS, KCAL) {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        'UPDATE recipes SET CARBS = ?, PRO = ?, FATS = ?, KCAL = ? WHERE ID = ?',
+        [CARBS, PRO, FATS, KCAL, ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -132,19 +148,15 @@ class IngredientModel {
 
   static delete(ID) {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE ingredients SET ACTIVE = FALSE WHERE ID = ?',
-        ID,
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows);
-          }
+      connection.query('UPDATE recipes SET ACTIVE = FALSE WHERE ID = ?', ID, function (err, rows) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows);
         }
-      );
+      });
     });
   }
 }
 
-module.exports = IngredientModel;
+module.exports = RecipeModel;

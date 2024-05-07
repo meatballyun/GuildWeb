@@ -1,13 +1,13 @@
 const ApplicationError = require('../../utils/error/applicationError.js');
-const Guild = require('../../models/guildModel');
-const User = require('../../models/userModel');
-const Adventurer = require('../../models/adventurerModel');
-const Task = require('../../models/taskModel');
-const TaskTemplate = require('../../models/taskTemplateModel.js');
-const TemplateItem = require('../../models/templateItemModel');
-const Item = require('../../models/itemModel');
-const ItemRecord = require('../../models/itemRecordModel');
-const UserGuildRelation = require('../../models/userGuildRelationModel');
+const Guild = require('../../models/guild/guild.model');
+const User = require('../../models/user/user.model');
+const Adventurer = require('../../models/guild/adventurer.model');
+const Task = require('../../models/guild/task.model');
+const TaskTemplate = require('../../models/guild/taskTemplate.model.js');
+const TemplateItem = require('../../models/guild/templateItem.model');
+const Item = require('../../models/guild/item.model');
+const ItemRecord = require('../../models/guild/itemRecord.model');
+const UserGuildRelation = require('../../models/user/userGuildRelation.model');
 const userInfoController = new (require('../user/userinfoControllers.js'))();
 const updateUserExp = userInfoController.updateUserExp;
 

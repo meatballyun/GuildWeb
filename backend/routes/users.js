@@ -13,16 +13,16 @@ const userList = new (require('../controllers/user/userListControllers'))();
 // SignUp
 router.post('/signup', awaitHandlerFactory(authController.signup), awaitHandlerFactory(emailUp.sendSignUp));
 
-// Login、Logout
+// Login, Logout, ForgotPassword
 router.post('/login', awaitHandlerFactory(authController.login));
 router.get('/logout', awaitHandlerFactory(authController.logout));
+router.post('/reset-password', awaitHandlerFactory(authController.resetPassword));
 
 // UserInfo
 router.get('/me', auth, awaitHandlerFactory(userInfo.getUserInfo));
 router.put('/me', auth, awaitHandlerFactory(userInfo.updateUserInfo));
 
-// ForgotPassword
-router.post('/reset-password', awaitHandlerFactory(userInfo.resetPassword));
+
 
 // Friend
 router.get('/', auth, awaitHandlerFactory(userList.getUsers));

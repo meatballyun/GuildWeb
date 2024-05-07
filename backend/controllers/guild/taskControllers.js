@@ -1,8 +1,8 @@
-const Task = require('../../models/taskModel');
-const Item = require('../../models/itemModel');
-const ItemRecord = require('../../models/itemRecordModel');
-const Adventurer = require('../../models/adventurerModel');
-const User = require('../../models/userModel');
+const Task = require('../../models/guild/task.model');
+const Item = require('../../models/guild/item.model');
+const ItemRecord = require('../../models/guild/itemRecord.model');
+const Adventurer = require('../../models/guild/adventurer.model');
+const User = require('../../models/user/user.model');
 const ApplicationError = require('../../utils/error/applicationError.js');
 const userInfoController = new (require('../user/userinfoControllers.js'))();
 const updateUserExp = userInfoController.updateUserExp;

@@ -1,11 +1,11 @@
-const connection = require('../lib/db');
+const connection = require('../../lib/db');
 
-class UserModel {
-  static getOneById(ID) {
+class RecipeIngredientRelationModel {
+  static getAllByIngredient(INGREDIENT) {
     return new Promise((resolve, reject) => {
       connection.query(
-        `SELECT * FROM users WHERE ID = ? AND STATUS = 'Confirmed'`,
-        ID,
+        'SELECT * FROM recipeIngredientRelations WHERE INGREDIENTS = ? AND RECIPES IN (SELECT ID FROM recipes WHERE ACTIVE = TRUE)',
+        INGREDIENT,
         function (err, rows) {
           if (err) {
             reject(err);
@@ -17,23 +17,11 @@ class UserModel {
     });
   }
 
-  static getOneByEmail(EMAIL) {
-    return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM users WHERE EMAIL = ?', EMAIL, function (err, num) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(num);
-        }
-      });
-    });
-  }
-
-  static getAll(NAME) {
+  static getAllByRecipe(RECIPES) {
     return new Promise((resolve, reject) => {
       connection.query(
-        `SELECT * FROM users WHERE NAME LIKE ? AND STATUS = 'Confirmed'`,
-        ['%' + NAME + '%'],
+        'SELECT * FROM recipeIngredientRelations WHERE RECIPES = ? AND AMOUNT > 0',
+        RECIPES,
         function (err, rows) {
           if (err) {
             reject(err);
@@ -45,11 +33,11 @@ class UserModel {
     });
   }
 
-  static create(NAME, EMAIL, PASSWORD) {
+  static getOne(INGREDIENTS, RECIPES) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'INSERT INTO users(NAME, EMAIL, PASSWORD) VALUES (?,?,?)',
-        [NAME, EMAIL, PASSWORD],
+        'SELECT * FROM recipeIngredientRelations WHERE INGREDIENTS = ? AND RECIPES = ?',
+        [INGREDIENTS, RECIPES],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -61,11 +49,11 @@ class UserModel {
     });
   }
 
-  static updateStatus(STATUS, ID) {
+  static create(INGREDIENTS, RECIPES, AMOUNT) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'UPDATE users SET STATUS = ? WHERE ID = ?',
-        [STATUS, ID],
+        'INSERT INTO recipeIngredientRelations(INGREDIENTS, RECIPES, AMOUNT) VALUES (?,?,?)',
+        [INGREDIENTS, RECIPES, AMOUNT],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -77,11 +65,11 @@ class UserModel {
     });
   }
 
-  static updatePassword(ID, PASSWORD) {
+  static update(INGREDIENTS, RECIPES, AMOUNT) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'UPDATE users SET PASSWORD = ? WHERE ID = ?',
-        [PASSWORD, ID],
+        'UPDATE recipeIngredientRelations SET AMOUNT = ? WHERE INGREDIENTS = ? AND RECIPES = ?',
+        [AMOUNT, INGREDIENTS, RECIPES],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -93,11 +81,11 @@ class UserModel {
     });
   }
 
-  static updateInfo(ID, NAME, IMAGE_URL, CARBS, PRO, FATS, KCAL) {
+  static deleteByIngredientAndRecipe(INGREDIENT, RECIPE) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'UPDATE users SET NAME =?, IMAGE_URL = ?, CARBS = ?, PRO = ?, FATS = ?, KCAL = ? WHERE ID = ?',
-        [NAME, IMAGE_URL, CARBS, PRO, FATS, KCAL, ID],
+        'DELETE FROM recipeIngredientRelations WHERE INGREDIENTS = ? AND RECIPES = ?',
+        [INGREDIENT, RECIPE],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -109,23 +97,11 @@ class UserModel {
     });
   }
 
-  static updateExp(EXP, ID) {
-    return new Promise((resolve, reject) => {
-      connection.query('UPDATE users SET EXP = ? WHERE ID = ?', [EXP, ID], function (err, rows) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(rows);
-        }
-      });
-    });
-  }
-
-  static upgrade(RANK, ID) {
+  static deleteByRecipe(RECIPES) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'UPDATE users SET `RANK` = ? WHERE ID = ?',
-        [RANK, ID],
+        'DELETE FROM recipeIngredientRelations WHERE RECIPES = ?',
+        RECIPES,
         function (err, rows) {
           if (err) {
             reject(err);
@@ -138,4 +114,4 @@ class UserModel {
   }
 }
 
-module.exports = UserModel;
+module.exports = RecipeIngredientRelationModel;

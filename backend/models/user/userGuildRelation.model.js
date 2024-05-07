@@ -1,11 +1,11 @@
-const connection = require('../lib/db');
+const connection = require('../../lib/db');
 
-class ItemRecordModel {
-  static getOne(ID) {
+class UserGuildRelationModel {
+  static getOneByGuildAndUser(USER_ID, GUILD_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM itemRecords WHERE ID = ? AND ACTIVE = TRUE',
-        [ID],
+        'SELECT * FROM userGuildRelations WHERE USER_ID = ? AND GUILD_ID = ?',
+        [USER_ID, GUILD_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -17,11 +17,11 @@ class ItemRecordModel {
     });
   }
 
-  static getAllByItem(ITEM_ID) {
+  static getAllByGuild(GUILD_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM itemRecords WHERE ITEMS_ID = ? AND ACTIVE = TRUE',
-        [ITEM_ID],
+        'SELECT * FROM userGuildRelations WHERE GUILD_ID = ?',
+        [GUILD_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -33,11 +33,11 @@ class ItemRecordModel {
     });
   }
 
-  static getAllByItemAndUser(ITEM_ID, USER_ID) {
+  static getAllByUser(USER_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM itemRecords WHERE ITEMS_ID = ? AND USER_ID = ? AND ACTIVE = TRUE',
-        [ITEM_ID, USER_ID],
+        'SELECT * FROM userGuildRelations WHERE USER_ID = ?',
+        [USER_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -49,11 +49,11 @@ class ItemRecordModel {
     });
   }
 
-  static create(ITEMS_ID, CONTENT, USER_ID) {
+  static getAllByUserAndName(USER_ID, NAME) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'INSERT INTO itemRecords(ITEMS_ID , CONTENT, USER_ID) VALUES (?,?,?)',
-        [ITEMS_ID, CONTENT, USER_ID],
+        'SELECT ugr.GUILD_ID FROM userGuildRelations ugr INNER JOIN guilds g ON ugr.GUILD_ID = g.ID WHERE ugr.USER_ID = ? AND g.ACTIVE=TRUE AND g.NAME LIKE ?',
+        [USER_ID, '%' + NAME + '%'],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -65,11 +65,11 @@ class ItemRecordModel {
     });
   }
 
-  static update(ID, STATUS) {
+  static create(USER_ID, GUILD_ID, MEMBERSHIP) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'UPDATE itemRecords SET STATUS = ? WHERE ID = ?',
-        [STATUS, ID],
+        'INSERT INTO userGuildRelations(USER_ID, GUILD_ID, MEMBERSHIP) VALUES (?,?,?)',
+        [USER_ID, GUILD_ID, MEMBERSHIP],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -81,11 +81,11 @@ class ItemRecordModel {
     });
   }
 
-  static deleteOne(ID) {
+  static update(USER_ID, GUILD_ID, MEMBERSHIP) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'UPDATE itemRecords SET ACTIVE = FALSE WHERE ID =?',
-        [ID],
+        'UPDATE userGuildRelations SET MEMBERSHIP = ? WHERE USER_ID = ? AND GUILD_ID = ? ',
+        [MEMBERSHIP, USER_ID, GUILD_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -97,11 +97,11 @@ class ItemRecordModel {
     });
   }
 
-  static deleteAllByItem(ITEMS_ID) {
+  static delete(USER_ID, GUILD_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'UPDATE itemRecords SET ACTIVE = FALSE WHERE ITEMS_ID =?',
-        [ITEMS_ID],
+        'DELETE FROM userGuildRelations WHERE USER_ID = ? AND GUILD_ID = ? ',
+        [USER_ID, GUILD_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -114,4 +114,4 @@ class ItemRecordModel {
   }
 }
 
-module.exports = ItemRecordModel;
+module.exports = UserGuildRelationModel;

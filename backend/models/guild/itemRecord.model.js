@@ -1,11 +1,11 @@
-const connection = require('../lib/db');
+const connection = require('../../lib/db');
 
-class RecipeIngredientRelationModel {
-  static getAllByIngredient(INGREDIENTS) {
+class ItemRecordModel {
+  static getOne(ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM recipeIngredientRelations WHERE INGREDIENTS = ? AND RECIPES IN (SELECT ID FROM recipes WHERE ACTIVE = TRUE)',
-        INGREDIENTS,
+        'SELECT * FROM itemRecords WHERE ID = ? AND ACTIVE = TRUE',
+        [ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -17,11 +17,11 @@ class RecipeIngredientRelationModel {
     });
   }
 
-  static getAllByRecipe(RECIPES) {
+  static getAllByItem(ITEM_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM recipeIngredientRelations WHERE RECIPES = ? AND AMOUNT > 0',
-        RECIPES,
+        'SELECT * FROM itemRecords WHERE ITEMS_ID = ? AND ACTIVE = TRUE',
+        [ITEM_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -33,11 +33,11 @@ class RecipeIngredientRelationModel {
     });
   }
 
-  static getOne(INGREDIENTS, RECIPES) {
+  static getAllByItemAndUser(ITEM_ID, USER_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM recipeIngredientRelations WHERE INGREDIENTS = ? AND RECIPES = ?',
-        [INGREDIENTS, RECIPES],
+        'SELECT * FROM itemRecords WHERE ITEMS_ID = ? AND USER_ID = ? AND ACTIVE = TRUE',
+        [ITEM_ID, USER_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -49,11 +49,11 @@ class RecipeIngredientRelationModel {
     });
   }
 
-  static create(INGREDIENTS, RECIPES, AMOUNT) {
+  static create(ITEMS_ID, CONTENT, USER_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'INSERT INTO recipeIngredientRelations(INGREDIENTS, RECIPES, AMOUNT) VALUES (?,?,?)',
-        [INGREDIENTS, RECIPES, AMOUNT],
+        'INSERT INTO itemRecords(ITEMS_ID , CONTENT, USER_ID) VALUES (?,?,?)',
+        [ITEMS_ID, CONTENT, USER_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -65,11 +65,11 @@ class RecipeIngredientRelationModel {
     });
   }
 
-  static update(INGREDIENTS, RECIPES, AMOUNT) {
+  static update(ID, STATUS) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'UPDATE recipeIngredientRelations SET AMOUNT = ? WHERE INGREDIENTS = ? AND RECIPES = ?',
-        [AMOUNT, INGREDIENTS, RECIPES],
+        'UPDATE itemRecords SET STATUS = ? WHERE ID = ?',
+        [STATUS, ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -81,11 +81,11 @@ class RecipeIngredientRelationModel {
     });
   }
 
-  static deleteByIngredientAndRecipe(INGREDIENT, RECIPE) {
+  static deleteOne(ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'DELETE FROM recipeIngredientRelations WHERE INGREDIENTS = ? AND RECIPES = ?',
-        [INGREDIENT, RECIPE],
+        'UPDATE itemRecords SET ACTIVE = FALSE WHERE ID =?',
+        [ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -97,11 +97,11 @@ class RecipeIngredientRelationModel {
     });
   }
 
-  static deleteByRecipe(RECIPES) {
+  static deleteAllByItem(ITEMS_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'DELETE FROM recipeIngredientRelations WHERE RECIPES = ?',
-        RECIPES,
+        'UPDATE itemRecords SET ACTIVE = FALSE WHERE ITEMS_ID =?',
+        [ITEMS_ID],
         function (err, rows) {
           if (err) {
             reject(err);
@@ -114,4 +114,4 @@ class RecipeIngredientRelationModel {
   }
 }
 
-module.exports = RecipeIngredientRelationModel;
+module.exports = ItemRecordModel;

@@ -1,16 +1,16 @@
-const connection = require('../lib/db');
+const connection = require('../../lib/db');
 
 class UserFriendModel {
   static getStatus(USER1_ID, USER2_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT STATUS FROM userFriends WHERE USER1_ID = ? AND USER2_ID = ?',
+        `SELECT STATUS FROM userFriends WHERE USER1_ID = ? AND USER2_ID = ?`,
         [USER1_ID, USER2_ID],
         function (err, rows) {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows[0]);
           }
         }
       );

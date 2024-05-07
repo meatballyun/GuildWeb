@@ -1,4 +1,4 @@
-const connection = require('../lib/db');
+const connection = require('../../lib/db');
 
 class AdventurerModel {
   static getOne(TASK_ID, USER_ID) {

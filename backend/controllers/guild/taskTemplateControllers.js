@@ -1,8 +1,8 @@
-const TaskTemplate = require('../../models/taskTemplateModel.js');
-const TemplateItem = require('../../models/templateItemModel');
-const Task = require('../../models/taskModel');
-const Item = require('../../models/itemModel');
-const User = require('../../models/userModel');
+const TaskTemplate = require('../../models/guild/taskTemplate.model.js');
+const TemplateItem = require('../../models/guild/templateItem.model');
+const Task = require('../../models/guild/task.model');
+const Item = require('../../models/guild/item.model');
+const User = require('../../models/user/user.model');
 const ApplicationError = require('../../utils/error/applicationError.js');
 
 class TaskTemplateController {
