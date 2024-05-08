@@ -51,7 +51,7 @@ export const MissionPage = ({ mode }) => {
     const baseFilteredMissionList = (() => {
       switch (query.filter) {
         case 'mine':
-          return missionList.filter(({ creator }) => creator === userMe.id);
+          return missionList.filter(({ creator }) => creator === userMe?.id);
         case 'cancel':
           return missionList.filter(({ status }) => status === 'Cancelled');
         case 'accepted':
@@ -399,7 +399,7 @@ export const MissionPage = ({ mode }) => {
                   detail: selectedDetail,
                   mode,
                   onBtnClick: handleBtnClick,
-                  userId: userMe.id,
+                  userId: userMe?.id,
                 })}
               />
             );

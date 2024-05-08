@@ -178,13 +178,13 @@ const taskApi = async ({ type, mode, gid, selectedId, value }) => {
       deadline: endDate,
     };
     if (type === 'edit') {
-      return api.guild.postTemplate({
-        pathParams: { gid },
+      return api.guild.putTemplate({
+        pathParams: { gid, ttid: selectedId },
         body: requestBody,
       });
     }
-    return api.guild.putTemplate({
-      pathParams: { gid, ttid: selectedId },
+    return api.guild.postTemplate({
+      pathParams: { gid },
       body: requestBody,
     });
   }
