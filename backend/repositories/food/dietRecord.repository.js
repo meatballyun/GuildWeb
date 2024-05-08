@@ -1,67 +1,41 @@
 const ApplicationError = require('../../utils/error/applicationError.js');
-const convertToCamelCase = require('../../utils/convertToCamelCase.js');
 const DietRecord = require('../../models/food/dietRecord.model.js');
 const Recipe = require('../../models/food/recipe.model.js');
 const User = require('../../models/user/user.model.js');
 
 class DietRecordRepository {
-  async getAll(uid, date) {
-    const [userinfo] = await User.getOneById(uid);
+  static async getAll(date, uid) {
     const dietRecord = await DietRecord.getAllByDate(uid, date);
-    const hasDietRecord = dietRecord?.length;
-    if (hasDietRecord) {
+    const { carbs, pro, fats, kcal } = await User.getOneById(uid);
+    const target = { carbs, pro, fats, kcal };
+    if (dietRecord) {
       const dietRecords = await Promise.all(
-        dietRecord.map(async (rows) => {
-          const [getRecipe] = await Recipe.getOne(rows.RECIPES);
-          const recipe = convertToCamelCase(getRecipe);
-          return {
-            id: rows.ID,
-            amount: rows.AMOUNT,
-            category: rows.CATEGORY,
-            recipe: recipe,
-          };
+        dietRecord.map(async ({ id, amount, category, recipes }) => {
+          const recipe = await Recipe.getOne(recipes);
+          return { id, amount, category, recipe };
         })
       );
-      const data = {
-        target: {
-          carbs: userinfo.CARBS,
-          pro: userinfo.PRO,
-          fats: userinfo.FATS,
-          kcal: userinfo.KCAL,
-        },
-        foods: dietRecords,
-      };
-
+      const data = { target, foods: dietRecords };
       return data;
     }
-    const data = {
-      target: {
-        carbs: userinfo.CARBS,
-        pro: userinfo.PRO,
-        fats: userinfo.FATS,
-        kcal: userinfo.KCAL,
-      },
-      foods: [],
-    };
-
-    return data;
+    return { target, foods: [] };
   }
 
-  async create(uid, body) {
-    const [recipe] = await Recipe.getOne(body.recipe);
-    if (!recipe) throw new ApplicationError(409);
-    if (recipe.CREATOR !== uid) throw new ApplicationError(403);
-    const query = await DietRecord.create(uid, body.date, body.category, body.recipe, body.amount);
-    if (query['insertId']) return 'OK';
-    throw new ApplicationError(400);
+  static async create({ recipe, date, category, amount }, uid) {
+    const { creator } = await Recipe.getOne(recipe);
+    if (!creator) throw new ApplicationError(409);
+    if (creator !== uid) throw new ApplicationError(403);
+
+    const result = await DietRecord.create(uid, date, category, recipe, amount);
+    if (!result) throw new ApplicationError(400);
   }
 
-  async delete(uid, id) {
-    const [dietRecord] = await DietRecord.getOne(id);
-    if (dietRecord.CREATOR !== uid) throw new ApplicationError(409);
-    const result = await DietRecord.delete(id);
-    if (result['changedRows']) return 'OK';
-    return next(new ApplicationError(404));
+  static async delete(dietRecordId, uid) {
+    const dietRecord = await DietRecord.getOne(dietRecordId);
+    if (dietRecord.creator !== uid) throw new ApplicationError(409);
+
+    const result = await DietRecord.delete(dietRecordId);
+    if (!result) throw new ApplicationError(404);
   }
 }
 

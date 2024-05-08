@@ -1,19 +1,14 @@
-const UserInfoRepository = new (require('../../repositories/user/userInfo.repository.js'))();
+const UserInfoRepository = require('../../repositories/user/userInfo.repository.js');
 
 class UserInfoController {
-  async getUserInfo(req, res, next) {
-    const data = await UserInfoRepository.getOne(req.session.passport.user);
-    return res.status(200).json({ data });
+  static async getUserInfo(req, res, next) {
+    const user = await UserInfoRepository.getOne(req.session.passport.user);
+    return res.status(200).json({ data: user });
   }
 
-  async updateUserInfo(req, res, next) {
-    const data = await UserInfoRepository.update(req.session.passport.user, req.body);
-    return res.status(200).json({ data: data });
-  }
-
-  async updateUserExp(ID, EXP) {
-    const result = await UserInfoRepository.updateExp(ID, EXP);
-    return result;
+  static async updateUserInfo(req, res, next) {
+    await UserInfoRepository.update(req.session.passport.user, req.body);
+    return res.status(200).json({ data: 'OK' });
   }
 }
 

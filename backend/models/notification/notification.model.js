@@ -1,4 +1,5 @@
 const connection = require('../../lib/db');
+const { convertKeysToCamelCase } = require('../../utils/convertToCamelCase.js');
 
 class NotificationModel {
   static getOne(ID) {
@@ -10,7 +11,11 @@ class NotificationModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const notification = convertKeysToCamelCase(rows[0]);
+              resolve(notification);
+            }
           }
         }
       );
@@ -26,7 +31,11 @@ class NotificationModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const notifications = rows.map(convertKeysToCamelCase);
+              resolve(notifications);
+            }
           }
         }
       );
@@ -42,7 +51,7 @@ class NotificationModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -58,7 +67,7 @@ class NotificationModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -74,7 +83,7 @@ class NotificationModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -90,7 +99,7 @@ class NotificationModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );

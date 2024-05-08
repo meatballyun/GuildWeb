@@ -1,23 +1,22 @@
-const DietRecordRepository = new (require('../../repositories/food/dietRecord.repository.js'))();
-const userInfoController = new (require('../user/userinfoControllers.js'))();
-const updateUserExp = userInfoController.updateUserExp;
+const DietRecordRepository = require('../../repositories/food/dietRecord.repository.js');
+const UserInfoRepository = require('../../repositories/user/userInfo.repository.js');
 
 class DietRecordController {
-  async getDietRecords(req, res, next) {
-    const result = await DietRecordRepository.getAll(req.session.passport.user, req.query.date);
-    return res.status(200).json({ data: result });
+  static async getDietRecords(req, res, next) {
+    const data = await DietRecordRepository.getAll(req.query.date, req.session.passport.user);
+    return res.status(200).json({ data });
   }
 
-  async createDietRecord(req, res, next) {
-    const result = await DietRecordRepository.create(req.session.passport.user, req.body);
-    await updateUserExp(1, req.session.passport.user);
-    return res.status(200).json({ data: result });
+  static async createDietRecord(req, res, next) {
+    await DietRecordRepository.create(req.body, req.session.passport.user);
+    await UserInfoRepository.updateExp(req.session.passport.user, 1);
+    return res.status(200).json({ data: 'OK' });
   }
 
-  async deleteDietRecord(req, res, next) {
-    const result = await DietRecordRepository.delete(req.session.passport.user, req.params.id);
-    await updateUserExp(-1, req.session.passport.user);
-    return res.status(200).json({ data: result });
+  static async deleteDietRecord(req, res, next) {
+    await DietRecordRepository.delete(req.params.id, req.session.passport.user);
+    await UserInfoRepository.updateExp(req.session.passport.user, -1);
+    return res.status(200).json({ data: 'OK' });
   }
 }
 

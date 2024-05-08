@@ -8,7 +8,7 @@ const { GuildAuth, GuildController, UserGuildRelationController} = require('../c
 const guild = new GuildController();
 const guildAuth = new GuildAuth();
 const member = new UserGuildRelationController();
-const notification = new (require('../controllers/notification/notificationControllers'))();
+const notification = require('../controllers/notification/notificationControllers');
 const task = new (require('../controllers/guild/taskControllers'))();
 
 // Guild

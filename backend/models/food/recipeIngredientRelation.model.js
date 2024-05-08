@@ -1,4 +1,5 @@
 const connection = require('../../lib/db');
+const { convertKeysToCamelCase } = require('../../utils/convertToCamelCase.js');
 
 class RecipeIngredientRelationModel {
   static getAllByIngredient(INGREDIENT) {
@@ -10,7 +11,11 @@ class RecipeIngredientRelationModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const recipeIngredientRelations = rows.map(convertKeysToCamelCase);
+              resolve(recipeIngredientRelations);
+            }
           }
         }
       );
@@ -26,7 +31,11 @@ class RecipeIngredientRelationModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const recipeIngredientRelations = rows.map(convertKeysToCamelCase);
+              resolve(recipeIngredientRelations);
+            }
           }
         }
       );
@@ -42,7 +51,11 @@ class RecipeIngredientRelationModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const recipeIngredientRelation = convertKeysToCamelCase(rows[0]);
+              resolve(recipeIngredientRelation);
+            }
           }
         }
       );
@@ -58,7 +71,7 @@ class RecipeIngredientRelationModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.insertId);
           }
         }
       );
@@ -74,7 +87,7 @@ class RecipeIngredientRelationModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -90,7 +103,7 @@ class RecipeIngredientRelationModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );

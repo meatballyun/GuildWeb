@@ -60,16 +60,16 @@ class GuildController {
     if (query?.length) {
       guilds = await Promise.all(
         query.map(async (row) => {
-          const [guild] = await Guild.getOne(row.GUILD_ID);
+          const guild = await Guild.getOne(row.GUILD_ID);
           const [userGuildRelation] = await UserGuildRelation.getOneByGuildAndUser(
             req.session.passport.user,
             row.GUILD_ID
           );
           return {
-            id: guild.ID,
+            id: guild.id,
             membership: userGuildRelation.MEMBERSHIP,
-            name: guild.NAME,
-            imageUrl: guild.IMAGE_URL,
+            name: guild.name,
+            imageUrl: guild.imageUrl,
           };
         })
       );

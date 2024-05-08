@@ -1,4 +1,5 @@
 const connection = require('../../lib/db');
+const { convertKeysToCamelCase } = require('../../utils/convertToCamelCase.js');
 
 class GuildModel {
   static getOne(ID) {
@@ -10,7 +11,11 @@ class GuildModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const guild = convertKeysToCamelCase(rows[0]);
+              resolve(guild);
+            }
           }
         }
       );

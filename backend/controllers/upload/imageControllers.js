@@ -1,7 +1,8 @@
 const fs = require('fs');
 const ApplicationError = require('../../utils/error/applicationError.js');
 const path = require('path');
-const UPLOAD_PATH = process.env.API_SERVICE_URL;
+const UPLOAD_PATH = process.env.NODE_ENV === 'development' ? process.env.TEST_UPLOAD_PATH : API_SERVICE_URL;
+
 
 const MaxFileSizeMB = 5;
 class ImageController {

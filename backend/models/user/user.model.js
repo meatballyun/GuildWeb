@@ -1,4 +1,5 @@
 const connection = require('../../lib/db');
+const { convertKeysToCamelCase } = require('../../utils/convertToCamelCase.js');
 
 class UserModel {
   static getOneById(ID) {
@@ -10,7 +11,11 @@ class UserModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const user = convertKeysToCamelCase(rows[0]);
+              resolve(user);
+            }
           }
         }
       );
@@ -19,11 +24,15 @@ class UserModel {
 
   static getOneByEmail(EMAIL) {
     return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM users WHERE EMAIL = ?', EMAIL, function (err, num) {
+      connection.query('SELECT * FROM users WHERE EMAIL = ?', EMAIL, function (err, rows) {
         if (err) {
           reject(err);
         } else {
-          resolve(num);
+          if (rows.length === 0) resolve(false);
+          else {
+            const user = convertKeysToCamelCase(rows[0]);
+            resolve(user);
+          }
         }
       });
     });
@@ -38,7 +47,11 @@ class UserModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const user = rows.map(convertKeysToCamelCase);
+              resolve(user);
+            }
           }
         }
       );
@@ -54,7 +67,7 @@ class UserModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -70,7 +83,7 @@ class UserModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -86,7 +99,7 @@ class UserModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -102,7 +115,7 @@ class UserModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -115,7 +128,7 @@ class UserModel {
         if (err) {
           reject(err);
         } else {
-          resolve(rows);
+          resolve(rows.affectedRows);
         }
       });
     });
@@ -130,7 +143,7 @@ class UserModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );

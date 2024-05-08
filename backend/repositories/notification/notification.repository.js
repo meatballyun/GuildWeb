@@ -1,19 +1,16 @@
 const ApplicationError = require('../../utils/error/applicationError.js');
-const convertToCamelCase = require('../../utils/convertToCamelCase.js');
 const Guild = require('../../models/guild/guild.model.js');
 const Notification = require('../../models/notification/notification.model.js');
 const DEFAULT_NOTIFICATION_CONTENT = require('./default_notification_template.js');
 const User = require('../../models/user/user.model.js');
 
 class NotificationRepository {
-  async getAll(uid) {
+  static async getAll(uid) {
     const notifications = await Notification.getAll(uid);
     let data;
-    const hasNotification = notifications?.length;
-    if (hasNotification) {
+    if (notifications) {
       data = await Promise.all(
-        notifications.map(async (row) => {
-          const { sender, id, createTime, title, read, type } = await this.getOne(row.ID);
+        notifications.map(async ({ sender, id, createTime, title, read, type }) => {
           return { sender, id, createTime, title, read, type };
         })
       );
@@ -21,88 +18,83 @@ class NotificationRepository {
     return data;
   }
 
-  async getOne(nid) {
-    const [notification] = await Notification.getOne(nid);
-    const hasNotification = notification.ID;
-    if (hasNotification) {
+  static async getOne(nid) {
+    const notification = await Notification.getOne(nid);
+    if (notification) {
       let sender;
-      if (notification.TYPE === 'Guild') {
-        const [guild] = await Guild.getOne(notification.SENDER_ID);
+      if (notification.type === 'Guild') {
+        const guild = await Guild.getOne(notification.senderId);
         if (!guild) throw new ApplicationError(409);
         sender = {
-          id: guild.ID,
-          name: guild.NAME,
-          imageUrl: guild.IMAGE_URL,
+          id: guild.id,
+          name: guild.name,
+          imageUrl: guild.imageUrl,
         };
-      } else if (notification.TYPE === 'User') {
-        const [user] = await User.getOneById(notification.SENDER_ID);
+      } else if (notification.type === 'User') {
+        const user = await User.getOneById(notification.senderId);
         if (!user) throw new ApplicationError(409);
         sender = {
-          id: user.ID,
-          name: user.NAME,
-          imageUrl: user.IMAGE_URL,
+          id: user.id,
+          name: user.name,
+          imageUrl: user.imageUrl,
         };
       } else throw new ApplicationError(409);
-      const data = { sender: sender, ...convertToCamelCase(notification) };
+      const data = { sender: sender, ...notification };
       return data;
     }
     throw new ApplicationError(404);
   }
 
-  async create({ senderId, recipientId, type }) {
+  static async create({ senderId, recipientId, type }) {
     const defaultContent = await new Promise(async (resolve, reject) => {
-      const [recipient] = await User.getOneById(recipientId);
+      const recipient = await User.getOneById(recipientId);
       if (type === 'Guild') {
         const [sender] = await Guild.getGuild(senderId);
-        const notificationContent = new DEFAULT_NOTIFICATION_CONTENT(sender.NAME, recipient.NAME);
+        const notificationContent = new DEFAULT_NOTIFICATION_CONTENT(sender.name, recipient.name);
         const content = notificationContent.guild();
         resolve(content);
       }
       if (type === 'User') {
-        const [sender] = await User.getOneById(senderId);
-        const notificationContent = new DEFAULT_NOTIFICATION_CONTENT(sender.NAME, recipient.NAME);
+        const sender = await User.getOneById(senderId);
+        const notificationContent = new DEFAULT_NOTIFICATION_CONTENT(sender.name, recipient.name);
         const content = notificationContent.user();
         resolve(content);
       }
-      const [sender] = await User.getOneById(senderId);
-      const notificationContent = new DEFAULT_NOTIFICATION_CONTENT(sender.NAME, recipient.NAME);
+      const sender = await User.getOneById(senderId);
+      const notificationContent = new DEFAULT_NOTIFICATION_CONTENT(sender.name, recipient.name);
       const content = notificationContent.system();
       resolve(content);
     });
     const newNotification = await Notification.create(
       senderId,
       recipientId,
-      defaultContent.TITLE,
-      defaultContent.DESCRIPTION,
+      defaultContent.title,
+      defaultContent.description,
       type
     );
-    const hasNewNotification = newNotification['insertId'];
-    if (hasNewNotification) {
-      return 'OK';
-    }
-    throw new ApplicationError(400);
+    if (!newNotification) throw new ApplicationError(400);
   }
 
-  async read(nid) {
+  static async read(nid) {
     const isRead = await Notification.read(nid);
-    if (isRead['affectedRows']) return true;
+    if (isRead) return true;
     throw new ApplicationError(400);
   }
 
-  async use(nid) {
-    const [notification] = await Notification.getOne(nid);
+  static async use(nid) {
+    const notification = await Notification.getOne(nid);
     if (notification) {
-      if (notification.USED) throw new ApplicationError(400);
+      if (notification.used) throw new ApplicationError(400);
       const result = await Notification.use(nid);
-      if (result['affectedRows']) return 'OK';
+      if (result) return;
       throw new ApplicationError(400);
     }
     throw new ApplicationError(409);
   }
 
-  async delete(nid) {
+  static async delete(nid) {
     const notification = await Notification.delete(nid);
-    if (notification['affectedRows']) {
+    if (notification) {
       return 'OK';
     }
     throw new ApplicationError(404);
