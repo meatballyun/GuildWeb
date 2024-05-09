@@ -14,7 +14,7 @@ const ONE_DAY_MILLIE_SECEND = 24 * 60 * 60 * 1000;
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(logger('dev'));
 const corsOptions = {
-  origin: '*',
+  origin: `${FE_URL}:${FE_PORT}`,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
@@ -35,5 +35,9 @@ app.use(passport.session());
 app.use(cookieParser());
 app.use('/api', routes);
 app.use(errorHandler);
+// prettier-ignore
+app.use((err, req, res, next) => {
+  res.status(500).send('Error: The server could not understand the request due to invalid syntax or missing parameters.');
+});
 
 module.exports = app;

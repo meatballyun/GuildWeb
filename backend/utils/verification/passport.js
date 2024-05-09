@@ -1,6 +1,5 @@
 const passport = require('passport');
 const bcrypt = require('bcrypt');
-
 const LocalStrategy = require('passport-local').Strategy;
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;

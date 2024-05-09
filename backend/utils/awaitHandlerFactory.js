@@ -1,5 +1,3 @@
-const ApplicationError = require('./error/applicationError');
-
 const awaitHandlerFactory = (func) => {
   return async (req, res, next) => {
     try {

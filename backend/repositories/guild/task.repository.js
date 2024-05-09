@@ -1,5 +1,4 @@
 const Task = require('../../models/guild/task.model');
-const Item = require('../../models/guild/item.model');
 const ItemRecord = require('../../models/guild/itemRecord.model');
 const Adventurer = require('../../models/guild/adventurer.model');
 const User = require('../../models/user/user.model');
@@ -54,7 +53,6 @@ class TaskRepository {
     const isAccepted = await AdventurerRepository.isAdventurer(taskId, uid);
     if (isAccepted) throw new ApplicationError(409);
     if (task.accepted === 'Max Accepted') throw new ApplicationError(409);
-
     const adventurer = await Adventurer.create(taskId, uid);
     if (!adventurer) throw new ApplicationError(400);
   }
@@ -66,8 +64,9 @@ class TaskRepository {
     if (!adventurer) throw new ApplicationError(409);
 
     const currentTime = new Date();
-    const initiationTime = new Date(initiationTime);
-    if (currentTime > initiationTime) throw new ApplicationError(409);
+    const initiationTime = new Date(task.initiationTime);
+    const deadline = new Date(task.deadline);
+    if (currentTime < initiationTime || currentTime > deadline) throw new ApplicationError(409);
 
     const result = await Adventurer.update(taskId, uid, 'Completed', currentTime);
     if (!result) throw new ApplicationError(400);
@@ -77,7 +76,7 @@ class TaskRepository {
     const task = await Task.getOne(taskId);
     if (!task) throw new ApplicationError(404);
     const isAccepted = await AdventurerRepository.isAdventurer(taskId, uid);
-    if (isAccepted) throw new ApplicationError(409);
+    if (!isAccepted) throw new ApplicationError(409);
 
     await Adventurer.deleteByTaskAndUser(taskId, uid);
     await ItemRecordRepository.deleteAllByTaskAndUser(taskId, uid);

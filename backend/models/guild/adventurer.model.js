@@ -71,7 +71,7 @@ class AdventurerModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows.insertId);
+            resolve(rows.affectedRows);
           }
         }
       );

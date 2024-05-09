@@ -3,11 +3,11 @@ const router = express.Router();
 const passport = require('../utils/verification/passport');
 const auth = passport.authenticate('jwt', { session: true });
 const awaitHandlerFactory = require('../utils/awaitHandlerFactory');
+const guildAuth = require('../middleware/guildAuth.js');
 const guild = require('../controllers/guild/guildControllers');
 const member = require('../controllers/guild/memberControllers');
 const task = require('../controllers/guild/taskControllers');
 const taskTemplate = require('../controllers/guild/taskTemplateControllers');
-const guildAuth = require('../middleware/guildAuth.js');
 
 // Guild
 router.get('/', auth, awaitHandlerFactory(guild.getGuilds));

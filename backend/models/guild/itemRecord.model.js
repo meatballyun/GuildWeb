@@ -129,7 +129,7 @@ class ItemRecordModel {
   static deleteAllByItemAndUser(ITEMS_ID, USER_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'UPDATE itemRecords SET ACTIVE = FALSE WHERE ITEMS_ID = ? AND USER_ID =',
+        'UPDATE itemRecords SET ACTIVE = FALSE WHERE ITEMS_ID = ? AND USER_ID = ?',
         [ITEMS_ID, USER_ID],
         function (err, rows) {
           if (err) {

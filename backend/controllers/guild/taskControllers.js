@@ -101,13 +101,6 @@ class TaskController {
     await TaskRepository.delete(req.params, req.member, req.session.passport.user);
     return res.status(200).json({ data: 'OK' });
   }
-
-  static async autoUpdateStatus() {
-    await Task.checkInitiationTimeEvent().catch(() =>
-      console.log('checkInitiationTimeEvent error')
-    );
-    await Task.checkDeadlineEvent().catch(() => console.log('checkDeadlineEvent error'));
-  }
 }
 
 module.exports = TaskController;

@@ -22,8 +22,6 @@ router.post('/reset-password', awaitHandlerFactory(authController.resetPassword)
 router.get('/me', auth, awaitHandlerFactory(userInfo.getUserInfo));
 router.put('/me', auth, awaitHandlerFactory(userInfo.updateUserInfo));
 
-
-
 // Friend
 router.get('/', auth, awaitHandlerFactory(userList.getUsers));
 router.get('/friends', auth, awaitHandlerFactory(userList.getFriends));

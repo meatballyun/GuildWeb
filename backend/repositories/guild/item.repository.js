@@ -1,8 +1,4 @@
-const Task = require('../../models/guild/task.model.js');
 const Item = require('../../models/guild/item.model.js');
-const ItemRecord = require('../../models/guild/itemRecord.model.js');
-const Adventurer = require('../../models/guild/adventurer.model.js');
-const User = require('../../models/user/user.model.js');
 const ApplicationError = require('../../utils/error/applicationError.js');
 const ItemRecordRepository = require('../../repositories/guild/itemRecord.repository.js');
 

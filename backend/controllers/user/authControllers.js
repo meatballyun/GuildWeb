@@ -1,4 +1,4 @@
-const passport = require('../../verification/passport.js');
+const passport = require('../../utils/verification/passport.js');
 const jwt = require('jsonwebtoken');
 const { toHash } = require('../../utils/hashCode.js');
 const User = require('../../models/user/user.model.js');
