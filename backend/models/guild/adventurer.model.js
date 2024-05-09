@@ -1,4 +1,5 @@
 const connection = require('../../lib/db');
+const { convertKeysToCamelCase } = require('../../utils/convertToCamelCase.js');
 
 class AdventurerModel {
   static getOne(TASK_ID, USER_ID) {
@@ -10,7 +11,11 @@ class AdventurerModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const adventurer = convertKeysToCamelCase(rows[0]);
+              resolve(adventurer);
+            }
           }
         }
       );
@@ -26,7 +31,11 @@ class AdventurerModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const itemRecords = rows.map(convertKeysToCamelCase);
+              resolve(itemRecords);
+            }
           }
         }
       );
@@ -42,7 +51,11 @@ class AdventurerModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const itemRecords = rows.map(convertKeysToCamelCase);
+              resolve(itemRecords);
+            }
           }
         }
       );
@@ -58,7 +71,7 @@ class AdventurerModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.insertId);
           }
         }
       );
@@ -74,7 +87,7 @@ class AdventurerModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -90,7 +103,7 @@ class AdventurerModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -106,7 +119,7 @@ class AdventurerModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -122,7 +135,7 @@ class AdventurerModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );

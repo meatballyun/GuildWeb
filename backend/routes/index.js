@@ -6,7 +6,7 @@ const upload = require('./upload.js');
 const foods = require('./foods.js');
 const guilds = require('./guilds.js');
 const notifications = require('./notifications.js');
-const taskScheduler = require('../utils/taskScheduler');
+const taskScheduler = require('../utils/scheduled/taskScheduler');
 
 router.use('/users', users);
 router.use('/emails', emails);

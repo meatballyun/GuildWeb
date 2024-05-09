@@ -1,4 +1,5 @@
 const connection = require('../../lib/db');
+const { convertKeysToCamelCase } = require('../../utils/convertToCamelCase.js');
 
 class ItemRecordModel {
   static getOne(ID) {
@@ -10,7 +11,11 @@ class ItemRecordModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const itemRecord = convertKeysToCamelCase(rows[0]);
+              resolve(itemRecord);
+            }
           }
         }
       );
@@ -26,7 +31,11 @@ class ItemRecordModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const itemRecords = rows.map(convertKeysToCamelCase);
+              resolve(itemRecords);
+            }
           }
         }
       );
@@ -42,7 +51,11 @@ class ItemRecordModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const itemRecords = rows.map(convertKeysToCamelCase);
+              resolve(itemRecords);
+            }
           }
         }
       );
@@ -58,7 +71,7 @@ class ItemRecordModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.insertId);
           }
         }
       );
@@ -74,7 +87,7 @@ class ItemRecordModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -90,7 +103,7 @@ class ItemRecordModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -106,7 +119,23 @@ class ItemRecordModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
+          }
+        }
+      );
+    });
+  }
+
+  static deleteAllByItemAndUser(ITEMS_ID, USER_ID) {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        'UPDATE itemRecords SET ACTIVE = FALSE WHERE ITEMS_ID = ? AND USER_ID =',
+        [ITEMS_ID, USER_ID],
+        function (err, rows) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows.affectedRows);
           }
         }
       );

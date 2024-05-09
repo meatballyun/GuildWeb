@@ -1,5 +1,4 @@
 const ApplicationError = require('../../utils/error/applicationError.js');
-const convertToCamelCase = require('../../utils/convertToCamelCase.js');
 const User = require('../../models/user/user.model.js');
 
 class UserInfoRepository {

@@ -1,4 +1,5 @@
 const connection = require('../../lib/db');
+const { convertKeysToCamelCase } = require('../../utils/convertToCamelCase.js');
 
 class TaskTemplateModel {
   static DATE_ADD(CURRENT, INTERVAL, UNIT) {
@@ -23,7 +24,12 @@ class TaskTemplateModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              if (rows.length === 0) resolve(false);
+              const taskTemplates = convertKeysToCamelCase(rows[0]);
+              resolve(taskTemplates);
+            }
           }
         }
       );
@@ -38,7 +44,11 @@ class TaskTemplateModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const taskTemplates = rows.map(convertKeysToCamelCase);
+              resolve(taskTemplates);
+            }
           }
         }
       );
@@ -54,7 +64,11 @@ class TaskTemplateModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const taskTemplates = rows.map(convertKeysToCamelCase);
+              resolve(taskTemplates);
+            }
           }
         }
       );
@@ -70,48 +84,43 @@ class TaskTemplateModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const taskTemplates = rows.map(convertKeysToCamelCase);
+              resolve(taskTemplates);
+            }
           }
         }
       );
     });
   }
 
-  static create(
-    CREATOR_ID,
-    GUILD_ID,
-    NAME,
-    DESCRIPTION,
-    GENERATION_TIME,
-    DEADLINE,
-    TYPE,
-    MAX_ADVENTURER
-  ) {
+  static create( CREATOR_ID, GUILD_ID, {generationTime, deadline}, {name, description,  type, maxAdventurer}  ) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'INSERT INTO taskTemplates(CREATOR_ID, GUILD_ID, NAME, DESCRIPTION,  GENERATION_TIME, DEADLINE, TYPE, MAX_ADVENTURER) VALUES (?,?,?,?,?,?,?,?)',
-        [CREATOR_ID, GUILD_ID, NAME, DESCRIPTION, GENERATION_TIME, DEADLINE, TYPE, MAX_ADVENTURER],
+        'INSERT INTO taskTemplates(CREATOR_ID, GUILD_ID,  GENERATION_TIME, DEADLINE, NAME, DESCRIPTION, TYPE, MAX_ADVENTURER) VALUES (?,?,?,?,?,?,?,?)',
+        [CREATOR_ID, GUILD_ID, generationTime, deadline, name, description, type, maxAdventurer],
         function (err, rows) {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.insertId);
           }
         }
       );
     });
   }
 
-  static update(ID, ENABLED, NAME, DESCRIPTION, GENERATION_TIME, DEADLINE, TYPE, MAX_ADVENTURER) {
+  static update(ID, {generationTime, deadline}, {enabled, name, description,  type, maxAdventurer}) {
     return new Promise((resolve, reject) => {
       connection.query(
         'UPDATE taskTemplates SET  ENABLED = ?, NAME = ?, DESCRIPTION = ?,  GENERATION_TIME = ?, DEADLINE = ?, TYPE = ?, MAX_ADVENTURER = ? WHERE ID = ?',
-        [ENABLED, NAME, DESCRIPTION, GENERATION_TIME, DEADLINE, TYPE, MAX_ADVENTURER, ID],
+        [enabled, name, description, generationTime, deadline, type, maxAdventurer, ID],
         function (err, rows) {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -127,7 +136,7 @@ class TaskTemplateModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -143,7 +152,7 @@ class TaskTemplateModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );

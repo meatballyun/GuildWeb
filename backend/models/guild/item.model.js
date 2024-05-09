@@ -1,4 +1,5 @@
 const connection = require('../../lib/db');
+const { convertKeysToCamelCase } = require('../../utils/convertToCamelCase.js');
 
 class ItemModel {
   static getAll(TASK_ID) {
@@ -10,7 +11,11 @@ class ItemModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const items = rows.map(convertKeysToCamelCase);
+              resolve(items);
+            }
           }
         }
       );
@@ -26,7 +31,7 @@ class ItemModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.insertId);
           }
         }
       );
@@ -42,7 +47,7 @@ class ItemModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -55,7 +60,7 @@ class ItemModel {
         if (err) {
           reject(err);
         } else {
-          resolve(rows);
+          resolve(rows.affectedRows);
         }
       });
     });
@@ -70,7 +75,7 @@ class ItemModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );

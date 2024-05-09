@@ -1,6 +1,6 @@
-const task = new (require('../controllers/guild/taskControllers'))();
-const taskTemplate = new (require('../controllers/guild/taskTemplateControllers'))();
-const INTERVAL = 5 * 60 * 1000;
+const task = require('../../controllers/guild/taskControllers');
+const taskTemplate = require('../../controllers/guild/taskTemplateControllers');
+const INTERVAL = 5 * 60 * 60 * 1000;
 
 const taskScheduler = {
   start: () => {

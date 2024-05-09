@@ -1,4 +1,5 @@
 const connection = require('../../lib/db');
+const { convertKeysToCamelCase } = require('../../utils/convertToCamelCase.js');
 
 class TaskModel {
   static getOne(ID) {
@@ -10,7 +11,11 @@ class TaskModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const task = convertKeysToCamelCase(rows[0]);
+              resolve(task);
+            }
           }
         }
       );
@@ -26,7 +31,11 @@ class TaskModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const tasks = rows.map(convertKeysToCamelCase);
+              resolve(tasks);
+            }
           }
         }
       );
@@ -42,7 +51,11 @@ class TaskModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const tasks = rows.map(convertKeysToCamelCase);
+              resolve(tasks);
+            }
           }
         }
       );
@@ -52,59 +65,58 @@ class TaskModel {
   static create(
     CREATOR_ID,
     GUILD_ID,
-    NAME,
-    INITIATION_TIME,
-    DEADLINE,
-    DESCRIPTION,
-    TYPE,
-    MAX_ADVENTURER
+    { initiationTime, deadline },
+    { name, description, type, maxAdventurer }
   ) {
     const currentTime = new Date().getTime();
     let STATUS = 'Established';
-    if (currentTime >= new Date(INITIATION_TIME).getTime()) {
+    if (currentTime >= new Date(initiationTime).getTime()) {
       STATUS = 'In Progress';
     }
     return new Promise((resolve, reject) => {
       connection.query(
-        'INSERT INTO tasks(CREATOR_ID, GUILD_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, TYPE, MAX_ADVENTURER, STATUS) VALUES (?,?,?,?,?,?,?,?,?)',
+        'INSERT INTO tasks(CREATOR_ID, GUILD_ID, INITIATION_TIME, DEADLINE, NAME, DESCRIPTION, TYPE, MAX_ADVENTURER, STATUS) VALUES (?,?,?,?,?,?,?,?,?)',
         [
           CREATOR_ID,
           GUILD_ID,
-          NAME,
-          INITIATION_TIME,
-          DEADLINE,
-          DESCRIPTION,
-          TYPE,
-          MAX_ADVENTURER,
+          initiationTime,
+          deadline,
+          name,
+          description,
+          type,
+          maxAdventurer,
           STATUS,
         ],
         function (err, rows) {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.insertId);
           }
         }
       );
     });
   }
 
-  static updateDetail(TASK_ID, NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, TYPE, MAX_ADVENTURER) {
-    const initiationTime = new Date(INITIATION_TIME);
-    const currentDate = new Date();
+  static updateDetail(
+    TASK_ID,
+    { initiationTime, deadline },
+    { name, description, type, maxAdventurer }
+  ) {
+    const currentTime = new Date().getTime();
     let STATUS = 'Established';
-    if (currentDate.toLocaleDateString() === initiationTime.toLocaleDateString()) {
+    if (currentTime >= new Date(initiationTime).getTime()) {
       STATUS = 'In Progress';
     }
     return new Promise((resolve, reject) => {
       connection.query(
-        'UPDATE tasks SET NAME = ?, INITIATION_TIME = ?, DEADLINE = ?, DESCRIPTION = ?, TYPE = ?, MAX_ADVENTURER = ?, STATUS = ? WHERE ID = ?',
-        [NAME, INITIATION_TIME, DEADLINE, DESCRIPTION, TYPE, MAX_ADVENTURER, STATUS, TASK_ID],
+        'UPDATE tasks SET INITIATION_TIME = ?, DEADLINE = ?, NAME = ?, DESCRIPTION = ?, TYPE = ?, MAX_ADVENTURER = ?, STATUS = ? WHERE ID = ?',
+        [initiationTime, deadline, name, description, type, maxAdventurer, STATUS, TASK_ID],
         function (err, rows) {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -120,7 +132,7 @@ class TaskModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -136,7 +148,7 @@ class TaskModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -152,7 +164,7 @@ class TaskModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -168,7 +180,7 @@ class TaskModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -183,7 +195,7 @@ class TaskModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -198,7 +210,7 @@ class TaskModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );

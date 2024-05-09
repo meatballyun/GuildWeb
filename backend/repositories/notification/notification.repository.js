@@ -49,7 +49,7 @@ class NotificationRepository {
     const defaultContent = await new Promise(async (resolve, reject) => {
       const recipient = await User.getOneById(recipientId);
       if (type === 'Guild') {
-        const [sender] = await Guild.getGuild(senderId);
+        const sender = await Guild.getOne(senderId);
         const notificationContent = new DEFAULT_NOTIFICATION_CONTENT(sender.name, recipient.name);
         const content = notificationContent.guild();
         resolve(content);

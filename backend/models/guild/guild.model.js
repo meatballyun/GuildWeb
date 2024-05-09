@@ -22,32 +22,48 @@ class GuildModel {
     });
   }
 
-  static create(LEADER_ID, NAME, DESCRIPTION, IMAGE_URL, CABIN) {
+  static create(LEADER_ID, { name, description, imageUrl }) {
     return new Promise((resolve, reject) => {
       connection.query(
         'INSERT INTO guilds(LEADER_ID, NAME, DESCRIPTION, IMAGE_URL, CABIN) VALUES (?,?,?,?,?)',
-        [LEADER_ID, NAME, DESCRIPTION, IMAGE_URL, CABIN],
+        [LEADER_ID, name, description, imageUrl, false],
         function (err, rows) {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.insertId);
           }
         }
       );
     });
   }
 
-  static update(ID, NAME, DESCRIPTION, IMAGE_URL) {
+  static addCabin(LEADER_ID, NAME, DESCRIPTION, IMAGE_URL) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'UPDATE guilds SET NAME = ? , DESCRIPTION = ?, IMAGE_URL = ? WHERE ID = ?',
-        [NAME, DESCRIPTION, IMAGE_URL, ID],
+        'INSERT INTO guilds(LEADER_ID, NAME, DESCRIPTION, IMAGE_URL, CABIN) VALUES (?,?,?,?,?)',
+        [LEADER_ID, NAME, DESCRIPTION, IMAGE_URL, true],
         function (err, rows) {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.insertId);
+          }
+        }
+      );
+    });
+  }
+
+  static update(ID, { name, description, imageUrl }) {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        'UPDATE guilds SET NAME = ? , DESCRIPTION = ?, IMAGE_URL = ? WHERE ID = ?',
+        [name, description, imageUrl, ID],
+        function (err, rows) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -60,7 +76,7 @@ class GuildModel {
         if (err) {
           reject(err);
         } else {
-          resolve(rows);
+          resolve(rows.affectedRows);
         }
       });
     });
