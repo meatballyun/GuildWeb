@@ -1,4 +1,4 @@
-const ApplicationError = require('../utils/error/applicationError.js');
+const ApplicationError = require('../error/applicationError.js');
 
 const authenticated = (req, res, next) => {
   if (req.isAuthenticated()) return next();

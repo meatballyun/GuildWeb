@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const passport = require('../verification/passport');
+const passport = require('../utils/verification/passport');
 const auth = passport.authenticate('jwt', { session: true });
 const awaitHandlerFactory = require('../utils/awaitHandlerFactory');
 const ingredient = require('../controllers/food/ingredientControllers');

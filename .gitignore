@@ -2,7 +2,7 @@
 .env
 
 #backend
-#backend/public
+backend/public
 backend/node_modules
 
 #frontend
