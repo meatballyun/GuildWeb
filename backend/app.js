@@ -14,7 +14,7 @@ const ONE_DAY_MILLIE_SECEND = 24 * 60 * 60 * 1000;
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(logger('dev'));
 const corsOptions = {
-  origin: `${FE_URL}:${FE_PORT}`,
+  origin: `${process.env.FE_URL}:${process.env.FE_PORT}`,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
