@@ -73,7 +73,9 @@ export const MissionPage = ({ mode }) => {
         case 'all':
         default:
           if (!mode)
-            return missionList.filter(({ status }) => status !== 'Cancelled');
+            return missionList.filter(
+              ({ status }) => status !== 'Cancelled' && status !== 'Expired'
+            );
           return missionList;
       }
     })();

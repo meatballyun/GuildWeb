@@ -22,11 +22,11 @@ const getBasicMissionBtnProps = ({
         children: 'Mission Completed',
       },
     ];
-  const adventurersCompleted = adventurers.some(
+  const adventurersCompleted = adventurers?.some(
     ({ status }) => status === 'Completed'
   );
   const isOwned = creator.id === userId;
-  const myStatus = adventurers.find(({ id }) => id === userId)?.status;
+  const myStatus = adventurers?.find(({ id }) => id === userId)?.status;
 
   if (adventurersCompleted && isOwned) {
     return [

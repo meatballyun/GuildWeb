@@ -120,7 +120,7 @@ export const UsersPage = ({ friendsMode = false }) => {
           if (!friendList?.length)
             return (
               <div className="text-center text-3xl text-primary-300">
-                You have no friends in your list yet. :(
+                {`You have no friends in your list yet. :(`}
                 <br />
                 Hurry up and invite your friends to join!
               </div>
