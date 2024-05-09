@@ -28,10 +28,10 @@ export const MissionBar = ({
     <div
       onClick={onClick}
       className={classNames(
-        'flex w-full cursor-pointer items-center gap-2 whitespace-nowrap rounded-md p-2',
-        focus
-          ? 'border-2 border-primary-400 bg-primary-100'
-          : 'bg-primary-100/50 hover:bg-primary-100'
+        'flex w-full cursor-pointer items-center gap-2 whitespace-nowrap rounded-md p-2 transition-all',
+        focus && 'border-2 border-primary-400 bg-primary-100',
+        !isAccepted && 'bg-primary-200/50 hover:bg-primary-200/30',
+        !focus && isAccepted && 'bg-primary-100/50 hover:bg-primary-100'
       )}
     >
       <MissionPill type={type} repetitiveTaskType={repetitiveTaskType} />

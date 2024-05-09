@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const passport = require('../verification/passport');
+const passport = require('../utils/verification/passport');
 const auth = passport.authenticate('jwt', { session: true });
 const awaitHandlerFactory = require('../utils/awaitHandlerFactory');
-const ingredient = new (require('../controllers/food/ingredientControllers'))();
-const recipe = new (require('../controllers/food/recipeControllers'))();
-const dietRecord = new (require('../controllers/food/dietRecordControllers'))();
+const ingredient = require('../controllers/food/ingredientControllers');
+const recipe = require('../controllers/food/recipeControllers');
+const dietRecord = require('../controllers/food/dietRecordControllers');
 
 // ingredient
 router.get('/ingredients', auth, awaitHandlerFactory(ingredient.getIngredients));

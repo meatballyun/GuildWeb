@@ -1,7 +1,8 @@
 const connection = require('../../lib/db');
+const { convertKeysToCamelCase } = require('../../utils/convertToCamelCase.js');
 
 class ConfirmationEmailModel {
-  static getAllByUser(USER_ID, TYPE) {
+  static getLatestByUser(USER_ID, TYPE) {
     return new Promise((resolve, reject) => {
       connection.query(
         'SELECT * FROM confirmationEmails WHERE USER_ID = ? AND TYPE = ? ORDER BY CREATE_TIME DESC  LIMIT 1',
@@ -10,7 +11,11 @@ class ConfirmationEmailModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const email = convertKeysToCamelCase(rows[0]);
+              resolve(email);
+            }
           }
         }
       );
@@ -26,7 +31,7 @@ class ConfirmationEmailModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -42,7 +47,7 @@ class ConfirmationEmailModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );

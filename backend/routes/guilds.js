@@ -1,15 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const taskTemplate = new (require('../controllers/guild/taskTemplateControllers'))();
-const passport = require('../verification/passport');
+const passport = require('../utils/verification/passport');
 const auth = passport.authenticate('jwt', { session: true });
 const awaitHandlerFactory = require('../utils/awaitHandlerFactory');
-const { GuildAuth, GuildController, UserGuildRelationController} = require('../controllers/guild/guildControllers');
-const guild = new GuildController();
-const guildAuth = new GuildAuth();
-const member = new UserGuildRelationController();
-const notification = new (require('../controllers/notification/notificationControllers'))();
-const task = new (require('../controllers/guild/taskControllers'))();
+const guildAuth = require('../middleware/guildAuth.js');
+const guild = require('../controllers/guild/guildControllers');
+const member = require('../controllers/guild/memberControllers');
+const task = require('../controllers/guild/taskControllers');
+const taskTemplate = require('../controllers/guild/taskTemplateControllers');
 
 // Guild
 router.get('/', auth, awaitHandlerFactory(guild.getGuilds));
@@ -22,20 +20,19 @@ router.delete('/:gid', auth, guildAuth.isMaster, awaitHandlerFactory(guild.delet
 // Member
 router.get('/:gid/invitation', auth, guildAuth.isMember, awaitHandlerFactory(member.replyInvitation));
 router.get('/:gid/members', auth, guildAuth.isMember, awaitHandlerFactory(member.getMembers));
-router.post('/:gid/invitation', auth, guildAuth.isMasterOrVice, awaitHandlerFactory(member.sendInvitation), notification.createNotification);
+router.post('/:gid/invitation', auth, guildAuth.isMasterOrVice, awaitHandlerFactory(member.sendInvitation));
 router.patch('/:gid/members/:uid', auth, guildAuth.isMaster, awaitHandlerFactory(member.updateMember));
 router.delete('/:gid/members/:uid', auth, guildAuth.isMember, awaitHandlerFactory(member.deleteMember));
 
 // TaskTemplate
 router.get('/:gid/task_templates', auth, guildAuth.isMasterOrVice, awaitHandlerFactory(taskTemplate.getTaskTemplates));
 router.get('/:gid/task_templates/:ttid', auth, guildAuth.isMasterOrVice, awaitHandlerFactory(taskTemplate.getTaskTemplateDetail));
-router.post('/:gid/task_templates', auth, guildAuth.isMasterOrVice, awaitHandlerFactory(taskTemplate.addTaskTemplate)
-);
+router.post('/:gid/task_templates', auth, guildAuth.isMasterOrVice, awaitHandlerFactory(taskTemplate.addTaskTemplate));
 router.put('/:gid/task_templates/:ttid', auth, guildAuth.isMasterOrVice, awaitHandlerFactory(taskTemplate.updateTaskTemplate));
 router.delete('/:gid/task_templates/:ttid', auth, guildAuth.isMasterOrVice, awaitHandlerFactory(taskTemplate.deleteTaskTemplate));
 
 // Task
-router.get('/all/tasks', auth, awaitHandlerFactory(task.getAllTasks));
+router.get('/all/tasks', auth, awaitHandlerFactory(task.getUserTasks));
 router.get('/:gid/tasks', auth, awaitHandlerFactory(task.getTasks));
 router.get('/:gid/tasks/:tid', auth, guildAuth.isMember, awaitHandlerFactory(task.getTaskDetail));
 router.post('/:gid/tasks/', auth, guildAuth.isMasterOrVice, awaitHandlerFactory(task.addTask));

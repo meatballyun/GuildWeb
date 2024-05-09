@@ -1,4 +1,5 @@
 const connection = require('../../lib/db');
+const { convertKeysToCamelCase } = require('../../utils/convertToCamelCase.js');
 
 class UserGuildRelationModel {
   static getOneByGuildAndUser(USER_ID, GUILD_ID) {
@@ -10,7 +11,11 @@ class UserGuildRelationModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const userGuildRelation = convertKeysToCamelCase(rows[0]);
+              resolve(userGuildRelation);
+            }
           }
         }
       );
@@ -26,7 +31,11 @@ class UserGuildRelationModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const userGuildRelations = rows.map(convertKeysToCamelCase);
+              resolve(userGuildRelations);
+            }
           }
         }
       );
@@ -36,13 +45,17 @@ class UserGuildRelationModel {
   static getAllByUser(USER_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM userGuildRelations WHERE USER_ID = ?',
+        'SELECT ugr.* FROM userGuildRelations ugr INNER JOIN guilds g ON ugr.GUILD_ID = g.ID WHERE ugr.USER_ID = ? AND g.ACTIVE=TRUE ',
         [USER_ID],
         function (err, rows) {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const userGuildRelations = rows.map(convertKeysToCamelCase);
+              resolve(userGuildRelations);
+            }
           }
         }
       );
@@ -58,7 +71,11 @@ class UserGuildRelationModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const userGuildRelations = rows.map(convertKeysToCamelCase);
+              resolve(userGuildRelations);
+            }
           }
         }
       );
@@ -74,7 +91,7 @@ class UserGuildRelationModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -90,7 +107,7 @@ class UserGuildRelationModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -106,7 +123,7 @@ class UserGuildRelationModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );

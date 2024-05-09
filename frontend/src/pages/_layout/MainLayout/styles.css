@@ -1,35 +1,74 @@
-.main-layout-container {
-  display: flex;
-  width: 100vw;
-  height: 100vh;
-  position: relative;
-}
+@tailwind components;
 
-.main-layout-container .sidebar {
-  width: 280px;
-  height: 100%;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  border-right: solid 1px #111;
-  background-color: #222;
-  color: #fff;
-}
-.main-layout-container .sidebar > div {
-  padding: 1em;
-}
+@layer components {
+  .main-layout-container {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    position: relative;
 
-.main-layout-container .sidebar > div:not(:last-child) {
-  border-bottom: solid 1px #111;
-}
+    & ::-webkit-scrollbar-thumb {
+      @apply !bg-primary-100/30;
+    }
+    & .sidebar {
+      @apply w-[280px] text-white h-full shrink-0 flex flex-col overflow-auto bg-[#111];
+    }
+    & .sidebar-main {
+      @apply bg-[#212121] p-1 m-4 rounded-lg flex-1;
+      & .menu-label {
+        @apply w-full bg-[#212121] relative text-left flex text-paragraph-p2 text-white/40 rounded-lg p-1 transition duration-300 border border-primary-100/0;
+        & .icon {
+          @apply w-6 h-6 mr-1 flex items-center justify-center relative;
+          & > span {
+            font-size: 1em;
+          }
+        }
+        & .icon::after {
+          content: '';
+          @apply w-0 h-0 absolute rounded-full bg-primary-200/50 transition-all duration-300;
+        }
+        &.menu-label--active {
+          @apply text-primary-100 border-primary-100/20;
+          & .icon::after {
+            @apply w-full h-full bg-primary-200/50;
+          }
+        }
+        &.menu-label--no-active {
+          @apply hover:text-white/80 cursor-pointer;
+        }
+      }
 
-.main-layout-container .sidebar-main {
-  flex: 1;
-}
+      & .menu-subtitle {
+        @apply sticky top-0 z-10;
+      }
+      & .menu-container {
+        @apply ml-4 grid gap-2 border-l-2 border-primary-100/10 pl-2 mt-2;
 
-.content {
-  @apply relative flex h-0 flex-col px-4 pb-6 pt-4;
+        & .menu-label::after {
+          @apply transition-all border-primary-100/50 duration-300 absolute -left-[10px] top-[50%] bottom-[50%] border-l-2;
+          content: '';
+        }
 
-  flex: 1;
-  background: bottom / cover no-repeat url('../../../assets/png/background.png');
+        & .icon::after {
+          content: '';
+          @apply opacity-0;
+        }
+        & .menu-label--no-active::after {
+          @apply hover:top-1 hover:bottom-1;
+        }
+        & .menu-label--active {
+          @apply border-primary-100/0;
+          &::after {
+            @apply border-primary-100 opacity-100 top-0 bottom-0;
+          }
+        }
+      }
+    }
+    & .content {
+      @apply relative flex h-0 flex-col px-4 pb-6 pt-4;
+      flex: 1;
+      background: bottom / cover no-repeat
+        url('../../../assets/png/background.png');
+    }
+  }
 }

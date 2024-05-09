@@ -1,32 +1,31 @@
-const RecipeRepository = new (require('../../repositories/food/recipe.repository.js'))();
-const userInfoController = new (require('../user/userinfoControllers.js'))();
-const updateUserExp = userInfoController.updateUserExp;
+const RecipeRepository = require('../../repositories/food/recipe.repository.js');
+const UserInfoRepository = require('../../repositories/user/userInfo.repository.js');
 class RecipeController {
-  async getRecipes(req, res, next) {
-    const data = await RecipeRepository.getAll(req.session.passport.user, req.query);
+  static async getRecipes(req, res, next) {
+    const data = await RecipeRepository.getAll(req.query, req.session.passport.user);
+    return res.status(200).json({ data: data });
+  }
+
+  static async getRecipeDetail(req, res, next) {
+    const data = await RecipeRepository.getOne(req.params.id, req.session.passport.user);
     return res.status(200).json({ data });
   }
 
-  async getRecipeDetail(req, res, next) {
-    const data = await RecipeRepository.getOne(req.session.passport.user, req.params.id);
+  static async createRecipe(req, res, next) {
+    const data = await RecipeRepository.create(req.body, req.session.passport.user);
+    await UserInfoRepository.updateExp(req.session.passport.user, 1);
     return res.status(200).json({ data });
   }
 
-  async createRecipe(req, res, next) {
-    const data = await RecipeRepository.create(req.session.passport.user, req.body);
-    updateUserExp(1, req.session.passport.use);
+  static async updateRecipe(req, res, next) {
+    const data = await RecipeRepository.update(req.params.id, req.body, req.session.passport.user);
     return res.status(200).json({ data });
   }
 
-  async updateRecipe(req, res, next) {
-    const data = await RecipeRepository.update(req.session.passport.user, req.body, req.params.id);
-    return res.status(200).json({ data });
-  }
-
-  async deleteRecipe(req, res, next) {
-    const result = await RecipeRepository.delete(req.session.passport.user, req.params.id);
-    updateUserExp(-1, req.session.passport.user);
-    return res.status(200).json({ data: result });
+  static async deleteRecipe(req, res, next) {
+    await RecipeRepository.delete(req.params.id, req.session.passport.user);
+    await UserInfoRepository.updateExp(req.session.passport.user, -1);
+    return res.status(200).json({ data: 'OK' });
   }
 }
 

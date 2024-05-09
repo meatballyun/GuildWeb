@@ -50,7 +50,7 @@ Yun-T.Z. Development Team`,
 ];
 
 export const OverviewPage = () => {
-  useSideBar({ activeKey: ['foods', 'overview'] });
+  useSideBar({ activeKey: ['foods', 'introduction'] });
 
   return (
     <PaperLayout row="false" className="m-auto max-w-[720px] shadow-lg">

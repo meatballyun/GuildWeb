@@ -6,62 +6,7 @@ import { classNames } from '../../../utils';
 import { useNavigate } from 'react-router-dom';
 import { sideBarContext } from './context';
 import { useGuild, useUserMe } from './MainLayout';
-
-const BASIC_SIDEBAR_LIST = [
-  {
-    label: 'HOME',
-    key: 'home',
-    icon: 'home',
-    route: '/',
-    name: 'home',
-  },
-  {
-    label: 'ADVENTURE REPORTS',
-    key: 'notifications',
-    icon: 'notifications',
-    route: '/notifications',
-    name: 'notifications',
-  },
-  {
-    label: 'FOOD',
-    key: 'foods',
-    name: 'foods',
-    icon: 'restaurant',
-    children: [
-      {
-        label: '• overview',
-        key: 'overview',
-        route: '/foods',
-        name: 'overview',
-      },
-      {
-        label: '• records',
-        key: 'records',
-        route: '/foods/records',
-        name: 'records',
-      },
-      {
-        label: '• recipes',
-        key: 'recipes',
-        route: '/foods/recipes',
-        name: 'recipes',
-      },
-      {
-        label: '• ingredients',
-        key: 'ingredients',
-        route: '/foods/ingredients',
-        name: 'ingredients',
-      },
-    ],
-  },
-  {
-    label: 'FRIENDS',
-    key: 'friends',
-    icon: 'group',
-    route: '/friends',
-    name: 'friends',
-  },
-];
+import { BASIC_SIDEBAR_LIST } from './constants';
 
 const getGuildSidebarItem = (guilds = []) => ({
   label: 'GUILD',
@@ -70,10 +15,11 @@ const getGuildSidebarItem = (guilds = []) => ({
   name: 'guilds',
   children: [
     {
-      label: '• overview',
-      key: 'guilds',
+      label: 'introduction',
+      key: 'introduction',
       route: '/guilds',
-      name: 'overview',
+      name: 'introduction',
+      icon: 'menu_book',
     },
     ...guilds.map(({ id, name, imageUrl }) => ({
       label: (
@@ -103,6 +49,7 @@ export const useSideBar = ({ activeKey: activeKeyProp }) => {
   const activeKeyChangeCheck = Array.isArray(activeKeyProp)
     ? activeKeyProp.join('')
     : activeKeyProp;
+
   useEffect(() => {
     setActiveKey(activeKeyProp);
   }, [activeKeyChangeCheck]);
@@ -134,41 +81,50 @@ const UserItem = () => {
   );
 };
 
-const MenuLabel = ({ label, icon, suffix, name, children, key, ...props }) => {
+const MenuLabel = ({
+  label,
+  icon,
+  suffix,
+  name,
+  children,
+  key,
+  className,
+  ...props
+}) => {
   const { activeKey } = useContext(sideBarContext);
   const activeList = Array.isArray(activeKey) ? activeKey : [activeKey];
   const active = name && !name.some((v, i) => v !== activeList[i]);
 
   return (
-    <Button
-      size="md"
-      type={'hollow'}
+    <div
       className={classNames(
-        'w-full !text-left',
-        active
-          ? '!bg-primary-100'
-          : '!border-primary-200 !bg-primary-200/30 !text-primary-200'
+        'menu-label',
+        active ? 'menu-label--active' : 'menu-label--no-active',
+        className
       )}
       {...props}
     >
       {children}
-    </Button>
+    </div>
   );
 };
 
 const MenuItem = ({ children, route, icon, label, name, ...props }) => {
-  const [showChildren, setShowChildren] = useState(false);
+  const [showChildren, setShowChildren] = useState(true);
   const currentName = Array.isArray(name) ? name : [name];
 
   if (children) {
     return (
       <div>
         <MenuLabel
+          className="menu-subtitle"
           name={currentName}
           onClick={() => setShowChildren((show) => !show)}
           {...props}
         >
-          <MaterialSymbol fill icon={icon} className="mr-1" />
+          <div className="icon">
+            <MaterialSymbol fill icon={icon} />
+          </div>
           {label}
           <MaterialSymbol
             icon={showChildren ? 'remove' : 'add'}
@@ -176,7 +132,7 @@ const MenuItem = ({ children, route, icon, label, name, ...props }) => {
           />
         </MenuLabel>
         {showChildren && (
-          <div className="ml-4 grid gap-2 border-l-2 border-dotted border-primary-300 pl-2 pt-2">
+          <div className="menu-container">
             {children.map(({ name: childName, ...childProp }) => (
               <MenuItem
                 key={childName}
@@ -192,7 +148,11 @@ const MenuItem = ({ children, route, icon, label, name, ...props }) => {
   return (
     <Link to={route}>
       <MenuLabel name={currentName} {...props}>
-        {icon && <MaterialSymbol fill icon={icon} className="mr-1" />}
+        {icon && (
+          <div className="icon">
+            <MaterialSymbol fill icon={icon} />
+          </div>
+        )}
         {label}
       </MenuLabel>
     </Link>

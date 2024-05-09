@@ -1,31 +1,30 @@
-const NotificationRepository =
-  new (require('../../repositories/notification/notification.repository.js'))();
+const NotificationRepository = require('../../repositories/notification/notification.repository.js');
 
 class NotificationController {
-  async getNotifications(req, res, next) {
+  static async getNotifications(req, res, next) {
     const data = await NotificationRepository.getAll(req.session.passport.user);
     return res.status(200).json({ data });
   }
 
-  async getNotificationDetail(req, res, next) {
+  static async getNotificationDetail(req, res, next) {
     const data = await NotificationRepository.getOne(req.params.nid);
     await NotificationRepository.read(req.params.nid);
     return res.status(200).json({ data });
   }
 
-  async uesNotification(req, res, next) {
-    const result = await NotificationRepository.use(req.params.nid);
-    return res.status(200).json({ data: result });
+  static async uesNotification(req, res, next) {
+    await NotificationRepository.use(req.params.nid);
+    return res.status(200).json({ data: 'OK' });
   }
 
-  async createNotification(req, res, next) {
-    const result = await NotificationRepository.create(req.body);
-    return res.status(200).json({ data: result });
+  static async createNotification(req, res, next) {
+    await NotificationRepository.create(req.body);
+    return res.status(200).json({ data: 'OK' });
   }
 
-  async deleteNotification(req, res, next) {
-    const result = await NotificationRepository.delete(req.params.nid);
-    return res.status(200).json({ data: result });
+  static async deleteNotification(req, res, next) {
+    await NotificationRepository.delete(req.params.nid);
+    return res.status(200).json({ data: 'OK' });
   }
 }
 

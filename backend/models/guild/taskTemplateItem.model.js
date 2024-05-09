@@ -1,6 +1,7 @@
-const connection = require('../../lib/db');
+const connection = require('../../lib/db.js');
+const { convertKeysToCamelCase } = require('../../utils/convertToCamelCase.js');
 
-class TemplateItemModel {
+class TaskTemplateItemModel {
   static getAll(TEMPLATE_ID) {
     return new Promise((resolve, reject) => {
       connection.query(
@@ -10,7 +11,11 @@ class TemplateItemModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const templateItem = rows.map(convertKeysToCamelCase);
+              resolve(templateItem);
+            }
           }
         }
       );
@@ -26,7 +31,7 @@ class TemplateItemModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.insertId);
           }
         }
       );
@@ -42,7 +47,7 @@ class TemplateItemModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -58,7 +63,7 @@ class TemplateItemModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -74,7 +79,7 @@ class TemplateItemModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -82,4 +87,4 @@ class TemplateItemModel {
   }
 }
 
-module.exports = TemplateItemModel;
+module.exports = TaskTemplateItemModel;

@@ -6,8 +6,8 @@ class DEFAULT_NOTIFICATION_CONTENT {
 
   guild() {
     const content = {
-      TITLE: `Invitation to Join the "${this.senderName}" Adventurer's Guild`,
-      DESCRIPTION: `Dear ${this.receiverName},
+      title: `Invitation to Join the "${this.senderName}" Adventurer's Guild`,
+      description: `Dear ${this.receiverName},
       We cordially invite you to join our adventurer's guild, "${this.senderName}"! In our guild, you'll have the opportunity to explore unknown worlds, tackle thrilling quests and adventures alongside other adventurous comrades.
       Our guild is committed to providing a warm and friendly environment where every member can find their place and enjoy the thrill of adventure. Whether you're a novice or a seasoned adventurer, you're welcome to join us!
       If you are interested in our guild, we sincerely invite you to join our ranks! Please click the "Join Us" button to accept our invitation, and we will arrange for your membership.
@@ -21,8 +21,8 @@ class DEFAULT_NOTIFICATION_CONTENT {
 
   user() {
     const content = {
-      TITLE: `Friend Request from ${this.senderName}`,
-      DESCRIPTION: `Dear ${this.receiverName},
+      title: `Friend Request from ${this.senderName}`,
+      description: `Dear ${this.receiverName},
         You have received a friend request from ${this.senderName}!  They would like to add you as a friend.
         If you would like to accept their request, please click the "Accept" button.
         
@@ -35,8 +35,8 @@ class DEFAULT_NOTIFICATION_CONTENT {
 
   system() {
     const content = {
-      TITLE: 'Welcome to GuildWeb!',
-      DESCRIPTION: `Dear ${this.receiverName},
+      title: 'Welcome to GuildWeb!',
+      description: `Dear ${this.receiverName},
         Welcome to GuildWeb! We're thrilled to have you join our community dedicated to health and organization.
         
         With GuildWeb, you have access to a powerful platform for managing your daily nutrition goals, tracking your tasks, and collaborating with others to achieve shared objectives. 

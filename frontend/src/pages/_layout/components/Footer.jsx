@@ -13,7 +13,10 @@ export const Footer = () => {
       {[
         `ver.${process.env.REACT_APP_VERSION}`,
         `Copyright © ${new Date().getFullYear()} Yun-T.Z. All rights`,
-        <a href={process.env.REACT_APP_MAIL_USER} className="underline">
+        <a
+          href={`mailto:${process.env.REACT_APP_MAIL_USER}`}
+          className="underline"
+        >
           CONTACT US
         </a>,
       ].map((content, i) => {

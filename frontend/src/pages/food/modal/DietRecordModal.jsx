@@ -42,6 +42,10 @@ export const DietRecordModal = ({
     (async () => {
       setIsFetched(false);
       const res = await api.food.getRecipes({ params: { q: search } });
+      if (res.status !== 200) {
+        setIsFetched(true);
+        return;
+      }
       const { data } = await res.json();
       setIsFetched(true);
       setRecipeList(data);
@@ -87,7 +91,7 @@ export const DietRecordModal = ({
                   const { custom } = option?.[0] ?? {};
                   return custom?.recipe?.name;
                 }}
-                options={recipeList.map((recipe) => ({
+                options={recipeList?.map((recipe) => ({
                   value: recipe.id,
                   label: <FoodBar {...recipe} className="!bg-white/0 p-0" />,
                   custom: { recipe },

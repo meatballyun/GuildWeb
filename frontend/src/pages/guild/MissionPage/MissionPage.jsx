@@ -51,7 +51,7 @@ export const MissionPage = ({ mode }) => {
     const baseFilteredMissionList = (() => {
       switch (query.filter) {
         case 'mine':
-          return missionList.filter(({ creator }) => creator === userMe.id);
+          return missionList.filter(({ creator }) => creator === userMe?.id);
         case 'cancel':
           return missionList.filter(({ status }) => status === 'Cancelled');
         case 'accepted':
@@ -73,7 +73,9 @@ export const MissionPage = ({ mode }) => {
         case 'all':
         default:
           if (!mode)
-            return missionList.filter(({ status }) => status !== 'Cancelled');
+            return missionList.filter(
+              ({ status }) => status !== 'Cancelled' && status !== 'Expired'
+            );
           return missionList;
       }
     })();
@@ -399,7 +401,7 @@ export const MissionPage = ({ mode }) => {
                   detail: selectedDetail,
                   mode,
                   onBtnClick: handleBtnClick,
-                  userId: userMe.id,
+                  userId: userMe?.id,
                 })}
               />
             );

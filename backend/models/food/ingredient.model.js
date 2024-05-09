@@ -1,4 +1,5 @@
 const connection = require('../../lib/db');
+const { convertKeysToCamelCase } = require('../../utils/convertToCamelCase.js');
 
 class IngredientModel {
   static getOne(ID) {
@@ -10,39 +11,11 @@ class IngredientModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
-          }
-        }
-      );
-    });
-  }
-
-  static getAllByUser(CREATOR) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM ingredients WHERE CREATOR = ? AND ACTIVE = TRUE',
-        [CREATOR],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows);
-          }
-        }
-      );
-    });
-  }
-
-  static getAllByNotUser(CREATOR) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM ingredients WHERE CREATOR != ? AND ACTIVE = TRUE AND PUBLISHED = TRUE',
-        [CREATOR],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const ingredient = convertKeysToCamelCase(rows[0]);
+              resolve(ingredient);
+            }
           }
         }
       );
@@ -58,23 +31,31 @@ class IngredientModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const ingredients = rows.map(convertKeysToCamelCase);
+              resolve(ingredients);
+            }
           }
         }
       );
     });
   }
 
-  static getAllByNotUserAndName(CREATOR, NAME) {
+  static getAllByName(NAME) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM ingredients WHERE CREATOR != ? AND NAME LIKE ? AND ACTIVE = TRUE AND PUBLISHED = TRUE',
-        [CREATOR, '%' + NAME + '%'],
+        'SELECT * FROM ingredients WHERE NAME LIKE ? AND ACTIVE = TRUE AND PUBLISHED = TRUE',
+        ['%' + NAME + '%'],
         function (err, rows) {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const ingredients = rows.map(convertKeysToCamelCase);
+              resolve(ingredients);
+            }
           }
         }
       );
@@ -90,23 +71,23 @@ class IngredientModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.insertId);
           }
         }
       );
     });
   }
 
-  static copy(CREATOR, { NAME, DESCRIPTION, CARBS, PRO, FATS, KCAL, UNIT, IMAGE_URL }, PUBLISHED) {
+  static copy(creator, { name, description, carbs, pro, fats, kcal, unit, imageUrl }, published) {
     return new Promise((resolve, reject) => {
       connection.query(
         'INSERT INTO ingredients(CREATOR, NAME, DESCRIPTION, CARBS, PRO, FATS, KCAL, UNIT, IMAGE_URL, PUBLISHED) VALUES (?,?,?,?,?,?,?,?,?,?)',
-        [CREATOR, NAME, DESCRIPTION, CARBS, PRO, FATS, KCAL, UNIT, IMAGE_URL, PUBLISHED],
+        [creator, name, description, carbs, pro, fats, kcal, unit, imageUrl, published],
         function (err, rows) {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.insertId);
           }
         }
       );
@@ -122,7 +103,7 @@ class IngredientModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -138,7 +119,7 @@ class IngredientModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -154,7 +135,7 @@ class IngredientModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );

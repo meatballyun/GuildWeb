@@ -65,7 +65,7 @@ Yun-T.Z. Development Team`,
 ];
 
 export const OverviewPage = () => {
-  useSideBar({ activeKey: ['guilds', 'overview'] });
+  useSideBar({ activeKey: ['guilds', 'introduction'] });
   const { guildList, getGuildList } = useGuild();
   const hasGuild = guildList?.length;
   const { Dom, promptNotification } = useNotification();

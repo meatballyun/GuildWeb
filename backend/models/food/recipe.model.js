@@ -1,4 +1,5 @@
 const connection = require('../../lib/db');
+const { convertKeysToCamelCase } = require('../../utils/convertToCamelCase.js');
 
 class RecipeModel {
   static getOne(ID) {
@@ -7,41 +8,13 @@ class RecipeModel {
         if (err) {
           reject(err);
         } else {
-          resolve(rows);
+          if (rows.length === 0) resolve(false);
+          else {
+            const recipe = convertKeysToCamelCase(rows[0]);
+            resolve(recipe);
+          }
         }
       });
-    });
-  }
-
-  static getAllByUser(CREATOR) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM recipes WHERE CREATOR = ? AND ACTIVE = TRUE',
-        CREATOR,
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows);
-          }
-        }
-      );
-    });
-  }
-
-  static getAllByNotUser(CREATOR) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM recipes WHERE CREATOR != ? AND PUBLISHED = TRUE AND ACTIVE = TRUE',
-        CREATOR,
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows);
-          }
-        }
-      );
     });
   }
 
@@ -54,23 +27,31 @@ class RecipeModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const recipes = rows.map(convertKeysToCamelCase);
+              resolve(recipes);
+            }
           }
         }
       );
     });
   }
 
-  static getAllByNotUserAndName(CREATOR, NAME) {
+  static getAllByName(NAME) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM recipes WHERE CREATOR != ? AND NAME = ? AND PUBLISHED = TRUE AND ACTIVE = TRUE',
-        [CREATOR, '%' + NAME + '%'],
+        'SELECT * FROM recipes WHERE NAME = ? AND PUBLISHED = TRUE AND ACTIVE = TRUE',
+        ['%' + NAME + '%'],
         function (err, rows) {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const recipes = rows.map(convertKeysToCamelCase);
+              resolve(recipes);
+            }
           }
         }
       );
@@ -86,7 +67,7 @@ class RecipeModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.insertId);
           }
         }
       );
@@ -107,7 +88,7 @@ class RecipeModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -123,7 +104,7 @@ class RecipeModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -139,7 +120,7 @@ class RecipeModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -152,7 +133,7 @@ class RecipeModel {
         if (err) {
           reject(err);
         } else {
-          resolve(rows);
+          resolve(rows.affectedRows);
         }
       });
     });

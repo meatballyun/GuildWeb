@@ -1,8 +1,8 @@
 const bcrypt = require('bcrypt');
 
-const hasher = async (code) => {
+const toHash = async (code) => {
   if (code) {
-    code = await bcrypt.hash(code, 10);
+    code = await bcrypt.hash(code, parseInt(process.env.SALT));
     return code;
   }
 };
@@ -17,4 +17,4 @@ const comparer = async (password, code) => {
   });
 };
 
-module.exports = { hasher, comparer };
+module.exports = { toHash, comparer };

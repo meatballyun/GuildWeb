@@ -1,4 +1,5 @@
 const connection = require('../../lib/db');
+const { convertKeysToCamelCase } = require('../../utils/convertToCamelCase.js');
 
 class UserFriendModel {
   static getStatus(USER1_ID, USER2_ID) {
@@ -10,23 +11,8 @@ class UserFriendModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows[0]);
-          }
-        }
-      );
-    });
-  }
-
-  static getAllById(USER_ID) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        `SELECT u.ID, u.NAME, u.IMAGE_URL, u.RANK FROM users u INNER JOIN userFriends uf ON (u.ID = uf.USER1_ID OR u.ID = uf.USER2_ID) WHERE uf.STATUS = 'Confirmed' AND (uf.USER1_ID = ? OR uf.USER2_ID = ?)`,
-        [USER_ID, USER_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else resolve(rows[0].STATUS);
           }
         }
       );
@@ -42,7 +28,11 @@ class UserFriendModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const friends = rows.map(convertKeysToCamelCase);
+              resolve(friends);
+            }
           }
         }
       );
@@ -58,7 +48,7 @@ class UserFriendModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -74,7 +64,7 @@ class UserFriendModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -90,7 +80,7 @@ class UserFriendModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );

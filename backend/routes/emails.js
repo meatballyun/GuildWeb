@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const awaitHandlerFactory = require('../utils/awaitHandlerFactory');
-const emailUp = new (require('../controllers/email/emailControllers'))();
+const emailUp = require('../controllers/email/emailControllers');
 
 // send email
 router.post('/send', awaitHandlerFactory(emailUp.sendSignUp));

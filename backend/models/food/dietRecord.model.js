@@ -1,4 +1,5 @@
 const connection = require('../../lib/db');
+const { convertKeysToCamelCase } = require('../../utils/convertToCamelCase.js');
 
 class DietRecordModel {
   static getOne(ID) {
@@ -10,7 +11,11 @@ class DietRecordModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const dietRecord = convertKeysToCamelCase(rows[0]);
+              resolve(dietRecord);
+            }
           }
         }
       );
@@ -26,7 +31,11 @@ class DietRecordModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const dietRecords = rows.map(convertKeysToCamelCase);
+              resolve(dietRecords);
+            }
           }
         }
       );
@@ -42,7 +51,11 @@ class DietRecordModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            if (rows.length === 0) resolve(false);
+            else {
+              const dietRecords = rows.map(convertKeysToCamelCase);
+              resolve(dietRecords);
+            }
           }
         }
       );
@@ -58,7 +71,7 @@ class DietRecordModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );
@@ -74,7 +87,7 @@ class DietRecordModel {
           if (err) {
             reject(err);
           } else {
-            resolve(rows);
+            resolve(rows.affectedRows);
           }
         }
       );

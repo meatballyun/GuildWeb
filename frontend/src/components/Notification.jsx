@@ -25,7 +25,6 @@ export const useNotification = () => {
   };
 
   const handleClose = () => {
-    if (!(enableClose ?? type !== 'loading')) return;
     setNotification(defaultNotificationValue);
   };
 
@@ -44,10 +43,12 @@ export const useNotification = () => {
     }
   }, [type]);
 
+  const canClose = enableClose ?? type !== 'loading';
+
   return {
     value: notification,
     Dom: (props) => (
-      <Element {...props} onClose={handleClose}>
+      <Element {...props} onClose={canClose && handleClose}>
         {message}
       </Element>
     ),
