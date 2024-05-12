@@ -95,7 +95,12 @@ class TaskTemplateModel {
     });
   }
 
-  static create( CREATOR_ID, GUILD_ID, {generationTime, deadline}, {name, description,  type, maxAdventurer}  ) {
+  static create(
+    CREATOR_ID,
+    GUILD_ID,
+    { initiationTime: generationTime, deadline },
+    { name, description, type, maxAdventurer }
+  ) {
     return new Promise((resolve, reject) => {
       connection.query(
         'INSERT INTO taskTemplates(CREATOR_ID, GUILD_ID,  GENERATION_TIME, DEADLINE, NAME, DESCRIPTION, TYPE, MAX_ADVENTURER) VALUES (?,?,?,?,?,?,?,?)',
@@ -111,7 +116,11 @@ class TaskTemplateModel {
     });
   }
 
-  static update(ID, {generationTime, deadline}, {enabled, name, description,  type, maxAdventurer}) {
+  static update(
+    ID,
+    { initiationTime: generationTime, deadline },
+    { enabled, name, description, type, maxAdventurer }
+  ) {
     return new Promise((resolve, reject) => {
       connection.query(
         'UPDATE taskTemplates SET  ENABLED = ?, NAME = ?, DESCRIPTION = ?,  GENERATION_TIME = ?, DEADLINE = ?, TYPE = ?, MAX_ADVENTURER = ? WHERE ID = ?',
@@ -144,6 +153,7 @@ class TaskTemplateModel {
   }
 
   static delete(ID) {
+    console.log(ID);
     return new Promise((resolve, reject) => {
       connection.query(
         'UPDATE taskTemplates SET ACTIVE = FALSE WHERE ID = ?',
