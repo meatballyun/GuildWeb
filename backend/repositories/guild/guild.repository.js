@@ -9,7 +9,7 @@ const ApplicationError = require('../../utils/error/applicationError.js');
 class GuildRepository {
   static #defaultTitle = 'Personal Cabin';
   static #defaultDescription = `In your Personal Cabin, you have the flexibility to select from various task types like 'Ordinary', 'Emergency', and 'Repetitive', tailoring them to your specific needs. Additionally, you can customize the recurrence frequency, whether it's daily, weekly, or monthly, to suit your schedule. Furthermore, tasks can be further broken down into multiple sub-goals, empowering you to gain a comprehensive overview of your pending tasks and strategize your approach for more efficient planning and completion.`;
-  static #defaultImageUrl = `${process.env.API_SERVICE_URL}uploads/image/guild/cabin.png`;
+  static #defaultImageUrl = `${process.env.API_SERVICE_URL}/uploads/image/system/cabin.png`;
 
   static async getAll(uid) {
     const relations = await UserGuildRelation.getAllByUser(uid);

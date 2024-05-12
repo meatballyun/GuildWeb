@@ -57,7 +57,7 @@ class TaskTemplateItemModel {
   static delete(ID) {
     return new Promise((resolve, reject) => {
       connection.query(
-        'UPDATE templateItems SET ACTIVE = FALSE WHERE ID  = ?',
+        'UPDATE templateItems SET ACTIVE = FALSE WHERE ID = ?',
         [ID],
         function (err, rows) {
           if (err) {

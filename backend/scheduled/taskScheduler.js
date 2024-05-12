@@ -4,6 +4,7 @@ const INTERVAL = 5 * 60 * 1000;
 
 const taskScheduler = {
   start: () => {
+    buildTaskByTaskTemplates();
     setInterval(buildTaskByTaskTemplates, INTERVAL);
     setInterval(updateTaskStatus, INTERVAL);
   },

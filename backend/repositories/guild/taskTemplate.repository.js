@@ -51,18 +51,19 @@ class TaskTemplateRepository {
     if (membership === 'Vice' && uid !== taskTemplate.creatorId) throw new ApplicationError(403);
     if (generationTime > deadline) throw new ApplicationError(409);
 
-    const time = { generationTime: this.formatTimestamp(generationTime), deadline: this.formatTimestamp(deadline) };
+    const time = await timeHandle(generationTime, deadline);
     const result = await TaskTemplate.update( taskTemplateId, time, otherData );
     if (!result) throw new ApplicationError(400);
-      if (items) {
-        await Promise.all(
-          items.map(async ({ id, content }) => {
-            if (content) {
-              id ? await TaskTemplateItem.update(id, content) : await TaskTemplateItem.create(taskTemplateId, content);
-            } else await TaskTemplateItem.delete(id);
-          })
-        );
-      } else await TaskTemplateItemRepository.delete(taskTemplateId);
+    if (items) {
+      await Promise.all(
+        items.map(async ({ id, content }) => {
+          if (content) {
+            id ? await TaskTemplateItem.update(id, content) : await TaskTemplateItem.create(taskTemplateId, content);
+          } else await TaskTemplateItem.delete(id);
+        })
+      );
+    } else await TaskTemplateItemRepository.delete(taskTemplateId);
+    return { id: taskTemplateId };
   }
 
   static async delete(taskTemplateId, membership, uid) {
@@ -71,8 +72,7 @@ class TaskTemplateRepository {
     if (membership === 'Vice' && uid !== taskTemplate.creatorId) throw new ApplicationError(403);
 
     await TaskTemplateItemRepository.delete(taskTemplateId);
-
-    const deleteTaskTemplate = await TaskTemplateItem.delete(taskTemplateId);
+    const deleteTaskTemplate = await TaskTemplate.delete(taskTemplateId);
     if (!deleteTaskTemplate) throw new ApplicationError(400);
   }
 }

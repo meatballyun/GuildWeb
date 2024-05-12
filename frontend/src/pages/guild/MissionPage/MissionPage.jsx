@@ -242,6 +242,14 @@ export const MissionPage = ({ mode }) => {
       }
 
       case 'delete':
+        if (mode === 'template') {
+          await api.guild.deleteTemplate({
+            pathParams: { gid: params.gid, ttid: focusMissionId },
+          });
+          await fetchMissions();
+          setSelectedDetail(undefined);
+          break;
+        }
         await api.guild.deleteGuildsTasks({
           pathParams: { gid: params.gid, tid: focusMissionId },
         });

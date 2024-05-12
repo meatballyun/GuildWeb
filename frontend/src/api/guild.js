@@ -203,3 +203,9 @@ export const putTemplate = ({ pathParams = { gid: -1, ttid: -1 }, body }) =>
     method: 'PUT',
     body,
   });
+
+export const deleteTemplate = ({ pathParams = { gid: -1, ttid: -1 } }) =>
+  fetchJson({
+    url: `${BASE_GUILD_URL}/${pathParams.gid}/task_templates/${pathParams.ttid}`,
+    method: 'DELETE',
+  });
