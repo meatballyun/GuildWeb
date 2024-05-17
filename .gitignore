@@ -1,12 +1,11 @@
 # env
 .env
+node_modules
 
 #backend
 backend/public
-backend/node_modules
 
 #frontend
-frontend/node_modules
 frontend/build
 frontend/public/uploads
 frontend/.env

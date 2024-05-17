@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import Pages from './pages';
 import './styles/index.css';
-import { worker } from './mocks/browser.js';
+import { worker } from './mocks/browser';
 
 if (
   process.env.NODE_ENV === 'development' &&
