@@ -1,5 +1,6 @@
 // @ts-nocheck
-import CommonError from './error/commonError';
+import { CommonError } from './error/commonError';
+import { Request, Response, NextFunction } from 'express';
 
 export const errorHandler = (err, req, res, next) => {
   err.statusCode = err.statusCode ?? 500;

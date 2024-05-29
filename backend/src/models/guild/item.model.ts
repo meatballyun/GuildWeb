@@ -1,85 +1,56 @@
-// @ts-nocheck
-import connection from '../../lib/db';
-import { convertKeysToCamelCase } from '../../utils/convertToCamelCase';
+import conn from '../../lib/db';
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
+
+interface Item extends RowDataPacket {
+  id: number;
+  taskId: number;
+  content: string;
+  active: boolean;
+}
 
 class ItemModel {
-  static getAll(TASK_ID) {
+  static getAll(taskId: number): Promise<Item[]> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM items WHERE TASK_ID = ? AND ACTIVE = TRUE',
-        [TASK_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const items = rows.map(convertKeysToCamelCase);
-              resolve(items);
-            }
-          }
-        }
-      );
-    });
-  }
-
-  static create(TASK_ID, CONTENT) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'INSERT INTO items(TASK_ID , CONTENT) VALUES (?,?)',
-        [TASK_ID, CONTENT],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.insertId);
-          }
-        }
-      );
-    });
-  }
-
-  static update(ID, CONTENT) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE items SET CONTENT = ? WHERE ID = ?',
-        [CONTENT, ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
-    });
-  }
-
-  static delete(ID) {
-    return new Promise((resolve, reject) => {
-      connection.query('UPDATE items SET ACTIVE = FALSE WHERE ID = ?', [ID], function (err, rows) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(rows.affectedRows);
-        }
+      conn.query<Item[]>('SELECT * FROM items WHERE taskId = ? AND active = TRUE', [taskId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows);
       });
     });
   }
 
-  static deleteAll(TASK_ID) {
+  static create(taskId: number, content: string): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE items SET ACTIVE = FALSE WHERE TASK_ID = ?',
-        [TASK_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>('INSERT INTO items(taskId , content) VALUES (?,?)', [taskId, content], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.insertId);
+      });
+    });
+  }
+
+  static update(id: number, content: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+      conn.query<ResultSetHeader>('UPDATE items SET content = ? WHERE id = ?', [content, id], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
+    });
+  }
+
+  static delete(id: number): Promise<number> {
+    return new Promise((resolve, reject) => {
+      conn.query<ResultSetHeader>('UPDATE items SET active = FALSE WHERE id = ?', [id], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
+    });
+  }
+
+  static deleteAll(taskId: number): Promise<number> {
+    return new Promise((resolve, reject) => {
+      conn.query<ResultSetHeader>('UPDATE items SET active = FALSE WHERE taskId = ?', [taskId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 }

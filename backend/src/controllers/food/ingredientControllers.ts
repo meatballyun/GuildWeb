@@ -4,7 +4,6 @@ import UserInfoRepository from '../../repositories/user/userInfo.repository';
 
 class IngredientController {
   static async getIngredients(req, res, next) {
-    console.log(req.query.q);
     const ingredients = await IngredientRepository.getAll(req.query, req.session.passport.user);
     return res.status(200).json({ data: ingredients });
   }

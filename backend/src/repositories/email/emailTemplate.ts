@@ -1,7 +1,7 @@
 // @ts-nocheck
 const ADDRESS = process.env.NODE_ENV === 'development' ? process.env.TEST_MAIL : false;
 const VALIDATION_URL =
-  process.env.NODE_ENV === 'development' ? process.env.DEV_FE_URL : process.env.API_SERVICE_URL;
+  process.env.NODE_ENV === 'development' ? process.env.FE_URL : process.env.API_SERVICE_URL;
 
 export const signUpEmail = (EMAIL, ID, CODE) => {
   if (ADDRESS) EMAIL = ADDRESS;

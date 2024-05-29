@@ -1,5 +1,5 @@
 // @ts-nocheck
-import mysql from 'mysql';
+import mysql from 'mysql2';
 
 const connection = mysql.createConnection({
   host: process.env.DB_HOST,
@@ -9,11 +9,8 @@ const connection = mysql.createConnection({
 });
 
 connection.connect(function (error) {
-  if (!error) {
-    console.log('MySQL has been Connected');
-  } else {
-    console.log(error);
-  }
+  if (error) console.log(error);
+  console.log('MySQL has been Connected');
 });
 
 export default connection;

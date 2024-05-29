@@ -1,3 +1,2 @@
-backend/routes/*.js
-backend/models/*.js
-backend/controllers/upload/imageControllers.js
+backend/src/routes/*.js
+backend/src/controllers/upload/imageControllers.js

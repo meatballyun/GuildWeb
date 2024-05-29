@@ -1,145 +1,89 @@
-// @ts-nocheck
-import connection from '../../lib/db';
-import { convertKeysToCamelCase } from '../../utils/convertToCamelCase';
+import conn from '../../lib/db';
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
+
+type Status = 'accepted' | 'completed' | 'failed';
+
+interface Adventurer extends RowDataPacket {
+  taskId: number;
+  userId: number;
+  createTime: Date;
+  updateTime: Date;
+  acceptanceTime: Date;
+  completedTime: Date;
+  status: Status;
+}
 
 class AdventurerModel {
-  static getOne(TASK_ID, USER_ID) {
+  static getOne(taskId: number, userId: number): Promise<Adventurer | undefined> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        `SELECT * FROM adventurers WHERE TASK_ID = ? AND USER_ID = ?`,
-        [TASK_ID, USER_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const adventurer = convertKeysToCamelCase(rows[0]);
-              resolve(adventurer);
-            }
-          }
-        }
-      );
+      conn.query<Adventurer[]>(`SELECT * FROM adventurers WHERE taskId = ? AND userId = ?`, [taskId, userId], function (err, rows) {
+        if (err) reject(err);
+        if (rows?.length) resolve(rows[0]);
+        resolve(undefined);
+      });
     });
   }
 
-  static getAllByTask(TASK_ID) {
+  static getAllByTask(taskId: number): Promise<Adventurer[]> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        `SELECT * FROM adventurers WHERE TASK_ID = ?`,
-        [TASK_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const itemRecords = rows.map(convertKeysToCamelCase);
-              resolve(itemRecords);
-            }
-          }
-        }
-      );
+      conn.query<Adventurer[]>(`SELECT * FROM adventurers WHERE taskId = ?`, [taskId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows);
+      });
     });
   }
 
-  static getAllByUser(USER_ID) {
+  static getAllByUser(userId: number): Promise<Adventurer[]> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        `SELECT * FROM adventurers WHERE USER_ID = ?`,
-        [USER_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const itemRecords = rows.map(convertKeysToCamelCase);
-              resolve(itemRecords);
-            }
-          }
-        }
-      );
+      conn.query<Adventurer[]>(`SELECT * FROM adventurers WHERE userId = ?`, [userId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows);
+      });
     });
   }
 
-  static create(TASK_ID, USER_ID) {
+  static create(taskId: number, userId: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        `INSERT INTO adventurers(TASK_ID , USER_ID, ACCEPTANCE_TIME, STATUS) VALUES (?, ?, CURDATE(), 'Accepted')`,
-        [TASK_ID, USER_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>(`INSERT INTO adventurers(taskId , userId, acceptanceTime, status) VALUES (?, ?, CURDATE(), 'Accepted')`, [taskId, userId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.insertId);
+      });
     });
   }
 
-  static update(TASK_ID, USER_ID, STATUS, COMPLETED_TIME) {
+  static update(taskId: number, userId: number, status: Status, completedTime: Date): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        `UPDATE adventurers SET STATUS = ?, COMPLETED_TIME = ? WHERE TASK_ID = ? AND USER_ID = ?`,
-        [STATUS, COMPLETED_TIME, TASK_ID, USER_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>(`UPDATE adventurers SET status = ?, completedTime = ? WHERE taskId = ? AND userId = ?`, [status, completedTime, taskId, userId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 
-  static updateStatus(TASK_ID, USER_ID, STATUS) {
+  static updateStatus(taskId: number, userId: number, status: Status): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        `UPDATE adventurers SET STATUS = ? WHERE TASK_ID = ? AND USER_ID = ?`,
-        [STATUS, TASK_ID, USER_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>(`UPDATE adventurers SET status = ? WHERE taskId = ? AND userId = ?`, [status, taskId, userId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 
-  static deleteByTask(TASK_ID) {
+  static deleteByTask(taskId: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        `DELETE FROM adventurers WHERE TASK_ID = ?`,
-        [TASK_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>(`DELETE FROM adventurers WHERE taskId = ?`, [taskId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 
-  static deleteByTaskAndUser(TASK_ID, USER_ID) {
+  static deleteByTaskAndUser(taskId: number, userId: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        `DELETE FROM adventurers WHERE TASK_ID = ? AND USER_ID = ?`,
-        [TASK_ID, USER_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>(`DELETE FROM adventurers WHERE taskId = ? AND userId = ?`, [taskId, userId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 }

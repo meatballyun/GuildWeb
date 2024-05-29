@@ -3,7 +3,7 @@ import EmailRepository from '../../repositories/email/email.repository';
 
 class MailController {
   static async sendSignUp(req, res, next) {
-    await EmailRepository.sendSignUp(req.body.uid, req.body.email);
+    await EmailRepository.sendSignUp(req.body);
     return res.status(200).json({ data: 'OK' });
   }
 

@@ -1,5 +1,6 @@
 // @ts-nocheck
-import './loadenv';
+import dotenv from 'dotenv';
+dotenv.config({ path: '../.env' });
 import debug from 'debug';
 import app from './app';
 

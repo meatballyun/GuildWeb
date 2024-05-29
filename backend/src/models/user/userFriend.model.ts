@@ -1,90 +1,68 @@
-// @ts-nocheck
 import connection from '../../lib/db';
-import { convertKeysToCamelCase } from '../../utils/convertToCamelCase';
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
+
+type Status = 'confirmed' | 'pending' | 'blocked';
+
+interface UserFriend extends RowDataPacket {
+  createTime: Date;
+  updateTime: Date;
+  user1Id: number;
+  user2Id: number;
+  status: Status;
+}
 
 class UserFriendModel {
-  static getStatus(USER1_ID, USER2_ID) {
+  static getStatus(user1Id: number, user2Id: number): Promise<Status | undefined> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        `SELECT STATUS FROM userFriends WHERE USER1_ID = ? AND USER2_ID = ?`,
-        [USER1_ID, USER2_ID],
+      connection.query<UserFriend[]>(`SELECT status FROM userFriends WHERE user1Id = ? AND user2Id = ?`, [user1Id, user2Id], function (err, rows) {
+        if (err) reject(err);
+        if (rows?.length) resolve(rows[0].status);
+        resolve(undefined);
+      });
+    });
+  }
+
+  static getAllByIdAndName(userId: number, name: string): Promise<UserFriend[] | undefined> {
+    return new Promise((resolve, reject) => {
+      connection.query<UserFriend[]>(
+        `SELECT u.id, u.name, u.imageUrl, u.RANK FROM users u INNER JOIN userFriends uf ON (u.id = uf.user1Id OR u.id = uf.user2Id) WHERE uf.status = 'confirmed' AND (uf.user1Id = ? OR uf.user2Id = ?) AND u.name LIKE ?`,
+        [userId, userId, '%' + name + '%'],
         function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else resolve(rows[0].STATUS);
-          }
+          if (err) reject(err);
+          resolve(rows);
         }
       );
     });
   }
 
-  static getAllByIdAndName(USER_ID, NAME) {
+  static create(user1Id: number, user2Id: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        `SELECT u.ID, u.NAME, u.IMAGE_URL, u.RANK FROM users u INNER JOIN userFriends uf ON (u.ID = uf.USER1_ID OR u.ID = uf.USER2_ID) WHERE uf.STATUS = 'Confirmed' AND (uf.USER1_ID = ? OR uf.USER2_ID = ?) AND u.NAME LIKE ?`,
-        [USER_ID, USER_ID, '%' + NAME + '%'],
+      connection.query<ResultSetHeader>('INSERT INTO userFriends (user1Id, user2Id) VALUES (?,?)', [user1Id, user2Id], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
+    });
+  }
+
+  static update(user1Id: number, user2Id: number, status: Status): Promise<number> {
+    return new Promise((resolve, reject) => {
+      connection.query<ResultSetHeader>(
+        'UPDATE userFriends SET status = ? WHERE (user1Id = ? AND user2Id = ?) OR (user1Id = ? AND user2Id = ?)',
+        [status, user1Id, user2Id, user2Id, user1Id],
         function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const friends = rows.map(convertKeysToCamelCase);
-              resolve(friends);
-            }
-          }
+          if (err) reject(err);
+          resolve(rows.affectedRows);
         }
       );
     });
   }
 
-  static create(USER1_ID, USER2_ID) {
+  static delete(user1Id: number, user2Id: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'INSERT INTO userFriends (USER1_ID, USER2_ID) VALUES (?,?)',
-        [USER1_ID, USER2_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
-    });
-  }
-
-  static update(USER1_ID, USER2_ID, STATUS) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE userFriends SET STATUS = ? WHERE (USER1_ID = ? AND USER2_ID = ?) OR (USER1_ID = ? AND USER2_ID = ?)',
-        [STATUS, USER1_ID, USER2_ID, USER2_ID, USER1_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
-    });
-  }
-
-  static delete(USER1_ID, USER2_ID) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'DELETE FROM userFriends WHERE (USER1_ID = ? AND USER2_ID = ?) OR (USER1_ID = ? AND USER2_ID = ?)',
-        [USER1_ID, USER2_ID, USER2_ID, USER1_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      connection.query<ResultSetHeader>('DELETE FROM userFriends WHERE (user1Id = ? AND user2Id = ?) OR (user1Id = ? AND user2Id = ?)', [user1Id, user2Id, user2Id, user1Id], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 }

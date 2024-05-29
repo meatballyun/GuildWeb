@@ -1,84 +1,65 @@
-// @ts-nocheck
-import connection from '../../lib/db';
-import { convertKeysToCamelCase } from '../../utils/convertToCamelCase';
+import conn from '../../lib/db';
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
+
+interface BaseGuild {
+  leaderId: number;
+  name: string;
+  description?: string;
+  imageUrl: string;
+  cabin?: boolean;
+  published?: boolean;
+}
+
+interface Guild extends BaseGuild, RowDataPacket {
+  id: number;
+  createTime: Date;
+  updateTime: Date;
+  active: boolean;
+}
 
 class GuildModel {
-  static getOne(ID) {
+  static getOne(id: number): Promise<Guild | undefined> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM guilds WHERE ID = ? AND ACTIVE = TRUE',
-        [ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const guild = convertKeysToCamelCase(rows[0]);
-              resolve(guild);
-            }
-          }
-        }
-      );
+      conn.query<Guild[]>('SELECT * FROM guilds WHERE id = ? AND active = TRUE', [id], function (err, rows) {
+        if (err) reject(err);
+        if (rows?.length) resolve(rows[0]);
+        resolve(undefined);
+      });
     });
   }
 
-  static create(LEADER_ID, { name, description, imageUrl }) {
+  static create(leaderId: number, { name, description, imageUrl }: BaseGuild): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'INSERT INTO guilds(LEADER_ID, NAME, DESCRIPTION, IMAGE_URL, CABIN) VALUES (?,?,?,?,?)',
-        [LEADER_ID, name, description, imageUrl, false],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.insertId);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>('INSERT INTO guilds(leaderId, name, description, imageUrl, cabin) VALUES (?,?,?,?,?)', [leaderId, name, description, imageUrl, false], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.insertId);
+      });
     });
   }
 
-  static addCabin(LEADER_ID, NAME, DESCRIPTION, IMAGE_URL) {
+  static addCabin(leaderId: number, name: string, description: string, imageUrl: string): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'INSERT INTO guilds(LEADER_ID, NAME, DESCRIPTION, IMAGE_URL, CABIN) VALUES (?,?,?,?,?)',
-        [LEADER_ID, NAME, DESCRIPTION, IMAGE_URL, true],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.insertId);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>('INSERT INTO guilds(leaderId, name, description, imageUrl, cabin) VALUES (?,?,?,?,?)', [leaderId, name, description, imageUrl, true], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.insertId);
+      });
     });
   }
 
-  static update(ID, { name, description, imageUrl }) {
+  static update(id: number, { name, description, imageUrl }: BaseGuild): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE guilds SET NAME = ? , DESCRIPTION = ?, IMAGE_URL = ? WHERE ID = ?',
-        [name, description, imageUrl, ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>('UPDATE guilds SET name = ? , description = ?, imageUrl = ? WHERE id = ?', [name, description, imageUrl, id], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 
-  static deleteGuild(ID) {
+  static deleteGuild(id: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query('UPDATE guilds SET ACTIVE = FALSE WHERE ID = ?', [ID], function (err, rows) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(rows.affectedRows);
-        }
+      conn.query<ResultSetHeader>('UPDATE guilds SET active = FALSE WHERE id = ?', [id], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
       });
     });
   }

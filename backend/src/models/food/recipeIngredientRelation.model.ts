@@ -1,129 +1,80 @@
-// @ts-nocheck
-import connection from '../../lib/db';
-import { convertKeysToCamelCase } from '../../utils/convertToCamelCase';
+import conn from '../../lib/db';
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
+
+interface RecipeIngredientRelation extends RowDataPacket {
+  ingredientId: number;
+  recipeId: number;
+  amount: number;
+}
 
 class RecipeIngredientRelationModel {
-  static getAllByIngredient(INGREDIENT) {
+  static getAllByIngredient(ingredientId: number): Promise<RecipeIngredientRelation[] | undefined> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM recipeIngredientRelations WHERE INGREDIENTS = ? AND RECIPES IN (SELECT ID FROM recipes WHERE ACTIVE = TRUE)',
-        INGREDIENT,
+      conn.query<RecipeIngredientRelation[]>(
+        'SELECT * FROM recipeIngredientRelations WHERE ingredientId = ? AND recipeId IN (SELECT id FROM recipes WHERE ACTIVE = TRUE)',
+        ingredientId,
         function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const recipeIngredientRelations = rows.map(convertKeysToCamelCase);
-              resolve(recipeIngredientRelations);
-            }
-          }
+          if (err) reject(err);
+          if (rows?.length) resolve(rows);
+          resolve(undefined);
         }
       );
     });
   }
 
-  static getAllByRecipe(RECIPES) {
+  static getAllByRecipe(recipeId: number): Promise<RecipeIngredientRelation[] | undefined> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM recipeIngredientRelations WHERE RECIPES = ? AND AMOUNT > 0',
-        RECIPES,
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const recipeIngredientRelations = rows.map(convertKeysToCamelCase);
-              resolve(recipeIngredientRelations);
-            }
-          }
-        }
-      );
+      conn.query<RecipeIngredientRelation[]>('SELECT * FROM recipeIngredientRelations WHERE recipeId = ? AND amount > 0', recipeId, function (err, rows) {
+        if (err) reject(err);
+        if (rows?.length) resolve(rows);
+        resolve(undefined);
+      });
     });
   }
 
-  static getOne(INGREDIENTS, RECIPES) {
+  static getOne(ingredientId: number, recipeId: number): Promise<RecipeIngredientRelation | undefined> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM recipeIngredientRelations WHERE INGREDIENTS = ? AND RECIPES = ?',
-        [INGREDIENTS, RECIPES],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const recipeIngredientRelation = convertKeysToCamelCase(rows[0]);
-              resolve(recipeIngredientRelation);
-            }
-          }
-        }
-      );
+      conn.query<RecipeIngredientRelation[]>('SELECT * FROM recipeIngredientRelations WHERE ingredientId = ? AND recipeId = ?', [ingredientId, recipeId], function (err, rows) {
+        if (err) reject(err);
+        if (rows?.length) resolve(rows[0]);
+        resolve(undefined);
+      });
     });
   }
 
-  static create(INGREDIENTS, RECIPES, AMOUNT) {
+  static create(ingredientId: number, recipeId: number, amount: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'INSERT INTO recipeIngredientRelations(INGREDIENTS, RECIPES, AMOUNT) VALUES (?,?,?)',
-        [INGREDIENTS, RECIPES, AMOUNT],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.insertId);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>('INSERT INTO recipeIngredientRelations(ingredientId, recipeId, amount) VALUES (?,?,?)', [ingredientId, recipeId, amount], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.insertId);
+      });
     });
   }
 
-  static update(INGREDIENTS, RECIPES, AMOUNT) {
+  static update(ingredientId: number, recipeId: number, amount: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE recipeIngredientRelations SET AMOUNT = ? WHERE INGREDIENTS = ? AND RECIPES = ?',
-        [AMOUNT, INGREDIENTS, RECIPES],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>('UPDATE recipeIngredientRelations SET amount = ? WHERE ingredientId = ? AND recipeId = ?', [amount, ingredientId, recipeId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 
-  static deleteByIngredientAndRecipe(INGREDIENT, RECIPE) {
+  static deleteByIngredientAndRecipe(ingredientId: number, recipeId: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'DELETE FROM recipeIngredientRelations WHERE INGREDIENTS = ? AND RECIPES = ?',
-        [INGREDIENT, RECIPE],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>('DELETE FROM recipeIngredientRelations WHERE ingredientId = ? AND recipeId = ?', [ingredientId, recipeId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 
-  static deleteByRecipe(RECIPES) {
+  static deleteByRecipe(recipeId: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'DELETE FROM recipeIngredientRelations WHERE RECIPES = ?',
-        RECIPES,
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>('DELETE FROM recipeIngredientRelations WHERE recipeId = ?', recipeId, function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 }

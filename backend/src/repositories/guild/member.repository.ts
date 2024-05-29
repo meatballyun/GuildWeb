@@ -43,7 +43,6 @@ class MemberRepository {
     const isCurrentUser = requester == targetUserId;
     if (isMaster && isCurrentUser) throw new ApplicationError(403);
     if (isMaster || isCurrentUser) {
-      console.log(targetUserId, guildId);
       const result = await UserGuildRelation.delete(targetUserId, guildId);
       if (!result) throw new ApplicationError(400);
     } else throw new ApplicationError(403);

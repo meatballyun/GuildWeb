@@ -1,220 +1,145 @@
-// @ts-nocheck
-import connection from '../../lib/db';
-import { convertKeysToCamelCase } from '../../utils/convertToCamelCase';
+import conn from '../../lib/db';
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
+
+type TaskType = 'emergency' | 'daily' | 'weekly' | 'monthly' | 'ordinary';
+type Status = 'established' | 'in progress' | 'completed' | 'expired' | 'cancelled';
+type Accepted = 'pending acceptance' | 'max accepted';
+
+interface TaskTime {
+  initiationTime: Date;
+  deadline: Date;
+}
+
+interface TaskInfo {
+  name: string;
+  type: TaskType;
+  status?: Status;
+  description: string;
+  maxAdventurer: number;
+  adventurer?: number;
+  accepted?: Accepted;
+}
+
+interface Task extends TaskTime, TaskInfo, RowDataPacket {
+  id: number;
+  creatorId: number;
+  guildId: number;
+  templateId?: number;
+  createTime?: Date;
+  updateTime?: Date;
+  active: boolean;
+}
 
 class TaskModel {
-  static getOne(ID) {
+  static getOne(id: number): Promise<Task | undefined> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM tasks WHERE ID = ? AND ACTIVE = TRUE',
-        [ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const task = convertKeysToCamelCase(rows[0]);
-              resolve(task);
-            }
-          }
-        }
-      );
+      conn.query<Task[]>('SELECT * FROM tasks WHERE id = ? AND active = TRUE', [id], function (err, rows) {
+        if (err) reject(err);
+        if (rows?.length) resolve(rows[0]);
+        resolve(undefined);
+      });
     });
   }
 
-  static getAllByGuild(GUILD_ID) {
+  static getAllByGuild(guildId: number): Promise<Task[]> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM tasks WHERE GUILD_ID = ? AND ACTIVE = TRUE',
-        [GUILD_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const tasks = rows.map(convertKeysToCamelCase);
-              resolve(tasks);
-            }
-          }
-        }
-      );
+      conn.query<Task[]>('SELECT * FROM tasks WHERE guildId = ? AND active = TRUE', [guildId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows);
+      });
     });
   }
 
-  static getAllByGuildAndName(GUILD_ID, NAME) {
+  static getAllByGuildAndName(guildId: number, name: string): Promise<Task[]> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM tasks WHERE GUILD_ID = ? AND NAME LIKE ? AND ACTIVE = TRUE',
-        [GUILD_ID, '%' + NAME + '%'],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const tasks = rows.map(convertKeysToCamelCase);
-              resolve(tasks);
-            }
-          }
-        }
-      );
+      conn.query<Task[]>('SELECT * FROM tasks WHERE guildId = ? AND name LIKE ? AND active = TRUE', [guildId, '%' + name + '%'], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows);
+      });
     });
   }
 
-  static create(
-    CREATOR_ID,
-    GUILD_ID,
-    { initiationTime, deadline },
-    { name, description, type, maxAdventurer }
-  ) {
+  static create(creatorId: number, guildId: number, { initiationTime, deadline }: TaskTime, { name, description, type, maxAdventurer }: TaskInfo): Promise<number> {
     const currentTime = new Date().getTime();
-    let STATUS = 'Established';
-    if (currentTime >= new Date(initiationTime).getTime()) {
-      STATUS = 'In Progress';
-    }
+    const status = currentTime >= new Date(initiationTime).getTime() ? 'In Progress' : 'Established';
     return new Promise((resolve, reject) => {
-      connection.query(
-        'INSERT INTO tasks(CREATOR_ID, GUILD_ID, INITIATION_TIME, DEADLINE, NAME, DESCRIPTION, TYPE, MAX_ADVENTURER, STATUS) VALUES (?,?,?,?,?,?,?,?,?)',
-        [
-          CREATOR_ID,
-          GUILD_ID,
-          initiationTime,
-          deadline,
-          name,
-          description,
-          type,
-          maxAdventurer,
-          STATUS,
-        ],
+      conn.query<ResultSetHeader>(
+        'INSERT INTO tasks(creatorId , guildId, initiationTime, deadline, name, description, type, maxAdventurer, status) VALUES (?,?,?,?,?,?,?,?,?)',
+        [creatorId, guildId, initiationTime, deadline, name, description, type, maxAdventurer, status],
         function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.insertId);
-          }
+          if (err) reject(err);
+          resolve(rows.insertId);
         }
       );
     });
   }
 
-  static updateDetail(
-    TASK_ID,
-    { initiationTime, deadline },
-    { name, description, type, maxAdventurer }
-  ) {
+  static updateDetail(id: number, { initiationTime, deadline }: TaskTime, { name, description, type, maxAdventurer }: TaskInfo): Promise<number> {
     const currentTime = new Date().getTime();
-    let STATUS = 'Established';
-    if (currentTime >= new Date(initiationTime).getTime()) {
-      STATUS = 'In Progress';
-    }
+    const status = currentTime >= new Date(initiationTime).getTime() ? 'In Progress' : 'Established';
     return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE tasks SET INITIATION_TIME = ?, DEADLINE = ?, NAME = ?, DESCRIPTION = ?, TYPE = ?, MAX_ADVENTURER = ?, STATUS = ? WHERE ID = ?',
-        [initiationTime, deadline, name, description, type, maxAdventurer, STATUS, TASK_ID],
+      conn.query<ResultSetHeader>(
+        'UPDATE tasks SET initiationTime = ?, deadline = ?, name = ?, description = ?, type = ?, maxAdventurer = ?, status = ? WHERE id = ?',
+        [initiationTime, deadline, name, description, type, maxAdventurer, status, id],
         function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
+          if (err) reject(err);
+          resolve(rows.affectedRows);
         }
       );
     });
   }
 
-  static updateStatus(TASK_ID, STATUS) {
+  static updateStatus(id: number, status: Status): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        `UPDATE tasks SET STATUS = ?, ADVENTURER = 0 WHERE ID = ?`,
-        [STATUS, TASK_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>(`UPDATE tasks SET status = ?, adventurer  = 0 WHERE id = ?`, [status, id], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 
-  static accept(TASK_ID, ADVENTURER) {
+  static accept(id: number, adventurer: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE tasks SET ADVENTURER = ? WHERE ID = ?',
-        [ADVENTURER, TASK_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>('UPDATE tasks SET adventurer  = ? WHERE id = ?', [adventurer, id], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 
-  static maxAccepted(TASK_ID) {
+  static maxAccepted(id: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        `UPDATE tasks SET ACCEPTED = 'Max Accepted' WHERE ID = ?`,
-        [TASK_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>(`UPDATE tasks SET ACCEPTED = 'max accepted' WHERE id = ?`, [id], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 
-  static delete(TASK_ID) {
+  static delete(id: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE tasks SET ACTIVE = FALSE WHERE ID = ?',
-        [TASK_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>('UPDATE tasks SET active = FALSE WHERE id = ?', [id], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 
-  static checkInitiationTimeEvent() {
+  static checkInitiationTimeEvent(): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        `UPDATE tasks SET STATUS = 'In Progress' WHERE INITIATION_TIME < CURRENT_TIMESTAMP AND STATUS = 'Established' AND ACTIVE = TRUE`,
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>(`UPDATE tasks SET status = 'in progress' WHERE initiationTime < CURRENT_TIMESTAMP AND status = 'established' AND active = TRUE`, function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 
-  static checkDeadlineEvent() {
+  static checkDeadlineEvent(): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        `UPDATE tasks SET STATUS = 'Expired' WHERE DEADLINE < CURRENT_TIMESTAMP AND STATUS = 'In Progress' AND ACTIVE = TRUE`,
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>(`UPDATE tasks SET status = 'expired' WHERE deadline < CURRENT_TIMESTAMP AND status = 'in progress' AND active = TRUE`, function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 }

@@ -1,133 +1,89 @@
-// @ts-nocheck
 import connection from '../../lib/db';
-import { convertKeysToCamelCase } from '../../utils/convertToCamelCase';
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
+
+type Membership = 'master' | 'vice' | 'regular' | 'pending';
+
+interface UserGuildRelation extends RowDataPacket {
+  createTime: Date;
+  updateTime: Date;
+  userId: number;
+  guildId: number;
+  membership: Membership;
+}
 
 class UserGuildRelationModel {
-  static getOneByGuildAndUser(USER_ID, GUILD_ID) {
+  static getOneByGuildAndUser(userId: number, guildId: number): Promise<UserGuildRelation | undefined> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM userGuildRelations WHERE USER_ID = ? AND GUILD_ID = ?',
-        [USER_ID, GUILD_ID],
+      connection.query<UserGuildRelation[]>('SELECT * FROM userGuildRelations WHERE userId = ? AND guildId = ?', [userId, guildId], function (err, rows) {
+        if (err) reject(err);
+        if (rows?.length) resolve(rows[0]);
+        resolve(undefined);
+      });
+    });
+  }
+
+  static getAllByGuild(guildId: number): Promise<UserGuildRelation[] | undefined> {
+    return new Promise((resolve, reject) => {
+      connection.query<UserGuildRelation[]>('SELECT * FROM userGuildRelations WHERE guildId = ?', [guildId], function (err, rows) {
+        if (err) reject(err);
+        if (rows?.length) resolve(rows);
+        resolve(undefined);
+      });
+    });
+  }
+
+  static getAllByUser(userId: number): Promise<UserGuildRelation[] | undefined> {
+    return new Promise((resolve, reject) => {
+      connection.query<UserGuildRelation[]>(
+        'SELECT ugr.* FROM userGuildRelations ugr INNER JOIN guilds g ON ugr.guildId = g.ID WHERE ugr.userId = ? AND g.active=TRUE ',
+        [userId],
         function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const userGuildRelation = convertKeysToCamelCase(rows[0]);
-              resolve(userGuildRelation);
-            }
-          }
+          if (err) reject(err);
+          if (rows?.length) resolve(rows);
+          resolve(undefined);
         }
       );
     });
   }
 
-  static getAllByGuild(GUILD_ID) {
+  static getAllByUserAndName(userId: number, name: string): Promise<UserGuildRelation[] | undefined> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM userGuildRelations WHERE GUILD_ID = ?',
-        [GUILD_ID],
+      connection.query<UserGuildRelation[]>(
+        'SELECT ugr.guildId FROM userGuildRelations ugr INNER JOIN guilds g ON ugr.guildId = g.ID WHERE ugr.userId = ? AND g.active = TRUE AND g.name LIKE ?',
+        [userId, '%' + name + '%'],
         function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const userGuildRelations = rows.map(convertKeysToCamelCase);
-              resolve(userGuildRelations);
-            }
-          }
+          if (err) reject(err);
+          if (rows?.length) resolve(rows);
+          resolve(undefined);
         }
       );
     });
   }
 
-  static getAllByUser(USER_ID) {
+  static create(userId: number, guildId: number, membership: Membership): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT ugr.* FROM userGuildRelations ugr INNER JOIN guilds g ON ugr.GUILD_ID = g.ID WHERE ugr.USER_ID = ? AND g.ACTIVE=TRUE ',
-        [USER_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const userGuildRelations = rows.map(convertKeysToCamelCase);
-              resolve(userGuildRelations);
-            }
-          }
-        }
-      );
+      connection.query<ResultSetHeader>('INSERT INTO userGuildRelations(userId, guildId, membership) VALUES (?,?,?)', [userId, guildId, membership], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 
-  static getAllByUserAndName(USER_ID, NAME) {
+  static update(userId: number, guildId: number, membership: Membership): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT ugr.GUILD_ID FROM userGuildRelations ugr INNER JOIN guilds g ON ugr.GUILD_ID = g.ID WHERE ugr.USER_ID = ? AND g.ACTIVE=TRUE AND g.NAME LIKE ?',
-        [USER_ID, '%' + NAME + '%'],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const userGuildRelations = rows.map(convertKeysToCamelCase);
-              resolve(userGuildRelations);
-            }
-          }
-        }
-      );
+      connection.query<ResultSetHeader>('UPDATE userGuildRelations SET membership = ? WHERE userId = ? AND guildId = ? ', [membership, userId, guildId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 
-  static create(USER_ID, GUILD_ID, MEMBERSHIP) {
+  static delete(userId: number, guildId: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'INSERT INTO userGuildRelations(USER_ID, GUILD_ID, MEMBERSHIP) VALUES (?,?,?)',
-        [USER_ID, GUILD_ID, MEMBERSHIP],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
-    });
-  }
-
-  static update(USER_ID, GUILD_ID, MEMBERSHIP) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE userGuildRelations SET MEMBERSHIP = ? WHERE USER_ID = ? AND GUILD_ID = ? ',
-        [MEMBERSHIP, USER_ID, GUILD_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
-    });
-  }
-
-  static delete(USER_ID, GUILD_ID) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'DELETE FROM userGuildRelations WHERE USER_ID = ? AND GUILD_ID = ? ',
-        [USER_ID, GUILD_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      connection.query<ResultSetHeader>('DELETE FROM userGuildRelations WHERE userId = ? AND guildId = ? ', [userId, guildId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 }

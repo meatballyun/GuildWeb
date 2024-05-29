@@ -1,153 +1,110 @@
-// @ts-nocheck
-import connection from '../../lib/db';
-import { convertKeysToCamelCase } from '../../utils/convertToCamelCase';
+import conn from '../../lib/db';
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
+
+type Status = 'confirmed' | 'pending' | 'blocked';
+
+interface BaseUser {
+  name: string;
+  imageUrl: string;
+  carbs: number;
+  pro: number;
+  fats: number;
+  kcal: number;
+}
+
+interface User extends BaseUser, RowDataPacket {
+  id: number;
+  createTime: Date;
+  updateTime: Date;
+  status: Status;
+  email: string;
+  password: string;
+  rank: number;
+  exp: number;
+}
 
 export class UserModel {
-  static getOneById(ID) {
+  static getOneById(id: number): Promise<User | undefined> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        `SELECT * FROM users WHERE ID = ? AND STATUS = 'Confirmed'`,
-        ID,
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const user = convertKeysToCamelCase(rows[0]);
-              resolve(user);
-            }
-          }
-        }
-      );
-    });
-  }
-
-  static getOneByEmail(EMAIL) {
-    return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM users WHERE EMAIL = ?', EMAIL, function (err, rows) {
-        if (err) {
-          reject(err);
-        } else {
-          if (rows.length === 0) resolve(false);
-          else {
-            const user = convertKeysToCamelCase(rows[0]);
-            resolve(user);
-          }
-        }
+      conn.query<User[]>(`SELECT * FROM users WHERE id = ? AND status = 'confirmed'`, id, function (err, rows) {
+        if (err) reject(err);
+        if (rows.length === 0) resolve(undefined);
+        resolve(rows[0]);
       });
     });
   }
 
-  static getAllByName(NAME) {
+  static getOneByEmail(email: string): Promise<User | undefined> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        `SELECT * FROM users WHERE NAME LIKE ? AND STATUS = 'Confirmed'`,
-        ['%' + NAME + '%'],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const user = rows.map(convertKeysToCamelCase);
-              resolve(user);
-            }
-          }
-        }
-      );
-    });
-  }
-
-  static create(NAME, EMAIL, PASSWORD) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'INSERT INTO users(NAME, EMAIL, PASSWORD) VALUES (?,?,?)',
-        [NAME, EMAIL, PASSWORD],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
-    });
-  }
-
-  static updateStatus(STATUS, ID) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE users SET STATUS = ? WHERE ID = ?',
-        [STATUS, ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
-    });
-  }
-
-  static updatePassword(ID, PASSWORD) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE users SET PASSWORD = ? WHERE ID = ?',
-        [PASSWORD, ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
-    });
-  }
-
-  static updateInfo(ID, { name, imageUrl, carbs, pro, fats, kcal }) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE users SET NAME =?, IMAGE_URL = ?, CARBS = ?, PRO = ?, FATS = ?, KCAL = ? WHERE ID = ?',
-        [name, imageUrl, carbs, pro, fats, kcal, ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
-    });
-  }
-
-  static updateExp(ID, EXP) {
-    return new Promise((resolve, reject) => {
-      connection.query('UPDATE users SET EXP = ? WHERE ID = ?', [EXP, ID], function (err, rows) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(rows.affectedRows);
-        }
+      conn.query<User[]>('SELECT * FROM users WHERE email = ?', email, function (err, rows) {
+        if (err) reject(err);
+        if (rows.length === 0) resolve(undefined);
+        resolve(rows[0]);
       });
     });
   }
 
-  static upgrade(ID, RANK) {
+  static getAllByName(name: string): Promise<User[] | undefined> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE users SET `RANK` = ? WHERE ID = ?',
-        [RANK, ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<User[]>(`SELECT * FROM users WHERE name LIKE ? AND status = 'confirmed'`, ['%' + name + '%'], function (err, rows) {
+        if (err) reject(err);
+        if (rows.length === 0) resolve(undefined);
+        resolve(rows);
+      });
+    });
+  }
+
+  static create(name: string, email: string, password: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+      conn.query<ResultSetHeader>('INSERT INTO users(name, email, password) VALUES (?,?,?)', [name, email, password], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.insertId);
+      });
+    });
+  }
+
+  static updateStatus(status: Status, id: number): Promise<number> {
+    return new Promise((resolve, reject) => {
+      conn.query<ResultSetHeader>('UPDATE users SET status = ? WHERE id = ?', [status, id], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
+    });
+  }
+
+  static updatePassword(id: number, password: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+      conn.query<ResultSetHeader>('UPDATE users SET password = ? WHERE id = ?', [password, id], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
+    });
+  }
+
+  static updateInfo(id: number, { name, imageUrl, carbs, pro, fats, kcal }: BaseUser): Promise<number> {
+    return new Promise((resolve, reject) => {
+      conn.query<ResultSetHeader>('UPDATE users SET name =?, imageUrl = ?, carbs = ?, pro = ?, fats = ?, kcal = ? WHERE id = ?', [name, imageUrl, carbs, pro, fats, kcal, id], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
+    });
+  }
+
+  static updateExp(id: number, exp: number): Promise<number> {
+    return new Promise((resolve, reject) => {
+      conn.query<ResultSetHeader>('UPDATE users SET exp = ? WHERE id = ?', [exp, id], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
+    });
+  }
+
+  static upgrade(id: number, rank: number): Promise<number> {
+    return new Promise((resolve, reject) => {
+      conn.query<ResultSetHeader>('UPDATE users SET `rank` = ? WHERE id = ?', [rank, id], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 }

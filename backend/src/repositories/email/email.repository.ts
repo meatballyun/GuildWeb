@@ -3,7 +3,7 @@ import { toHash } from '../../utils/hashCode';
 import nodemailer from 'nodemailer';
 import { signUpEmail, passwordResetEmail } from './emailTemplate';
 import { ApplicationError } from '../../utils/error/applicationError';
-import ConfirmationEmail from '../../models/email/confirmationEmail.model';
+import { ConfirmationEmailModel } from '../../models/email/confirmationEmail.model';
 import { UserModel } from '../../models/user/user.model';
 
 class EmailRepository {
@@ -23,12 +23,13 @@ class EmailRepository {
   }
 
   static async sendSignUp({ uid, email }) {
-    const confirmationMail = await ConfirmationEmail.getLatestByUser(uid, 'SignUp');
+    const confirmationMail = await ConfirmationEmailModel.getLatestByUser(uid, 'SignUp');
+
     const hasConfirmationMail = confirmationMail?.length;
     if (hasConfirmationMail) throw new ApplicationError(409);
 
     const code = await toHash(uid + email + 'SignUp');
-    await ConfirmationEmail.create(uid, 'SignUp', code);
+    await ConfirmationEmailModel.create(uid, 'SignUp', code);
 
     this.sendEmail(signUpEmail(email, uid, code));
   }
@@ -36,41 +37,43 @@ class EmailRepository {
   static async resendSignUp(email) {
     const user = await UserModel.getOneByEmail(email);
     if (!user) throw new ApplicationError(404);
-    if (user.STATUS === 'Confirmed') throw new ApplicationError(409);
-    const latestEmail = await ConfirmationEmail.getLatestByUser(user.ID, 'SignUp');
-    if (!latestEmail) this.sendSignUp(user.ID, email);
-    this.sendEmail(signUpEmail(email, user.ID, latestEmail.CODE));
+    if (user.status === 'Confirmed') throw new ApplicationError(409);
+
+    const latestEmail = await ConfirmationEmailModel.getLatestByUser(user.id, 'SignUp');
+    if (!latestEmail) this.sendSignUp(user.id, email);
+
+    this.sendEmail(signUpEmail(email, user.id, latestEmail.code));
   }
 
   static async sendResetPassword(email) {
     const user = await UserModel.getOneByEmail(email);
     if (!user) throw new ApplicationError(404);
-    const latestEmail = await ConfirmationEmail.getLatestByUser(user.ID, 'SignUp');
+    const latestEmail = await ConfirmationEmailModel.getLatestByUser(user.id, 'SignUp');
     if (!latestEmail) throw new ApplicationError(404);
-    if (latestEmail.STATUS === 'Pending') throw new ApplicationError(403);
-    const code = await toHash(user.ID + email + 'ForgotPassword');
-    await ConfirmationEmail.create(user.ID, 'ForgotPassword', code);
-    this.sendEmail(passwordResetEmail(email, user.ID, code));
+    if (latestEmail.status === 'Pending') throw new ApplicationError(403);
+
+    const code = await toHash(user.id + email + 'ForgotPassword');
+    await ConfirmationEmailModel.create(user.id, 'ForgotPassword', code);
+    this.sendEmail(passwordResetEmail(email, user.id, code));
   }
 
   static async validationResetPassword({ uid, code }) {
-    const latestEmail = await ConfirmationEmail.getLatestByUser(uid, 'ForgotPassword');
-    if (latestEmail.STATUS === 'Confirmed') throw new ApplicationError(403);
+    const latestEmail = await ConfirmationEmailModel.getLatestByUser(uid, 'ForgotPassword');
+    if (latestEmail.status === 'Confirmed') throw new ApplicationError(403);
 
-    if (new Date(latestEmail.CREATE_TIME).valueOf() + 86400000 < new Date().valueOf())
-      throw new ApplicationError(403);
-    if (latestEmail.CODE !== code) throw new ApplicationError(404);
+    if (new Date(latestEmail.createTime).valueOf() + 86400000 < new Date().valueOf()) throw new ApplicationError(403);
+    if (latestEmail.code !== code) throw new ApplicationError(404);
 
-    await ConfirmationEmail.update(uid, 'Confirmed', 'ForgotPassword');
+    await ConfirmationEmailModel.update(uid, 'Confirmed', 'ForgotPassword');
   }
 
   static async validationSignUp({ uid, code }) {
-    const latestEmail = await ConfirmationEmail.getLatestByUser(uid, 'SignUp');
-    if (latestEmail.STATUS === 'Confirmed') throw new ApplicationError(403);
-    if (latestEmail.CODE !== code) throw new ApplicationError(404);
+    const latestEmail = await ConfirmationEmailModel.getLatestByUser(uid, 'SignUp');
+    if (latestEmail.status === 'Confirmed') throw new ApplicationError(403);
+    if (latestEmail.code !== code) throw new ApplicationError(404);
 
-    await ConfirmationEmail.update(uid, 'Confirmed', 'SignUp');
-    await UserModel.updateStatus('Confirmed', latestEmail.USER_ID);
+    await ConfirmationEmailModel.update(uid, 'Confirmed', 'SignUp');
+    await UserModel.updateStatus('Confirmed', latestEmail.userId);
   }
 }
 

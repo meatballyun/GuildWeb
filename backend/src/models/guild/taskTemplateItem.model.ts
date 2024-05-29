@@ -1,89 +1,56 @@
-// @ts-nocheck
-import connection from '../../lib/db';
-import { convertKeysToCamelCase } from '../../utils/convertToCamelCase';
+import conn from '../../lib/db';
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
+
+interface TemplateItem extends RowDataPacket {
+  id: number;
+  templateId: number;
+  content: string;
+  active: boolean;
+}
 
 class TaskTemplateItemModel {
-  static getAll(TEMPLATE_ID) {
+  static getAll(templateId: number): Promise<TemplateItem[]> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM templateItems WHERE TEMPLATE_ID = ? AND ACTIVE = TRUE',
-        [TEMPLATE_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const templateItem = rows.map(convertKeysToCamelCase);
-              resolve(templateItem);
-            }
-          }
-        }
-      );
+      conn.query<TemplateItem[]>('SELECT * FROM templateItems WHERE templateId = ? AND active = TRUE', [templateId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows);
+      });
     });
   }
 
-  static create(TEMPLATE_ID, CONTENT) {
+  static create(templateId: number, content: string): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'INSERT INTO templateItems(TEMPLATE_ID , CONTENT) VALUES (?,?)',
-        [TEMPLATE_ID, CONTENT],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.insertId);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>('INSERT INTO templateItems(templateId , content) VALUES (?,?)', [templateId, content], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.insertId);
+      });
     });
   }
 
-  static update(ID, CONTENT) {
+  static update(id: number, content: string): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE templateItems SET CONTENT = ? WHERE ID = ?',
-        [CONTENT, ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>('UPDATE templateItems SET content = ? WHERE id = ?', [content, id], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 
-  static delete(ID) {
+  static delete(id: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE templateItems SET ACTIVE = FALSE WHERE ID  = ?',
-        [ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>('UPDATE templateItems SET active = FALSE WHERE id  = ?', [id], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 
-  static deleteByTaskTemplate(TEMPLATE_ID) {
+  static deleteByTaskTemplate(templateId: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE templateItems SET ACTIVE = FALSE WHERE TEMPLATE_ID  = ?',
-        [TEMPLATE_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>('UPDATE templateItems SET active = FALSE WHERE templateId  = ?', [templateId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 }

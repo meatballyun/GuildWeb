@@ -1,145 +1,85 @@
-// @ts-nocheck
-import connection from '../../lib/db';
-import { convertKeysToCamelCase } from '../../utils/convertToCamelCase';
+import conn from '../../lib/db';
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
 
+interface ItemRecord extends RowDataPacket {
+  id: number;
+  itemId: number;
+  userId: number;
+  content: string;
+  status: boolean;
+  active: boolean;
+}
 class ItemRecordModel {
-  static getOne(ID) {
+  static getOne(id: number): Promise<ItemRecord | undefined> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM itemRecords WHERE ID = ? AND ACTIVE = TRUE',
-        [ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const itemRecord = convertKeysToCamelCase(rows[0]);
-              resolve(itemRecord);
-            }
-          }
-        }
-      );
+      conn.query<ItemRecord[]>('SELECT * FROM itemRecords WHERE id = ? AND active = TRUE', [id], function (err, rows) {
+        if (err) reject(err);
+        if (rows?.length) resolve(rows[0]);
+        resolve(undefined);
+      });
     });
   }
 
-  static getAllByItem(ITEM_ID) {
+  static getAllByItem(itemId: number): Promise<ItemRecord[]> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM itemRecords WHERE ITEMS_ID = ? AND ACTIVE = TRUE',
-        [ITEM_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const itemRecords = rows.map(convertKeysToCamelCase);
-              resolve(itemRecords);
-            }
-          }
-        }
-      );
+      conn.query<ItemRecord[]>('SELECT * FROM itemRecords WHERE itemId = ? AND active = TRUE', [itemId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows);
+      });
     });
   }
 
-  static getAllByItemAndUser(ITEM_ID, USER_ID) {
+  static getAllByItemAndUser(itemId: number, userId: number): Promise<ItemRecord[]> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM itemRecords WHERE ITEMS_ID = ? AND USER_ID = ? AND ACTIVE = TRUE',
-        [ITEM_ID, USER_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const itemRecords = rows.map(convertKeysToCamelCase);
-              resolve(itemRecords);
-            }
-          }
-        }
-      );
+      conn.query<ItemRecord[]>('SELECT * FROM itemRecords WHERE itemId = ? AND userId = ? AND active = TRUE', [itemId, userId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows);
+      });
     });
   }
 
-  static create(ITEMS_ID, CONTENT, USER_ID) {
+  static create(itemId: number, content: string, userId: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'INSERT INTO itemRecords(ITEMS_ID , CONTENT, USER_ID) VALUES (?,?,?)',
-        [ITEMS_ID, CONTENT, USER_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.insertId);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>('INSERT INTO itemRecords(itemId , content, userId) VALUES (?,?,?)', [itemId, content, userId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.insertId);
+      });
     });
   }
 
-  static update(ID, STATUS) {
+  static update(id: number, status: boolean): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE itemRecords SET STATUS = ? WHERE ID = ?',
-        [STATUS, ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>('UPDATE itemRecords SET status = ? WHERE id = ?', [status, id], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 
-  static deleteOne(ID) {
+  static deleteOne(id: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE itemRecords SET ACTIVE = FALSE WHERE ID =?',
-        [ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>('UPDATE itemRecords SET active = FALSE WHERE id =?', [id], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 
-  static deleteAllByItem(ITEMS_ID) {
+  static deleteAllByItem(itemId: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE itemRecords SET ACTIVE = FALSE WHERE ITEMS_ID =?',
-        [ITEMS_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>('UPDATE itemRecords SET active = FALSE WHERE itemId =?', [itemId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 
-  static deleteAllByItemAndUser(ITEMS_ID, USER_ID) {
+  static deleteAllByItemAndUser(itemId: number, userId: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE itemRecords SET ACTIVE = FALSE WHERE ITEMS_ID = ? AND USER_ID = ?',
-        [ITEMS_ID, USER_ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>('UPDATE itemRecords SET active = FALSE WHERE itemId = ? AND userId = ?', [itemId, userId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 }

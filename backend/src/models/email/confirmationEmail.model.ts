@@ -1,57 +1,45 @@
-// @ts-nocheck
-import connection from '../../lib/db';
-import { convertKeysToCamelCase } from '../../utils/convertToCamelCase';
+import conn from '../../lib/db';
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
+
+type Status = 'confirmed' | 'pending' | 'failed';
+type EmailType = 'signUp' | 'forgotPassword';
+
+interface ConfirmationEmail extends RowDataPacket {
+  id: number;
+  createTime: Date;
+  updateTime: Date;
+  userId: number;
+  status: Status;
+  type: EmailType;
+  code: string;
+}
 
 export class ConfirmationEmailModel {
-  static getLatestByUser(USER_ID, TYPE) {
+  static getLatestByUser(userId: number, type: EmailType): Promise<ConfirmationEmail | undefined> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM confirmationEmails WHERE USER_ID = ? AND TYPE = ? ORDER BY CREATE_TIME DESC  LIMIT 1',
-        [USER_ID, TYPE],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const email = convertKeysToCamelCase(rows[0]);
-              resolve(email);
-            }
-          }
-        }
-      );
+      conn.query<ConfirmationEmail[]>('SELECT * FROM confirmationEmails WHERE userId = ? AND type = ? ORDER BY createTime DESC  LIMIT 1', [userId, type], function (err, rows) {
+        if (err) reject(err);
+        if (rows?.length) resolve(rows[0]);
+        resolve(undefined);
+      });
     });
   }
 
-  static create(USER, TYPE, CODE) {
+  static create(userId: number, type: EmailType, code: string): Promise<ResultSetHeader> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'INSERT INTO confirmationEmails(USER_ID, TYPE, CODE) VALUES (?,?,?)',
-        [USER, TYPE, CODE],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>('INSERT INTO confirmationEmails(userId, type, code) VALUES (?,?,?)', [userId, type, code], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows);
+      });
     });
   }
 
-  static update(USER_ID, STATUS, TYPE) {
+  static update(userId: number, status: Status, type: EmailType): Promise<ResultSetHeader> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE confirmationEmails SET STATUS = ? WHERE USER_ID = ? AND TYPE = ?',
-        [STATUS, USER_ID, TYPE],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>('UPDATE confirmationEmails SET status = ? WHERE userId = ? AND type = ?', [status, userId, type], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows);
+      });
     });
   }
 }

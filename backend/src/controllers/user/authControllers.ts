@@ -12,7 +12,7 @@ export class AuthController {
       try {
         if (err) throw new ApplicationError(500, err);
         if (!user) throw new ApplicationError(401, info);
-        if (user.STATUS === 'Pending') throw new ApplicationError(403);
+        if (user.status !== 'Confirmed') throw new ApplicationError(403);
 
         req.login(user, (err?: string) => {
           if (err) throw new ApplicationError(403, err);
@@ -34,12 +34,12 @@ export class AuthController {
   static async signup(req, res, next) {
     const password = await toHash(req.body.password);
     const query = await UserModel.getOneByEmail(req.body.email);
-    if (query?.length) throw new ApplicationError(409);
+    if (query) throw new ApplicationError(409);
+
     const signUp = await UserModel.create(req.body.name, req.body.email, password);
-    if (signUp.affectedRows) {
-      req.body.uid = signUp.insertId;
-      next();
-    }
+    if (!signUp.insertId) throw new ApplicationError(400);
+    req.body.uid = signUp.insertId;
+    next();
   }
 
   static async logout(req, res) {

@@ -1,97 +1,77 @@
-// @ts-nocheck
-import connection from '../../lib/db';
-import { convertKeysToCamelCase } from '../../utils/convertToCamelCase';
+import conn from '../../lib/db';
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
+
+type Category = 'breakfast' | 'lunch' | 'dinner' | 'snack' | 'supper';
+
+interface BaseDietRecipe {
+  name: string;
+  creatorId?: string;
+  dietDate: Date;
+  category: Category;
+  recipeId: number;
+  carbs: number;
+  pro: number;
+  fats: number;
+  kcal: number;
+  amount: number;
+}
+
+interface DietRecipe extends BaseDietRecipe, RowDataPacket {
+  id: number;
+  createTime: Date;
+  updateTime: Date;
+  active: boolean;
+}
 
 class DietRecordModel {
-  static getOne(ID) {
+  static getOne(id: number): Promise<DietRecipe | undefined> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM dietRecords WHERE ID = ? AND ACTIVE = TRUE',
-        [ID],
+      conn.query<DietRecipe[]>('SELECT * FROM dietRecords WHERE id = ? AND active = TRUE', [id], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows?.[0]);
+      });
+    });
+  }
+
+  static getAllByDate(creatorId: number, dietDate: Date): Promise<DietRecipe[] | undefined> {
+    return new Promise((resolve, reject) => {
+      conn.query<DietRecipe[]>('SELECT * FROM dietRecords WHERE creatorId = ? AND dietDate = ? AND active = TRUE', [creatorId, dietDate], function (err, rows) {
+        if (err) reject(err);
+        if (rows?.length) resolve(rows);
+        resolve(undefined);
+      });
+    });
+  }
+
+  static getAllByRecipe(creatorId: number, recipeId: number): Promise<DietRecipe[] | undefined> {
+    return new Promise((resolve, reject) => {
+      conn.query<DietRecipe[]>('SELECT * FROM dietRecords WHERE creatorId = ? AND recipeId = ? AND active = TRUE', [creatorId, recipeId], function (err, rows) {
+        if (err) reject(err);
+        if (rows?.length) resolve(rows);
+        resolve(undefined);
+      });
+    });
+  }
+
+  static create(creatorId: number, dietDate: Date, category: Category, recipeId: number, amount: number): Promise<number> {
+    return new Promise((resolve, reject) => {
+      conn.query<ResultSetHeader>(
+        'INSERT INTO dietRecords(creatorId, dietDate, category, recipeId, amount) VALUES (?,?,?,?,?)',
+        [creatorId, dietDate, category, recipeId, amount],
         function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const dietRecord = convertKeysToCamelCase(rows[0]);
-              resolve(dietRecord);
-            }
-          }
+          if (err) reject(err);
+          resolve(rows.affectedRows);
         }
       );
     });
   }
 
-  static getAllByDate(CREATOR, DIET_DATE) {
+  static delete(id: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM dietRecords WHERE CREATOR = ? AND DIET_DATE = ? AND ACTIVE = TRUE',
-        [CREATOR, DIET_DATE],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const dietRecords = rows.map(convertKeysToCamelCase);
-              resolve(dietRecords);
-            }
-          }
-        }
-      );
-    });
-  }
-
-  static getAllByRecipe(CREATOR, RECIPES) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT * FROM dietRecords WHERE CREATOR = ? AND RECIPES = ? AND ACTIVE = TRUE',
-        [CREATOR, RECIPES],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            if (rows.length === 0) resolve(false);
-            else {
-              const dietRecords = rows.map(convertKeysToCamelCase);
-              resolve(dietRecords);
-            }
-          }
-        }
-      );
-    });
-  }
-
-  static create(CREATOR, DIET_DATE, CATEGORY, RECIPES, AMOUNT) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'INSERT INTO dietRecords(CREATOR, DIET_DATE, CATEGORY, RECIPES, AMOUNT) VALUES (?,?,?,?,?)',
-        [CREATOR, DIET_DATE, CATEGORY, RECIPES, AMOUNT],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
-    });
-  }
-
-  static delete(ID) {
-    return new Promise((resolve, reject) => {
-      connection.query(
-        'UPDATE dietRecords SET ACTIVE = FALSE WHERE ID = ?',
-        [ID],
-        function (err, rows) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows.affectedRows);
-          }
-        }
-      );
+      conn.query<ResultSetHeader>('UPDATE dietRecords SET active = FALSE WHERE id = ?', [id], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
     });
   }
 }

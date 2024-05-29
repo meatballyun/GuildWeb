@@ -3,7 +3,8 @@
 node_modules
 
 #backend
-backend/public
+backend/src/public
+backend/dist
 
 #frontend
 frontend/build
