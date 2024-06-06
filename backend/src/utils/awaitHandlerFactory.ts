@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 
 type MiddlewareFunctionType = (req: Request, res: Response, next: NextFunction) => Promise<any>;
-type FunctionType = (func: MiddlewareFunctionType) => MiddlewareFunctionType;
+type FunctionType = (func: any) => MiddlewareFunctionType;
 
 const awaitHandlerFactory: FunctionType = (func) => {
   return async (req, res, next) => {

@@ -1,30 +1,31 @@
-// @ts-nocheck
 import { ApplicationError } from '../../utils/error/applicationError';
 import { UserModel } from '../../models/user/user.model';
-import UserFriend from '../../models/user/userFriend.model';
+import { UserFriendModel } from '../../models/user/userFriend.model';
+
+type Status = 'confirmed' | 'pending' | 'blocked';
 
 class UserListRepository {
-  static async getFriendship(currentUser, user) {
-    let friendship = false;
-    let status = await UserFriend.getStatus(currentUser, user);
+  static async getFriendship(currentUser: number, user: number) {
+    let friendship;
+    let status = await UserFriendModel.getStatus(currentUser, user);
     if (status) {
-      if (status === 'Confirmed') friendship = 'Confirmed';
-      else if (status === 'Pending') friendship = 'Pending Response';
-      else friendship = 'Blocked';
+      if (status === 'confirmed') friendship = 'confirmed';
+      else if (status === 'pending') friendship = 'pending response';
+      else friendship = 'blocked';
       return friendship;
     }
-    status = await UserFriend.getStatus(user, currentUser);
+    status = await UserFriendModel.getStatus(user, currentUser);
     if (status) {
-      if (status === 'Confirmed') friendship = 'Confirmed';
-      else if (status === 'Pending') friendship = 'Pending Confirmation';
-      else friendship = 'Blocked';
+      if (status === 'confirmed') friendship = 'confirmed';
+      else if (status === 'pending') friendship = 'pending confirmation';
+      else friendship = 'blocked';
     }
     return friendship;
   }
 
-  static async getAllUser(uid, query) {
+  static async getAllUser(uid: number, query: string) {
     const users = await UserModel.getAllByName(query);
-    let userList = [];
+    let userList;
     if (users) {
       userList = await Promise.all(
         users.map(async ({ id, name, imageUrl, rank }) => {
@@ -40,8 +41,8 @@ class UserListRepository {
     return userList;
   }
 
-  static async getAllFriend(uid, query) {
-    const friends = await UserFriend.getAllByIdAndName(uid, query);
+  static async getAllFriend(uid: number, query: string) {
+    const friends = await UserFriendModel.getAllByIdAndName(uid, query);
     if (friends) {
       const users = friends.map(({ id, name, imageUrl, rank }) => {
         return { id, name, imageUrl, rank };
@@ -53,22 +54,22 @@ class UserListRepository {
     return [];
   }
 
-  static async sendInvitation(uid, recipient) {
+  static async sendInvitation(uid: number, recipient: number) {
     let status = await this.getFriendship(recipient, uid);
     if (status) throw new ApplicationError(409);
-    const result = await UserFriend.create(uid, recipient);
+    const result = await UserFriendModel.create(uid, recipient);
     if (!result) throw new ApplicationError(404);
   }
 
-  static async update(uid, oid, status) {
-    const result = await UserFriend.update(oid, uid, status);
+  static async update(uid: number, oid: number, status: Status) {
+    const result = await UserFriendModel.update(oid, uid, status);
     if (!result) throw new ApplicationError(404);
   }
 
-  static async delete(userToDelete, uid) {
+  static async delete(userToDelete: number, uid: number) {
     let status = await this.getFriendship(userToDelete, uid);
     if (!status) throw new ApplicationError(409);
-    const result = await UserFriend.delete(uid, userToDelete);
+    const result = await UserFriendModel.delete(uid, userToDelete);
     if (!result) throw new ApplicationError(400);
   }
 }

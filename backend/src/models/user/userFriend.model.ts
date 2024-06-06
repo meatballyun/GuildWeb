@@ -11,7 +11,7 @@ interface UserFriend extends RowDataPacket {
   status: Status;
 }
 
-class UserFriendModel {
+export class UserFriendModel {
   static getStatus(user1Id: number, user2Id: number): Promise<Status | undefined> {
     return new Promise((resolve, reject) => {
       connection.query<UserFriend[]>(`SELECT status FROM userFriends WHERE user1Id = ? AND user2Id = ?`, [user1Id, user2Id], function (err, rows) {
@@ -66,5 +66,3 @@ class UserFriendModel {
     });
   }
 }
-
-export default UserFriendModel;

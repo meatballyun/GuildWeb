@@ -12,7 +12,7 @@ export class AuthController {
       try {
         if (err) throw new ApplicationError(500, err);
         if (!user) throw new ApplicationError(401, info);
-        if (user.status !== 'Confirmed') throw new ApplicationError(403);
+        if (user.status !== 'confirmed') throw new ApplicationError(403);
 
         req.login(user, (err?: string) => {
           if (err) throw new ApplicationError(403, err);
@@ -36,9 +36,9 @@ export class AuthController {
     const query = await UserModel.getOneByEmail(req.body.email);
     if (query) throw new ApplicationError(409);
 
-    const signUp = await UserModel.create(req.body.name, req.body.email, password);
-    if (!signUp.insertId) throw new ApplicationError(400);
-    req.body.uid = signUp.insertId;
+    const result = await UserModel.create(req.body.name, req.body.email, password);
+    if (!result) throw new ApplicationError(400);
+    req.body.uid = result;
     next();
   }
 
@@ -49,15 +49,8 @@ export class AuthController {
   }
 
   static async resetPassword(req, res, next) {
-    const [confirmationMail] = await ConfirmationEmailModel.getAllByUser(
-      req.body.uid,
-      'ForgotPassword'
-    );
-    if (
-      confirmationMail.STATUS !== 'Confirmed' ||
-      new Date(confirmationMail.CREATE_TIME).valueOf() + 86400000 < new Date().valueOf()
-    )
-      return next(new ApplicationError(403));
+    const [confirmationMail] = await ConfirmationEmailModel.getAllByUser(req.body.uid, 'ForgotPassword');
+    if (confirmationMail.STATUS !== 'Confirmed' || new Date(confirmationMail.CREATE_TIME).valueOf() + 86400000 < new Date().valueOf()) return next(new ApplicationError(403));
 
     if (confirmationMail.CODE === req.body.code) {
       const password = await toHash(req.body.password);

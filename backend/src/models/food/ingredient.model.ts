@@ -1,25 +1,6 @@
 import conn from '../../lib/db';
-import { RowDataPacket, ResultSetHeader } from 'mysql2';
-
-interface BaseIngredient {
-  name: string;
-  creatorId?: string;
-  description?: string;
-  carbs: number;
-  pro: number;
-  fats: number;
-  kcal: number;
-  unit: string;
-  imageUrl?: string;
-  published?: boolean;
-}
-
-interface Ingredient extends BaseIngredient, RowDataPacket {
-  id: number;
-  createTime: Date;
-  updateTime: Date;
-  active: boolean;
-}
+import { ResultSetHeader } from 'mysql2';
+import { BaseIngredient, Ingredient } from '../../custom/food/Ingredient';
 
 export class IngredientModel {
   static getOne(id: number): Promise<Ingredient | undefined> {
@@ -31,7 +12,7 @@ export class IngredientModel {
     });
   }
 
-  static getAllByUserAndName(creatorId: string, name: string): Promise<Ingredient[]> {
+  static getAllByUserAndName(creatorId: number, name: string): Promise<Ingredient[]> {
     return new Promise((resolve, reject) => {
       conn.query<Ingredient[]>('SELECT * FROM ingredients WHERE creatorId = ? AND name LIKE ? AND active = TRUE', [creatorId, '%' + name + '%'], function (err, rows) {
         if (err) reject(err);
@@ -49,7 +30,7 @@ export class IngredientModel {
     });
   }
 
-  static create(creatorId: number, { name, description, carbs, pro, fats, kcal, unit, imageUrl, published }: BaseIngredient): Promise<number> {
+  static create({ name, description, carbs, pro, fats, kcal, unit, imageUrl, published }: BaseIngredient, creatorId: number): Promise<number> {
     return new Promise((resolve, reject) => {
       conn.query<ResultSetHeader>(
         'INSERT INTO ingredients(creatorId, name, description, carbs, pro, fats, kcal, unit, imageUrl, published) VALUES (?,?,?,?,?,?,?,?,?,?)',

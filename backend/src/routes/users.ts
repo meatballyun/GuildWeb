@@ -11,11 +11,7 @@ const auth = passport.authenticate('jwt', { session: true });
 const router = express.Router();
 
 // SignUp
-router.post(
-  '/signup',
-  awaitHandlerFactory(authController.signup),
-  awaitHandlerFactory(emailUp.sendSignUp)
-);
+router.post('/signup', awaitHandlerFactory(authController.signup), awaitHandlerFactory(emailUp.sendSignUp));
 
 // Login, Logout, ForgotPassword
 router.post('/login', awaitHandlerFactory(authController.login));
@@ -29,12 +25,7 @@ router.put('/me', auth, awaitHandlerFactory(userInfo.updateUserInfo));
 // Friend
 router.get('/', auth, awaitHandlerFactory(userList.getUsers));
 router.get('/friends', auth, awaitHandlerFactory(userList.getFriends));
-router.post(
-  '/invitation',
-  auth,
-  awaitHandlerFactory(userList.sendInvitation),
-  awaitHandlerFactory(notification.createNotification)
-);
+router.post('/invitation', auth, awaitHandlerFactory(userList.sendInvitation), awaitHandlerFactory(notification.createNotification));
 router.put('/friends/:uid', auth, awaitHandlerFactory(userList.updateFriend));
 router.delete('/friends/:uid', auth, awaitHandlerFactory(userList.deleteFriend));
 

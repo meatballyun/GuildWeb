@@ -1,11 +1,16 @@
-// @ts-nocheck
 import { ApplicationError } from '../../utils/error/applicationError';
 import { IngredientModel } from '../../models/food/ingredient.model';
 import Recipe from '../../models/food/recipe.model';
 import RecipeIngredientRelation from '../../models/food/recipeIngredientRelation.model';
+import { BaseIngredient, Ingredient } from '../../custom/food/Ingredient';
+
+type TypeSearch = {
+  q: string;
+  published: boolean;
+};
 
 class IngredientRepository {
-  static async getAll({ q, published }, uid) {
+  static async getAll({ q, published }: TypeSearch, uid: number) {
     const ingredients = published ? await IngredientModel.getAllByName(q) : await IngredientModel.getAllByUserAndName(uid, q);
 
     const hasIngredients = ingredients?.length;
@@ -19,7 +24,7 @@ class IngredientRepository {
     return;
   }
 
-  static async getOne(IngredientId, uid) {
+  static async getOne(IngredientId: number, uid: number) {
     const ingredient = await IngredientModel.getOne(IngredientId);
     if (!ingredient) throw new ApplicationError(404);
     return {
@@ -28,15 +33,15 @@ class IngredientRepository {
     };
   }
 
-  static async create(body, uid) {
-    const NewIngredientId = await IngredientModel.create(uid, body);
+  static async create(body: BaseIngredient, uid: number) {
+    const NewIngredientId = await IngredientModel.create(body, uid);
     if (!NewIngredientId) throw new ApplicationError(400);
     return { id: NewIngredientId };
   }
 
-  static async update(ingredientId, body, uid) {
-    const { creator } = await IngredientModel.getOne(ingredientId);
-    if (creator !== uid) throw new ApplicationError(409);
+  static async update(ingredientId: number, body: BaseIngredient, uid: number) {
+    const { creatorId } = (await IngredientModel.getOne(ingredientId)) ?? {};
+    if (creatorId !== uid) throw new ApplicationError(409);
 
     const forIngredientRelations = await RecipeIngredientRelation.getAllByIngredient(ingredientId);
     if (forIngredientRelations && !body.published) {
