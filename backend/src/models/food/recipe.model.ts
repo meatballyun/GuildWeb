@@ -1,27 +1,8 @@
 import conn from '../../lib/db';
-import { RowDataPacket, ResultSetHeader } from 'mysql2';
+import { ResultSetHeader } from 'mysql2';
+import { BaseRecipe, Recipe } from '../../custom/food/Recipe';
 
-interface BaseRecipe {
-  name: string;
-  creatorId?: string;
-  description?: string;
-  carbs: number;
-  pro: number;
-  fats: number;
-  kcal: number;
-  unit: string;
-  imageUrl?: string;
-  published?: boolean;
-}
-
-interface Recipe extends BaseRecipe, RowDataPacket {
-  id: number;
-  createTime: Date;
-  updateTime: Date;
-  active: boolean;
-}
-
-class RecipeModel {
+export class RecipeModel {
   static getOne(id: number): Promise<Recipe | undefined> {
     return new Promise((resolve, reject) => {
       conn.query<Recipe[]>('SELECT * FROM recipes WHERE id = ?', id, function (err, rows) {
@@ -51,7 +32,7 @@ class RecipeModel {
     });
   }
 
-  static create(creatorId: number, { name, description, carbs, pro, fats, kcal, unit, imageUrl, published }: Recipe): Promise<number> {
+  static create({ name, description, carbs, pro, fats, kcal, unit, imageUrl, published }: BaseRecipe, creatorId: number): Promise<number> {
     return new Promise((resolve, reject) => {
       conn.query<ResultSetHeader>(
         'INSERT INTO recipes(creatorId, name, description, carbs, pro, fats, kcal, unit, imageUrl, published) VALUES (?,?,?,?,?,?,?,?,?,?)',
@@ -73,7 +54,7 @@ class RecipeModel {
     });
   }
 
-  static update(id: number, { name, description, carbs, pro, fats, kcal, unit, imageUrl, published }: Recipe): Promise<number> {
+  static update(id: number, { name, description, carbs, pro, fats, kcal, unit, imageUrl, published }: BaseRecipe): Promise<number> {
     return new Promise((resolve, reject) => {
       conn.query<ResultSetHeader>(
         'UPDATE recipes SET name = ?, description = ?, carbs = ?, pro = ?, fats = ?, kcal = ?, unit = ?, imageUrl = ?, published = ? WHERE id = ?',
@@ -104,5 +85,3 @@ class RecipeModel {
     });
   }
 }
-
-export default RecipeModel;

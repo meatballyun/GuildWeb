@@ -43,6 +43,19 @@ export class IngredientModel {
     });
   }
 
+  static copy(creatorId: number, { name, description, carbs, pro, fats, kcal, unit, imageUrl }: BaseIngredient, published: boolean): Promise<number> {
+    return new Promise((resolve, reject) => {
+      conn.query<ResultSetHeader>(
+        'INSERT INTO ingredients(creatorId, name, description, carbs, pro, fats, kcal, unit, imageUrl, published) VALUES (?,?,?,?,?,?,?,?,?,?)',
+        [creatorId, name, description, carbs, pro, fats, kcal, unit, imageUrl, published],
+        function (err, rows) {
+          if (err) reject(err);
+          resolve(rows.insertId);
+        }
+      );
+    });
+  }
+
   static isPublished(id: number, published: boolean): Promise<number> {
     return new Promise((resolve, reject) => {
       conn.query<ResultSetHeader>(`UPDATE ingredients SET published = ? WHERE id = ?;`, [published, id], function (err, rows) {

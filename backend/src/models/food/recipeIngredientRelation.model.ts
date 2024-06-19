@@ -7,27 +7,25 @@ interface RecipeIngredientRelation extends RowDataPacket {
   amount: number;
 }
 
-class RecipeIngredientRelationModel {
-  static getAllByIngredient(ingredientId: number): Promise<RecipeIngredientRelation[] | undefined> {
+export class RecipeIngredientRelationModel {
+  static getAllByIngredient(ingredientId: number): Promise<RecipeIngredientRelation[]> {
     return new Promise((resolve, reject) => {
       conn.query<RecipeIngredientRelation[]>(
         'SELECT * FROM recipeIngredientRelations WHERE ingredientId = ? AND recipeId IN (SELECT id FROM recipes WHERE ACTIVE = TRUE)',
         ingredientId,
         function (err, rows) {
           if (err) reject(err);
-          if (rows?.length) resolve(rows);
-          resolve(undefined);
+          resolve(rows);
         }
       );
     });
   }
 
-  static getAllByRecipe(recipeId: number): Promise<RecipeIngredientRelation[] | undefined> {
+  static getAllByRecipe(recipeId: number): Promise<RecipeIngredientRelation[]> {
     return new Promise((resolve, reject) => {
       conn.query<RecipeIngredientRelation[]>('SELECT * FROM recipeIngredientRelations WHERE recipeId = ? AND amount > 0', recipeId, function (err, rows) {
         if (err) reject(err);
-        if (rows?.length) resolve(rows);
-        resolve(undefined);
+        resolve(rows);
       });
     });
   }
@@ -36,8 +34,7 @@ class RecipeIngredientRelationModel {
     return new Promise((resolve, reject) => {
       conn.query<RecipeIngredientRelation[]>('SELECT * FROM recipeIngredientRelations WHERE ingredientId = ? AND recipeId = ?', [ingredientId, recipeId], function (err, rows) {
         if (err) reject(err);
-        if (rows?.length) resolve(rows[0]);
-        resolve(undefined);
+        resolve(rows?.[0]);
       });
     });
   }
@@ -78,5 +75,3 @@ class RecipeIngredientRelationModel {
     });
   }
 }
-
-export default RecipeIngredientRelationModel;

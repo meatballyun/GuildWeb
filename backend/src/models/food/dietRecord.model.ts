@@ -23,7 +23,7 @@ interface DietRecipe extends BaseDietRecipe, RowDataPacket {
   active: boolean;
 }
 
-class DietRecordModel {
+export class DietRecordModel {
   static getOne(id: number): Promise<DietRecipe | undefined> {
     return new Promise((resolve, reject) => {
       conn.query<DietRecipe[]>('SELECT * FROM dietRecords WHERE id = ? AND active = TRUE', [id], function (err, rows) {
@@ -75,5 +75,3 @@ class DietRecordModel {
     });
   }
 }
-
-export default DietRecordModel;

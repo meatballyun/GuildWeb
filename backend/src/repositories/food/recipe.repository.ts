@@ -1,16 +1,28 @@
-// @ts-nocheck
 import { ApplicationError } from '../../utils/error/applicationError';
-import DietRecord from '../../models/food/dietRecord.model';
-import Ingredient from '../../models/food/ingredient.model';
-import Recipe from '../../models/food/recipe.model';
-import RecipeIngredientRelation from '../../models/food/recipeIngredientRelation.model';
+import { BaseRecipe } from '../../custom/food/Recipe';
+import { DietRecordModel } from '../../models/food/dietRecord.model';
+import { IngredientModel } from '../../models/food/ingredient.model';
+import { RecipeModel } from '../../models/food/recipe.model';
+import { RecipeIngredientRelationModel } from '../../models/food/recipeIngredientRelation.model';
 import IngredientRepository from './ingredient.repository';
 
+type TypeSearch = {
+  q: string;
+  published: boolean;
+};
+
+type RecipeIngredient = {
+  id: number;
+  amount: number;
+};
+
+interface RecipeWithIngredients extends BaseRecipe {
+  ingredients: RecipeIngredient[];
+}
+
 class RecipeRepository {
-  static async getAll({ q, published }, uid) {
-    const recipes = published
-      ? await Recipe.getAllByName(q)
-      : await Recipe.getAllByUserAndName(uid, q);
+  static async getAll({ q, published }: TypeSearch, uid: number) {
+    const recipes = published ? await RecipeModel.getAllByName(q) : await RecipeModel.getAllByUserAndName(uid, q);
 
     if (recipes) {
       const data = recipes.map(({ creator, description, ...otherData }) => {
@@ -24,15 +36,15 @@ class RecipeRepository {
     return;
   }
 
-  static async getOne(recipeId, uid) {
-    const recipe = await Recipe.getOne(recipeId);
+  static async getOne(recipeId: number, uid: number) {
+    const recipe = await RecipeModel.getOne(recipeId);
     if (!recipe) throw new ApplicationError(404);
 
-    const relations = await RecipeIngredientRelation.getAllByRecipe(recipeId);
+    const relations = await RecipeIngredientRelationModel.getAllByRecipe(recipeId);
     const ingredients = await Promise.all(
       relations.map(async ({ ingredients, amount }) => {
         const ingredient = await IngredientRepository.getOne(ingredients, uid);
-        const { create_time, upload_time, description, ...otherData } = ingredient;
+        const { createTime, updateTime, description, ...otherData } = ingredient;
         return {
           ...otherData,
           amount,
@@ -47,66 +59,68 @@ class RecipeRepository {
     return data;
   }
 
-  static async create({ published, ingredients, ...data }, uid) {
+  static async create({ published, ingredients, ...data }: RecipeWithIngredients, uid: number) {
     if (!ingredients) throw new ApplicationError(404);
-    const newRecipeId = await Recipe.create(uid, data);
+    const newRecipeId = await RecipeModel.create(data, uid);
 
     await Promise.all(
       ingredients.map(async ({ id, amount }) => {
-        const { creator, ...ingredientData } = await Ingredient.getOne(id);
-        if (creator === uid) return await RecipeIngredientRelation.create(id, newRecipeId, amount);
-        const copyIngredientId = await Ingredient.copy(uid, ingredientData, false);
-        return await RecipeIngredientRelation.create(copyIngredientId, newRecipeId, amount);
+        const ingredient = await IngredientModel.getOne(id);
+        if (!ingredient) return;
+        if (ingredient.creatorId === uid) return await RecipeIngredientRelationModel.create(id, newRecipeId, amount);
+        const copyIngredientId = await IngredientModel.copy(uid, ingredient, false);
+        return await RecipeIngredientRelationModel.create(copyIngredientId, newRecipeId, amount);
       })
     );
 
     if (published) {
-      const relations = await RecipeIngredientRelation.getAllByRecipe(newRecipeId);
-      relations.map(async ({ ingredients }) => await Ingredient.published(ingredients, true));
+      const relations = await RecipeIngredientRelationModel.getAllByRecipe(newRecipeId);
+      relations.map(async ({ ingredients }) => await IngredientModel.isPublished(ingredients, true));
     }
     return { id: newRecipeId };
   }
 
-  static async update(recipeId, { published, ingredients, ...data }, uid) {
-    const recipe = await Recipe.getOne(recipeId);
+  static async update(recipeId: number, { published, ingredients, ...data }: RecipeWithIngredients, uid: number) {
+    const recipe = await RecipeModel.getOne(recipeId);
     if (!ingredients || !recipe) throw new ApplicationError(404);
 
     if (recipe.creator !== uid) throw new ApplicationError(409);
-    const result = await Recipe.update(recipeId, data);
+    const result = await RecipeModel.update(recipeId, data);
     if (!result) throw new ApplicationError(400);
 
     await Promise.all(
       ingredients.map(async ({ id, amount }) => {
-        const relation = await RecipeIngredientRelation.getOne(id, recipeId);
+        const relation = await RecipeIngredientRelationModel.getOne(id, recipeId);
         if (relation) {
           if (amount === -1) {
-            await RecipeIngredientRelation.deleteByIngredientAndRecipe(id, recipeId);
+            await RecipeIngredientRelationModel.deleteByIngredientAndRecipe(id, recipeId);
             return;
           }
-          if (published) await Ingredient.published(id, true);
-          await RecipeIngredientRelation.update(id, recipeId, amount);
+          if (published) await IngredientModel.isPublished(id, true);
+          await RecipeIngredientRelationModel.update(id, recipeId, amount);
           return;
         }
 
-        const { creator, ...ingredientData } = await Ingredient.getOne(id);
-        if (creator === uid) return await RecipeIngredientRelation.create(id, recipeId, amount);
-        const copyIngredientId = await Ingredient.copy(uid, ingredientData, false);
-        return await RecipeIngredientRelation.create(copyIngredientId, recipeId, amount);
+        const ingredient = await IngredientModel.getOne(id);
+        if (!ingredient) return;
+        if (ingredient.creatorId === uid) return await RecipeIngredientRelationModel.create(id, recipeId, amount);
+        const copyIngredientId = await IngredientModel.copy(uid, ingredient, false);
+        return await RecipeIngredientRelationModel.create(copyIngredientId, recipeId, amount);
       })
     );
 
     return { id: recipeId };
   }
 
-  static async delete(recipeId, uid) {
-    const { creator } = await Recipe.getOne(recipeId);
-    if (creator !== uid) throw new ApplicationError(409);
+  static async delete(recipeId: number, uid: number) {
+    const { creatorId } = (await RecipeModel.getOne(recipeId)) ?? {};
+    if (creatorId !== uid) throw new ApplicationError(409);
 
-    const dietRecord = await DietRecord.getAllByRecipe(uid, recipeId);
+    const dietRecord = await DietRecordModel.getAllByRecipe(uid, recipeId);
     if (dietRecord) throw new ApplicationError(409);
 
-    await Recipe.delete(recipeId);
-    await RecipeIngredientRelation.deleteByRecipe(recipeId);
+    await RecipeModel.delete(recipeId);
+    await RecipeIngredientRelationModel.deleteByRecipe(recipeId);
   }
 }
 
