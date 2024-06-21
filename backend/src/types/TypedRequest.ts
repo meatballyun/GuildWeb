@@ -10,7 +10,7 @@ interface Sess extends Session {
   passport: Passport;
 }
 
-export interface TypedRequest<D, Q extends Query, P> extends Omit<Request, 'params'> {
+export interface TypedRequest<D = any, Q extends Query = any, P = any> extends Omit<Request, 'params'> {
   body: D;
   query: Q;
   params: P;

@@ -4,5 +4,5 @@ export interface CommonColumn extends RowDataPacket {
   id: number;
   createTime: Date;
   updateTime: Date;
-  active: boolean;
+  active?: boolean;
 }

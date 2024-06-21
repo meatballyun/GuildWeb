@@ -1,15 +1,6 @@
 import connection from '../../lib/db';
-import { RowDataPacket, ResultSetHeader } from 'mysql2';
-
-type Status = 'confirmed' | 'pending' | 'blocked';
-
-interface UserFriend extends RowDataPacket {
-  createTime: Date;
-  updateTime: Date;
-  user1Id: number;
-  user2Id: number;
-  status: Status;
-}
+import { ResultSetHeader } from 'mysql2';
+import { Status, UserFriend } from '../../types/user/userFriend';
 
 export class UserFriendModel {
   static getStatus(user1Id: number, user2Id: number): Promise<Status | undefined> {

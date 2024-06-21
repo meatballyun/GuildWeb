@@ -1,15 +1,6 @@
 import connection from '../../lib/db';
-import { RowDataPacket, ResultSetHeader } from 'mysql2';
-
-type Membership = 'master' | 'vice' | 'regular' | 'pending';
-
-interface UserGuildRelation extends RowDataPacket {
-  createTime: Date;
-  updateTime: Date;
-  userId: number;
-  guildId: number;
-  membership: Membership;
-}
+import { ResultSetHeader } from 'mysql2';
+import { Membership, UserGuildRelation } from '../../types/user/userGuildRelation';
 
 class UserGuildRelationModel {
   static getOneByGuildAndUser(userId: number, guildId: number): Promise<UserGuildRelation | undefined> {

@@ -1,35 +1,13 @@
 import conn from '../../lib/db';
-import { RowDataPacket, ResultSetHeader } from 'mysql2';
-
-type Status = 'confirmed' | 'pending' | 'blocked';
-
-interface BaseUser {
-  name: string;
-  imageUrl: string;
-  carbs: number;
-  pro: number;
-  fats: number;
-  kcal: number;
-}
-
-interface User extends BaseUser, RowDataPacket {
-  id: number;
-  createTime: Date;
-  updateTime: Date;
-  status: Status;
-  email: string;
-  password: string;
-  rank: number;
-  exp: number;
-}
+import { ResultSetHeader } from 'mysql2';
+import { Status, BaseUser, User } from '../../types/user/user';
 
 export class UserModel {
   static getOneById(id: number): Promise<User | undefined> {
     return new Promise((resolve, reject) => {
       conn.query<User[]>(`SELECT * FROM users WHERE id = ? AND status = 'confirmed'`, id, function (err, rows) {
         if (err) reject(err);
-        if (rows.length === 0) resolve(undefined);
-        resolve(rows[0]);
+        resolve(rows?.[0]);
       });
     });
   }
@@ -39,7 +17,7 @@ export class UserModel {
       conn.query<User[]>('SELECT * FROM users WHERE email = ?', email, function (err, rows) {
         if (err) reject(err);
         if (rows.length === 0) resolve(undefined);
-        resolve(rows[0]);
+        resolve(rows?.[0]);
       });
     });
   }
@@ -48,7 +26,6 @@ export class UserModel {
     return new Promise((resolve, reject) => {
       conn.query<User[]>(`SELECT * FROM users WHERE name LIKE ? AND status = 'confirmed'`, ['%' + name + '%'], function (err, rows) {
         if (err) reject(err);
-        if (rows.length === 0) resolve(undefined);
         resolve(rows);
       });
     });

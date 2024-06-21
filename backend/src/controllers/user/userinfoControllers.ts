@@ -1,26 +1,14 @@
-import { Session } from 'express-session';
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
+import { TypedRequest } from '../../types/TypedRequest';
 import UserInfoRepository from '../../repositories/user/userInfo.repository';
 
-type Passport = {
-  user: number;
-};
-
-interface Sess extends Session {
-  passport?: Passport;
-}
-
-interface Req extends Request {
-  session: Sess;
-}
-
 class UserInfoController {
-  static async getUserInfo(req: Req, res: Response, next: NextFunction) {
+  static async getUserInfo(req: TypedRequest<never, never, never>, res: Response, next: NextFunction) {
     const user = await UserInfoRepository.getOne(req.session.passport?.user);
     return res.status(200).json({ data: user });
   }
 
-  static async updateUserInfo(req: Req, res: Response, next: NextFunction) {
+  static async updateUserInfo(req: TypedRequest<never, never, never>, res: Response, next: NextFunction) {
     await UserInfoRepository.update(req.session.passport?.user, req.body);
     return res.status(200).json({ data: 'OK' });
   }
