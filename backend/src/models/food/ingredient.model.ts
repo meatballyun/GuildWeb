@@ -12,7 +12,7 @@ export class IngredientModel {
     });
   }
 
-  static getAllByUserAndName(creatorId: number, name: string): Promise<Ingredient[]> {
+  static getAllByUserAndName(creatorId: number, name: string): Promise<Ingredient[] | undefined> {
     return new Promise((resolve, reject) => {
       conn.query<Ingredient[]>('SELECT * FROM ingredients WHERE creatorId = ? AND name LIKE ? AND active = TRUE', [creatorId, '%' + name + '%'], function (err, rows) {
         if (err) reject(err);
@@ -21,7 +21,7 @@ export class IngredientModel {
     });
   }
 
-  static getAllByName(name: string): Promise<Ingredient[]> {
+  static getAllByName(name: string): Promise<Ingredient[] | undefined> {
     return new Promise((resolve, reject) => {
       conn.query<Ingredient[]>('SELECT * FROM ingredients WHERE name LIKE ? AND active = TRUE AND published = TRUE', ['%' + name + '%'], function (err, rows) {
         if (err) reject(err);

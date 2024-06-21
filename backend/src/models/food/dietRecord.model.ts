@@ -1,27 +1,6 @@
 import conn from '../../lib/db';
-import { RowDataPacket, ResultSetHeader } from 'mysql2';
-
-type Category = 'breakfast' | 'lunch' | 'dinner' | 'snack' | 'supper';
-
-interface BaseDietRecipe {
-  name: string;
-  creatorId?: string;
-  dietDate: Date;
-  category: Category;
-  recipeId: number;
-  carbs: number;
-  pro: number;
-  fats: number;
-  kcal: number;
-  amount: number;
-}
-
-interface DietRecipe extends BaseDietRecipe, RowDataPacket {
-  id: number;
-  createTime: Date;
-  updateTime: Date;
-  active: boolean;
-}
+import { ResultSetHeader } from 'mysql2';
+import { Category, DietRecipe } from '../../types/food/DietRecipe';
 
 export class DietRecordModel {
   static getOne(id: number): Promise<DietRecipe | undefined> {
@@ -37,8 +16,7 @@ export class DietRecordModel {
     return new Promise((resolve, reject) => {
       conn.query<DietRecipe[]>('SELECT * FROM dietRecords WHERE creatorId = ? AND dietDate = ? AND active = TRUE', [creatorId, dietDate], function (err, rows) {
         if (err) reject(err);
-        if (rows?.length) resolve(rows);
-        resolve(undefined);
+        resolve(rows);
       });
     });
   }
@@ -47,8 +25,7 @@ export class DietRecordModel {
     return new Promise((resolve, reject) => {
       conn.query<DietRecipe[]>('SELECT * FROM dietRecords WHERE creatorId = ? AND recipeId = ? AND active = TRUE', [creatorId, recipeId], function (err, rows) {
         if (err) reject(err);
-        if (rows?.length) resolve(rows);
-        resolve(undefined);
+        resolve(rows);
       });
     });
   }

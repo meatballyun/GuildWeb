@@ -1,14 +1,9 @@
 import conn from '../../lib/db';
-import { RowDataPacket, ResultSetHeader } from 'mysql2';
-
-interface RecipeIngredientRelation extends RowDataPacket {
-  ingredientId: number;
-  recipeId: number;
-  amount: number;
-}
+import { ResultSetHeader } from 'mysql2';
+import { RecipeIngredientRelation } from '../../types/food/RecipeIngredientRelation';
 
 export class RecipeIngredientRelationModel {
-  static getAllByIngredient(ingredientId: number): Promise<RecipeIngredientRelation[]> {
+  static getAllByIngredient(ingredientId: number): Promise<RecipeIngredientRelation[] | undefined> {
     return new Promise((resolve, reject) => {
       conn.query<RecipeIngredientRelation[]>(
         'SELECT * FROM recipeIngredientRelations WHERE ingredientId = ? AND recipeId IN (SELECT id FROM recipes WHERE ACTIVE = TRUE)',
@@ -21,7 +16,7 @@ export class RecipeIngredientRelationModel {
     });
   }
 
-  static getAllByRecipe(recipeId: number): Promise<RecipeIngredientRelation[]> {
+  static getAllByRecipe(recipeId: number): Promise<RecipeIngredientRelation[] | undefined> {
     return new Promise((resolve, reject) => {
       conn.query<RecipeIngredientRelation[]>('SELECT * FROM recipeIngredientRelations WHERE recipeId = ? AND amount > 0', recipeId, function (err, rows) {
         if (err) reject(err);

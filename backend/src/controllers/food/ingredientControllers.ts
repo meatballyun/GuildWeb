@@ -20,11 +20,7 @@ class IngredientController {
   }
 
   static async updateIngredient(req, res, next) {
-    const data = await IngredientRepository.update(
-      req.params.id,
-      req.body,
-      req.session.passport.user
-    );
+    const data = await IngredientRepository.update(req.params.id, req.body, req.session.passport.user);
     return res.status(200).json({ data });
   }
 

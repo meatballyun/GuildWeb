@@ -61,7 +61,7 @@ class IngredientRepository {
       forIngredientRelations.map(async (relation) => {
         const forRecipeRelations = await RecipeIngredientRelationModel.getAllByRecipe(relation.recipes);
         let nutrition: Nutrition = { carbs: 0, pro: 0, fats: 0, kcal: 0 };
-        forRecipeRelations.map(async (forRecipeRelation) => {
+        forRecipeRelations?.map(async (forRecipeRelation) => {
           const ingredientAmount = forRecipeRelation.amount;
           const ingredient = await IngredientModel.getOne(forRecipeRelation.ingredients);
           if (!ingredient) return;

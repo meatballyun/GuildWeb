@@ -16,8 +16,7 @@ export class RecipeModel {
     return new Promise((resolve, reject) => {
       conn.query<Recipe[]>('SELECT * FROM recipes WHERE creatorId = ? AND name LIKE ? AND active = TRUE', [creatorId, '%' + name + '%'], function (err, rows) {
         if (err) reject(err);
-        if (rows?.length) resolve(rows);
-        resolve(undefined);
+        resolve(rows);
       });
     });
   }
@@ -26,8 +25,7 @@ export class RecipeModel {
     return new Promise((resolve, reject) => {
       conn.query<Recipe[]>('SELECT * FROM recipes WHERE name LIKE ? AND active = TRUE', ['%' + name + '%'], function (err, rows) {
         if (err) reject(err);
-        if (rows?.length) resolve(rows);
-        resolve(undefined);
+        resolve(rows);
       });
     });
   }

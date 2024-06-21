@@ -4,20 +4,11 @@ import { DietRecordModel } from '../../models/food/dietRecord.model';
 import { IngredientModel } from '../../models/food/ingredient.model';
 import { RecipeModel } from '../../models/food/recipe.model';
 import { RecipeIngredientRelationModel } from '../../models/food/recipeIngredientRelation.model';
+import { TypeSearch } from '../../types/TypeSearch';
 import IngredientRepository from './ingredient.repository';
 
-type TypeSearch = {
-  q: string;
-  published: boolean;
-};
-
-type RecipeIngredient = {
-  id: number;
-  amount: number;
-};
-
 interface RecipeWithIngredients extends BaseRecipe {
-  ingredients: RecipeIngredient[];
+  ingredients: { id: number; amount: number }[];
 }
 
 class RecipeRepository {
@@ -42,14 +33,14 @@ class RecipeRepository {
 
     const relations = await RecipeIngredientRelationModel.getAllByRecipe(recipeId);
     const ingredients = await Promise.all(
-      relations.map(async ({ ingredients, amount }) => {
+      relations?.map(async ({ ingredients, amount }) => {
         const ingredient = await IngredientRepository.getOne(ingredients, uid);
         const { createTime, updateTime, description, ...otherData } = ingredient;
         return {
           ...otherData,
           amount,
         };
-      })
+      }) ?? []
     );
     const data = {
       isOwned: recipe.creator === uid,
@@ -75,7 +66,7 @@ class RecipeRepository {
 
     if (published) {
       const relations = await RecipeIngredientRelationModel.getAllByRecipe(newRecipeId);
-      relations.map(async ({ ingredients }) => await IngredientModel.isPublished(ingredients, true));
+      relations?.map(async ({ ingredients }) => await IngredientModel.isPublished(ingredients, true));
     }
     return { id: newRecipeId };
   }
