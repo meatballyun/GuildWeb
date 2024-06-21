@@ -1,12 +1,12 @@
-// @ts-nocheck
 import { ApplicationError } from '../../utils/error/applicationError';
 import Guild from '../../models/guild/guild.model';
 import Notification from '../../models/notification/notification.model';
 import DEFAULT_NOTIFICATION_CONTENT from './default_notification_template';
 import { UserModel } from '../../models/user/user.model';
+import { BaseNotification } from '../../types/notification/notification';
 
 class NotificationRepository {
-  static async getAll(uid) {
+  static async getAll(uid: number) {
     const notifications = await Notification.getAll(uid);
     let data;
     if (notifications) {
@@ -19,11 +19,11 @@ class NotificationRepository {
     return data;
   }
 
-  static async getOne(nid) {
+  static async getOne(nid: number) {
     const notification = await Notification.getOne(nid);
     if (notification) {
       let sender;
-      if (notification.type === 'Guild') {
+      if (notification.type === 'guild') {
         const guild = await Guild.getOne(notification.senderId);
         if (!guild) throw new ApplicationError(409);
         sender = {
@@ -31,7 +31,7 @@ class NotificationRepository {
           name: guild.name,
           imageUrl: guild.imageUrl,
         };
-      } else if (notification.type === 'User') {
+      } else if (notification.type === 'user') {
         const user = await UserModel.getOneById(notification.senderId);
         if (!user) throw new ApplicationError(409);
         sender = {
@@ -46,43 +46,43 @@ class NotificationRepository {
     throw new ApplicationError(404);
   }
 
-  static async create({ senderId, recipientId, type }) {
-    const defaultContent = await new Promise(async (resolve, reject) => {
+  static async create({ senderId, recipientId, type }: Pick<BaseNotification, 'senderId' | 'recipientId' | 'type'>) {
+    const defaultContent = await new Promise<{ title: string; description: string }>(async (resolve, reject) => {
       const recipient = await UserModel.getOneById(recipientId);
-      if (type === 'Guild') {
+      if (!recipient) throw new ApplicationError(400);
+
+      if (type === 'guild') {
         const sender = await Guild.getOne(senderId);
+        if (!sender) throw new ApplicationError(400);
         const notificationContent = new DEFAULT_NOTIFICATION_CONTENT(sender.name, recipient.name);
         const content = notificationContent.guild();
         resolve(content);
       }
-      if (type === 'User') {
+      if (type === 'user') {
         const sender = await UserModel.getOneById(senderId);
+        if (!sender) throw new ApplicationError(400);
         const notificationContent = new DEFAULT_NOTIFICATION_CONTENT(sender.name, recipient.name);
         const content = notificationContent.user();
         resolve(content);
       }
       const sender = await UserModel.getOneById(senderId);
+      if (!sender) throw new ApplicationError(400);
       const notificationContent = new DEFAULT_NOTIFICATION_CONTENT(sender.name, recipient.name);
       const content = notificationContent.system();
       resolve(content);
     });
-    const newNotification = await Notification.create(
-      senderId,
-      recipientId,
-      defaultContent.title,
-      defaultContent.description,
-      type
-    );
+
+    const newNotification = await Notification.create(senderId, recipientId, defaultContent.title, defaultContent.description, type);
     if (!newNotification) throw new ApplicationError(400);
   }
 
-  static async read(nid) {
+  static async read(nid: number) {
     const isRead = await Notification.read(nid);
     if (isRead) return true;
     throw new ApplicationError(400);
   }
 
-  static async use(nid) {
+  static async use(nid: number) {
     const notification = await Notification.getOne(nid);
     if (notification) {
       if (notification.used) throw new ApplicationError(400);
@@ -93,7 +93,7 @@ class NotificationRepository {
     throw new ApplicationError(409);
   }
 
-  static async delete(nid) {
+  static async delete(nid: number) {
     const notification = await Notification.delete(nid);
     if (notification) {
       return 'OK';

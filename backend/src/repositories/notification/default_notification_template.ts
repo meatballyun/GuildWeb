@@ -1,6 +1,8 @@
-// @ts-nocheck
 class DEFAULT_NOTIFICATION_CONTENT {
-  constructor(senderName, receiverName) {
+  senderName: string;
+  receiverName: string;
+
+  constructor(senderName: string, receiverName: string) {
     this.senderName = senderName;
     this.receiverName = receiverName;
   }

@@ -1,24 +1,6 @@
 import conn from '../../lib/db';
-import { RowDataPacket, ResultSetHeader } from 'mysql2';
-
-type NotificationType = 'guild' | 'system' | 'user';
-
-interface BaseNotification {
-  senderId: number;
-  recipientId: number;
-  type: NotificationType;
-  title: string;
-  description: string;
-  read: boolean;
-  used: boolean;
-}
-
-interface Notification extends BaseNotification, RowDataPacket {
-  id: number;
-  createTime: Date;
-  updateTime: Date;
-  active: boolean;
-}
+import { ResultSetHeader } from 'mysql2';
+import { Notification, NotificationType } from '../../types/notification/notification';
 
 class NotificationModel {
   static getOne(id: number): Promise<Notification | undefined> {
