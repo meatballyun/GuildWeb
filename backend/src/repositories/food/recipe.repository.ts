@@ -1,5 +1,5 @@
 import { ApplicationError } from '../../utils/error/applicationError';
-import { BaseRecipe } from '../../custom/food/Recipe';
+import { BaseRecipe } from '../../types/food/Recipe';
 import { DietRecordModel } from '../../models/food/dietRecord.model';
 import { IngredientModel } from '../../models/food/ingredient.model';
 import { RecipeModel } from '../../models/food/recipe.model';

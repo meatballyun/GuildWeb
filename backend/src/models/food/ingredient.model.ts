@@ -1,6 +1,6 @@
 import conn from '../../lib/db';
 import { ResultSetHeader } from 'mysql2';
-import { BaseIngredient, Ingredient } from '../../custom/food/Ingredient';
+import { BaseIngredient, Ingredient } from '../../types/food/Ingredient';
 
 export class IngredientModel {
   static getOne(id: number): Promise<Ingredient | undefined> {

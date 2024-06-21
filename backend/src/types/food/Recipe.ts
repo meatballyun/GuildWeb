@@ -1,4 +1,4 @@
-import { RowDataPacket } from 'mysql2';
+import { CommonColumn } from '../common';
 
 export interface BaseRecipe {
   name: string;
@@ -13,9 +13,4 @@ export interface BaseRecipe {
   published?: boolean;
 }
 
-export interface Recipe extends BaseRecipe, RowDataPacket {
-  id: number;
-  createTime: Date;
-  updateTime: Date;
-  active: boolean;
-}
+export interface Recipe extends BaseRecipe, CommonColumn {}

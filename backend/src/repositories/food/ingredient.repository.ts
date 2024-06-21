@@ -2,8 +2,8 @@ import { ApplicationError } from '../../utils/error/applicationError';
 import { IngredientModel } from '../../models/food/ingredient.model';
 import { RecipeModel } from '../../models/food/recipe.model';
 import { RecipeIngredientRelationModel } from '../../models/food/recipeIngredientRelation.model';
-import { BaseIngredient } from '../../custom/food/Ingredient';
-import { TypeSearch } from '../../custom/TypeSearch';
+import { BaseIngredient } from '../../types/food/Ingredient';
+import { TypeSearch } from '../../types/TypeSearch';
 
 class IngredientRepository {
   static async getAll({ q, published }: TypeSearch, uid: number) {

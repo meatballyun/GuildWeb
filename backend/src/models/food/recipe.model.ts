@@ -1,6 +1,6 @@
 import conn from '../../lib/db';
 import { ResultSetHeader } from 'mysql2';
-import { BaseRecipe, Recipe } from '../../custom/food/Recipe';
+import { BaseRecipe, Recipe } from '../../types/food/Recipe';
 
 export class RecipeModel {
   static getOne(id: number): Promise<Recipe | undefined> {

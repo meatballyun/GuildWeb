@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
 import UserListRepository from '../../repositories/user/userList.repository';
 import UserInfoRepository from '../../repositories/user/userInfo.repository';
-import { TypedRequest } from '../../custom/TypedRequest';
+import { TypedRequest } from '../../types/TypedRequest';
 
 type Status = 'confirmed' | 'pending' | 'blocked';
 
