@@ -1,13 +1,13 @@
 import { ApplicationError } from '../../utils/error/applicationError';
 import Guild from '../../models/guild/guild.model';
-import Notification from '../../models/notification/notification.model';
+import NotificationModel from '../../models/notification/notification.model';
 import DEFAULT_NOTIFICATION_CONTENT from './default_notification_template';
 import { UserModel } from '../../models/user/user.model';
 import { BaseNotification } from '../../types/notification/notification';
 
 class NotificationRepository {
   static async getAll(uid: number) {
-    const notifications = await Notification.getAll(uid);
+    const notifications = await NotificationModel.getAll(uid);
     let data;
     if (notifications) {
       data = await Promise.all(
@@ -20,7 +20,7 @@ class NotificationRepository {
   }
 
   static async getOne(nid: number) {
-    const notification = await Notification.getOne(nid);
+    const notification = await NotificationModel.getOne(nid);
     if (notification) {
       let sender;
       if (notification.type === 'guild') {
@@ -72,21 +72,21 @@ class NotificationRepository {
       resolve(content);
     });
 
-    const newNotification = await Notification.create(senderId, recipientId, defaultContent.title, defaultContent.description, type);
+    const newNotification = await NotificationModel.create(senderId, recipientId, defaultContent.title, defaultContent.description, type);
     if (!newNotification) throw new ApplicationError(400);
   }
 
   static async read(nid: number) {
-    const isRead = await Notification.read(nid);
+    const isRead = await NotificationModel.read(nid);
     if (isRead) return true;
     throw new ApplicationError(400);
   }
 
   static async use(nid: number) {
-    const notification = await Notification.getOne(nid);
+    const notification = await NotificationModel.getOne(nid);
     if (notification) {
       if (notification.used) throw new ApplicationError(400);
-      const result = await Notification.use(nid);
+      const result = await NotificationModel.use(nid);
       if (result) return;
       throw new ApplicationError(400);
     }
@@ -94,7 +94,7 @@ class NotificationRepository {
   }
 
   static async delete(nid: number) {
-    const notification = await Notification.delete(nid);
+    const notification = await NotificationModel.delete(nid);
     if (notification) {
       return 'OK';
     }

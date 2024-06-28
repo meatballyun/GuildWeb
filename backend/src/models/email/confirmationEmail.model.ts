@@ -1,18 +1,6 @@
 import conn from '../../lib/db';
-import { RowDataPacket, ResultSetHeader } from 'mysql2';
-
-type Status = 'confirmed' | 'pending' | 'failed';
-type EmailType = 'signUp' | 'forgotPassword';
-
-interface ConfirmationEmail extends RowDataPacket {
-  id: number;
-  createTime: Date;
-  updateTime: Date;
-  userId: number;
-  status: Status;
-  type: EmailType;
-  code: string;
-}
+import { ResultSetHeader } from 'mysql2';
+import { Status, EmailType, ConfirmationEmail } from '../../types/email/email';
 
 export class ConfirmationEmailModel {
   static getLatestByUser(userId: number, type: EmailType): Promise<ConfirmationEmail | undefined> {
