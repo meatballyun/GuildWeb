@@ -2,14 +2,11 @@
 import fs from 'fs';
 import { ApplicationError } from '../../utils/error/applicationError';
 
-const UPLOAD_PATH =
-  process.env.NODE_ENV === 'development'
-    ? process.env.TEST_UPLOAD_PATH
-    : process.env.PI_SERVICE_URL;
+const UPLOAD_PATH = process.env.NODE_ENV === 'development' ? process.env.TEST_UPLOAD_PATH : process.env.PI_SERVICE_URL;
 
 const MaxFileSizeMB = 5;
-class ImageController {
-  async saveImage(req, res, next) {
+export class ImageController {
+  static async saveImage(req, res, next) {
     const imageUrl = req.body.image;
     const fileSizeMB = Buffer.byteLength(imageUrl, 'base64') / (1024 * 1024);
     if (fileSizeMB > MaxFileSizeMB) throw new ApplicationError(413);
@@ -35,5 +32,3 @@ class ImageController {
     }
   }
 }
-
-export default ImageController;

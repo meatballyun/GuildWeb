@@ -1,8 +1,8 @@
 import { ApplicationError } from '../../utils/error/applicationError';
-import { UserModel } from '../../models/user/user.model';
 import { BaseUser } from '../../types/user/user';
+import { UserModel } from '../../models/user/user.model';
 
-class UserInfoRepository {
+export class UserInfoRepository {
   static #MAX_RANK = 15;
   static #BASE = 70;
   static #EXPONENT = 1.1;
@@ -48,5 +48,3 @@ class UserInfoRepository {
     if (newEXP >= upgradeExp) await this.updateRank(uid, rank + 1);
   }
 }
-
-export default UserInfoRepository;

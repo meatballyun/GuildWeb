@@ -1,36 +1,35 @@
-// @ts-nocheck
-
-import Adventurer from '../../models/guild/adventurer.model';
-import { UserModel } from '../../models/user/user.model';
 import { ApplicationError } from '../../utils/error/applicationError';
-import UserInfoRepository from '../../repositories/user/userInfo.repository';
+import { User } from '../../types/user/user';
+import { UserModel } from '../../models/user/user.model';
+import { AdventurerModel } from '../../models/guild/adventurer.model';
+import { UserInfoRepository } from '../../repositories/user/userInfo.repository';
 
-class AdventurerRepository {
-  static async isAdventurer(taskId, uid) {
-    const adventurer = await Adventurer.getOne(taskId, uid);
+export class AdventurerRepository {
+  static async isAdventurer(taskId: number, uid: number) {
+    const adventurer = await AdventurerModel.getOne(taskId, uid);
     return adventurer ? true : false;
   }
 
-  static async getAdventurerInfo(taskId) {
-    const adventurers = await Adventurer.getAllByTask(taskId);
+  static async getAdventurerInfo(taskId: number) {
+    const adventurers = await AdventurerModel.getAllByTask(taskId);
     if (!adventurers) return;
     const adventurerInfo = await Promise.all(
       adventurers.map(async ({ userId, status }) => {
-        const { id, name, imageUrl } = await UserModel.getOneById(userId);
+        const { id, name, imageUrl } = (await UserModel.getOneById(userId)) as User;
         return { id, name, imageUrl, status };
       })
     );
     return adventurerInfo;
   }
 
-  static async updateStatusByTaskComplete(taskId) {
-    const adventurers = await Adventurer.getAllByTask(taskId);
+  static async updateStatusByTaskComplete(taskId: number) {
+    const adventurers = await AdventurerModel.getAllByTask(taskId);
     if (!adventurers) throw new ApplicationError(409);
     await Promise.all(
       adventurers.map(async ({ userId }) => {
-        const adventurer = await Adventurer.getOne(taskId, userId);
-        if (adventurer.status != 'Completed') {
-          await Adventurer.updateStatus(taskId, userId, 'Failed');
+        const adventurer = await AdventurerModel.getOne(taskId, userId);
+        if (adventurer?.status != 'completed') {
+          await AdventurerModel.updateStatus(taskId, userId, 'failed');
           await UserInfoRepository.updateExp(userId, -1);
         } else {
           await UserInfoRepository.updateExp(userId, 1);
@@ -39,16 +38,14 @@ class AdventurerRepository {
     );
   }
 
-  static async updateStatusByTaskFail(taskId) {
-    const adventurers = await Adventurer.getAllByTask(taskId);
+  static async updateStatusByTaskFail(taskId: number) {
+    const adventurers = await AdventurerModel.getAllByTask(taskId);
     if (!adventurers) throw new ApplicationError(409);
     await Promise.all(
       adventurers.map(async ({ userId }) => {
-        await Adventurer.updateStatus(taskId, userId, 'Failed');
+        await AdventurerModel.updateStatus(taskId, userId, 'failed');
         await UserInfoRepository.updateExp(userId, -1);
       })
     );
   }
 }
-
-export default AdventurerRepository;

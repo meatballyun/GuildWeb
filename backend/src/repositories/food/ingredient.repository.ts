@@ -1,11 +1,11 @@
 import { ApplicationError } from '../../utils/error/applicationError';
+import { BaseIngredient } from '../../types/food/Ingredient';
+import { TypeSearch } from '../../types/TypeSearch';
 import { IngredientModel } from '../../models/food/ingredient.model';
 import { RecipeModel } from '../../models/food/recipe.model';
 import { RecipeIngredientRelationModel } from '../../models/food/recipeIngredientRelation.model';
-import { BaseIngredient } from '../../types/food/Ingredient';
-import { TypeSearch } from '../../types/TypeSearch';
 
-class IngredientRepository {
+export class IngredientRepository {
   static async getAll({ q, published }: TypeSearch, uid: number) {
     const ingredients = published ? await IngredientModel.getAllByName(q) : await IngredientModel.getAllByUserAndName(uid, q);
 
@@ -93,5 +93,3 @@ class IngredientRepository {
     await IngredientModel.delete(ingredientId);
   }
 }
-
-export default IngredientRepository;

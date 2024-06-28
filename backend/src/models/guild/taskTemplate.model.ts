@@ -1,29 +1,8 @@
 import conn from '../../lib/db';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
+import { TaskTemplateTime, TaskTemplateInfo, TaskTemplate } from '../../types/guild/taskTemplate';
 
-type TaskTemplateType = 'daily' | 'weekly' | 'monthly';
-
-interface TaskTime {
-  generationTime: Date;
-  deadline: Date;
-}
-
-interface TaskInfo {
-  enabled?: boolean;
-  type: TaskTemplateType;
-  name: string;
-  description?: string;
-  maxAdventurer: number;
-}
-
-interface TaskTemplate extends TaskTime, TaskInfo, RowDataPacket {
-  id: number;
-  creatorId: number;
-  guildId: number;
-  active: boolean;
-}
-
-class TaskTemplateModel {
+export class TaskTemplateModel {
   static DATE_ADD(current: Date, interval: Date, unit: string): Promise<string> {
     const query = 'SELECT DATE_ADD(?, interval ? ' + unit + ');';
     return new Promise((resolve, reject) => {
@@ -71,7 +50,12 @@ class TaskTemplateModel {
     });
   }
 
-  static create(creatorId: number, guildId: number, { generationTime, deadline }: TaskTime, { name, description, type, maxAdventurer }: TaskInfo): Promise<number> {
+  static create(
+    creatorId: number,
+    guildId: number,
+    { initiationTime: generationTime, deadline }: { initiationTime: string; deadline: string },
+    { name, description, type, maxAdventurer }: TaskTemplateInfo
+  ): Promise<number> {
     return new Promise((resolve, reject) => {
       conn.query<ResultSetHeader>(
         'INSERT INTO taskTemplates(creatorId, guildId,  generationTime, deadline, name, DESCRIPTION, TYPE, MAX_ADVENTURER) VALUES (?,?,?,?,?,?,?,?)',
@@ -84,7 +68,7 @@ class TaskTemplateModel {
     });
   }
 
-  static update(id: number, { generationTime, deadline }: TaskTime, { enabled, name, description, type, maxAdventurer }: TaskInfo): Promise<number> {
+  static update(id: number, { generationTime, deadline }: TaskTemplateTime, { enabled, name, description, type, maxAdventurer }: TaskTemplateInfo): Promise<number> {
     return new Promise((resolve, reject) => {
       conn.query<ResultSetHeader>(
         'UPDATE taskTemplates SET  enabled = ?, name = ?, DESCRIPTION = ?,  generationTime = ?, deadline = ?, TYPE = ?, MAX_ADVENTURER = ? WHERE id = ?',
@@ -115,5 +99,3 @@ class TaskTemplateModel {
     });
   }
 }
-
-export default TaskTemplateModel;

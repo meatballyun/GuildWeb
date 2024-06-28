@@ -1,37 +1,35 @@
-// @ts-nocheck
-import Item from '../../models/guild/item.model';
-import ItemRecord from '../../models/guild/itemRecord.model';
+import { Item } from '../../types/guild/item';
+import { ItemModel } from '../../models/guild/item.model';
+import { ItemRecordModel } from '../../models/guild/itemRecord.model';
 
-class ItemRecordRepository {
-  static async getAll(items, AdventurerId) {
+export class ItemRecordRepository {
+  static async getAll(items: Item[], AdventurerId: number) {
     if (!items) return;
     const data = await Promise.all(
       items.map(async ({ id: itemId }) => {
-        const itemRecords = await ItemRecord.getAllByItemAndUser(itemId, AdventurerId);
+        const itemRecords = await ItemRecordModel.getAllByItemAndUser(itemId, AdventurerId);
         return itemRecords;
       })
     );
     return data;
   }
 
-  static async deleteAllByTask(taskId) {
-    const items = await Item.getAll(taskId);
+  static async deleteAllByTask(taskId: number) {
+    const items = await ItemModel.getAll(taskId);
     await Promise.all(
       items.map(async ({ id: itemId }) => {
-        await ItemRecord.deleteAllByItem(itemId);
+        await ItemRecordModel.deleteAllByItem(itemId);
       })
     );
   }
 
-  static async deleteAllByTaskAndUser(taskId, AdventurerId) {
-    const items = await Item.getAll(taskId);
+  static async deleteAllByTaskAndUser(taskId: number, AdventurerId: number) {
+    const items = await ItemModel.getAll(taskId);
     if (!items) return;
     await Promise.all(
       items.map(async ({ id: itemId }) => {
-        await ItemRecord.deleteAllByItemAndUser(itemId, AdventurerId);
+        await ItemRecordModel.deleteAllByItemAndUser(itemId, AdventurerId);
       })
     );
   }
 }
-
-export default ItemRecordRepository;

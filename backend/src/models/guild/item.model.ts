@@ -1,14 +1,8 @@
 import conn from '../../lib/db';
-import { RowDataPacket, ResultSetHeader } from 'mysql2';
+import { ResultSetHeader } from 'mysql2';
+import { Item } from '../../types/guild/item';
 
-interface Item extends RowDataPacket {
-  id: number;
-  taskId: number;
-  content: string;
-  active: boolean;
-}
-
-class ItemModel {
+export class ItemModel {
   static getAll(taskId: number): Promise<Item[]> {
     return new Promise((resolve, reject) => {
       conn.query<Item[]>('SELECT * FROM items WHERE taskId = ? AND active = TRUE', [taskId], function (err, rows) {
@@ -54,5 +48,3 @@ class ItemModel {
     });
   }
 }
-
-export default ItemModel;

@@ -1,12 +1,12 @@
-import { toHash } from '../../utils/hashCode';
-import nodemailer from 'nodemailer';
-import { signUpEmail, passwordResetEmail } from './emailTemplate';
-import { ApplicationError } from '../../utils/error/applicationError';
-import { ConfirmationEmailModel } from '../../models/email/confirmationEmail.model';
-import { UserModel } from '../../models/user/user.model';
 import Mail from 'nodemailer/lib/mailer';
+import nodemailer from 'nodemailer';
+import { toHash } from '../../utils/hashCode';
+import { ApplicationError } from '../../utils/error/applicationError';
+import { signUpEmail, passwordResetEmail } from './emailTemplate';
+import { UserModel } from '../../models/user/user.model';
+import { ConfirmationEmailModel } from '../../models/email/confirmationEmail.model';
 
-class EmailRepository {
+export class EmailRepository {
   static transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -77,5 +77,3 @@ class EmailRepository {
     await UserModel.updateStatus('confirmed', latestEmail.userId);
   }
 }
-
-export default EmailRepository;

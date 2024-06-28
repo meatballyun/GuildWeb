@@ -1,14 +1,8 @@
 import conn from '../../lib/db';
-import { RowDataPacket, ResultSetHeader } from 'mysql2';
+import { ResultSetHeader } from 'mysql2';
+import { TemplateItem } from '../../types/guild/taskTemplateItem';
 
-interface TemplateItem extends RowDataPacket {
-  id: number;
-  templateId: number;
-  content: string;
-  active: boolean;
-}
-
-class TaskTemplateItemModel {
+export class TaskTemplateItemModel {
   static getAll(templateId: number): Promise<TemplateItem[]> {
     return new Promise((resolve, reject) => {
       conn.query<TemplateItem[]>('SELECT * FROM templateItems WHERE templateId = ? AND active = TRUE', [templateId], function (err, rows) {
@@ -54,5 +48,3 @@ class TaskTemplateItemModel {
     });
   }
 }
-
-export default TaskTemplateItemModel;

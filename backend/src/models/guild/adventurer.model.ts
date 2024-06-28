@@ -1,19 +1,8 @@
 import conn from '../../lib/db';
-import { RowDataPacket, ResultSetHeader } from 'mysql2';
+import { ResultSetHeader } from 'mysql2';
+import { Status, Adventurer } from '../../types/guild/adventurer';
 
-type Status = 'accepted' | 'completed' | 'failed';
-
-interface Adventurer extends RowDataPacket {
-  taskId: number;
-  userId: number;
-  createTime: Date;
-  updateTime: Date;
-  acceptanceTime: Date;
-  completedTime: Date;
-  status: Status;
-}
-
-class AdventurerModel {
+export class AdventurerModel {
   static getOne(taskId: number, userId: number): Promise<Adventurer | undefined> {
     return new Promise((resolve, reject) => {
       conn.query<Adventurer[]>(`SELECT * FROM adventurers WHERE taskId = ? AND userId = ?`, [taskId, userId], function (err, rows) {
@@ -87,5 +76,3 @@ class AdventurerModel {
     });
   }
 }
-
-export default AdventurerModel;

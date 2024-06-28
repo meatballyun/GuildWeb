@@ -1,11 +1,11 @@
+import { DEFAULT_NOTIFICATION_CONTENT } from './default_notification_template';
 import { ApplicationError } from '../../utils/error/applicationError';
-import Guild from '../../models/guild/guild.model';
-import NotificationModel from '../../models/notification/notification.model';
-import DEFAULT_NOTIFICATION_CONTENT from './default_notification_template';
-import { UserModel } from '../../models/user/user.model';
 import { BaseNotification } from '../../types/notification/notification';
+import { GuildModel } from '../../models/guild/guild.model';
+import { NotificationModel } from '../../models/notification/notification.model';
+import { UserModel } from '../../models/user/user.model';
 
-class NotificationRepository {
+export class NotificationRepository {
   static async getAll(uid: number) {
     const notifications = await NotificationModel.getAll(uid);
     let data;
@@ -24,7 +24,7 @@ class NotificationRepository {
     if (notification) {
       let sender;
       if (notification.type === 'guild') {
-        const guild = await Guild.getOne(notification.senderId);
+        const guild = await GuildModel.getOne(notification.senderId);
         if (!guild) throw new ApplicationError(409);
         sender = {
           id: guild.id,
@@ -52,7 +52,7 @@ class NotificationRepository {
       if (!recipient) throw new ApplicationError(400);
 
       if (type === 'guild') {
-        const sender = await Guild.getOne(senderId);
+        const sender = await GuildModel.getOne(senderId);
         if (!sender) throw new ApplicationError(400);
         const notificationContent = new DEFAULT_NOTIFICATION_CONTENT(sender.name, recipient.name);
         const content = notificationContent.guild();
@@ -101,5 +101,3 @@ class NotificationRepository {
     throw new ApplicationError(404);
   }
 }
-
-export default NotificationRepository;

@@ -1,11 +1,11 @@
-// @ts-nocheck
-import Item from '../../models/guild/item.model';
 import { ApplicationError } from '../../utils/error/applicationError';
-import ItemRecordRepository from '../../repositories/guild/itemRecord.repository';
+import { Item } from '../../types/guild/item';
+import { ItemModel } from '../../models/guild/item.model';
+import { ItemRecordRepository } from '../../repositories/guild/itemRecord.repository';
 
-class ItemRepository {
-  static async getAll(taskId, AdventurerId, isAccepted) {
-    const items = await Item.getAll(taskId);
+export class ItemRepository {
+  static async getAll(taskId: number, AdventurerId: number, isAccepted: boolean) {
+    const items = await ItemModel.getAll(taskId);
     if (isAccepted) {
       const itemRecords = await ItemRecordRepository.getAll(items, AdventurerId);
       return itemRecords;
@@ -13,38 +13,36 @@ class ItemRepository {
     if (items) return items;
   }
 
-  static async create(items, taskId) {
+  static async create(items: Item[], taskId: number) {
     if (items) {
       await Promise.all(
         items.map(async ({ content }) => {
-          const newItemId = await Item.create(taskId, content);
+          const newItemId = await ItemModel.create(taskId, content);
           if (!newItemId) throw new ApplicationError(400);
         })
       );
     }
   }
 
-  static async update(items, taskId) {
-    if (!items) await Item.deleteAll(taskId);
+  static async update(items: Item[], taskId: number) {
+    if (!items) await ItemModel.deleteAll(taskId);
     else {
       await Promise.all(
         items.map(async ({ id: itemId, content }) => {
           if (content) {
-            itemId ? await Item.update(itemId, content) : await Item.create(taskId, content);
+            itemId ? await ItemModel.update(itemId, content) : await ItemModel.create(taskId, content);
           } else {
-            await Item.delete(itemId);
+            await ItemModel.delete(itemId);
           }
         })
       );
     }
   }
 
-  static async delete(taskId) {
-    const items = await Item.getAll(taskId);
+  static async delete(taskId: number) {
+    const items = await ItemModel.getAll(taskId);
     if (!items) return;
     await ItemRecordRepository.deleteAllByTask(taskId);
-    await Item.deleteAll(taskId);
+    await ItemModel.deleteAll(taskId);
   }
 }
-
-export default ItemRepository;

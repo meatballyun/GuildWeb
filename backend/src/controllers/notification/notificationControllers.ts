@@ -1,8 +1,8 @@
-import NotificationRepository from '../../repositories/notification/notification.repository';
 import { Response, NextFunction } from 'express';
 import { TypedRequest } from '../../types/TypedRequest';
+import { NotificationRepository } from '../../repositories/notification/notification.repository';
 
-class NotificationController {
+export class NotificationController {
   static async getNotifications(req: TypedRequest, res: Response, next: NextFunction) {
     const data = await NotificationRepository.getAll(req.session.passport.user);
     return res.status(200).json({ data });
@@ -29,5 +29,3 @@ class NotificationController {
     return res.status(200).json({ data: 'OK' });
   }
 }
-
-export default NotificationController;

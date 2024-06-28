@@ -1,7 +1,8 @@
 // @ts-nocheck
-import RecipeRepository from '../../repositories/food/recipe.repository';
 import UserInfoRepository from '../../repositories/user/userInfo.repository';
-class RecipeController {
+import RecipeRepository from '../../repositories/food/recipe.repository';
+
+export class RecipeController {
   static async getRecipes(req, res, next) {
     const data = await RecipeRepository.getAll(req.query, req.session.passport.user);
     return res.status(200).json({ data: data });
@@ -29,5 +30,3 @@ class RecipeController {
     return res.status(200).json({ data: 'OK' });
   }
 }
-
-export default RecipeController;

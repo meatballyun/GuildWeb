@@ -1,10 +1,10 @@
 import { ApplicationError } from '../../utils/error/applicationError';
+import { BaseDietRecipe } from '../../types/food/DietRecipe';
 import { DietRecordModel } from '../../models/food/dietRecord.model';
 import { RecipeModel } from '../../models/food/recipe.model';
 import { UserModel } from '../../models/user/user.model';
-import { BaseDietRecipe } from '../../types/food/DietRecipe';
 
-class DietRecordRepository {
+export class DietRecordRepository {
   static async getAll(date: Date, uid: number) {
     const dietRecord = await DietRecordModel.getAllByDate(uid, date);
     const user = await UserModel.getOneById(uid);
@@ -41,5 +41,3 @@ class DietRecordRepository {
     if (!result) throw new ApplicationError(404);
   }
 }
-
-export default DietRecordRepository;

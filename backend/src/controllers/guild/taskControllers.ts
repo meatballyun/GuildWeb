@@ -1,16 +1,16 @@
 // @ts-nocheck
-import Task from '../../models/guild/task.model';
-import Adventurer from '../../models/guild/adventurer.model';
-import TaskRepository from '../../repositories/guild/task.repository';
+import { TaskModel } from '../../models/guild/task.model';
+import { AdventurerModel } from '../../models/guild/adventurer.model';
+import { TaskRepository } from '../../repositories/guild/task.repository';
 
-class TaskController {
+export class TaskController {
   static async getUserTasks(req, res, next) {
-    const query = await Adventurer.getAllByUser(req.session.passport.user);
+    const query = await AdventurerModel.getAllByUser(req.session.passport.user);
     let data = [];
     if (query?.length) {
       await Promise.all(
         query.map(async (i) => {
-          const tasks = await Task.getOne(i.TASK_ID);
+          const tasks = await TaskModel.getOne(i.TASK_ID);
           if (tasks?.length) {
             const task = await Promise.all(
               tasks
@@ -103,5 +103,3 @@ class TaskController {
     return res.status(200).json({ data: 'OK' });
   }
 }
-
-export default TaskController;

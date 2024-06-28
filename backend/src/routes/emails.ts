@@ -1,16 +1,16 @@
-import express from 'express'
-import awaitHandlerFactory from '../utils/awaitHandlerFactory'
-import EmailUp from '../controllers/email/emailControllers'
+import express from 'express';
+import awaitHandlerFactory from '../utils/awaitHandlerFactory';
+import { MailController } from '../controllers/email/emailControllers';
 
 const router = express.Router();
 
 // send email
-router.post('/send', awaitHandlerFactory(EmailUp.sendSignUp));
-router.post('/resend', awaitHandlerFactory(EmailUp.resendSignUp));
-router.post('/reset-password', awaitHandlerFactory(EmailUp.sendResetPassword));
+router.post('/send', awaitHandlerFactory(MailController.sendSignUp));
+router.post('/resend', awaitHandlerFactory(MailController.resendSignUp));
+router.post('/reset-password', awaitHandlerFactory(MailController.sendResetPassword));
 
 // validation
-router.get('/validation-reset-password', awaitHandlerFactory(EmailUp.validationResetPassword));
-router.get('/validation-signup', awaitHandlerFactory(EmailUp.validationSignUp));
+router.get('/validation-reset-password', awaitHandlerFactory(MailController.validationResetPassword));
+router.get('/validation-signup', awaitHandlerFactory(MailController.validationSignUp));
 
 export default router;

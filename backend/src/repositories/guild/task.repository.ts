@@ -1,19 +1,23 @@
-// @ts-nocheck
-import Task from '../../models/guild/task.model';
-import ItemRecord from '../../models/guild/itemRecord.model';
-import Adventurer from '../../models/guild/adventurer.model';
-import { UserModel } from '../../models/user/user.model';
 import { ApplicationError } from '../../utils/error/applicationError';
 import { timeHandle } from '../../utils/timeHandler';
-import AdventurerRepository from '../../repositories/guild/adventurer.repository';
-import ItemRepository from '../../repositories/guild/item.repository';
-import ItemRecordRepository from '../../repositories/guild/itemRecord.repository';
+import { Membership } from '../../types/user/userGuildRelation';
+import { Status, TaskTime, TaskInfo, Task } from '../../types/guild/task';
+import { Item } from '../../types/guild/item';
+import { UserModel } from '../../models/user/user.model';
+import { TaskModel } from '../../models/guild/task.model';
+import { ItemRecordModel } from '../../models/guild/itemRecord.model';
+import { AdventurerModel } from '../../models/guild/adventurer.model';
+import { ItemRepository } from '../../repositories/guild/item.repository';
+import { ItemRecordRepository } from '../../repositories/guild/itemRecord.repository';
+import { AdventurerRepository } from '../../repositories/guild/adventurer.repository';
 
-class TaskRepository {
-  static async getAll({ gid: guildId }, { q: query }, uid) {
-    const tasks = query
-      ? await Task.getAllByGuildAndName(guildId, query)
-      : await Task.getAllByGuild(guildId);
+interface TaskDetailed extends TaskTime, TaskInfo {
+  items: Item[];
+}
+
+export class TaskRepository {
+  static async getAll({ gid: guildId }: { gid: number }, { q: query }: { q?: string }, uid: number) {
+    const tasks = query ? await TaskModel.getAllByGuildAndName(guildId, query) : await TaskModel.getAllByGuild(guildId);
     if (tasks) {
       const data = await Promise.all(
         tasks.map(async ({ id, creator, name, type, status, accepted }) => {
@@ -25,10 +29,12 @@ class TaskRepository {
     }
   }
 
-  static async getOne({ tid: taskId }, uid) {
-    const task = await Task.getOne(taskId);
+  static async getOne({ tid: taskId }: { tid: number }, uid: number) {
+    const task = await TaskModel.getOne(taskId);
     if (task) {
-      const { id, name, imageUrl } = await UserModel.getOneById(task.creatorId);
+      const user = await UserModel.getOneById(task.creatorId);
+      if (!user) throw new ApplicationError(400);
+      const { id, name, imageUrl } = user;
       const creator = { id, name, imageUrl };
       const adventurers = await AdventurerRepository.getAdventurerInfo(taskId);
       const isAccepted = await AdventurerRepository.isAdventurer(taskId, uid);
@@ -38,9 +44,9 @@ class TaskRepository {
     throw new ApplicationError(409);
   }
 
-  static async create({ initiationTime, deadline, items, ...otherData }, guildId, uid) {
+  static async create({ initiationTime, deadline, items, ...otherData }: TaskDetailed, guildId: number, uid: number) {
     const time = await timeHandle(initiationTime, deadline);
-    const newTaskId = await Task.create(uid, guildId, time, otherData);
+    const newTaskId = await TaskModel.create(uid, guildId, time, otherData);
     if (newTaskId) {
       ItemRepository.create(items, newTaskId);
       return { id: newTaskId };
@@ -48,20 +54,20 @@ class TaskRepository {
     throw new ApplicationError(400);
   }
 
-  static async accept({ tid: taskId }, uid) {
-    const task = await Task.getOne(taskId);
+  static async accept({ tid: taskId }: { tid: number }, uid: number) {
+    const task = await TaskModel.getOne(taskId);
     if (!task) throw new ApplicationError(404);
     const isAccepted = await AdventurerRepository.isAdventurer(taskId, uid);
     if (isAccepted) throw new ApplicationError(409);
-    if (task.accepted === 'Max Accepted') throw new ApplicationError(409);
-    const adventurer = await Adventurer.create(taskId, uid);
+    if (task.accepted === 'max accepted') throw new ApplicationError(409);
+    const adventurer = await AdventurerModel.create(taskId, uid);
     if (!adventurer) throw new ApplicationError(400);
   }
 
-  static async submit({ tid: taskId }, uid) {
-    const task = await Task.getOne(taskId);
+  static async submit({ tid: taskId }: { tid: number }, uid: number) {
+    const task = await TaskModel.getOne(taskId);
     if (!task) throw new ApplicationError(404);
-    const adventurer = await Adventurer.getOne(taskId, uid);
+    const adventurer = await AdventurerModel.getOne(taskId, uid);
     if (!adventurer) throw new ApplicationError(409);
 
     const currentTime = new Date();
@@ -69,104 +75,102 @@ class TaskRepository {
     const deadline = new Date(task.deadline);
     if (currentTime < initiationTime || currentTime > deadline) throw new ApplicationError(409);
 
-    const result = await Adventurer.update(taskId, uid, 'Completed', currentTime);
+    const result = await AdventurerModel.update(taskId, uid, 'completed', currentTime);
     if (!result) throw new ApplicationError(400);
   }
 
-  static async abandon({ tid: taskId }, uid) {
-    const task = await Task.getOne(taskId);
+  static async abandon({ tid: taskId }: { tid: number }, uid: number) {
+    const task = await TaskModel.getOne(taskId);
     if (!task) throw new ApplicationError(404);
     const isAccepted = await AdventurerRepository.isAdventurer(taskId, uid);
     if (!isAccepted) throw new ApplicationError(409);
 
-    await Adventurer.deleteByTaskAndUser(taskId, uid);
+    await AdventurerModel.deleteByTaskAndUser(taskId, uid);
     await ItemRecordRepository.deleteAllByTaskAndUser(taskId, uid);
   }
 
-  static async complete({ tid: taskId }, { membership }, uid) {
-    const task = await Task.getOne(taskId);
-    if (!task) throw ApplicationError(404);
-    if (membership === 'Vice' && uid !== task.creatorId) throw new ApplicationError(403);
+  static async complete({ tid: taskId }: { tid: number }, { membership }: { membership: Membership }, uid: number) {
+    const task = await TaskModel.getOne(taskId);
+    if (!task) throw new ApplicationError(404);
+    if (membership === 'vice' && uid !== task.creatorId) throw new ApplicationError(403);
 
     await AdventurerRepository.updateStatusByTaskComplete(taskId);
-    const result = await Task.updateStatus(taskId, 'Completed');
+    const result = await TaskModel.updateStatus(taskId, 'completed');
     if (!result) throw new ApplicationError(400);
   }
 
-  static async fail({ tid: taskId }, { membership }, uid) {
-    const task = await Task.getOne(taskId);
-    if (!task) throw ApplicationError(404);
-    if (membership === 'Vice' && uid !== task.creatorId) throw new ApplicationError(403);
+  static async fail({ tid: taskId }: { tid: number }, { membership }: { membership: Membership }, uid: number) {
+    const task = await TaskModel.getOne(taskId);
+    if (!task) throw new ApplicationError(404);
+    if (membership === 'vice' && uid !== task.creatorId) throw new ApplicationError(403);
 
     await AdventurerRepository.updateStatusByTaskFail(taskId);
-    const result = await Task.updateStatus(taskId, 'Expired');
+    const result = await TaskModel.updateStatus(taskId, 'expired');
     if (!result) throw new ApplicationError(400);
   }
 
-  static async clickCheckboxForItemRecord(itemRecordId) {
-    const itemRecord = await ItemRecord.getOne(itemRecordId);
+  static async clickCheckboxForItemRecord(itemRecordId: number) {
+    const itemRecord = await ItemRecordModel.getOne(itemRecordId);
     if (itemRecord) {
       if (itemRecord.status) {
-        await ItemRecord.update(itemRecordId, false);
+        await ItemRecordModel.update(itemRecordId, false);
       } else {
-        await ItemRecord.update(itemRecordId, true);
+        await ItemRecordModel.update(itemRecordId, true);
       }
     } else throw new ApplicationError(404);
   }
 
   // prettier-ignore
-  static async update({ initiationTime, deadline, items, ...otherData }, { tid: taskId }, { membership }, uid) {
-    const task = await Task.getOne(taskId);
+  static async update({ initiationTime, deadline, items, ...otherData }: TaskDetailed, { tid: taskId }:{ tid: number }, { membership }: { membership: Membership }, uid: number) {
+    const task = await TaskModel.getOne(taskId);
     if (!task) throw new ApplicationError(404);
-    if (membership === 'Vice' && uid !== task.creatorId) throw new ApplicationError(403);
+    if (membership === 'vice' && uid !== task.creatorId) throw new ApplicationError(403);
 
     const time = await timeHandle(initiationTime, deadline);
 
-    const result = await Task.update(taskId, time, otherData);
+    const result = await TaskModel.updateDetail(taskId, time, otherData);
     if (!result) throw new ApplicationError(400);
 
-    await Adventurer.deleteByTask(taskId);
+    await AdventurerModel.deleteByTask(taskId);
     await ItemRecordRepository.deleteAllByTask(taskId);
     await ItemRepository.update(items, taskId);
 
     return { id: taskId };
   }
 
-  static async cancel({ tid: taskId }, { membership }, uid) {
-    const task = await Task.getOne(taskId);
-    if (!task) throw ApplicationError(404);
-    if (membership === 'Vice' && uid !== task.creatorId) throw new ApplicationError(403);
+  static async cancel({ tid: taskId }: { tid: number }, { membership }: { membership: Membership }, uid: number) {
+    const task = await TaskModel.getOne(taskId);
+    if (!task) throw new ApplicationError(404);
+    if (membership === 'vice' && uid !== task.creatorId) throw new ApplicationError(403);
 
-    await Adventurer.deleteByTask(taskId);
+    await AdventurerModel.deleteByTask(taskId);
     await ItemRecordRepository.deleteAllByTask(taskId);
 
-    const result = await Task.updateStatus(taskId, 'Cancelled');
+    const result = await TaskModel.updateStatus(taskId, 'cancelled');
     if (!result) throw new ApplicationError(400);
   }
 
-  static async restore({ tid: taskId }, { membership }, uid) {
-    const task = await Task.getOne(taskId);
-    if (!task) throw ApplicationError(404);
-    if (membership === 'Vice' && uid !== task.creatorId) throw new ApplicationError(403);
+  static async restore({ tid: taskId }: { tid: number }, { membership }: { membership: Membership }, uid: number) {
+    const task = await TaskModel.getOne(taskId);
+    if (!task) throw new ApplicationError(404);
+    if (membership === 'vice' && uid !== task.creatorId) throw new ApplicationError(403);
 
     const currentTime = new Date();
-    const initiationTime = new Date(initiationTime);
+    const initiationTime = new Date(task.initiationTime);
     if (currentTime > initiationTime) throw new ApplicationError(409);
 
-    const result = await Task.updateStatus(taskId, 'Established');
+    const result = await TaskModel.updateStatus(taskId, 'established');
     if (!result) throw new ApplicationError(400);
   }
 
-  static async delete({ tid: taskId }, { membership }, uid) {
-    const task = await Task.getOne(taskId);
+  static async delete({ tid: taskId }: { tid: number }, { membership }: { membership: Membership }, uid: number) {
+    const task = await TaskModel.getOne(taskId);
     if (!task) throw new ApplicationError(404);
-    if (membership === 'Vice' && uid !== task.creatorId) throw new ApplicationError(403);
+    if (membership === 'vice' && uid !== task.creatorId) throw new ApplicationError(403);
 
-    await Adventurer.deleteByTask(taskId);
+    await AdventurerModel.deleteByTask(taskId);
     await ItemRepository.delete(taskId);
-    const result = await Task.delete(taskId);
+    const result = await TaskModel.delete(taskId);
     if (!result) throw new ApplicationError(409);
   }
 }
-
-export default TaskRepository;

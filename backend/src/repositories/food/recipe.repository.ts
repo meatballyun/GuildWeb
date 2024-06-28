@@ -1,17 +1,17 @@
 import { ApplicationError } from '../../utils/error/applicationError';
+import { TypeSearch } from '../../types/TypeSearch';
 import { BaseRecipe } from '../../types/food/Recipe';
 import { DietRecordModel } from '../../models/food/dietRecord.model';
 import { IngredientModel } from '../../models/food/ingredient.model';
 import { RecipeModel } from '../../models/food/recipe.model';
 import { RecipeIngredientRelationModel } from '../../models/food/recipeIngredientRelation.model';
-import { TypeSearch } from '../../types/TypeSearch';
-import IngredientRepository from './ingredient.repository';
+import { IngredientRepository } from './ingredient.repository';
 
 interface RecipeWithIngredients extends BaseRecipe {
   ingredients: { id: number; amount: number }[];
 }
 
-class RecipeRepository {
+export class RecipeRepository {
   static async getAll({ q, published }: TypeSearch, uid: number) {
     const recipes = published ? await RecipeModel.getAllByName(q) : await RecipeModel.getAllByUserAndName(uid, q);
 
@@ -114,5 +114,3 @@ class RecipeRepository {
     await RecipeIngredientRelationModel.deleteByRecipe(recipeId);
   }
 }
-
-export default RecipeRepository;

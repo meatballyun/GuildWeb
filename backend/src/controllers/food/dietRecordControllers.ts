@@ -1,8 +1,8 @@
 // @ts-nocheck
-import DietRecordRepository from '../../repositories/food/dietRecord.repository';
-import UserInfoRepository from '../../repositories/user/userInfo.repository';
+import { DietRecordRepository } from '../../repositories/food/dietRecord.repository';
+import { UserInfoRepository } from '../../repositories/user/userInfo.repository';
 
-class DietRecordController {
+export class DietRecordController {
   static async getDietRecords(req, res, next) {
     const data = await DietRecordRepository.getAll(req.query.date, req.session.passport.user);
     return res.status(200).json({ data });
@@ -20,5 +20,3 @@ class DietRecordController {
     return res.status(200).json({ data: 'OK' });
   }
 }
-
-export default DietRecordController;

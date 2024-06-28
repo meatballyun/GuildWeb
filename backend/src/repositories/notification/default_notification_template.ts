@@ -1,4 +1,4 @@
-class DEFAULT_NOTIFICATION_CONTENT {
+export class DEFAULT_NOTIFICATION_CONTENT {
   senderName: string;
   receiverName: string;
 
@@ -57,5 +57,3 @@ class DEFAULT_NOTIFICATION_CONTENT {
     return content;
   }
 }
-
-export default DEFAULT_NOTIFICATION_CONTENT;

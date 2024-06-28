@@ -1,36 +1,7 @@
 import conn from '../../lib/db';
-import { RowDataPacket, ResultSetHeader } from 'mysql2';
-
-type TaskType = 'emergency' | 'daily' | 'weekly' | 'monthly' | 'ordinary';
-type Status = 'established' | 'in progress' | 'completed' | 'expired' | 'cancelled';
-type Accepted = 'pending acceptance' | 'max accepted';
-
-interface TaskTime {
-  initiationTime: Date;
-  deadline: Date;
-}
-
-interface TaskInfo {
-  name: string;
-  type: TaskType;
-  status?: Status;
-  description: string;
-  maxAdventurer: number;
-  adventurer?: number;
-  accepted?: Accepted;
-}
-
-interface Task extends TaskTime, TaskInfo, RowDataPacket {
-  id: number;
-  creatorId: number;
-  guildId: number;
-  templateId?: number;
-  createTime?: Date;
-  updateTime?: Date;
-  active: boolean;
-}
-
-class TaskModel {
+import { ResultSetHeader } from 'mysql2';
+import { Status, TaskTime, TaskInfo, Task } from '../../types/guild/task';
+export class TaskModel {
   static getOne(id: number): Promise<Task | undefined> {
     return new Promise((resolve, reject) => {
       conn.query<Task[]>('SELECT * FROM tasks WHERE id = ? AND active = TRUE', [id], function (err, rows) {
@@ -143,5 +114,3 @@ class TaskModel {
     });
   }
 }
-
-export default TaskModel;

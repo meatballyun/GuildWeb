@@ -1,9 +1,9 @@
 // @ts-nocheck
-import MemberRepository from '../../repositories/guild/member.repository';
-import NotificationRepository from '../../repositories/notification/notification.repository';
-import UserInfoRepository from '../../repositories/user/userInfo.repository';
+import { MemberRepository } from '../../repositories/guild/member.repository';
+import { NotificationRepository } from '../../repositories/notification/notification.repository';
+import { UserInfoRepository } from '../../repositories/user/userInfo.repository';
 
-class memberController {
+export class memberController {
   static async replyInvitation(req, res, next) {
     await MemberRepository.replyInvitation(req.session.passport.user, req.params.gid);
     await UserInfoRepository.updateExp(req.session.passport.user, 1);
@@ -36,5 +36,3 @@ class memberController {
     return res.status(200).json({ data: 'OK' });
   }
 }
-
-export default memberController;

@@ -2,7 +2,7 @@ import conn from '../../lib/db';
 import { ResultSetHeader } from 'mysql2';
 import { Notification, NotificationType } from '../../types/notification/notification';
 
-class NotificationModel {
+export class NotificationModel {
   static getOne(id: number): Promise<Notification | undefined> {
     return new Promise((resolve, reject) => {
       conn.query<Notification[]>('SELECT * FROM notifications WHERE id = ? AND active = TRUE', [id], function (err, rows) {
@@ -63,5 +63,3 @@ class NotificationModel {
     });
   }
 }
-
-export default NotificationModel;

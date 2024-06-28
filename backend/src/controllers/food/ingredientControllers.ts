@@ -1,8 +1,8 @@
 // @ts-nocheck
-import IngredientRepository from '../../repositories/food/ingredient.repository';
-import UserInfoRepository from '../../repositories/user/userInfo.repository';
+import { IngredientRepository } from '../../repositories/food/ingredient.repository';
+import { UserInfoRepository } from '../../repositories/user/userInfo.repository';
 
-class IngredientController {
+export class IngredientController {
   static async getIngredients(req, res, next) {
     const ingredients = await IngredientRepository.getAll(req.query, req.session.passport.user);
     return res.status(200).json({ data: ingredients });
@@ -30,5 +30,3 @@ class IngredientController {
     return res.status(200).json({ data: 'OK' });
   }
 }
-
-export default IngredientController;

@@ -1,15 +1,8 @@
 import conn from '../../lib/db';
-import { RowDataPacket, ResultSetHeader } from 'mysql2';
+import { ResultSetHeader } from 'mysql2';
+import { ItemRecord } from '../../types/guild/itemRecord';
 
-interface ItemRecord extends RowDataPacket {
-  id: number;
-  itemId: number;
-  userId: number;
-  content: string;
-  status: boolean;
-  active: boolean;
-}
-class ItemRecordModel {
+export class ItemRecordModel {
   static getOne(id: number): Promise<ItemRecord | undefined> {
     return new Promise((resolve, reject) => {
       conn.query<ItemRecord[]>('SELECT * FROM itemRecords WHERE id = ? AND active = TRUE', [id], function (err, rows) {
@@ -83,5 +76,3 @@ class ItemRecordModel {
     });
   }
 }
-
-export default ItemRecordModel;

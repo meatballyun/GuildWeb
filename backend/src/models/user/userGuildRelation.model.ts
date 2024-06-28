@@ -2,7 +2,7 @@ import connection from '../../lib/db';
 import { ResultSetHeader } from 'mysql2';
 import { Membership, UserGuildRelation } from '../../types/user/userGuildRelation';
 
-class UserGuildRelationModel {
+export class UserGuildRelationModel {
   static getOneByGuildAndUser(userId: number, guildId: number): Promise<UserGuildRelation | undefined> {
     return new Promise((resolve, reject) => {
       connection.query<UserGuildRelation[]>('SELECT * FROM userGuildRelations WHERE userId = ? AND guildId = ?', [userId, guildId], function (err, rows) {
@@ -78,5 +78,3 @@ class UserGuildRelationModel {
     });
   }
 }
-
-export default UserGuildRelationModel;

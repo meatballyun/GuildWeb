@@ -1,34 +1,18 @@
 import conn from '../../lib/db';
-import { RowDataPacket, ResultSetHeader } from 'mysql2';
+import { ResultSetHeader } from 'mysql2';
+import { BaseGuild, Guild } from '../../types/guild/guild';
 
-interface BaseGuild {
-  leaderId: number;
-  name: string;
-  description?: string;
-  imageUrl: string;
-  cabin?: boolean;
-  published?: boolean;
-}
-
-interface Guild extends BaseGuild, RowDataPacket {
-  id: number;
-  createTime: Date;
-  updateTime: Date;
-  active: boolean;
-}
-
-class GuildModel {
+export class GuildModel {
   static getOne(id: number): Promise<Guild | undefined> {
     return new Promise((resolve, reject) => {
       conn.query<Guild[]>('SELECT * FROM guilds WHERE id = ? AND active = TRUE', [id], function (err, rows) {
         if (err) reject(err);
-        if (rows?.length) resolve(rows[0]);
-        resolve(undefined);
+        resolve(rows[0]);
       });
     });
   }
 
-  static create(leaderId: number, { name, description, imageUrl }: BaseGuild): Promise<number> {
+  static create({ name, description, imageUrl }: BaseGuild, leaderId: number): Promise<number> {
     return new Promise((resolve, reject) => {
       conn.query<ResultSetHeader>('INSERT INTO guilds(leaderId, name, description, imageUrl, cabin) VALUES (?,?,?,?,?)', [leaderId, name, description, imageUrl, false], function (err, rows) {
         if (err) reject(err);
@@ -64,5 +48,3 @@ class GuildModel {
     });
   }
 }
-
-export default GuildModel;

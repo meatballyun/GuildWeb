@@ -1,8 +1,8 @@
-import EmailRepository from '../../repositories/email/email.repository';
 import { Response, NextFunction } from 'express';
 import { TypedRequest } from '../../types/TypedRequest';
+import { EmailRepository } from '../../repositories/email/email.repository';
 
-class MailController {
+export class MailController {
   static async sendSignUp(req: TypedRequest, res: Response, next: NextFunction) {
     await EmailRepository.sendSignUp(req.body);
     return res.status(200).json({ data: 'OK' });
@@ -28,5 +28,3 @@ class MailController {
     return res.status(200).json({ data: 'OK' });
   }
 }
-
-export default MailController;

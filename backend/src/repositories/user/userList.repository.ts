@@ -4,7 +4,7 @@ import { UserFriendModel } from '../../models/user/userFriend.model';
 
 type Status = 'confirmed' | 'pending' | 'blocked';
 
-class UserListRepository {
+export class UserListRepository {
   static async getFriendship(currentUser: number, user: number) {
     let friendship;
     let status = await UserFriendModel.getStatus(currentUser, user);
@@ -73,5 +73,3 @@ class UserListRepository {
     if (!result) throw new ApplicationError(400);
   }
 }
-
-export default UserListRepository;

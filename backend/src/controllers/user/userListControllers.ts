@@ -1,11 +1,11 @@
 import { Response, NextFunction } from 'express';
-import UserListRepository from '../../repositories/user/userList.repository';
-import UserInfoRepository from '../../repositories/user/userInfo.repository';
+import { UserListRepository } from '../../repositories/user/userList.repository';
+import { UserInfoRepository } from '../../repositories/user/userInfo.repository';
 import { TypedRequest } from '../../types/TypedRequest';
 
 type Status = 'confirmed' | 'pending' | 'blocked';
 
-class UserListController {
+export class UserListController {
   static async getUsers(req: TypedRequest<never, { q: string }, never>, res: Response, next: NextFunction) {
     const data = await UserListRepository.getAllUser(req.session.passport.user, req.query.q);
     return res.status(200).json({ data });
@@ -35,5 +35,3 @@ class UserListController {
     return res.status(200).json({ data: 'OK' });
   }
 }
-
-export default UserListController;
