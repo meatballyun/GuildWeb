@@ -21,10 +21,8 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-    - name: Change backend file to GuildWeb
-      run: cd ./backend
-
     - name: Build
       run: |
+        cd ./backend
         npm install
         npx webpack
