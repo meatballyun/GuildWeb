@@ -22,7 +22,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
 
     - name: Change backend file to GuildWeb
-      run: cd GuildWeb/backend
+      run: cd ./backend
 
     - name: Build
       run: |
