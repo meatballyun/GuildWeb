@@ -2,9 +2,9 @@ name: NodeJS with Webpack
 
 on:
   push:
-    branches: [ "action-workflow" ]
+    branches: [ "action-workflows" ]
   pull_request:
-    branches: [ "action-workflow" ]
+    branches: [ "action-workflows" ]
 
 jobs:
   build:
