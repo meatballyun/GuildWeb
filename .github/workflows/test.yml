@@ -2,9 +2,9 @@ name: NodeJS with Webpack
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "action-workflow" ]
   pull_request:
-    branches: [ "develop" ]
+    branches: [ "action-workflow" ]
 
 jobs:
   build:
@@ -20,6 +20,9 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
+
+    - name: Change backend file to GuildWeb
+      run: cd GuildWeb/backend
 
     - name: Build
       run: |
