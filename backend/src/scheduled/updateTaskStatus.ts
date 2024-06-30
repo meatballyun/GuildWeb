@@ -1,9 +1,8 @@
-// @ts-nocheck
-import Task from '../models/guild/task.model';
+import { TaskModel } from '../models/guild/task.model';
 
 const updateTaskStatus = async () => {
-  await Task.checkInitiationTimeEvent();
-  await Task.checkDeadlineEvent();
+  await TaskModel.checkInitiationTimeEvent();
+  await TaskModel.checkDeadlineEvent();
 };
 
 export default updateTaskStatus;

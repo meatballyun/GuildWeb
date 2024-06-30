@@ -1,7 +1,7 @@
 import express from 'express';
-import awaitHandlerFactory from '../utils/awaitHandlerFactory';
+import { awaitHandlerFactory } from '../utils/awaitHandlerFactory';
 import passport from '../utils/verification/passport';
-import authController from '../controllers/user/authControllers';
+import { AuthController } from '../controllers/user/authControllers';
 import { MailController } from '../controllers/email/emailControllers';
 import { NotificationController } from '../controllers/notification/notificationControllers';
 import { UserInfoController } from '../controllers/user/userinfoControllers';
@@ -11,12 +11,12 @@ const auth = passport.authenticate('jwt', { session: true });
 const router = express.Router();
 
 // SignUp
-router.post('/signup', awaitHandlerFactory(authController.signup), awaitHandlerFactory(MailController.sendSignUp));
+router.post('/signup', awaitHandlerFactory(AuthController.signup), awaitHandlerFactory(MailController.sendSignUp));
 
 // Login, Logout, ForgotPassword
-router.post('/login', awaitHandlerFactory(authController.login));
-router.get('/logout', awaitHandlerFactory(authController.logout));
-router.post('/reset-password', awaitHandlerFactory(authController.resetPassword));
+router.post('/login', awaitHandlerFactory(AuthController.login));
+router.get('/logout', awaitHandlerFactory(AuthController.logout));
+router.post('/reset-password', awaitHandlerFactory(AuthController.resetPassword));
 
 // UserInfo
 router.get('/me', auth, awaitHandlerFactory(UserInfoController.getUserInfo));

@@ -1,5 +1,6 @@
-// @ts-nocheck
 import jwt from 'jsonwebtoken';
+import { Response, NextFunction } from 'express';
+import { TypedRequest } from '../../types/TypedRequest';
 import passport from '../../utils/verification/passport';
 import { toHash } from '../../utils/hashCode';
 import { ApplicationError } from '../../utils/error/applicationError';
@@ -7,8 +8,8 @@ import { UserModel } from '../../models/user/user.model';
 import { ConfirmationEmailModel } from '../../models/email/confirmationEmail.model';
 
 export class AuthController {
-  static async login(req, res, next) {
-    passport.authenticate('login', async function (err, user, info) {
+  static async login(req: TypedRequest, res: Response, next: NextFunction) {
+    passport.authenticate('login', async function (err: any, user: any, info: any) {
       try {
         if (err) throw new ApplicationError(500, err);
         if (!user) throw new ApplicationError(401, info);
@@ -31,7 +32,7 @@ export class AuthController {
     })(req, res, next);
   }
 
-  static async signup(req, res, next) {
+  static async signup(req: TypedRequest, res: Response, next: NextFunction) {
     const password = await toHash(req.body.password);
     const query = await UserModel.getOneByEmail(req.body.email);
     if (query) throw new ApplicationError(409);
@@ -42,20 +43,20 @@ export class AuthController {
     next();
   }
 
-  static async logout(req, res) {
+  static async logout(req: TypedRequest, res: Response) {
     req.logout(() => {
       res.status(200).json({ data: 'Ok' });
     });
   }
 
-  static async resetPassword(req, res, next) {
-    const [confirmationMail] = await ConfirmationEmailModel.getAllByUser(req.body.uid, 'ForgotPassword');
-    if (confirmationMail.STATUS !== 'Confirmed' || new Date(confirmationMail.CREATE_TIME).valueOf() + 86400000 < new Date().valueOf()) return next(new ApplicationError(403));
+  static async resetPassword(req: TypedRequest, res: Response, next: NextFunction) {
+    const confirmationMail = await ConfirmationEmailModel.getLatestByUser(req.body.uid, 'forgotPassword');
+    if (confirmationMail?.STATUS !== 'Confirmed' || new Date(confirmationMail.CREATE_TIME).valueOf() + 86400000 < new Date().valueOf()) return next(new ApplicationError(403));
 
     if (confirmationMail.CODE === req.body.code) {
       const password = await toHash(req.body.password);
       const query = await UserModel.updatePassword(req.body.uid, password);
-      if (query.affectedRows) {
+      if (query) {
         return res.status(200).json({ data: 'OK' });
       } else {
         return next(new ApplicationError(404));
@@ -63,5 +64,3 @@ export class AuthController {
     }
   }
 }
-
-export default AuthController;

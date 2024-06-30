@@ -4,7 +4,7 @@ import { UserModel } from '../../models/user/user.model';
 import { User } from '../../types/user/user';
 import { Membership } from '../../types/user/userGuildRelation';
 
-class MemberRepository {
+export class MemberRepository {
   static async getAll(guildId: number) {
     const relations = await UserGuildRelationModel.getAllByGuild(guildId);
     if (relations?.length) {
@@ -49,5 +49,3 @@ class MemberRepository {
     } else throw new ApplicationError(403);
   }
 }
-
-export default MemberRepository;

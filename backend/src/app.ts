@@ -1,5 +1,5 @@
-// @ts-nocheck
 import express from 'express';
+import 'express-async-errors';
 import logger from 'morgan';
 import cors from 'cors';
 import bodyParser from 'body-parser';
@@ -26,9 +26,10 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json({ limit: '5mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
+const sessionSecret: string = process.env.SESSION_SECRET || 'defaultSecret';
 app.use(
   session({
-    secret: process.env.SESSION_SECRET,
+    secret: sessionSecret,
     resave: true,
     saveUninitialized: false,
     cookie: { maxAge: ONE_DAY_MILLIE_SECEND },
@@ -44,6 +45,6 @@ app.use(cookieParser());
 
 app.use('/api', routes);
 
-app.use(errorHandler);
+app.use(errorHandler as any);
 
 export default app;

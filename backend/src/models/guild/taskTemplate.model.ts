@@ -3,7 +3,7 @@ import { RowDataPacket, ResultSetHeader } from 'mysql2';
 import { TaskTemplateTime, TaskTemplateInfo, TaskTemplate } from '../../types/guild/taskTemplate';
 
 export class TaskTemplateModel {
-  static DATE_ADD(current: Date, interval: Date, unit: string): Promise<string> {
+  static DATE_ADD(current: Date, interval: number, unit: string): Promise<string> {
     const query = 'SELECT DATE_ADD(?, interval ? ' + unit + ');';
     return new Promise((resolve, reject) => {
       conn.query<RowDataPacket[]>(query, [current, interval], function (err, rows) {
@@ -81,7 +81,7 @@ export class TaskTemplateModel {
     });
   }
 
-  static updateTime(id: number, generationTime: Date, deadline: Date): Promise<number> {
+  static updateTime(id: number, generationTime: string, deadline: string): Promise<number> {
     return new Promise((resolve, reject) => {
       conn.query<ResultSetHeader>('UPDATE taskTemplates SET generationTime = ?, deadline = ? WHERE id = ?', [generationTime, deadline, id], function (err, rows) {
         if (err) reject(err);

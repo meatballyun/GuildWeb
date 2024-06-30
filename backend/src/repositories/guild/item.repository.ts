@@ -2,6 +2,7 @@ import { ApplicationError } from '../../utils/error/applicationError';
 import { Item } from '../../types/guild/item';
 import { ItemModel } from '../../models/guild/item.model';
 import { ItemRecordRepository } from '../../repositories/guild/itemRecord.repository';
+import { TemplateItem } from '../../types/guild/taskTemplateItem';
 
 export class ItemRepository {
   static async getAll(taskId: number, AdventurerId: number, isAccepted: boolean) {
@@ -13,7 +14,7 @@ export class ItemRepository {
     if (items) return items;
   }
 
-  static async create(items: Item[], taskId: number) {
+  static async create(items: Item[] | TemplateItem[], taskId: number) {
     if (items) {
       await Promise.all(
         items.map(async ({ content }) => {
@@ -24,7 +25,7 @@ export class ItemRepository {
     }
   }
 
-  static async update(items: Item[], taskId: number) {
+  static async update(items: Item[] | TemplateItem[], taskId: number) {
     if (!items) await ItemModel.deleteAll(taskId);
     else {
       await Promise.all(

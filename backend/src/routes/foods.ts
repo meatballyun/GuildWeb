@@ -1,6 +1,6 @@
 import express from 'express';
 import passport from '../utils/verification/passport';
-import awaitHandlerFactory from '../utils/awaitHandlerFactory';
+import { awaitHandlerFactory } from '../utils/awaitHandlerFactory';
 import { IngredientController } from '../controllers/food/ingredientControllers';
 import { RecipeController } from '../controllers/food/recipeControllers';
 import { DietRecordController } from '../controllers/food/dietRecordControllers';

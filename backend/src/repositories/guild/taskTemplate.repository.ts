@@ -50,7 +50,7 @@ export class TaskTemplateRepository {
   }
 
   // prettier-ignore
-  static async update({ generationTime, deadline, items, ...otherData }: TaskTemplateDetailed, taskTemplateId:number, { membership }:{membership:Membership}, uid:number) {
+  static async update({ generationTime, deadline, items, ...otherData }: TaskTemplateDetailed, taskTemplateId:number, membership: Membership, uid:number) {
     const taskTemplate = await TaskTemplateModel.getOne(taskTemplateId);
     if (!taskTemplate) throw new ApplicationError(404);
     if (membership === 'vice' && uid !== taskTemplate.creatorId) throw new ApplicationError(403);

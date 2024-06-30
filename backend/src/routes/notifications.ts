@@ -1,7 +1,6 @@
-// @ts-nocheck
 import express from 'express';
 import passport from '../utils/verification/passport';
-import awaitHandlerFactory from '../utils/awaitHandlerFactory';
+import { awaitHandlerFactory } from '../utils/awaitHandlerFactory';
 import { NotificationController } from '../controllers/notification/notificationControllers';
 
 const auth = passport.authenticate('jwt', { session: true });

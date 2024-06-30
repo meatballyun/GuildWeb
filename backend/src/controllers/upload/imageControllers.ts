@@ -1,12 +1,13 @@
-// @ts-nocheck
 import fs from 'fs';
+import { Response, NextFunction } from 'express';
+import { TypedRequest } from '../../types/TypedRequest';
 import { ApplicationError } from '../../utils/error/applicationError';
 
 const UPLOAD_PATH = process.env.NODE_ENV === 'development' ? process.env.TEST_UPLOAD_PATH : process.env.PI_SERVICE_URL;
 
 const MaxFileSizeMB = 5;
 export class ImageController {
-  static async saveImage(req, res, next) {
+  static async saveImage(req: TypedRequest, res: Response, next: NextFunction) {
     const imageUrl = req.body.image;
     const fileSizeMB = Buffer.byteLength(imageUrl, 'base64') / (1024 * 1024);
     if (fileSizeMB > MaxFileSizeMB) throw new ApplicationError(413);
@@ -28,7 +29,7 @@ export class ImageController {
       await fs.promises.chmod(`public${path}`, 0o644);
       return res.status(200).json({ data: { imageUrl: `${UPLOAD_PATH}${path}` } });
     } catch (err) {
-      throw new ApplicationError(500, err);
+      throw new ApplicationError(500, err as string);
     }
   }
 }

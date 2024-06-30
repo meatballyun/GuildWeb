@@ -1,12 +1,15 @@
-// @ts-nocheck
+import { Response, NextFunction } from 'express';
+import { TypedRequest } from '../../types/TypedRequest';
 import { TaskModel } from '../../models/guild/task.model';
 import { AdventurerModel } from '../../models/guild/adventurer.model';
 import { TaskRepository } from '../../repositories/guild/task.repository';
+import { Task } from '../../types/guild/task';
+import { Membership } from '../../types/user/userGuildRelation';
 
 export class TaskController {
-  static async getUserTasks(req, res, next) {
+  static async getUserTasks(req: TypedRequest, res: Response, next: NextFunction) {
     const query = await AdventurerModel.getAllByUser(req.session.passport.user);
-    let data = [];
+    let data: Task[] = [];
     if (query?.length) {
       await Promise.all(
         query.map(async (i) => {
@@ -14,10 +17,10 @@ export class TaskController {
           if (tasks?.length) {
             const task = await Promise.all(
               tasks
-                .filter((row) => {
+                .filter((row: Task) => {
                   return row.STATUS === 'Established' || row.STATUS === 'In Progress';
                 })
-                .map(async (row) => {
+                .map(async (row: Task) => {
                   return {
                     id: row.ID,
                     gid: row.GUILD_ID,
@@ -37,69 +40,69 @@ export class TaskController {
     return res.status(200).json({ data });
   }
 
-  static async getTasks(req, res, next) {
+  static async getTasks(req: TypedRequest, res: Response, next: NextFunction) {
     const data = await TaskRepository.getAll(req.params, req.query, req.session.passport.user);
     return res.status(200).json({ data });
   }
 
-  static async getTaskDetail(req, res, next) {
+  static async getTaskDetail(req: TypedRequest, res: Response, next: NextFunction) {
     const data = await TaskRepository.getOne(req.params, req.session.passport.user);
     return res.status(200).json({ data });
   }
 
-  static async acceptTask(req, res, next) {
+  static async acceptTask(req: TypedRequest, res: Response, next: NextFunction) {
     await TaskRepository.accept(req.params, req.session.passport.user);
     return res.status(200).json({ data: 'OK' });
   }
 
-  static async abandonTask(req, res, next) {
+  static async abandonTask(req: TypedRequest, res: Response, next: NextFunction) {
     await TaskRepository.abandon(req.params, req.session.passport.user);
     return res.status(200).json({ data: 'OK' });
   }
 
-  static async addTask(req, res, next) {
+  static async addTask(req: TypedRequest, res: Response, next: NextFunction) {
     const data = await TaskRepository.create(req.body, req.params.gid, req.session.passport.user);
     return res.status(200).json({ data });
   }
 
-  static async completeTask(req, res, next) {
-    await TaskRepository.complete(req.params, req.member, req.session.passport.user);
+  static async completeTask(req: TypedRequest, res: Response, next: NextFunction) {
+    await TaskRepository.complete(req.params, req.member?.membership as Membership, req.session.passport.user);
     return res.status(200).json({ data: 'OK' });
   }
 
-  static async failTask(req, res, next) {
-    await TaskRepository.fail(req.params, req.member, req.session.passport.user);
+  static async failTask(req: TypedRequest, res: Response, next: NextFunction) {
+    await TaskRepository.fail(req.params, req.member?.membership as Membership, req.session.passport.user);
     return res.status(200).json({ data: 'OK' });
   }
 
-  static async updateTask(req, res, next) {
+  static async updateTask(req: TypedRequest, res: Response, next: NextFunction) {
     // prettier-ignore
-    const data = await TaskRepository.update( req.body, req.params, req.member, req.session.passport.user);
+    const data = await TaskRepository.update( req.body, req.params, req.member?.membership as Membership, req.session.passport.user);
     return res.status(200).json({ data });
   }
 
-  static async cancelTask(req, res, next) {
-    await TaskRepository.cancel(req.params, req.member, req.session.passport.user);
+  static async cancelTask(req: TypedRequest, res: Response, next: NextFunction) {
+    await TaskRepository.cancel(req.params, req.member?.membership as Membership, req.session.passport.user);
     return res.status(200).json({ data: 'OK' });
   }
 
-  static async restoreTask(req, res, next) {
-    await TaskRepository.restore(req.params, req.member, req.session.passport.user);
+  static async restoreTask(req: TypedRequest, res: Response, next: NextFunction) {
+    await TaskRepository.restore(req.params, req.member?.membership as Membership, req.session.passport.user);
     return res.status(200).json({ data: 'OK' });
   }
 
-  static async submitTask(req, res, next) {
+  static async submitTask(req: TypedRequest, res: Response, next: NextFunction) {
     await TaskRepository.submit(req.params, req.session.passport.user);
     return res.status(200).json({ data: 'OK' });
   }
 
-  static async clickCheckboxForItemRecord(req, res, next) {
+  static async clickCheckboxForItemRecord(req: TypedRequest, res: Response, next: NextFunction) {
     await TaskRepository.clickCheckboxForItemRecord(req.body.itemRecordId);
     return res.status(200).json({ data: 'OK' });
   }
 
-  static async deleteTask(req, res, next) {
-    await TaskRepository.delete(req.params, req.member, req.session.passport.user);
+  static async deleteTask(req: TypedRequest, res: Response, next: NextFunction) {
+    await TaskRepository.delete(req.params, req.member?.membership as Membership, req.session.passport.user);
     return res.status(200).json({ data: 'OK' });
   }
 }

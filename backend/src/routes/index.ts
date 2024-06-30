@@ -5,8 +5,6 @@ import upload from './upload';
 import foods from './foods';
 import guilds from './guilds';
 import notifications from './notifications';
-//import taskScheduler from '../scheduled/taskScheduler';
-//import awaitHandlerFactory from '../utils/awaitHandlerFactory';
 
 const router = express.Router();
 

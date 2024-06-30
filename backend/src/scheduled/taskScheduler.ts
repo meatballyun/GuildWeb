@@ -1,4 +1,3 @@
-// @ts-nocheck
 import updateTaskStatus from './updateTaskStatus';
 import buildTaskByTaskTemplates from './buildTask';
 const INTERVAL = 5 * 60 * 1000;

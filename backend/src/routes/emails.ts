@@ -1,5 +1,5 @@
 import express from 'express';
-import awaitHandlerFactory from '../utils/awaitHandlerFactory';
+import { awaitHandlerFactory } from '../utils/awaitHandlerFactory';
 import { MailController } from '../controllers/email/emailControllers';
 
 const router = express.Router();

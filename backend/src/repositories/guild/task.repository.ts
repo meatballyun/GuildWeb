@@ -10,9 +10,10 @@ import { AdventurerModel } from '../../models/guild/adventurer.model';
 import { ItemRepository } from '../../repositories/guild/item.repository';
 import { ItemRecordRepository } from '../../repositories/guild/itemRecord.repository';
 import { AdventurerRepository } from '../../repositories/guild/adventurer.repository';
+import { TemplateItem } from '../../types/guild/taskTemplateItem';
 
 interface TaskDetailed extends TaskTime, TaskInfo {
-  items: Item[];
+  items: Item[] | TemplateItem[];
 }
 
 export class TaskRepository {
@@ -89,7 +90,7 @@ export class TaskRepository {
     await ItemRecordRepository.deleteAllByTaskAndUser(taskId, uid);
   }
 
-  static async complete({ tid: taskId }: { tid: number }, { membership }: { membership: Membership }, uid: number) {
+  static async complete({ tid: taskId }: { tid: number }, membership: Membership, uid: number) {
     const task = await TaskModel.getOne(taskId);
     if (!task) throw new ApplicationError(404);
     if (membership === 'vice' && uid !== task.creatorId) throw new ApplicationError(403);
@@ -99,7 +100,7 @@ export class TaskRepository {
     if (!result) throw new ApplicationError(400);
   }
 
-  static async fail({ tid: taskId }: { tid: number }, { membership }: { membership: Membership }, uid: number) {
+  static async fail({ tid: taskId }: { tid: number }, membership: Membership, uid: number) {
     const task = await TaskModel.getOne(taskId);
     if (!task) throw new ApplicationError(404);
     if (membership === 'vice' && uid !== task.creatorId) throw new ApplicationError(403);
@@ -121,7 +122,7 @@ export class TaskRepository {
   }
 
   // prettier-ignore
-  static async update({ initiationTime, deadline, items, ...otherData }: TaskDetailed, { tid: taskId }:{ tid: number }, { membership }: { membership: Membership }, uid: number) {
+  static async update({ initiationTime, deadline, items, ...otherData }: TaskDetailed, { tid: taskId }:{ tid: number }, membership: Membership, uid: number) {
     const task = await TaskModel.getOne(taskId);
     if (!task) throw new ApplicationError(404);
     if (membership === 'vice' && uid !== task.creatorId) throw new ApplicationError(403);
@@ -138,7 +139,7 @@ export class TaskRepository {
     return { id: taskId };
   }
 
-  static async cancel({ tid: taskId }: { tid: number }, { membership }: { membership: Membership }, uid: number) {
+  static async cancel({ tid: taskId }: { tid: number }, membership: Membership, uid: number) {
     const task = await TaskModel.getOne(taskId);
     if (!task) throw new ApplicationError(404);
     if (membership === 'vice' && uid !== task.creatorId) throw new ApplicationError(403);
@@ -150,7 +151,7 @@ export class TaskRepository {
     if (!result) throw new ApplicationError(400);
   }
 
-  static async restore({ tid: taskId }: { tid: number }, { membership }: { membership: Membership }, uid: number) {
+  static async restore({ tid: taskId }: { tid: number }, membership: Membership, uid: number) {
     const task = await TaskModel.getOne(taskId);
     if (!task) throw new ApplicationError(404);
     if (membership === 'vice' && uid !== task.creatorId) throw new ApplicationError(403);
@@ -163,7 +164,7 @@ export class TaskRepository {
     if (!result) throw new ApplicationError(400);
   }
 
-  static async delete({ tid: taskId }: { tid: number }, { membership }: { membership: Membership }, uid: number) {
+  static async delete({ tid: taskId }: { tid: number }, membership: Membership, uid: number) {
     const task = await TaskModel.getOne(taskId);
     if (!task) throw new ApplicationError(404);
     if (membership === 'vice' && uid !== task.creatorId) throw new ApplicationError(403);
