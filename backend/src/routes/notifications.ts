@@ -1,7 +1,7 @@
 import express from 'express';
 import passport from '../utils/verification/passport';
 import { awaitHandlerFactory } from '../utils/awaitHandlerFactory';
-import { NotificationController } from '../controllers/notification/notificationControllers';
+import { NotificationController } from '../controllers/notification/notification';
 
 const auth = passport.authenticate('jwt', { session: true });
 const router = express.Router();

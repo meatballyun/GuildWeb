@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
 import { TypedRequest } from '../types/TypedRequest';
 import { ApplicationError } from '../utils/error/applicationError';
-import { UserGuildRelationModel } from '../models/user/userGuildRelation.model';
+import { UserGuildRelationModel } from '../models/user/userGuildRelation';
 
 const checkAuth = async (uid: number, gid: number, level: number) => {
   const member = await UserGuildRelationModel.getOneByGuildAndUser(uid, gid);

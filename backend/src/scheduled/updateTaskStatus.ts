@@ -1,4 +1,4 @@
-import { TaskModel } from '../models/guild/task.model';
+import { TaskModel } from '../models/guild/task';
 
 const updateTaskStatus = async () => {
   await TaskModel.checkInitiationTimeEvent();

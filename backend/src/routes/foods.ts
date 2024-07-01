@@ -1,9 +1,9 @@
 import express from 'express';
 import passport from '../utils/verification/passport';
 import { awaitHandlerFactory } from '../utils/awaitHandlerFactory';
-import { IngredientController } from '../controllers/food/ingredientControllers';
-import { RecipeController } from '../controllers/food/recipeControllers';
-import { DietRecordController } from '../controllers/food/dietRecordControllers';
+import { IngredientController } from '../controllers/food/ingredient';
+import { RecipeController } from '../controllers/food/recipe';
+import { DietRecordController } from '../controllers/food/dietRecord';
 
 const router = express.Router();
 const auth = passport.authenticate('jwt', { session: true });

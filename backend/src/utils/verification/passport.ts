@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
 import { User } from '../../types/user/user';
-import { UserModel } from '../../models/user/user.model';
+import { UserModel } from '../../models/user/user';
 
 passport.serializeUser(function (user, done) {
   done(null, (user as User).id);

@@ -2,10 +2,10 @@ import express from 'express';
 import passport from '../utils/verification/passport';
 import { awaitHandlerFactory } from '../utils/awaitHandlerFactory';
 import { GuildAuth } from '../middleware/guildAuth';
-import { GuildController } from '../controllers/guild/guildControllers';
-import { memberController } from '../controllers/guild/memberControllers';
-import { TaskController } from '../controllers/guild/taskControllers';
-import { TaskTemplateController } from '../controllers/guild/taskTemplateControllers';
+import { GuildController } from '../controllers/guild/guild';
+import { memberController } from '../controllers/guild/member';
+import { TaskController } from '../controllers/guild/task';
+import { TaskTemplateController } from '../controllers/guild/taskTemplate';
 
 const router = express.Router();
 const auth = passport.authenticate('jwt', { session: true });

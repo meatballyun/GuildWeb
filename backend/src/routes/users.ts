@@ -1,11 +1,11 @@
 import express from 'express';
 import { awaitHandlerFactory } from '../utils/awaitHandlerFactory';
 import passport from '../utils/verification/passport';
-import { AuthController } from '../controllers/user/authControllers';
-import { MailController } from '../controllers/email/emailControllers';
-import { NotificationController } from '../controllers/notification/notificationControllers';
-import { UserInfoController } from '../controllers/user/userinfoControllers';
-import { UserListController } from '../controllers/user/userListControllers';
+import { AuthController } from '../middleware/auth';
+import { MailController } from '../controllers/email/email';
+import { NotificationController } from '../controllers/notification/notification';
+import { UserInfoController } from '../controllers/user/userinfo';
+import { UserListController } from '../controllers/user/userList';
 
 const auth = passport.authenticate('jwt', { session: true });
 const router = express.Router();

@@ -1,7 +1,7 @@
 import express from 'express';
 import passport from '../utils/verification/passport';
 import { awaitHandlerFactory } from '../utils/awaitHandlerFactory';
-import { ImageController } from '../controllers/upload/imageControllers';
+import { ImageController } from '../controllers/upload/image';
 
 const auth = passport.authenticate('jwt', { session: true });
 const router = express.Router();
