@@ -80,10 +80,10 @@ const CheckList = ({ value = [], onChange }: CheckListProps) => {
 const validateObject: Record<string, ValidateObj[]> = {
   name: [validate.required],
   type: [validate.required],
-  repetitiveTaskType: [
+  repetitiveMissionType: [
     ({ value }, { type }) => {
       if (type === 'Repetitive' && !value)
-        throw Error('repetitiveTaskType is required');
+        throw Error('repetitiveMissionType is required');
     },
   ],
   maxAdventurer: [
@@ -198,7 +198,7 @@ export const AddMissionModal = ({
               <Form.Item valueKey="type" label="Type">
                 <DropdownSelect
                   className="w-full"
-                  placeholder="select repetitive Task Type"
+                  placeholder="select repetitive Mission Type"
                   options={[
                     {
                       value: 'Daily',

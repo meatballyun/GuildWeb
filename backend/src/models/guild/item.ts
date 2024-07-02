@@ -3,18 +3,18 @@ import { ResultSetHeader } from 'mysql2';
 import { Item } from '../../types/guild/item';
 
 export class ItemModel {
-  static getAll(taskId: number): Promise<Item[]> {
+  static getAll(missionId: number): Promise<Item[]> {
     return new Promise((resolve, reject) => {
-      conn.query<Item[]>('SELECT * FROM items WHERE taskId = ? AND active = TRUE', [taskId], function (err, rows) {
+      conn.query<Item[]>('SELECT * FROM items WHERE missionId = ? AND active = TRUE', [missionId], function (err, rows) {
         if (err) reject(err);
         resolve(rows);
       });
     });
   }
 
-  static create(taskId: number, content: string): Promise<number> {
+  static create(missionId: number, content: string): Promise<number> {
     return new Promise((resolve, reject) => {
-      conn.query<ResultSetHeader>('INSERT INTO items(taskId , content) VALUES (?,?)', [taskId, content], function (err, rows) {
+      conn.query<ResultSetHeader>('INSERT INTO items(missionId , content) VALUES (?,?)', [missionId, content], function (err, rows) {
         if (err) reject(err);
         resolve(rows.insertId);
       });
@@ -39,9 +39,9 @@ export class ItemModel {
     });
   }
 
-  static deleteAll(taskId: number): Promise<number> {
+  static deleteAll(missionId: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      conn.query<ResultSetHeader>('UPDATE items SET active = FALSE WHERE taskId = ?', [taskId], function (err, rows) {
+      conn.query<ResultSetHeader>('UPDATE items SET active = FALSE WHERE missionId = ?', [missionId], function (err, rows) {
         if (err) reject(err);
         resolve(rows.affectedRows);
       });

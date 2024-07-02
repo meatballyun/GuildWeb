@@ -3,7 +3,7 @@ import { RowDataPacket } from 'mysql2';
 export type Status = 'accepted' | 'completed' | 'failed';
 
 export interface Adventurer extends RowDataPacket {
-  taskId: number;
+  missionId: number;
   userId: number;
   createTime: Date;
   updateTime: Date;

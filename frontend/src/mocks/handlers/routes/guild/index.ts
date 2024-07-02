@@ -45,14 +45,14 @@ export const guild = [
       data: getUser({ myMembership: 'Master', availableUser: [1, 2, 3] }),
     });
   }),
-  http.get(`${BASE_API_URL}/guild/:id/task`, () => {
+  http.get(`${BASE_API_URL}/guild/:id/mission`, () => {
     return HttpResponse.json({
       success: true,
       message: 'Data retrieval successful.',
       data: TASKS,
     });
   }),
-  http.get(`${BASE_API_URL}/guild/:id/task/:tid`, ({ params }) => {
+  http.get(`${BASE_API_URL}/guild/:id/mission/:tid`, ({ params }) => {
     return HttpResponse.json({
       success: true,
       message: 'Data retrieval successful.',

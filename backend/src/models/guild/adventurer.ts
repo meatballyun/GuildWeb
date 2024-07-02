@@ -3,9 +3,9 @@ import { ResultSetHeader } from 'mysql2';
 import { Status, Adventurer } from '../../types/guild/adventurer';
 
 export class AdventurerModel {
-  static getOne(taskId: number, userId: number): Promise<Adventurer | undefined> {
+  static getOne(missionId: number, userId: number): Promise<Adventurer | undefined> {
     return new Promise((resolve, reject) => {
-      conn.query<Adventurer[]>(`SELECT * FROM adventurers WHERE taskId = ? AND userId = ?`, [taskId, userId], function (err, rows) {
+      conn.query<Adventurer[]>(`SELECT * FROM adventurers WHERE missionId = ? AND userId = ?`, [missionId, userId], function (err, rows) {
         if (err) reject(err);
         if (rows?.length) resolve(rows[0]);
         resolve(undefined);
@@ -13,9 +13,9 @@ export class AdventurerModel {
     });
   }
 
-  static getAllByTask(taskId: number): Promise<Adventurer[]> {
+  static getAllByMission(missionId: number): Promise<Adventurer[]> {
     return new Promise((resolve, reject) => {
-      conn.query<Adventurer[]>(`SELECT * FROM adventurers WHERE taskId = ?`, [taskId], function (err, rows) {
+      conn.query<Adventurer[]>(`SELECT * FROM adventurers WHERE missionId = ?`, [missionId], function (err, rows) {
         if (err) reject(err);
         resolve(rows);
       });
@@ -31,45 +31,45 @@ export class AdventurerModel {
     });
   }
 
-  static create(taskId: number, userId: number): Promise<number> {
+  static create(missionId: number, userId: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      conn.query<ResultSetHeader>(`INSERT INTO adventurers(taskId , userId, acceptanceTime, status) VALUES (?, ?, CURDATE(), 'Accepted')`, [taskId, userId], function (err, rows) {
+      conn.query<ResultSetHeader>(`INSERT INTO adventurers(missionId , userId, acceptanceTime, status) VALUES (?, ?, CURDATE(), 'Accepted')`, [missionId, userId], function (err, rows) {
         if (err) reject(err);
         resolve(rows.insertId);
       });
     });
   }
 
-  static update(taskId: number, userId: number, status: Status, completedTime: Date): Promise<number> {
+  static update(missionId: number, userId: number, status: Status, completedTime: Date): Promise<number> {
     return new Promise((resolve, reject) => {
-      conn.query<ResultSetHeader>(`UPDATE adventurers SET status = ?, completedTime = ? WHERE taskId = ? AND userId = ?`, [status, completedTime, taskId, userId], function (err, rows) {
+      conn.query<ResultSetHeader>(`UPDATE adventurers SET status = ?, completedTime = ? WHERE missionId = ? AND userId = ?`, [status, completedTime, missionId, userId], function (err, rows) {
         if (err) reject(err);
         resolve(rows.affectedRows);
       });
     });
   }
 
-  static updateStatus(taskId: number, userId: number, status: Status): Promise<number> {
+  static updateStatus(missionId: number, userId: number, status: Status): Promise<number> {
     return new Promise((resolve, reject) => {
-      conn.query<ResultSetHeader>(`UPDATE adventurers SET status = ? WHERE taskId = ? AND userId = ?`, [status, taskId, userId], function (err, rows) {
+      conn.query<ResultSetHeader>(`UPDATE adventurers SET status = ? WHERE missionId = ? AND userId = ?`, [status, missionId, userId], function (err, rows) {
         if (err) reject(err);
         resolve(rows.affectedRows);
       });
     });
   }
 
-  static deleteByTask(taskId: number): Promise<number> {
+  static deleteByMission(missionId: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      conn.query<ResultSetHeader>(`DELETE FROM adventurers WHERE taskId = ?`, [taskId], function (err, rows) {
+      conn.query<ResultSetHeader>(`DELETE FROM adventurers WHERE missionId = ?`, [missionId], function (err, rows) {
         if (err) reject(err);
         resolve(rows.affectedRows);
       });
     });
   }
 
-  static deleteByTaskAndUser(taskId: number, userId: number): Promise<number> {
+  static deleteByMissionAndUser(missionId: number, userId: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      conn.query<ResultSetHeader>(`DELETE FROM adventurers WHERE taskId = ? AND userId = ?`, [taskId, userId], function (err, rows) {
+      conn.query<ResultSetHeader>(`DELETE FROM adventurers WHERE missionId = ? AND userId = ?`, [missionId, userId], function (err, rows) {
         if (err) reject(err);
         resolve(rows.affectedRows);
       });

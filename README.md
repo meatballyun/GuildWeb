@@ -4,14 +4,14 @@ _Copyright © 2024 Yun-T.Z. All rights reserved_
 
 ## Introduction
 
-This is a platform designed to address the need for recording various aspects of life, including nutrition planning and task goal setting.
+This is a platform designed to address the need for recording various aspects of life, including nutrition planning and mission goal setting.
 
 ## Features
 
 - Set daily nutrition goals and record ingredients, recipes, and daily meals.
 - Customize to-do items and set daily, weekly, and monthly goals.
 - Establish adventurer guilds to collaboratively achieve objectives.
-- Share ingredients, recipes, and tasks with other users.
+- Share ingredients, recipes, and missions with other users.
 
 ## Technical Details
 

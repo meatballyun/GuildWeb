@@ -14,8 +14,8 @@ export class ItemRecordService {
     return data;
   }
 
-  static async deleteAllByTask(taskId: number) {
-    const items = await ItemModel.getAll(taskId);
+  static async deleteAllByMission(missionId: number) {
+    const items = await ItemModel.getAll(missionId);
     await Promise.all(
       items.map(async ({ id: itemId }) => {
         await ItemRecordModel.deleteAllByItem(itemId);
@@ -23,8 +23,8 @@ export class ItemRecordService {
     );
   }
 
-  static async deleteAllByTaskAndUser(taskId: number, AdventurerId: number) {
-    const items = await ItemModel.getAll(taskId);
+  static async deleteAllByMissionAndUser(missionId: number, AdventurerId: number) {
+    const items = await ItemModel.getAll(missionId);
     if (!items) return;
     await Promise.all(
       items.map(async ({ id: itemId }) => {

@@ -1,6 +1,6 @@
 import { RowDataPacket } from 'mysql2';
-import { TemplateItem } from './taskTemplateItem';
+import { TemplateItem } from './missionTemplateItem';
 
 export interface Item extends RowDataPacket, Omit<TemplateItem, 'templateId'> {
-  taskId: number;
+  missionId: number;
 }

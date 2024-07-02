@@ -233,7 +233,7 @@ const taskApi = async ({ type, gid, selectedId, value }: TaskApiParam) => {
 
   const requestBody = {
     ...value,
-    taskId: selectedId,
+    missionId: selectedId,
     initiationTime: startDate,
     deadline: endDate,
   };
@@ -243,7 +243,7 @@ const taskApi = async ({ type, gid, selectedId, value }: TaskApiParam) => {
       data: requestBody,
     });
   }
-  return api.guild.postGuildsTasks({
+  return api.guild.postGuildsMissions({
     pathParams: { gid },
     data: requestBody,
   });

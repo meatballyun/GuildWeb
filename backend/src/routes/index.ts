@@ -15,6 +15,6 @@ router.use('/foods', foods);
 router.use('/guilds', guilds);
 router.use('/notifications', notifications);
 
-//awaitHandlerFactory(taskScheduler.start());
+//awaitHandlerFactory(missionScheduler.start());
 
 export default router;

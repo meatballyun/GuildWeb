@@ -2,9 +2,9 @@ import { TypedRequest } from '../../types/TypedRequest';
 import { Response, NextFunction } from 'express';
 import { GuildModel } from '../../models/guild/guild';
 import { AdventurerModel } from '../../models/guild/adventurer';
-import { TaskModel } from '../../models/guild/task';
-import { TaskTemplateModel } from '../../models/guild/taskTemplate';
-import { TaskTemplateItemModel } from '../../models/guild/taskTemplateItem';
+import { MissionModel } from '../../models/guild/mission';
+import { MissionTemplateModel } from '../../models/guild/missionTemplate';
+import { MissionTemplateItemModel } from '../../models/guild/missionTemplateItem';
 import { ItemModel } from '../../models/guild/item';
 import { ItemRecordModel } from '../../models/guild/itemRecord';
 import { GuildService } from '../../services/guild/guild';
@@ -39,10 +39,10 @@ export class GuildController {
   }
 
   static async deleteGuild(req: TypedRequest, res: Response, next: NextFunction) {
-    const tasks = await TaskModel.getAllByGuild(req.params.gid);
-    if (tasks?.length) {
-      tasks.map(async (row) => {
-        await AdventurerModel.deleteByTask(row.ID);
+    const missions = await MissionModel.getAllByGuild(req.params.gid);
+    if (missions?.length) {
+      missions.map(async (row) => {
+        await AdventurerModel.deleteByMission(row.ID);
         const items = await ItemModel.getAll(row.ID);
         if (items && items?.length) {
           await Promise.all(
@@ -55,15 +55,15 @@ export class GuildController {
           );
         }
         await ItemModel.deleteAll(row.ID);
-        await TaskModel.delete(row.ID);
+        await MissionModel.delete(row.ID);
       });
     }
 
-    const taskTemplates = await TaskTemplateModel.getAllByGuild(req.params.gid);
-    if (taskTemplates?.length)
-      taskTemplates.map(async (row) => {
-        await TaskTemplateItemModel.deleteByTaskTemplate(row.ID);
-        await TaskTemplateModel.delete(row.ID);
+    const missionTemplates = await MissionTemplateModel.getAllByGuild(req.params.gid);
+    if (missionTemplates?.length)
+      missionTemplates.map(async (row) => {
+        await MissionTemplateItemModel.deleteByMissionTemplate(row.ID);
+        await MissionTemplateModel.delete(row.ID);
       });
 
     const query = await GuildModel.deleteGuild(req.params.gid);

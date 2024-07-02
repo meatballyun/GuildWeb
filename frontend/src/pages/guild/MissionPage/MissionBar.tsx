@@ -11,7 +11,7 @@ const MissionStatusIcon = ({ status }: { status?: TaskStatus }) => {
     <div
       className={classNames('border-current rotate-3 border px-1', textColor)}
     >
-      {status === 'established' ? 'Accepted' : status}
+      {status === 'Established' ? 'Accepted' : status}
     </div>
   );
 };
@@ -29,6 +29,7 @@ export const MissionBar = ({
   name,
   type,
   status,
+  repetitiveTaskType,
   focus,
   isAccepted,
   onClick,
@@ -43,7 +44,7 @@ export const MissionBar = ({
         !focus && isAccepted && 'bg-primary-100/50 hover:bg-primary-100'
       )}
     >
-      <MissionPill type={type} />
+      <MissionPill type={type} repetitiveTaskType={repetitiveTaskType} />
       <div className="w-full flex-1  truncate text-paragraph-p3 text-primary-400">
         {name}
       </div>

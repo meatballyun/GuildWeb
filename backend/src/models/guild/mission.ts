@@ -1,10 +1,10 @@
 import conn from '../../lib/db';
 import { ResultSetHeader } from 'mysql2';
-import { Status, TaskTime, TaskInfo, Task } from '../../types/guild/task';
-export class TaskModel {
-  static getOne(id: number): Promise<Task | undefined> {
+import { Status, MissionTime, MissionInfo, Mission } from '../../types/guild/mission';
+export class MissionModel {
+  static getOne(id: number): Promise<Mission | undefined> {
     return new Promise((resolve, reject) => {
-      conn.query<Task[]>('SELECT * FROM tasks WHERE id = ? AND active = TRUE', [id], function (err, rows) {
+      conn.query<Mission[]>('SELECT * FROM missions WHERE id = ? AND active = TRUE', [id], function (err, rows) {
         if (err) reject(err);
         if (rows?.length) resolve(rows[0]);
         resolve(undefined);
@@ -12,30 +12,30 @@ export class TaskModel {
     });
   }
 
-  static getAllByGuild(guildId: number): Promise<Task[]> {
+  static getAllByGuild(guildId: number): Promise<Mission[]> {
     return new Promise((resolve, reject) => {
-      conn.query<Task[]>('SELECT * FROM tasks WHERE guildId = ? AND active = TRUE', [guildId], function (err, rows) {
+      conn.query<Mission[]>('SELECT * FROM missions WHERE guildId = ? AND active = TRUE', [guildId], function (err, rows) {
         if (err) reject(err);
         resolve(rows);
       });
     });
   }
 
-  static getAllByGuildAndName(guildId: number, name: string): Promise<Task[]> {
+  static getAllByGuildAndName(guildId: number, name: string): Promise<Mission[]> {
     return new Promise((resolve, reject) => {
-      conn.query<Task[]>('SELECT * FROM tasks WHERE guildId = ? AND name LIKE ? AND active = TRUE', [guildId, '%' + name + '%'], function (err, rows) {
+      conn.query<Mission[]>('SELECT * FROM missions WHERE guildId = ? AND name LIKE ? AND active = TRUE', [guildId, '%' + name + '%'], function (err, rows) {
         if (err) reject(err);
         resolve(rows);
       });
     });
   }
 
-  static create(creatorId: number, guildId: number, { initiationTime, deadline }: TaskTime, { name, description, type, maxAdventurer }: TaskInfo): Promise<number> {
+  static create(creatorId: number, guildId: number, { initiationTime, deadline }: MissionTime, { name, description, type, maxAdventurer }: MissionInfo): Promise<number> {
     const currentTime = new Date().getTime();
     const status = currentTime >= new Date(initiationTime).getTime() ? 'In Progress' : 'Established';
     return new Promise((resolve, reject) => {
       conn.query<ResultSetHeader>(
-        'INSERT INTO tasks(creatorId , guildId, initiationTime, deadline, name, description, type, maxAdventurer, status) VALUES (?,?,?,?,?,?,?,?,?)',
+        'INSERT INTO missions(creatorId , guildId, initiationTime, deadline, name, description, type, maxAdventurer, status) VALUES (?,?,?,?,?,?,?,?,?)',
         [creatorId, guildId, initiationTime, deadline, name, description, type, maxAdventurer, status],
         function (err, rows) {
           if (err) reject(err);
@@ -45,12 +45,12 @@ export class TaskModel {
     });
   }
 
-  static updateDetail(id: number, { initiationTime, deadline }: TaskTime, { name, description, type, maxAdventurer }: TaskInfo): Promise<number> {
+  static updateDetail(id: number, { initiationTime, deadline }: MissionTime, { name, description, type, maxAdventurer }: MissionInfo): Promise<number> {
     const currentTime = new Date().getTime();
     const status = currentTime >= new Date(initiationTime).getTime() ? 'In Progress' : 'Established';
     return new Promise((resolve, reject) => {
       conn.query<ResultSetHeader>(
-        'UPDATE tasks SET initiationTime = ?, deadline = ?, name = ?, description = ?, type = ?, maxAdventurer = ?, status = ? WHERE id = ?',
+        'UPDATE missions SET initiationTime = ?, deadline = ?, name = ?, description = ?, type = ?, maxAdventurer = ?, status = ? WHERE id = ?',
         [initiationTime, deadline, name, description, type, maxAdventurer, status, id],
         function (err, rows) {
           if (err) reject(err);
@@ -62,7 +62,7 @@ export class TaskModel {
 
   static updateStatus(id: number, status: Status): Promise<number> {
     return new Promise((resolve, reject) => {
-      conn.query<ResultSetHeader>(`UPDATE tasks SET status = ?, adventurer  = 0 WHERE id = ?`, [status, id], function (err, rows) {
+      conn.query<ResultSetHeader>(`UPDATE missions SET status = ?, adventurer  = 0 WHERE id = ?`, [status, id], function (err, rows) {
         if (err) reject(err);
         resolve(rows.affectedRows);
       });
@@ -71,7 +71,7 @@ export class TaskModel {
 
   static accept(id: number, adventurer: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      conn.query<ResultSetHeader>('UPDATE tasks SET adventurer  = ? WHERE id = ?', [adventurer, id], function (err, rows) {
+      conn.query<ResultSetHeader>('UPDATE missions SET adventurer  = ? WHERE id = ?', [adventurer, id], function (err, rows) {
         if (err) reject(err);
         resolve(rows.affectedRows);
       });
@@ -80,7 +80,7 @@ export class TaskModel {
 
   static maxAccepted(id: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      conn.query<ResultSetHeader>(`UPDATE tasks SET ACCEPTED = 'max accepted' WHERE id = ?`, [id], function (err, rows) {
+      conn.query<ResultSetHeader>(`UPDATE missions SET ACCEPTED = 'max accepted' WHERE id = ?`, [id], function (err, rows) {
         if (err) reject(err);
         resolve(rows.affectedRows);
       });
@@ -89,7 +89,7 @@ export class TaskModel {
 
   static delete(id: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      conn.query<ResultSetHeader>('UPDATE tasks SET active = FALSE WHERE id = ?', [id], function (err, rows) {
+      conn.query<ResultSetHeader>('UPDATE missions SET active = FALSE WHERE id = ?', [id], function (err, rows) {
         if (err) reject(err);
         resolve(rows.affectedRows);
       });
@@ -98,7 +98,7 @@ export class TaskModel {
 
   static checkInitiationTimeEvent(): Promise<number> {
     return new Promise((resolve, reject) => {
-      conn.query<ResultSetHeader>(`UPDATE tasks SET status = 'in progress' WHERE initiationTime < CURRENT_TIMESTAMP AND status = 'established' AND active = TRUE`, function (err, rows) {
+      conn.query<ResultSetHeader>(`UPDATE missions SET status = 'in progress' WHERE initiationTime < CURRENT_TIMESTAMP AND status = 'established' AND active = TRUE`, function (err, rows) {
         if (err) reject(err);
         resolve(rows.affectedRows);
       });
@@ -107,7 +107,7 @@ export class TaskModel {
 
   static checkDeadlineEvent(): Promise<number> {
     return new Promise((resolve, reject) => {
-      conn.query<ResultSetHeader>(`UPDATE tasks SET status = 'expired' WHERE deadline < CURRENT_TIMESTAMP AND status = 'in progress' AND active = TRUE`, function (err, rows) {
+      conn.query<ResultSetHeader>(`UPDATE missions SET status = 'expired' WHERE deadline < CURRENT_TIMESTAMP AND status = 'in progress' AND active = TRUE`, function (err, rows) {
         if (err) reject(err);
         resolve(rows.affectedRows);
       });

@@ -4,8 +4,8 @@ import { awaitHandlerFactory } from '../utils/awaitHandlerFactory';
 import { GuildAuth } from '../middleware/guildAuth';
 import { GuildController } from '../controllers/guild/guild';
 import { memberController } from '../controllers/guild/member';
-import { TaskController } from '../controllers/guild/task';
-import { TaskTemplateController } from '../controllers/guild/taskTemplate';
+import { MissionController } from '../controllers/guild/mission';
+import { MissionTemplateController } from '../controllers/guild/missionTemplate';
 
 const router = express.Router();
 const auth = passport.authenticate('jwt', { session: true });
@@ -25,29 +25,29 @@ router.post('/:gid/invitation', auth, awaitHandlerFactory(GuildAuth.isMasterOrVi
 router.patch('/:gid/members/:uid', auth, awaitHandlerFactory(GuildAuth.isMaster), awaitHandlerFactory(memberController.updateMember));
 router.delete('/:gid/members/:uid', auth, awaitHandlerFactory(GuildAuth.isMember), awaitHandlerFactory(memberController.deleteMember));
 
-// TaskTemplate
-router.get('/:gid/task_templates', auth, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(TaskTemplateController.getTaskTemplates));
-router.get('/:gid/task_templates/:ttid', auth, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(TaskTemplateController.getTaskTemplateDetail));
-router.post('/:gid/task_templates', auth, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(TaskTemplateController.addTaskTemplate));
-router.put('/:gid/task_templates/:ttid', auth, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(TaskTemplateController.updateTaskTemplate));
-router.delete('/:gid/task_templates/:ttid', auth, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(TaskTemplateController.deleteTaskTemplate));
+// MissionTemplate
+router.get('/:gid/mission_templates', auth, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(MissionTemplateController.getMissionTemplates));
+router.get('/:gid/mission_templates/:ttid', auth, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(MissionTemplateController.getMissionTemplateDetail));
+router.post('/:gid/mission_templates', auth, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(MissionTemplateController.addMissionTemplate));
+router.put('/:gid/mission_templates/:ttid', auth, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(MissionTemplateController.updateMissionTemplate));
+router.delete('/:gid/mission_templates/:ttid', auth, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(MissionTemplateController.deleteMissionTemplate));
 
-// Task
-router.get('/all/tasks', auth, awaitHandlerFactory(TaskController.getUserTasks));
-router.get('/:gid/tasks', auth, awaitHandlerFactory(TaskController.getTasks));
-router.get('/:gid/tasks/:tid', auth, awaitHandlerFactory(GuildAuth.isMember), awaitHandlerFactory(TaskController.getTaskDetail));
-router.post('/:gid/tasks/', auth, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(TaskController.addTask));
-router.put('/:gid/tasks/:tid', auth, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(TaskController.updateTask));
-router.delete('/:gid/tasks/:tid', auth, awaitHandlerFactory(GuildAuth.isMember), awaitHandlerFactory(TaskController.deleteTask));
+// Mission
+router.get('/all/missions', auth, awaitHandlerFactory(MissionController.getUserMissions));
+router.get('/:gid/missions', auth, awaitHandlerFactory(MissionController.getMissions));
+router.get('/:gid/missions/:tid', auth, awaitHandlerFactory(GuildAuth.isMember), awaitHandlerFactory(MissionController.getMissionDetail));
+router.post('/:gid/missions/', auth, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(MissionController.addMission));
+router.put('/:gid/missions/:tid', auth, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(MissionController.updateMission));
+router.delete('/:gid/missions/:tid', auth, awaitHandlerFactory(GuildAuth.isMember), awaitHandlerFactory(MissionController.deleteMission));
 
-// Task action
-router.get('/:gid/tasks/:tid/accepted', auth, awaitHandlerFactory(GuildAuth.isMember), awaitHandlerFactory(TaskController.acceptTask));
-router.get('/:gid/tasks/:tid/abandon', auth, awaitHandlerFactory(GuildAuth.isMember), awaitHandlerFactory(TaskController.abandonTask));
-router.patch('/:gid/tasks/:tid/complete', auth, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(TaskController.completeTask));
-router.patch('/:gid/tasks/:tid/fail', auth, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(TaskController.failTask));
-router.patch('/:gid/tasks/:tid/cancel', auth, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(TaskController.cancelTask));
-router.patch('/:gid/tasks/:tid/restore', auth, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(TaskController.restoreTask));
-router.patch('/:gid/tasks/:tid/submit', auth, awaitHandlerFactory(GuildAuth.isMember), awaitHandlerFactory(TaskController.submitTask));
-router.patch('/:gid/tasks/checkbox', auth, awaitHandlerFactory(GuildAuth.isMember), awaitHandlerFactory(TaskController.clickCheckboxForItemRecord));
+// Mission action
+router.get('/:gid/missions/:tid/accepted', auth, awaitHandlerFactory(GuildAuth.isMember), awaitHandlerFactory(MissionController.acceptMission));
+router.get('/:gid/missions/:tid/abandon', auth, awaitHandlerFactory(GuildAuth.isMember), awaitHandlerFactory(MissionController.abandonMission));
+router.patch('/:gid/missions/:tid/complete', auth, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(MissionController.completeMission));
+router.patch('/:gid/missions/:tid/fail', auth, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(MissionController.failMission));
+router.patch('/:gid/missions/:tid/cancel', auth, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(MissionController.cancelMission));
+router.patch('/:gid/missions/:tid/restore', auth, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(MissionController.restoreMission));
+router.patch('/:gid/missions/:tid/submit', auth, awaitHandlerFactory(GuildAuth.isMember), awaitHandlerFactory(MissionController.submitMission));
+router.patch('/:gid/missions/checkbox', auth, awaitHandlerFactory(GuildAuth.isMember), awaitHandlerFactory(MissionController.clickCheckboxForItemRecord));
 
 export default router;

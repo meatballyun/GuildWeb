@@ -52,3 +52,5 @@ export const MissionTypeSelect = ({
     </div>
   );
 };
+
+export default buildMissionByMissionTemplates;

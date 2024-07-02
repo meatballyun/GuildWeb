@@ -1,14 +1,14 @@
 import { ApplicationError } from '../../utils/error/applicationError';
-import { TaskTemplateItemModel } from '../../models/guild/taskTemplateItem';
+import { MissionTemplateItemModel } from '../../models/guild/missionTemplateItem';
 
 export interface Item {
   id: number;
   content: string;
 }
 
-export class TaskTemplateItemService {
-  static async getAll(taskTemplateId: number) {
-    const templateItems = await TaskTemplateItemModel.getAll(taskTemplateId);
+export class MissionTemplateItemService {
+  static async getAll(missionTemplateId: number) {
+    const templateItems = await MissionTemplateItemModel.getAll(missionTemplateId);
     if (!templateItems) return;
 
     const items = await Promise.all(
@@ -23,14 +23,14 @@ export class TaskTemplateItemService {
     if (items) {
       await Promise.all(
         items.map(async ({ content }: { content: string }) => {
-          const newTemplateItemId = await TaskTemplateItemModel.create(templateId, content);
+          const newTemplateItemId = await MissionTemplateItemModel.create(templateId, content);
           if (!newTemplateItemId) throw new ApplicationError(400);
         })
       );
     }
   }
-  static async delete(taskTemplateId: number) {
-    const templateItems = await TaskTemplateItemModel.getAll(taskTemplateId);
-    if (templateItems) await TaskTemplateItemModel.deleteByTaskTemplate(taskTemplateId);
+  static async delete(missionTemplateId: number) {
+    const templateItems = await MissionTemplateItemModel.getAll(missionTemplateId);
+    if (templateItems) await MissionTemplateItemModel.deleteByMissionTemplate(missionTemplateId);
   }
 }

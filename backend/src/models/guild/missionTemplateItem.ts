@@ -1,8 +1,8 @@
 import conn from '../../lib/db';
 import { ResultSetHeader } from 'mysql2';
-import { TemplateItem } from '../../types/guild/taskTemplateItem';
+import { TemplateItem } from '../../types/guild/missionTemplateItem';
 
-export class TaskTemplateItemModel {
+export class MissionTemplateItemModel {
   static getAll(templateId: number): Promise<TemplateItem[]> {
     return new Promise((resolve, reject) => {
       conn.query<TemplateItem[]>('SELECT * FROM templateItems WHERE templateId = ? AND active = TRUE', [templateId], function (err, rows) {
@@ -39,7 +39,7 @@ export class TaskTemplateItemModel {
     });
   }
 
-  static deleteByTaskTemplate(templateId: number): Promise<number> {
+  static deleteByMissionTemplate(templateId: number): Promise<number> {
     return new Promise((resolve, reject) => {
       conn.query<ResultSetHeader>('UPDATE templateItems SET active = FALSE WHERE templateId  = ?', [templateId], function (err, rows) {
         if (err) reject(err);

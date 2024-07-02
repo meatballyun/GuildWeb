@@ -439,3 +439,5 @@ export const MissionPage = ({ mode }: { mode?: MissionPageMode }) => {
     </>
   );
 };
+
+export default updateMissionStatus;

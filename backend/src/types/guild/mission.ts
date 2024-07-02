@@ -1,18 +1,18 @@
 import { CommonColumn } from '../common';
-import { TaskTemplateType } from './taskTemplate';
+import { MissionTemplateType } from './missionTemplate';
 
-export type TaskType = TaskTemplateType | 'emergency' | 'ordinary';
+export type MissionType = MissionTemplateType | 'emergency' | 'ordinary';
 export type Status = 'established' | 'in progress' | 'completed' | 'expired' | 'cancelled';
 export type Accepted = 'pending acceptance' | 'max accepted';
 
-export interface TaskTime {
+export interface MissionTime {
   initiationTime: Date | string;
   deadline: Date | string;
 }
 
-export interface TaskInfo {
+export interface MissionInfo {
   name: string;
-  type: TaskType;
+  type: MissionType;
   status?: Status;
   description?: string;
   maxAdventurer: number;
@@ -20,7 +20,7 @@ export interface TaskInfo {
   accepted?: Accepted;
 }
 
-export interface Task extends TaskTime, TaskInfo, CommonColumn {
+export interface Mission extends MissionTime, MissionInfo, CommonColumn {
   creatorId: number;
   guildId: number;
   templateId?: number;
