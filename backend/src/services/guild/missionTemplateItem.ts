@@ -6,31 +6,29 @@ export interface Item {
   content: string;
 }
 
-export class MissionTemplateItemService {
-  static async getAll(missionTemplateId: number) {
-    const templateItems = await MissionTemplateItemModel.getAll(missionTemplateId);
-    if (!templateItems) return;
+export const getAll = async (missionTemplateId: number) => {
+  const templateItems = await MissionTemplateItemModel.getAll(missionTemplateId);
+  if (!templateItems) return;
 
-    const items = await Promise.all(
-      templateItems.map(async ({ id, content }) => {
-        return { id, content };
+  const items = await Promise.all(
+    templateItems.map(async ({ id, content }) => {
+      return { id, content };
+    })
+  );
+  return items;
+};
+
+export const create = async (items: Item[], templateId: number) => {
+  if (items) {
+    await Promise.all(
+      items.map(async ({ content }: { content: string }) => {
+        const newTemplateItemId = await MissionTemplateItemModel.create(templateId, content);
+        if (!newTemplateItemId) throw new ApplicationError(400);
       })
     );
-    return items;
   }
-
-  static async create(items: Item[], templateId: number) {
-    if (items) {
-      await Promise.all(
-        items.map(async ({ content }: { content: string }) => {
-          const newTemplateItemId = await MissionTemplateItemModel.create(templateId, content);
-          if (!newTemplateItemId) throw new ApplicationError(400);
-        })
-      );
-    }
-  }
-  static async delete(missionTemplateId: number) {
-    const templateItems = await MissionTemplateItemModel.getAll(missionTemplateId);
-    if (templateItems) await MissionTemplateItemModel.deleteByMissionTemplate(missionTemplateId);
-  }
-}
+};
+export const remove = async (missionTemplateId: number) => {
+  const templateItems = await MissionTemplateItemModel.getAll(missionTemplateId);
+  if (templateItems) await MissionTemplateItemModel.deleteByMissionTemplate(missionTemplateId);
+};

@@ -7,34 +7,34 @@ import { MissionTemplateModel } from '../../models/guild/missionTemplate';
 import { MissionTemplateItemModel } from '../../models/guild/missionTemplateItem';
 import { ItemModel } from '../../models/guild/item';
 import { ItemRecordModel } from '../../models/guild/itemRecord';
-import { GuildService } from '../../services/guild/guild';
-import { UserInfoService } from '../../services/user/userInfo';
+import { guildService } from '../../services/guild';
+import { userInfoService } from '../../services/user';
 
 export class GuildController {
   static async getGuilds(req: TypedRequest, res: Response, next: NextFunction) {
-    const data = await GuildService.getAll(req.session.passport.user);
+    const data = await guildService.getAll(req.session.passport.user);
     return res.status(200).json({ data });
   }
 
   static async getGuildDetail(req: TypedRequest, res: Response, next: NextFunction) {
-    const data = await GuildService.getOne(req.params.gid);
+    const data = await guildService.getOne(req.params.gid);
     return res.status(200).json({ data });
   }
 
   static async addGuild(req: TypedRequest, res: Response, next: NextFunction) {
-    const data = await GuildService.create(req.body, req.session.passport.user);
-    await UserInfoService.updateExp(req.session.passport.user, 1);
+    const data = await guildService.create(req.body, req.session.passport.user);
+    await userInfoService.updateExp(req.session.passport.user, 1);
     return res.status(200).json({ data });
   }
 
   static async addCabin(req: TypedRequest, res: Response, next: NextFunction) {
-    const data = await GuildService.addCabin(req.session.passport.user);
-    await UserInfoService.updateExp(req.session.passport.user, 1);
+    const data = await guildService.addCabin(req.session.passport.user);
+    await userInfoService.updateExp(req.session.passport.user, 1);
     return res.status(200).json({ data });
   }
 
   static async updateGuild(req: TypedRequest, res: Response, next: NextFunction) {
-    await GuildService.update(req.params.gid, req.body);
+    await guildService.update(req.params.gid, req.body);
     return res.status(200).json({ data: req.params.gid });
   }
 

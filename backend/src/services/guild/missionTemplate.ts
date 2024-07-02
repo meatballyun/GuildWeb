@@ -6,51 +6,50 @@ import { MissionTemplateInfo, MissionTemplateTime } from '../../types/guild/miss
 import { MissionTemplateModel } from '../../models/guild/missionTemplate';
 import { MissionTemplateItemModel } from '../../models/guild/missionTemplateItem';
 import { UserModel } from '../../models/user/user';
-import { Item } from '../../services/guild/missionTemplateItem';
-import { MissionTemplateItemService } from '../../services/guild/missionTemplateItem';
+import { Item } from './missionTemplateItem';
+import * as missionTemplateItemService from './missionTemplateItem';
 
 interface MissionTemplateDetailed extends MissionTemplateTime, MissionTemplateInfo {
   items: Item[];
 }
 
-export class MissionTemplateService {
-  static async getAll(guildId: number, query?: string) {
-    const missionTemplates = query ? await MissionTemplateModel.getAllByGuildAndName(guildId, query) : await MissionTemplateModel.getAllByGuild(guildId);
-    if (missionTemplates?.length) {
-      const data = await Promise.all(
-        missionTemplates.map(async ({ id, enabled, creator, name, type }) => {
-          return { id, enabled, creator, name, type };
-        })
-      );
-      return data;
-    }
+export const getAll = async (guildId: number, query?: string) => {
+  const missionTemplates = query ? await MissionTemplateModel.getAllByGuildAndName(guildId, query) : await MissionTemplateModel.getAllByGuild(guildId);
+  if (missionTemplates?.length) {
+    const data = await Promise.all(
+      missionTemplates.map(async ({ id, enabled, creator, name, type }) => {
+        return { id, enabled, creator, name, type };
+      })
+    );
+    return data;
   }
+};
 
-  static async getOne(missionTemplateId: number) {
-    const missionTemplate = await MissionTemplateModel.getOne(missionTemplateId);
-    if (missionTemplate) {
-      const { id, name, imageUrl } = (await UserModel.getOneById(missionTemplate.creatorId)) as User;
-      if (!id) throw new ApplicationError(409);
-      const items = await MissionTemplateItemService.getAll(missionTemplateId);
-      return {
-        creator: { id, name, imageUrl },
-        ...missionTemplate,
-        items,
-      };
-    } else throw new ApplicationError(404);
-  }
+export const getOne = async (missionTemplateId: number) => {
+  const missionTemplate = await MissionTemplateModel.getOne(missionTemplateId);
+  if (missionTemplate) {
+    const { id, name, imageUrl } = (await UserModel.getOneById(missionTemplate.creatorId)) as User;
+    if (!id) throw new ApplicationError(409);
+    const items = await missionTemplateItemService.getAll(missionTemplateId);
+    return {
+      creator: { id, name, imageUrl },
+      ...missionTemplate,
+      items,
+    };
+  } else throw new ApplicationError(404);
+};
 
-  static async create({ generationTime, deadline, items, ...otherData }: MissionTemplateDetailed, guildId: number, uid: number) {
-    let time = await timeHandle(generationTime, deadline);
-    const newTemplateId = await MissionTemplateModel.create(uid, guildId, time, otherData);
-    if (!newTemplateId) throw new ApplicationError(400);
+export const create = async ({ generationTime, deadline, items, ...otherData }: MissionTemplateDetailed, guildId: number, uid: number) => {
+  let time = await timeHandle(generationTime, deadline);
+  const newTemplateId = await MissionTemplateModel.create(uid, guildId, time, otherData);
+  if (!newTemplateId) throw new ApplicationError(400);
 
-    await MissionTemplateItemService.create(items, newTemplateId);
-    return { id: newTemplateId };
-  }
+  await missionTemplateItemService.create(items, newTemplateId);
+  return { id: newTemplateId };
+};
 
-  // prettier-ignore
-  static async update({ generationTime, deadline, items, ...otherData }: MissionTemplateDetailed, missionTemplateId:number, membership: Membership, uid:number) {
+// prettier-ignore
+export const update=async({ generationTime, deadline, items, ...otherData }: MissionTemplateDetailed, missionTemplateId:number, membership: Membership, uid:number) =>{
     const missionTemplate = await MissionTemplateModel.getOne(missionTemplateId);
     if (!missionTemplate) throw new ApplicationError(404);
     if (membership === 'vice' && uid !== missionTemplate.creatorId) throw new ApplicationError(403);
@@ -67,17 +66,16 @@ export class MissionTemplateService {
             } else await MissionTemplateItemModel.delete(id);
           })
         );
-      } else await MissionTemplateItemService.delete(missionTemplateId);
+      } else await missionTemplateItemService.remove(missionTemplateId);
   }
 
-  static async delete(missionTemplateId: number, membership: Membership, uid: number) {
-    const missionTemplate = await MissionTemplateModel.getOne(missionTemplateId);
-    if (!missionTemplate) throw new ApplicationError(404);
-    if (membership === 'vice' && uid !== missionTemplate.creatorId) throw new ApplicationError(403);
+export const remove = async (missionTemplateId: number, membership: Membership, uid: number) => {
+  const missionTemplate = await MissionTemplateModel.getOne(missionTemplateId);
+  if (!missionTemplate) throw new ApplicationError(404);
+  if (membership === 'vice' && uid !== missionTemplate.creatorId) throw new ApplicationError(403);
 
-    await MissionTemplateItemService.delete(missionTemplateId);
+  await missionTemplateItemService.remove(missionTemplateId);
 
-    const deleteMissionTemplate = await MissionTemplateItemModel.delete(missionTemplateId);
-    if (!deleteMissionTemplate) throw new ApplicationError(400);
-  }
-}
+  const deleteMissionTemplate = await MissionTemplateItemModel.delete(missionTemplateId);
+  if (!deleteMissionTemplate) throw new ApplicationError(400);
+};
