@@ -6,3 +6,8 @@ export interface CommonColumn extends RowDataPacket {
   updateTime: Date;
   active?: boolean;
 }
+
+export interface Payload {
+  userId: number;
+  email: string;
+}

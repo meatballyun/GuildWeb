@@ -4,7 +4,7 @@ import { notificationService } from '../../services/notification';
 
 export class NotificationController {
   static async getNotifications(req: TypedRequest, res: Response, next: NextFunction) {
-    const data = await notificationService.getAll(req.session.passport.user);
+    const data = await notificationService.getAll(req.userId as number);
     return res.status(200).json({ data });
   }
 

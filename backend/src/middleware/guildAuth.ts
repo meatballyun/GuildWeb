@@ -18,7 +18,7 @@ const checkAuth = async (uid: number, gid: number, level: number) => {
 
 export class GuildAuth {
   static async isMember(req: TypedRequest<any, any, any>, res: Response, next: NextFunction) {
-    const { message, member } = await checkAuth(req.session.passport.user, req.params.gid, 0);
+    const { message, member } = await checkAuth(req.userId as number, req.params.gid, 0);
     if (message === 'OK') {
       req.member = member;
       next();
@@ -26,7 +26,7 @@ export class GuildAuth {
   }
 
   static async isMasterOrVice(req: TypedRequest<any, any, any>, res: Response, next: NextFunction) {
-    const { message, member } = await checkAuth(req.session.passport.user, req.params.gid, 1);
+    const { message, member } = await checkAuth(req.userId as number, req.params.gid, 1);
     if (message === 'OK') {
       req.member = member;
       return next();
@@ -34,7 +34,7 @@ export class GuildAuth {
   }
 
   static async isMaster(req: TypedRequest<any, any, any>, res: Response, next: NextFunction) {
-    const { message, member } = await checkAuth(req.session.passport.user, req.params.gid, 2);
+    const { message, member } = await checkAuth(req.userId as number, req.params.gid, 2);
     if (message === 'OK') {
       req.member = member;
       return next();

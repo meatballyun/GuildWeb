@@ -12,7 +12,7 @@ import { userInfoService } from '../../services/user';
 
 export class GuildController {
   static async getGuilds(req: TypedRequest, res: Response, next: NextFunction) {
-    const data = await guildService.getAll(req.session.passport.user);
+    const data = await guildService.getAll(req.userId as number);
     return res.status(200).json({ data });
   }
 
@@ -22,14 +22,14 @@ export class GuildController {
   }
 
   static async addGuild(req: TypedRequest, res: Response, next: NextFunction) {
-    const data = await guildService.create(req.body, req.session.passport.user);
-    await userInfoService.updateExp(req.session.passport.user, 1);
+    const data = await guildService.create(req.body, req.userId as number);
+    await userInfoService.updateExp(req.userId as number, 1);
     return res.status(200).json({ data });
   }
 
   static async addCabin(req: TypedRequest, res: Response, next: NextFunction) {
-    const data = await guildService.addCabin(req.session.passport.user);
-    await userInfoService.updateExp(req.session.passport.user, 1);
+    const data = await guildService.addCabin(req.userId as number);
+    await userInfoService.updateExp(req.userId as number, 1);
     return res.status(200).json({ data });
   }
 
@@ -47,7 +47,7 @@ export class GuildController {
         if (items && items?.length) {
           await Promise.all(
             items.map(async (i) => {
-              const itemRecord = await ItemRecordModel.getAllByItemAndUser(i.id, req.session.passport.user);
+              const itemRecord = await ItemRecordModel.getAllByItemAndUser(i.id, req.userId as number);
               if (itemRecord && itemRecord?.length) {
                 await ItemRecordModel.deleteAllByItem(itemRecord[0].ID);
               }

@@ -1,35 +1,40 @@
-import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import { Response, NextFunction } from 'express';
+import { generateToken } from '../utils/generateToken';
 import { TypedRequest } from '../types/TypedRequest';
-import passport from '../utils/verification/passport';
 import { toHash } from '../utils/hashCode';
 import { ApplicationError } from '../utils/error/applicationError';
-import { UserModel } from '../models/user/user';
+import { UserModel } from '../models';
 import { ConfirmationEmailModel } from '../models/email/confirmationEmail';
 
+const getJwtToken = async (userId: number, email: string) => {
+  const expiresTime = '7d';
+  const payload = {
+    userId: userId,
+    email: email,
+  };
+  const secret = process.env.JWT_SECRET ?? '';
+  const options = {
+    expiresIn: expiresTime,
+  };
+  const jwtToken = await generateToken(payload, secret, options);
+
+  return jwtToken;
+};
 export class AuthController {
   static async login(req: TypedRequest, res: Response, next: NextFunction) {
-    passport.authenticate('login', async function (err: any, user: any, info: any) {
-      try {
-        if (err) throw new ApplicationError(500, err);
-        if (!user) throw new ApplicationError(401, info);
-        if (user.status !== 'confirmed') throw new ApplicationError(403);
+    const { email, password } = req.body;
 
-        req.login(user, (err?: string) => {
-          if (err) throw new ApplicationError(403, err);
-          const payload = {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            iat: Math.floor(Date.now() / 1000),
-          };
-          const token = jwt.sign(payload, process.env.JWT_SECRET ?? '', { expiresIn: '1d' });
-          return res.status(200).json({ data: { token } });
-        });
-      } catch (err) {
-        next(err);
-      }
-    })(req, res, next);
+    const user = await UserModel.getOneByEmail(email);
+    if (!user) throw new ApplicationError(401, 'Email not found.');
+    if (user?.status !== 'confirmed') throw new ApplicationError(403, 'Email is not yet verified');
+
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) throw new ApplicationError(401, 'Invalid password');
+
+    const token = await getJwtToken(user.id, user.email);
+
+    return res.status(200).json({ data: { token } });
   }
 
   static async signup(req: TypedRequest, res: Response, next: NextFunction) {
