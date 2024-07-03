@@ -1,5 +1,4 @@
-import { MissionTemplateModel } from '../models/guild/missionTemplate';
-import { MissionTemplateItemModel } from '../models/guild/missionTemplateItem';
+import { MissionTemplateModel, MissionTemplateItemModel } from '../models';
 import { missionService } from '../services/guild';
 
 const buildMissionByMissionTemplates = async () => {

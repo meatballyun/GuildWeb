@@ -1,5 +1,5 @@
 import { ApplicationError } from '../../utils/error/applicationError';
-import { MissionTemplateItemModel } from '../../models/guild/missionTemplateItem';
+import { MissionTemplateItemModel } from '../../models';
 
 export interface Item {
   id: number;

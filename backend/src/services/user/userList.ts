@@ -1,6 +1,5 @@
 import { ApplicationError } from '../../utils/error/applicationError';
-import { UserModel } from '../../models/user/user';
-import { UserFriendModel } from '../../models/user';
+import { UserModel, UserFriendModel } from '../../models/user';
 
 type Status = 'confirmed' | 'pending' | 'blocked';
 

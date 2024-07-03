@@ -3,8 +3,7 @@ import nodemailer from 'nodemailer';
 import { toHash } from '../../utils/hashCode';
 import { ApplicationError } from '../../utils/error/applicationError';
 import { signUpEmail, passwordResetEmail } from './emailTemplate';
-import { UserModel } from '../../models/user/user';
-import { ConfirmationEmailModel } from '../../models/email/confirmationEmail';
+import { UserModel, ConfirmationEmailModel } from '../../models';
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',

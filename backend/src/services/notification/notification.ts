@@ -1,9 +1,7 @@
 import { DEFAULT_NOTIFICATION_CONTENT } from './default_notification_template';
 import { ApplicationError } from '../../utils/error/applicationError';
 import { BaseNotification } from '../../types/notification/notification';
-import { GuildModel } from '../../models/guild/guild';
-import { NotificationModel } from '../../models/notification/notification';
-import { UserModel } from '../../models/user/user';
+import { UserModel, NotificationModel, GuildModel } from '../../models';
 
 export const getAll = async (uid: number) => {
   const notifications = await NotificationModel.getAll(uid);

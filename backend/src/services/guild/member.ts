@@ -1,8 +1,7 @@
 import { ApplicationError } from '../../utils/error/applicationError';
-import { UserGuildRelationModel } from '../../models/user/userGuildRelation';
-import { UserModel } from '../../models/user/user';
 import { User } from '../../types/user/user';
 import { Membership } from '../../types/user/userGuildRelation';
+import { UserModel, UserGuildRelationModel } from '../../models';
 
 export const getAll = async (guildId: number) => {
   const relations = await UserGuildRelationModel.getAllByGuild(guildId);

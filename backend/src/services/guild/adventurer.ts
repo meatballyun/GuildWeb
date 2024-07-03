@@ -1,7 +1,6 @@
 import { ApplicationError } from '../../utils/error/applicationError';
 import { User } from '../../types/user/user';
-import { UserModel } from '../../models/user/user';
-import { AdventurerModel } from '../../models/guild/adventurer';
+import { UserModel, AdventurerModel } from '../../models';
 import { userInfoService } from '../../services/user';
 
 export const isAdventurer = async (missionId: number, uid: number) => {

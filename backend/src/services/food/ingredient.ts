@@ -1,9 +1,7 @@
 import { ApplicationError } from '../../utils/error/applicationError';
 import { BaseIngredient } from '../../types/food/Ingredient';
 import { TypeSearch } from '../../types/TypeSearch';
-import { IngredientModel } from '../../models/food/ingredient';
-import { RecipeModel } from '../../models/food/recipe';
-import { RecipeIngredientRelationModel } from '../../models/food/recipeIngredientRelation';
+import { IngredientModel, RecipeModel, RecipeIngredientRelationModel } from '../../models';
 
 export const getAll = async ({ q, published }: TypeSearch, uid: number) => {
   const ingredients = published ? await IngredientModel.getAllByName(q) : await IngredientModel.getAllByUserAndName(uid, q);

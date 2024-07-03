@@ -3,10 +3,8 @@ import { timeHandle, formatTimestamp } from '../../utils/timeHandler';
 import { User } from '../../types/user/user';
 import { Membership } from '../../types/user/userGuildRelation';
 import { MissionTemplateInfo, MissionTemplateTime } from '../../types/guild/missionTemplate';
-import { MissionTemplateModel } from '../../models/guild/missionTemplate';
-import { MissionTemplateItemModel } from '../../models/guild/missionTemplateItem';
-import { UserModel } from '../../models/user/user';
 import { Item } from './missionTemplateItem';
+import { UserModel, MissionTemplateModel, MissionTemplateItemModel } from '../../models';
 import * as missionTemplateItemService from './missionTemplateItem';
 
 interface MissionTemplateDetailed extends MissionTemplateTime, MissionTemplateInfo {

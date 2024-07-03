@@ -1,8 +1,6 @@
 import { ApplicationError } from '../../utils/error/applicationError';
 import { BaseDietRecipe } from '../../types/food/DietRecipe';
-import { DietRecordModel } from '../../models/food/dietRecord';
-import { RecipeModel } from '../../models/food/recipe';
-import { UserModel } from '../../models/user/user';
+import { UserModel, RecipeModel, DietRecordModel } from '../../models';
 
 export const getAll = async (date: Date, uid: number) => {
   const dietRecord = await DietRecordModel.getAllByDate(uid, date);

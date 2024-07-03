@@ -1,6 +1,5 @@
 import { Item } from '../../types/guild/item';
-import { ItemModel } from '../../models/guild/item';
-import { ItemRecordModel } from '../../models/guild/itemRecord';
+import { ItemModel, ItemRecordModel } from '../../models';
 
 export const getAll = async (items: Item[], AdventurerId: number) => {
   if (!items) return;

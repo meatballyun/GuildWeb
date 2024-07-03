@@ -1,10 +1,7 @@
 import { ApplicationError } from '../../utils/error/applicationError';
 import { TypeSearch } from '../../types/TypeSearch';
 import { BaseRecipe } from '../../types/food/Recipe';
-import { DietRecordModel } from '../../models/food/dietRecord';
-import { IngredientModel } from '../../models/food/ingredient';
-import { RecipeModel } from '../../models/food/recipe';
-import { RecipeIngredientRelationModel } from '../../models/food/recipeIngredientRelation';
+import { IngredientModel, RecipeModel, DietRecordModel, RecipeIngredientRelationModel } from '../../models';
 import * as ingredientService from './ingredient';
 
 interface RecipeWithIngredients extends BaseRecipe {
