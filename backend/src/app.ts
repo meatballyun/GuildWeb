@@ -10,6 +10,7 @@ import routes from './routes';
 import { awaitHandlerFactory } from './utils/awaitHandlerFactory';
 import { errorHandler } from './utils/errorHandler';
 import path from 'path';
+
 const ONE_DAY_MILLIE_SECEND = 24 * 60 * 60 * 1000;
 
 const app = express();

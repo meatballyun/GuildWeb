@@ -1,9 +1,7 @@
 import express from 'express';
-import { awaitHandlerFactory } from '../utils/awaitHandlerFactory';
-import { signup, login, logout, resetPassword } from '../middleware/auth';
 import { sendSignUp } from '../controllers';
 import { createNotification } from '../controllers';
-import { getUserInfo, updateUserInfo, getUsers, getFriends, sendFriendInvitation, updateFriend, deleteFriend } from '../controllers';
+import { signup, login, logout, resetPassword, getUserInfo, updateUserInfo, getUsers, getFriends, sendFriendInvitation, updateFriend, deleteFriend } from '../controllers';
 import { verifyToken } from '../utils/verification';
 
 const router = express.Router();
