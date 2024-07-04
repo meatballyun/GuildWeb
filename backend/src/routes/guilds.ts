@@ -1,52 +1,79 @@
 import express from 'express';
-import { awaitHandlerFactory } from '../utils/awaitHandlerFactory';
-import { GuildAuth } from '../middleware/guildAuth';
-import { GuildController } from '../controllers/guild/guild';
-import { memberController } from '../controllers/guild/member';
-import { MissionController } from '../controllers/guild/mission';
-import { MissionTemplateController } from '../controllers/guild/missionTemplate';
 import { verifyToken } from '../utils/verification';
+import { isMember, isMasterOrVice, isMaster } from '../middleware/guildAuth';
+import {
+  getGuilds,
+  getGuildDetail,
+  addGuild,
+  addCabin,
+  updateGuild,
+  deleteGuild,
+  replyInvitation,
+  getMembers,
+  updateMember,
+  deleteMember,
+  getMissionTemplates,
+  getMissionTemplateDetail,
+  addMissionTemplate,
+  updateMissionTemplate,
+  deleteMissionTemplate,
+  getUserMissions,
+  getMissions,
+  getMissionDetail,
+  addMission,
+  updateMission,
+  deleteMission,
+  acceptMission,
+  abandonMission,
+  completeMission,
+  failMission,
+  cancelMission,
+  restoreMission,
+  submitMission,
+  clickCheckboxForItemRecord,
+  sendGuildInvitation,
+} from '../controllers/guild';
 
 const router = express.Router();
 
 // Guild
-router.get('/', verifyToken, awaitHandlerFactory(GuildController.getGuilds));
-router.get('/:gid', verifyToken, awaitHandlerFactory(GuildAuth.isMember), awaitHandlerFactory(GuildController.getGuildDetail));
-router.post('/', verifyToken, awaitHandlerFactory(GuildController.addGuild));
-router.post('/cabin', verifyToken, awaitHandlerFactory(GuildController.addCabin));
-router.put('/:gid', verifyToken, awaitHandlerFactory(GuildAuth.isMaster), awaitHandlerFactory(GuildController.updateGuild));
-router.delete('/:gid', verifyToken, awaitHandlerFactory(GuildAuth.isMaster), awaitHandlerFactory(GuildController.deleteGuild));
+router.get('/', verifyToken, getGuilds);
+router.get('/:gid', verifyToken, isMember, getGuildDetail);
+router.post('/', verifyToken, addGuild);
+router.post('/cabin', verifyToken, addCabin);
+router.put('/:gid', verifyToken, isMaster, updateGuild);
+router.delete('/:gid', verifyToken, isMaster, deleteGuild);
 
 // Member
-router.get('/:gid/invitation', verifyToken, awaitHandlerFactory(GuildAuth.isMember), awaitHandlerFactory(memberController.replyInvitation));
-router.get('/:gid/members', verifyToken, awaitHandlerFactory(GuildAuth.isMember), awaitHandlerFactory(memberController.getMembers));
-router.post('/:gid/invitation', verifyToken, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(memberController.sendInvitation));
-router.patch('/:gid/members/:uid', verifyToken, awaitHandlerFactory(GuildAuth.isMaster), awaitHandlerFactory(memberController.updateMember));
-router.delete('/:gid/members/:uid', verifyToken, awaitHandlerFactory(GuildAuth.isMember), awaitHandlerFactory(memberController.deleteMember));
+router.get('/:gid/invitation', verifyToken, isMember, replyInvitation);
+router.get('/:gid/members', verifyToken, isMember, getMembers);
+router.post('/:gid/invitation', verifyToken, isMasterOrVice, sendGuildInvitation);
+router.patch('/:gid/members/:uid', verifyToken, isMaster, updateMember);
+router.delete('/:gid/members/:uid', verifyToken, isMember, deleteMember);
 
 // MissionTemplate
-router.get('/:gid/mission_templates', verifyToken, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(MissionTemplateController.getMissionTemplates));
-router.get('/:gid/mission_templates/:ttid', verifyToken, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(MissionTemplateController.getMissionTemplateDetail));
-router.post('/:gid/mission_templates', verifyToken, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(MissionTemplateController.addMissionTemplate));
-router.put('/:gid/mission_templates/:ttid', verifyToken, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(MissionTemplateController.updateMissionTemplate));
-router.delete('/:gid/mission_templates/:ttid', verifyToken, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(MissionTemplateController.deleteMissionTemplate));
+router.get('/:gid/mission_templates', verifyToken, isMasterOrVice, getMissionTemplates);
+router.get('/:gid/mission_templates/:ttid', verifyToken, isMasterOrVice, getMissionTemplateDetail);
+router.post('/:gid/mission_templates', verifyToken, isMasterOrVice, addMissionTemplate);
+router.put('/:gid/mission_templates/:ttid', verifyToken, isMasterOrVice, updateMissionTemplate);
+router.delete('/:gid/mission_templates/:ttid', verifyToken, isMasterOrVice, deleteMissionTemplate);
 
 // Mission
-router.get('/all/missions', verifyToken, awaitHandlerFactory(MissionController.getUserMissions));
-router.get('/:gid/missions', verifyToken, awaitHandlerFactory(MissionController.getMissions));
-router.get('/:gid/missions/:tid', verifyToken, awaitHandlerFactory(GuildAuth.isMember), awaitHandlerFactory(MissionController.getMissionDetail));
-router.post('/:gid/missions/', verifyToken, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(MissionController.addMission));
-router.put('/:gid/missions/:tid', verifyToken, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(MissionController.updateMission));
-router.delete('/:gid/missions/:tid', verifyToken, awaitHandlerFactory(GuildAuth.isMember), awaitHandlerFactory(MissionController.deleteMission));
+router.get('/all/missions', verifyToken, getUserMissions);
+router.get('/:gid/missions', verifyToken, getMissions);
+router.get('/:gid/missions/:tid', verifyToken, isMember, getMissionDetail);
+router.post('/:gid/missions/', verifyToken, isMasterOrVice, addMission);
+router.put('/:gid/missions/:tid', verifyToken, isMasterOrVice, updateMission);
+router.delete('/:gid/missions/:tid', verifyToken, isMember, deleteMission);
 
 // Mission action
-router.get('/:gid/missions/:tid/accepted', verifyToken, awaitHandlerFactory(GuildAuth.isMember), awaitHandlerFactory(MissionController.acceptMission));
-router.get('/:gid/missions/:tid/abandon', verifyToken, awaitHandlerFactory(GuildAuth.isMember), awaitHandlerFactory(MissionController.abandonMission));
-router.patch('/:gid/missions/:tid/complete', verifyToken, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(MissionController.completeMission));
-router.patch('/:gid/missions/:tid/fail', verifyToken, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(MissionController.failMission));
-router.patch('/:gid/missions/:tid/cancel', verifyToken, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(MissionController.cancelMission));
-router.patch('/:gid/missions/:tid/restore', verifyToken, awaitHandlerFactory(GuildAuth.isMasterOrVice), awaitHandlerFactory(MissionController.restoreMission));
-router.patch('/:gid/missions/:tid/submit', verifyToken, awaitHandlerFactory(GuildAuth.isMember), awaitHandlerFactory(MissionController.submitMission));
-router.patch('/:gid/missions/checkbox', verifyToken, awaitHandlerFactory(GuildAuth.isMember), awaitHandlerFactory(MissionController.clickCheckboxForItemRecord));
+router.get('/:gid/missions/:tid/accepted', verifyToken, isMember, acceptMission);
+router.get('/:gid/missions/:tid/abandon', verifyToken, isMember, abandonMission);
+router.patch('/:gid/missions/:tid/complete', verifyToken, isMasterOrVice, completeMission);
+router.patch('/:gid/missions/:tid/fail', verifyToken, isMasterOrVice, failMission);
+router.patch('/:gid/missions/:tid/cancel', verifyToken, isMasterOrVice, cancelMission);
+router.patch('/:gid/missions/:tid/restore', verifyToken, isMasterOrVice, restoreMission);
+router.patch('/:gid/missions/:tid/submit', verifyToken, isMember, submitMission);
+router.patch('/:gid/missions/checkbox', verifyToken, isMember, clickCheckboxForItemRecord);
 
 export default router;

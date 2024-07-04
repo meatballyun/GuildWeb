@@ -1,31 +1,30 @@
 import express from 'express';
 import { awaitHandlerFactory } from '../utils/awaitHandlerFactory';
-import { AuthController } from '../middleware/auth';
-import { MailController } from '../controllers/email/email';
-import { NotificationController } from '../controllers/notification/notification';
-import { UserInfoController } from '../controllers/user/userinfo';
-import { UserListController } from '../controllers/user/userList';
+import { signup, login, logout, resetPassword } from '../middleware/auth';
+import { sendSignUp } from '../controllers';
+import { createNotification } from '../controllers';
+import { getUserInfo, updateUserInfo, getUsers, getFriends, sendFriendInvitation, updateFriend, deleteFriend } from '../controllers';
 import { verifyToken } from '../utils/verification';
 
 const router = express.Router();
 
 // SignUp
-router.post('/signup', awaitHandlerFactory(AuthController.signup), awaitHandlerFactory(MailController.sendSignUp));
+router.post('/signup', signup, sendSignUp);
 
 // Login, Logout, ForgotPassword
-router.post('/login', awaitHandlerFactory(AuthController.login));
-router.get('/logout', awaitHandlerFactory(AuthController.logout));
-router.post('/reset-password', awaitHandlerFactory(AuthController.resetPassword));
+router.post('/login', login);
+router.get('/logout', logout);
+router.post('/reset-password', resetPassword);
 
 // UserInfo
-router.get('/me', verifyToken, awaitHandlerFactory(UserInfoController.getUserInfo));
-router.put('/me', verifyToken, awaitHandlerFactory(UserInfoController.updateUserInfo));
+router.get('/me', verifyToken, getUserInfo);
+router.put('/me', verifyToken, updateUserInfo);
 
 // Friend
-router.get('/', verifyToken, awaitHandlerFactory(UserListController.getUsers));
-router.get('/friends', verifyToken, awaitHandlerFactory(UserListController.getFriends));
-router.post('/invitation', verifyToken, awaitHandlerFactory(UserListController.sendInvitation), awaitHandlerFactory(NotificationController.createNotification));
-router.put('/friends/:uid', verifyToken, awaitHandlerFactory(UserListController.updateFriend));
-router.delete('/friends/:uid', verifyToken, awaitHandlerFactory(UserListController.deleteFriend));
+router.get('/', verifyToken, getUsers);
+router.get('/friends', verifyToken, getFriends);
+router.post('/invitation', verifyToken, sendFriendInvitation, createNotification);
+router.put('/friends/:uid', verifyToken, updateFriend);
+router.delete('/friends/:uid', verifyToken, deleteFriend);
 
 export default router;

@@ -7,6 +7,7 @@ import session from 'express-session';
 import passport from 'passport';
 import cookieParser from 'cookie-parser';
 import routes from './routes';
+import { awaitHandlerFactory } from './utils/awaitHandlerFactory';
 import { errorHandler } from './utils/errorHandler';
 import path from 'path';
 const ONE_DAY_MILLIE_SECEND = 24 * 60 * 60 * 1000;
@@ -43,7 +44,7 @@ app.use(passport.session());
 
 app.use(cookieParser());
 
-app.use('/api', routes);
+app.use('/api', awaitHandlerFactory(routes));
 
 app.use(errorHandler as any);
 

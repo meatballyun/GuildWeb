@@ -16,28 +16,26 @@ const checkAuth = async (uid: number, gid: number, level: number) => {
   return { message, member };
 };
 
-export class GuildAuth {
-  static async isMember(req: TypedRequest<any, any, any>, res: Response, next: NextFunction) {
-    const { message, member } = await checkAuth(req.userId as number, req.params.gid, 0);
-    if (message === 'OK') {
-      req.member = member;
-      next();
-    } else throw new ApplicationError(403, message);
-  }
+export const isMember = async (req: TypedRequest<any, any, any>, res: Response, next: NextFunction) => {
+  const { message, member } = await checkAuth(req.userId as number, req.params.gid, 0);
+  if (message === 'OK') {
+    req.member = member;
+    next();
+  } else throw new ApplicationError(403, message);
+};
 
-  static async isMasterOrVice(req: TypedRequest<any, any, any>, res: Response, next: NextFunction) {
-    const { message, member } = await checkAuth(req.userId as number, req.params.gid, 1);
-    if (message === 'OK') {
-      req.member = member;
-      return next();
-    } else throw new ApplicationError(403, message);
-  }
+export const isMasterOrVice = async (req: TypedRequest<any, any, any>, res: Response, next: NextFunction) => {
+  const { message, member } = await checkAuth(req.userId as number, req.params.gid, 1);
+  if (message === 'OK') {
+    req.member = member;
+    return next();
+  } else throw new ApplicationError(403, message);
+};
 
-  static async isMaster(req: TypedRequest<any, any, any>, res: Response, next: NextFunction) {
-    const { message, member } = await checkAuth(req.userId as number, req.params.gid, 2);
-    if (message === 'OK') {
-      req.member = member;
-      return next();
-    } else throw new ApplicationError(403, message);
-  }
-}
+export const isMaster = async (req: TypedRequest<any, any, any>, res: Response, next: NextFunction) => {
+  const { message, member } = await checkAuth(req.userId as number, req.params.gid, 2);
+  if (message === 'OK') {
+    req.member = member;
+    return next();
+  } else throw new ApplicationError(403, message);
+};

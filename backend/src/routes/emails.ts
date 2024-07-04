@@ -1,16 +1,15 @@
 import express from 'express';
-import { awaitHandlerFactory } from '../utils/awaitHandlerFactory';
-import { MailController } from '../controllers/email/email';
+import { sendSignUp, resendSignUp, sendResetPassword, validationSignUp, validationResetPassword } from '../controllers';
 
 const router = express.Router();
 
 // send email
-router.post('/send', awaitHandlerFactory(MailController.sendSignUp));
-router.post('/resend', awaitHandlerFactory(MailController.resendSignUp));
-router.post('/reset-password', awaitHandlerFactory(MailController.sendResetPassword));
+router.post('/send', sendSignUp);
+router.post('/resend', resendSignUp);
+router.post('/reset-password', sendResetPassword);
 
 // validation
-router.get('/validation-signup', awaitHandlerFactory(MailController.validationSignUp));
-router.get('/validation-reset-password', awaitHandlerFactory(MailController.validationResetPassword));
+router.get('/validation-signup', validationSignUp);
+router.get('/validation-reset-password', validationResetPassword);
 
 export default router;
