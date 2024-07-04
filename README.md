@@ -15,7 +15,7 @@ This is a platform designed to address the need for recording various aspects of
 
 ## Technical Details
 
-- Language: JavaScript
+- Language: JavaScript, TypeScript
 - Main Frameworks: Node.js, Express
 - Frontend Framework: React
 - Database: MySQL
@@ -27,25 +27,28 @@ This is a platform designed to address the need for recording various aspects of
 
 ### Backend
 
-- `/backend/lib/app.js` - initializes an Express app with middleware and routing
-- `/backend/routes/*` - handle endpoint definition and request handling in the application
-- `/backend/lib/db.js` - creates a database connection.
-- `/backend/models/*` - handle database operations.
-- `/backend/controllers/*` - handle request processing and business logic in the application.
-- `/backend/utils/*` - handles error message processing.
-- `/backend/verification/*` - manages user authentication.
-- `/backend/public/uploads/*` - manages file upload and store.
+- `./backend/src/lib/db.js` - creates a database connection.
+- `./backend/src/app.ts` - initializes an Express app with middleware and routing.
+- `./backend/src/routes/*` - handle endpoint definition and request handling in the application.
+- `./backend/src/controllers/*` - handle request processing in the application.
+- `./backend/src/services/*` - handle business logic in the application.
+- `./backend/src/models/*` - handle database operations.
+- `./backend/src/scheduled/*` - managing middleware functions.
+- `./backend/src/routes/*` - handle endpoint definition and request handling in the application.
+- `./backend/src/utils/*` - managing auxiliary functions, utilities, helper modules, or common functions.
+- `./backend/src/types/*` - managing  custom types.
+- `./public/uploads/*` - manages file upload and store.
 
 ### Frontend
 
-- `/frontend/public/*` - assets on public path
-- `/frontend/src/api/*` - functions related to the API
-- `/frontend/src/assets/*` - the static assets including images
-- `/frontend/src/components/*` - the common-use react components
-- `/frontend/src/mocks/*` - files related to mocks
-- `/frontend/src/pages/*` - the page-related react component
-- `/frontend/src/styles/*` - the style related objects
-- `/frontend/src/utils/*` - the common-use util function
+- `./frontend/public/*` - assets on public path
+- `./frontend/src/api/*` - functions related to the API
+- `./frontend/src/assets/*` - the static assets including images
+- `./frontend/src/components/*` - the common-use react components
+- `./frontend/src/mocks/*` - files related to mocks
+- `./frontend/src/pages/*` - the page-related react component
+- `./frontend/src/styles/*` - the style related objects
+- `./frontend/src/utils/*` - the common-use util function
 
 ## Running Locally
 
