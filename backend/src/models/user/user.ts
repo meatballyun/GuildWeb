@@ -16,7 +16,6 @@ export class UserModel {
     return new Promise((resolve, reject) => {
       conn.query<User[]>('SELECT * FROM users WHERE email = ?', email, function (err, rows) {
         if (err) reject(err);
-        if (rows.length === 0) resolve(undefined);
         resolve(rows?.[0]);
       });
     });

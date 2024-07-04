@@ -45,6 +45,7 @@ export const resendSignUp = async (email: string) => {
 export const sendResetPassword = async (email: string) => {
   const user = await UserModel.getOneByEmail(email);
   if (!user) throw new ApplicationError(404);
+
   const latestEmail = await ConfirmationEmailModel.getLatestByUser(user.id, 'signUp');
   if (!latestEmail) throw new ApplicationError(404);
   if (latestEmail.status === 'pending') throw new ApplicationError(403);

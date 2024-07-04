@@ -7,8 +7,7 @@ export class ConfirmationEmailModel {
     return new Promise((resolve, reject) => {
       conn.query<ConfirmationEmail[]>('SELECT * FROM confirmationEmails WHERE userId = ? AND type = ? ORDER BY createTime DESC  LIMIT 1', [userId, type], function (err, rows) {
         if (err) reject(err);
-        if (rows?.length) resolve(rows[0]);
-        resolve(undefined);
+        resolve(rows?.[0]);
       });
     });
   }
