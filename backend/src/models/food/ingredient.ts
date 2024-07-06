@@ -1,10 +1,10 @@
 import conn from '../../lib/db';
 import { ResultSetHeader } from 'mysql2';
-import { BaseIngredient, Ingredient } from '../../types/food/Ingredient';
+import { BaseIngredient, Ingredient, IngredientWithAmount } from '../../types/food/Ingredient';
 
 export const getOne = async (id: number): Promise<Ingredient | undefined> => {
   return new Promise((resolve, reject) => {
-    conn.query<Ingredient[]>('SELECT * FROM ingredients WHERE ID = ? AND active = TRUE', id, (err, rows) => {
+    conn.query<Ingredient[]>('SELECT * FROM ingredients WHERE id = ? AND active = true', id, (err, rows) => {
       if (err) reject(err);
       resolve(rows?.[0]);
     });
@@ -13,7 +13,7 @@ export const getOne = async (id: number): Promise<Ingredient | undefined> => {
 
 export const getAllByUserAndName = async (creatorId: number, name: string): Promise<Ingredient[] | undefined> => {
   return new Promise((resolve, reject) => {
-    conn.query<Ingredient[]>('SELECT * FROM ingredients WHERE creatorId = ? AND name LIKE ? AND active = TRUE', [creatorId, '%' + name + '%'], function (err, rows) {
+    conn.query<Ingredient[]>('SELECT * FROM ingredients WHERE creatorId = ? AND name LIKE ? AND active = true', [creatorId, '%' + name + '%'], function (err, rows) {
       if (err) reject(err);
       resolve(rows);
     });
@@ -22,10 +22,26 @@ export const getAllByUserAndName = async (creatorId: number, name: string): Prom
 
 export const getAllByName = async (name: string): Promise<Ingredient[] | undefined> => {
   return new Promise((resolve, reject) => {
-    conn.query<Ingredient[]>('SELECT * FROM ingredients WHERE name LIKE ? AND active = TRUE AND published = TRUE', ['%' + name + '%'], function (err, rows) {
+    conn.query<Ingredient[]>('SELECT * FROM ingredients WHERE name LIKE ? AND active = true AND published = true', ['%' + name + '%'], function (err, rows) {
       if (err) reject(err);
       resolve(rows);
     });
+  });
+};
+
+export const getAllByRecipe = async (id: number): Promise<IngredientWithAmount[] | undefined> => {
+  return new Promise((resolve, reject) => {
+    conn.query<IngredientWithAmount[]>(
+      `SELECT rir.amount, i.id, i.carbs, i.pro, i.fats, i.kcal, i.imageUrl, i.published, i.unit
+      FROM recipeIngredientRelations rir
+      LEFT JOIN ingredients i ON rir.ingredientId = i.id
+      WHERE rir.recipeId = 4 AND i.active = true;`,
+      id,
+      (err, rows) => {
+        if (err) reject(err);
+        resolve(rows);
+      }
+    );
   });
 };
 

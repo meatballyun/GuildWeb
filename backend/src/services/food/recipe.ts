@@ -28,16 +28,12 @@ export const getOne = async (recipeId: number, uid: number) => {
   if (!recipe) throw new ApplicationError(404);
 
   const relations = await recipeIngredientRelationModel.getAllByRecipe(recipeId);
-  const ingredients = await Promise.all(
-    relations?.map(async ({ ingredients, amount }) => {
-      const ingredient = await ingredientService.getOne(ingredients, uid);
-      const { createTime, updateTime, description, ...otherData } = ingredient;
-      return {
-        ...otherData,
-        amount,
-      };
-    }) ?? []
-  );
+
+  let ingredients;
+  if (relations?.length) {
+    ingredients = await ingredientModel.getAllByRecipe(recipeId);
+  }
+
   const data = {
     isOwned: recipe.creator === uid,
     ...recipe,

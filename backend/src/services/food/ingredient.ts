@@ -3,13 +3,6 @@ import { BaseIngredient } from '../../types/food/Ingredient';
 import { TypeSearch } from '../../types/TypeSearch';
 import { ingredientModel, recipeModel, recipeIngredientRelationModel } from '../../models';
 
-type Nutrition = {
-  carbs: number;
-  pro: number;
-  fats: number;
-  kcal: number;
-};
-
 export const getAll = async ({ q, published }: TypeSearch, uid: number) => {
   const ingredients = published ? await ingredientModel.getAllByName(q) : await ingredientModel.getAllByUserAndName(uid, q);
   const hasIngredients = ingredients?.length;

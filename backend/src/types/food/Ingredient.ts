@@ -1,4 +1,6 @@
+import { RowDataPacket } from 'mysql2';
 import { CommonColumn } from '../common';
+import { RecipeIngredientRelation } from './RecipeIngredientRelation';
 
 export interface BaseIngredient {
   name: string;
@@ -14,3 +16,7 @@ export interface BaseIngredient {
 }
 
 export interface Ingredient extends BaseIngredient, CommonColumn {}
+
+export interface IngredientWithAmount extends Pick<Ingredient, 'id' | 'carbs' | 'pro' | 'fats' | 'kcal' | 'imageUrl' | 'published' | 'unit'>, RowDataPacket {
+  amount: RecipeIngredientRelation['amount'];
+}
