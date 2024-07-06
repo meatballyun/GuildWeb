@@ -1,7 +1,7 @@
 import { ApplicationError } from '../../utils/error/applicationError';
 import { TypeSearch } from '../../types/TypeSearch';
 import { BaseRecipe } from '../../types/food/Recipe';
-import { IngredientModel, RecipeModel, DietRecordModel, RecipeIngredientRelationModel } from '../../models';
+import { ingredientModel, recipeModel, dietRecordModel, recipeIngredientRelationModel } from '../../models';
 import * as ingredientService from './ingredient';
 
 interface RecipeWithIngredients extends BaseRecipe {
@@ -9,7 +9,7 @@ interface RecipeWithIngredients extends BaseRecipe {
 }
 
 export const getAll = async ({ q, published }: TypeSearch, uid: number) => {
-  const recipes = published ? await RecipeModel.getAllByName(q) : await RecipeModel.getAllByUserAndName(uid, q);
+  const recipes = published ? await recipeModel.getAllByName(q) : await recipeModel.getAllByUserAndName(uid, q);
 
   if (recipes) {
     const data = recipes.map(({ creator, description, ...otherData }) => {
@@ -24,10 +24,10 @@ export const getAll = async ({ q, published }: TypeSearch, uid: number) => {
 };
 
 export const getOne = async (recipeId: number, uid: number) => {
-  const recipe = await RecipeModel.getOne(recipeId);
+  const recipe = await recipeModel.getOne(recipeId);
   if (!recipe) throw new ApplicationError(404);
 
-  const relations = await RecipeIngredientRelationModel.getAllByRecipe(recipeId);
+  const relations = await recipeIngredientRelationModel.getAllByRecipe(recipeId);
   const ingredients = await Promise.all(
     relations?.map(async ({ ingredients, amount }) => {
       const ingredient = await ingredientService.getOne(ingredients, uid);
@@ -48,51 +48,51 @@ export const getOne = async (recipeId: number, uid: number) => {
 
 export const create = async ({ published, ingredients, ...data }: RecipeWithIngredients, uid: number) => {
   if (!ingredients) throw new ApplicationError(404);
-  const newRecipeId = await RecipeModel.create(data, uid);
+  const newRecipeId = await recipeModel.create(data, uid);
 
   await Promise.all(
     ingredients.map(async ({ id, amount }) => {
-      const ingredient = await IngredientModel.getOne(id);
+      const ingredient = await ingredientModel.getOne(id);
       if (!ingredient) return;
-      if (ingredient.creatorId === uid) return await RecipeIngredientRelationModel.create(id, newRecipeId, amount);
-      const copyIngredientId = await IngredientModel.copy(uid, ingredient, false);
-      return await RecipeIngredientRelationModel.create(copyIngredientId, newRecipeId, amount);
+      if (ingredient.creatorId === uid) return await recipeIngredientRelationModel.create(id, newRecipeId, amount);
+      const copyIngredientId = await ingredientModel.copy(uid, ingredient, false);
+      return await recipeIngredientRelationModel.create(copyIngredientId, newRecipeId, amount);
     })
   );
 
   if (published) {
-    const relations = await RecipeIngredientRelationModel.getAllByRecipe(newRecipeId);
-    relations?.map(async ({ ingredients }) => await IngredientModel.isPublished(ingredients, true));
+    const relations = await recipeIngredientRelationModel.getAllByRecipe(newRecipeId);
+    relations?.map(async ({ ingredients }) => await ingredientModel.isPublished(ingredients, true));
   }
   return { id: newRecipeId };
 };
 
 export const update = async (recipeId: number, { published, ingredients, ...data }: RecipeWithIngredients, uid: number) => {
-  const recipe = await RecipeModel.getOne(recipeId);
+  const recipe = await recipeModel.getOne(recipeId);
   if (!ingredients || !recipe) throw new ApplicationError(404);
 
   if (recipe.creator !== uid) throw new ApplicationError(409);
-  const result = await RecipeModel.update(recipeId, data);
+  const result = await recipeModel.update(recipeId, data);
   if (!result) throw new ApplicationError(400);
 
   await Promise.all(
     ingredients.map(async ({ id, amount }) => {
-      const relation = await RecipeIngredientRelationModel.getOne(id, recipeId);
+      const relation = await recipeIngredientRelationModel.getOne(id, recipeId);
       if (relation) {
         if (amount === -1) {
-          await RecipeIngredientRelationModel.deleteByIngredientAndRecipe(id, recipeId);
+          await recipeIngredientRelationModel.deleteByIngredientAndRecipe(id, recipeId);
           return;
         }
-        if (published) await IngredientModel.isPublished(id, true);
-        await RecipeIngredientRelationModel.update(id, recipeId, amount);
+        if (published) await ingredientModel.isPublished(id, true);
+        await recipeIngredientRelationModel.update(id, recipeId, amount);
         return;
       }
 
-      const ingredient = await IngredientModel.getOne(id);
+      const ingredient = await ingredientModel.getOne(id);
       if (!ingredient) return;
-      if (ingredient.creatorId === uid) return await RecipeIngredientRelationModel.create(id, recipeId, amount);
-      const copyIngredientId = await IngredientModel.copy(uid, ingredient, false);
-      return await RecipeIngredientRelationModel.create(copyIngredientId, recipeId, amount);
+      if (ingredient.creatorId === uid) return await recipeIngredientRelationModel.create(id, recipeId, amount);
+      const copyIngredientId = await ingredientModel.copy(uid, ingredient, false);
+      return await recipeIngredientRelationModel.create(copyIngredientId, recipeId, amount);
     })
   );
 
@@ -100,12 +100,12 @@ export const update = async (recipeId: number, { published, ingredients, ...data
 };
 
 export const remove = async (recipeId: number, uid: number) => {
-  const { creatorId } = (await RecipeModel.getOne(recipeId)) ?? {};
+  const { creatorId } = (await recipeModel.getOne(recipeId)) ?? {};
   if (creatorId !== uid) throw new ApplicationError(409);
 
-  const dietRecord = await DietRecordModel.getAllByRecipe(uid, recipeId);
+  const dietRecord = await dietRecordModel.getAllByRecipe(uid, recipeId);
   if (dietRecord) throw new ApplicationError(409);
 
-  await RecipeModel.delete(recipeId);
-  await RecipeIngredientRelationModel.deleteByRecipe(recipeId);
+  await recipeModel.remove(recipeId);
+  await recipeIngredientRelationModel.deleteByRecipe(recipeId);
 };

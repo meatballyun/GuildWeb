@@ -4,8 +4,7 @@ import { TypeSearch } from '../../types/TypeSearch';
 import { IngredientModel, RecipeModel, RecipeIngredientRelationModel } from '../../models';
 
 export const getAll = async ({ q, published }: TypeSearch, uid: number) => {
-  const ingredients = published ? await IngredientModel.getAllByName(q) : await IngredientModel.getAllByUserAndName(uid, q);
-
+  const ingredients = published ? await ingredientModel.getAllByName(q) : await ingredientModel.getAllByUserAndName(uid, q);
   const hasIngredients = ingredients?.length;
   if (hasIngredients) {
     const data = ingredients.map(({ creator, description, ...ingredient }) => ({
@@ -18,7 +17,7 @@ export const getAll = async ({ q, published }: TypeSearch, uid: number) => {
 };
 
 export const getOne = async (IngredientId: number, uid: number) => {
-  const ingredient = await IngredientModel.getOne(IngredientId);
+  const ingredient = await ingredientModel.getOne(IngredientId);
   if (!ingredient) throw new ApplicationError(404);
   return {
     isOwned: ingredient.creator === uid,
@@ -27,7 +26,7 @@ export const getOne = async (IngredientId: number, uid: number) => {
 };
 
 export const create = async (body: BaseIngredient, uid: number) => {
-  const NewIngredientId = await IngredientModel.create(body, uid);
+  const NewIngredientId = await ingredientModel.create(body, uid);
   if (!NewIngredientId) throw new ApplicationError(400);
   return { id: NewIngredientId };
 };
@@ -74,18 +73,15 @@ export const update = async (ingredientId: number, body: BaseIngredient, uid: nu
 };
 
 export const isPublished = async (ingredientId: number, published: boolean, uid: number) => {
-  const { creatorId } = (await IngredientModel.getOne(ingredientId)) ?? {};
+  const { creatorId } = (await ingredientModel.getOne(ingredientId)) ?? {};
   if (creatorId !== uid) throw new ApplicationError(409);
-
-  await IngredientModel.isPublished(ingredientId, published);
+  await ingredientModel.isPublished(ingredientId, published);
 };
 
 export const remove = async (ingredientId: number, uid: number) => {
-  const { creatorId } = (await IngredientModel.getOne(ingredientId)) ?? {};
+  const { creatorId } = (await ingredientModel.getOne(ingredientId)) ?? {};
   if (creatorId !== uid) throw new ApplicationError(409);
-
-  const relations = await RecipeIngredientRelationModel.getAllByIngredient(ingredientId);
+  const relations = await recipeIngredientRelationModel.getAllByIngredient(ingredientId);
   if (relations) throw new ApplicationError(409);
-
-  await IngredientModel.delete(ingredientId);
+  await ingredientModel.remove(ingredientId);
 };
