@@ -81,3 +81,40 @@ export const remove = async (id: number): Promise<number> => {
     });
   });
 };
+
+export const getPublishedByIngredient = async (ingredientId: number): Promise<Recipe[]> => {
+  return new Promise((resolve, reject) => {
+    conn.query<Recipe[]>(
+      `SELECT r.id, r.published, i.id, i.published
+        FROM recipes r
+        LEFT JOIN recipeIngredientRelations rir ON rir.recipeId = r.id
+        INNER JOIN ingredients i ON i.id = rir.ingredientId
+        WHERE i.id = ? AND r.published = true;`,
+      [ingredientId],
+      function (err, rows) {
+        if (err) reject(err);
+        resolve(rows);
+      }
+    );
+  });
+};
+
+export const updateByIngredient = async (ingredientId: number, carbs: number, pro: number, fats: number, kcal: number): Promise<Recipe[]> => {
+  return new Promise((resolve, reject) => {
+    conn.query<Recipe[]>(
+      `UPDATE recipes r
+        JOIN recipeIngredientRelations rir ON rir.recipeId = r.id
+        JOIN ingredients i ON i.id = rir.ingredientId
+        SET r.carbs = r.carbs + (rir.amount * ?),
+        r.pro = r.pro + (rir.amount * ?),
+        r.fats = r.fats + (rir.amount * ?),
+        r.kcal = r.kcal + (rir.amount * ?)
+        WHERE i.id = ?;`,
+      [carbs, pro, fats, kcal, ingredientId],
+      function (err, rows) {
+        if (err) reject(err);
+        resolve(rows);
+      }
+    );
+  });
+};

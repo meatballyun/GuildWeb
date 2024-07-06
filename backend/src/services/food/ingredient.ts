@@ -1,7 +1,14 @@
 import { ApplicationError } from '../../utils/error/applicationError';
 import { BaseIngredient } from '../../types/food/Ingredient';
 import { TypeSearch } from '../../types/TypeSearch';
-import { IngredientModel, RecipeModel, RecipeIngredientRelationModel } from '../../models';
+import { ingredientModel, recipeModel, recipeIngredientRelationModel } from '../../models';
+
+type Nutrition = {
+  carbs: number;
+  pro: number;
+  fats: number;
+  kcal: number;
+};
 
 export const getAll = async ({ q, published }: TypeSearch, uid: number) => {
   const ingredients = published ? await ingredientModel.getAllByName(q) : await ingredientModel.getAllByUserAndName(uid, q);
@@ -32,43 +39,22 @@ export const create = async (body: BaseIngredient, uid: number) => {
 };
 
 export const update = async (ingredientId: number, body: BaseIngredient, uid: number) => {
-  const { creatorId } = (await IngredientModel.getOne(ingredientId)) ?? {};
-  if (creatorId !== uid) throw new ApplicationError(409);
+  const originIngredient = await ingredientModel.getOne(ingredientId);
+  if (!originIngredient) throw new ApplicationError(409);
 
-  const forIngredientRelations = await RecipeIngredientRelationModel.getAllByIngredient(ingredientId);
-  if (forIngredientRelations && !body.published) {
-    for (const relation of forIngredientRelations) {
-      const recipe = await RecipeModel.getOne(relation.recipes);
-      if (recipe?.published) throw new ApplicationError(409);
-    }
-  }
+  const recipes = await recipeModel.getPublishedByIngredient(ingredientId);
+  if (recipes?.length) throw new ApplicationError(409);
 
-  const result = await IngredientModel.update(ingredientId, body);
+  const result = await ingredientModel.update(ingredientId, body);
   if (!result) throw new ApplicationError(400);
 
-  type Nutrition = {
-    carbs: number;
-    pro: number;
-    fats: number;
-    kcal: number;
-  };
+  const subCarbs = body.carbs - originIngredient.carbs,
+    subPro = body.pro - originIngredient.pro,
+    subFats = body.fats - originIngredient.fats,
+    subKcal = body.kcal - originIngredient.kcal;
 
-  if (forIngredientRelations) {
-    forIngredientRelations.map(async (relation) => {
-      const forRecipeRelations = await RecipeIngredientRelationModel.getAllByRecipe(relation.recipes);
-      let nutrition: Nutrition = { carbs: 0, pro: 0, fats: 0, kcal: 0 };
-      forRecipeRelations?.map(async (forRecipeRelation) => {
-        const ingredientAmount = forRecipeRelation.amount;
-        const ingredient = await IngredientModel.getOne(forRecipeRelation.ingredients);
-        if (!ingredient) return;
-        nutrition.carbs += ingredient?.carbs * ingredientAmount;
-        nutrition.pro += ingredient?.pro * ingredientAmount;
-        nutrition.fats += ingredient?.fats * ingredientAmount;
-        nutrition.kcal += ingredient?.kcal * ingredientAmount;
-      });
-      await RecipeModel.updateNutrition(relation.RECIPES, nutrition.carbs, nutrition.pro, nutrition.fats, nutrition.kcal);
-    });
-  }
+  await recipeModel.updateByIngredient(ingredientId, subCarbs, subPro, subFats, subKcal);
+
   return { id: ingredientId };
 };
 
