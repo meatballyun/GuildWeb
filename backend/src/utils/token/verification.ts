@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
-import { ApplicationError } from './error/applicationError';
+import { ApplicationError } from '../error/applicationError';
 import { Response, NextFunction } from 'express';
-import { TypedRequest } from '../types/TypedRequest';
-import { Payload } from '../types/common';
+import { TypedRequest } from '../../types/TypedRequest';
+import { Payload } from '../../types/common';
 
 const verifyJwtToken = (token: string, secret: string) => {
   return new Promise<Payload>((resolve, reject) => {

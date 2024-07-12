@@ -2,7 +2,7 @@ import express from 'express';
 import { sendSignUp } from '../controllers';
 import { createNotification } from '../controllers';
 import { signup, login, resetPassword, getUserInfo, updateUserInfo, getUsers, getFriends, sendFriendInvitation, updateFriend, deleteFriend } from '../controllers';
-import { verifyToken } from '../utils/verification';
+import { verifyToken } from '../utils/token/verification';
 
 const router = express.Router();
 

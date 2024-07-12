@@ -1,5 +1,5 @@
-import { TypedRequest } from '../types/TypedRequest';
-import { CommonError } from './error/commonError';
+import { TypedRequest } from '../../types/TypedRequest';
+import { CommonError } from './commonError';
 import { Response, NextFunction } from 'express';
 
 export const errorHandler = (err: any, req: TypedRequest, res: Response, next: NextFunction) => {

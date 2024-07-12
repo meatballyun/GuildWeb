@@ -1,6 +1,6 @@
 import { ApplicationError } from '../../utils/error/applicationError';
 import { BaseGuild, Guild } from '../../types/guild/guild';
-import { UserGuildRelationModel, GuildModel } from '../../models';
+import { UserGuildRelationModel, GuildModel, MissionModel, AdventurerModel, ItemModel, ItemRecordModel, MissionTemplateModel, MissionTemplateItemModel } from '../../models';
 
 const defaultTitle = 'Personal Cabin';
 const defaultDescription = `In your Personal Cabin, you have the flexibility to select from various mission types like 'Ordinary', 'Emergency', and 'Repetitive', tailoring them to your specific needs. Additionally, you can customize the recurrence frequency, whether it's daily, weekly, or monthly, to suit your schedule. Furthermore, missions can be further broken down into multiple sub-goals, empowering you to gain a comprehensive overview of your pending missions and strategize your approach for more efficient planning and completion.`;
@@ -8,13 +8,13 @@ const defaultImageUrl = `${process.env.API_SERVICE_URL}/uploads/image/system/cab
 
 export const getAll = async (uid: number) => {
   const relations = await UserGuildRelationModel.getAllByUser(uid);
-  if (relations) {
+  if (relations?.length) {
     const guilds = await Promise.all(
-      relations.map(async ({ guildId, membership }) => {
-        const { name, imageUrl } = (await GuildModel.getOne(guildId)) as Guild;
+      relations.map(async ({ guildId, membership, name, imageUrl }) => {
         return { id: guildId, membership, name, imageUrl };
       })
     );
+
     return guilds.filter((row) => {
       return row.membership !== 'pending';
     });
@@ -49,4 +49,37 @@ export const addCabin = async (uid: number) => {
 export const update = async (guildId: number, body: Guild) => {
   const newGuildId = await GuildModel.update(guildId, body);
   if (!newGuildId) throw new ApplicationError(400);
+};
+
+export const remove = async (guildId: number, uid: number) => {
+  const missions = await MissionModel.getAllByGuild(guildId);
+
+  if (missions?.length) {
+    missions.map(async (row) => {
+      await AdventurerModel.deleteByMission(row.ID);
+      const items = await ItemModel.getAll(row.ID);
+      if (items && items?.length) {
+        await Promise.all(
+          items.map(async (i) => {
+            const itemRecord = await ItemRecordModel.getAllByItemAndUser(i.id, uid as number);
+            if (itemRecord && itemRecord?.length) {
+              await ItemRecordModel.deleteAllByItem(itemRecord[0].ID);
+            }
+          })
+        );
+      }
+      await ItemModel.deleteAll(row.ID);
+      await MissionModel.delete(row.ID);
+    });
+  }
+
+  const missionTemplates = await MissionTemplateModel.getAllByGuild(guildId);
+  if (missionTemplates?.length)
+    missionTemplates.map(async (row) => {
+      await MissionTemplateItemModel.deleteByMissionTemplate(row.ID);
+      await MissionTemplateModel.delete(row.ID);
+    });
+
+  const query = await GuildModel.deleteGuild(guildId);
+  return query;
 };

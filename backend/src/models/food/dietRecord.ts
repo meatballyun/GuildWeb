@@ -20,6 +20,25 @@ export const getAllByDate = async (creatorId: number, dietDate: Date): Promise<D
   });
 };
 
+export const getAllRecipeByDate = async (creatorId: number, dietDate: Date): Promise<DietRecipe[] | undefined> => {
+  return new Promise((resolve, reject) => {
+    conn.query<DietRecipe[]>(
+      `SELECT dr.id, dr.amount, dr.category, r.id AS recipeId, r.name, r.carbs, r.pro, r.fats, r.kcal, r.unit, r.imageUrl
+      FROM dietRecords dr
+      LEFT JOIN recipes r ON r.id = dr.recipeId 
+      WHERE dr.creatorId = ?
+        AND dr.dietDate = ?
+        AND r.active = TRUE
+        AND dr.active = TRUE;`,
+      [creatorId, dietDate],
+      function (err, rows) {
+        if (err) reject(err);
+        resolve(rows);
+      }
+    );
+  });
+};
+
 export const getAllByRecipe = async (creatorId: number, recipeId: number): Promise<DietRecipe[] | undefined> => {
   return new Promise((resolve, reject) => {
     conn.query<DietRecipe[]>('SELECT * FROM dietRecords WHERE creatorId = ? AND recipeId = ? AND active = TRUE', [creatorId, recipeId], function (err, rows) {

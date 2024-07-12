@@ -20,7 +20,7 @@ export const createRecipe = async (req: TypedRequest, res: Response, next: NextF
 };
 
 export const updateRecipe = async (req: TypedRequest, res: Response, next: NextFunction) => {
-  const data = await recipeService.update(req.params.id, req.body, req.userId as number);
+  const data = await recipeService.update(req.body.id, req.body, req.userId as number);
   return res.status(200).json({ data });
 };
 

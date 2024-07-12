@@ -1,9 +1,9 @@
 import bcrypt from 'bcrypt';
 import { ApplicationError } from '../../utils/error/applicationError';
 import { toHash } from '../../utils/hashCode';
-import { generateToken } from '../../utils/generateToken';
+import { generateToken } from '../../utils/token/generateToken';
 import { BaseUser } from '../../types/user/user';
-import { UserModel, ConfirmationEmailModel } from '../../models';
+import { UserModel } from '../../models';
 
 const MAX_RANK = 15;
 const BASE = 70;

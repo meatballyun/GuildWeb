@@ -1,5 +1,5 @@
 import express from 'express';
-import { verifyToken } from '../utils/verification';
+import { verifyToken } from '../utils/token/verification';
 import { isMember, isMasterOrVice, isMaster } from '../middleware/guildAuth';
 import {
   getGuilds,

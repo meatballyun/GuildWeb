@@ -1,6 +1,6 @@
 import express from 'express';
 import { getNotifications, getNotificationDetail, uesNotification, deleteNotification } from '../controllers';
-import { verifyToken } from '../utils/verification';
+import { verifyToken } from '../utils/token/verification';
 
 const router = express.Router();
 

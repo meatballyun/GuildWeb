@@ -32,10 +32,10 @@ export const getAllByName = async (name: string): Promise<Ingredient[] | undefin
 export const getAllByRecipe = async (id: number): Promise<IngredientWithAmount[] | undefined> => {
   return new Promise((resolve, reject) => {
     conn.query<IngredientWithAmount[]>(
-      `SELECT rir.amount, i.id, i.carbs, i.pro, i.fats, i.kcal, i.imageUrl, i.published, i.unit
+      `SELECT rir.amount, i.id, i.carbs, i.pro, i.fats, i.kcal, i.imageUrl, i.published, i.unit, i.creatorId
       FROM recipeIngredientRelations rir
       LEFT JOIN ingredients i ON rir.ingredientId = i.id
-      WHERE rir.recipeId = 4 AND i.active = true;`,
+      WHERE rir.recipeId = ? AND i.active = true;`,
       id,
       (err, rows) => {
         if (err) reject(err);
@@ -58,7 +58,29 @@ export const create = async ({ name, description, carbs, pro, fats, kcal, unit, 
   });
 };
 
-export const copy = async (creatorId: number, { name, description, carbs, pro, fats, kcal, unit, imageUrl }: BaseIngredient, published: boolean): Promise<number> => {
+export const copyMany = async (creatorId: number, ids: number[]): Promise<number> => {
+  return new Promise((resolve, reject) => {
+    if (ids.length === 0) {
+      return;
+    }
+    const placeholders = ids.join(',');
+    conn.query<ResultSetHeader>(
+      `INSERT INTO ingredients (creatorId, name, description, carbs, pro, fats, kcal, unit, imageUrl, published)
+        SELECT ?, name, description, carbs, pro, fats, kcal, unit, imageUrl, false
+        FROM ingredients
+        WHERE id IN (${placeholders});`,
+      [creatorId],
+      function (err, rows) {
+        if (err) {
+          reject(err);
+        }
+        resolve(rows?.insertId);
+      }
+    );
+  });
+};
+
+export const oldcopy = async (creatorId: number, { name, description, carbs, pro, fats, kcal, unit, imageUrl }: BaseIngredient, published: boolean): Promise<number> => {
   return new Promise((resolve, reject) => {
     conn.query<ResultSetHeader>(
       'INSERT INTO ingredients(creatorId, name, description, carbs, pro, fats, kcal, unit, imageUrl, published) VALUES (?,?,?,?,?,?,?,?,?,?)',
@@ -71,11 +93,11 @@ export const copy = async (creatorId: number, { name, description, carbs, pro, f
   });
 };
 
-export const isPublished = async (id: number, published: boolean): Promise<number> => {
+export const isPublished = async (id: number[], published: boolean): Promise<ResultSetHeader> => {
   return new Promise((resolve, reject) => {
-    conn.query<ResultSetHeader>(`UPDATE ingredients SET published = ? WHERE id = ?;`, [published, id], function (err, rows) {
+    conn.query<ResultSetHeader>(`UPDATE ingredients SET published = ? WHERE id IN (?);`, [published, id], function (err, rows) {
       if (err) reject(err);
-      resolve(rows.affectedRows);
+      resolve(rows);
     });
   });
 };

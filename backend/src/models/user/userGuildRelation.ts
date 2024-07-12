@@ -26,7 +26,7 @@ export class UserGuildRelationModel {
   static getAllByUser(userId: number): Promise<UserGuildRelation[] | undefined> {
     return new Promise((resolve, reject) => {
       connection.query<UserGuildRelation[]>(
-        'SELECT ugr.* FROM userGuildRelations ugr INNER JOIN guilds g ON ugr.guildId = g.ID WHERE ugr.userId = ? AND g.active=TRUE ',
+        'SELECT ugr.*, g.* FROM userGuildRelations ugr INNER JOIN guilds g ON ugr.guildId = g.id WHERE ugr.userId = ? AND g.active=TRUE ',
         [userId],
         function (err, rows) {
           if (err) reject(err);
