@@ -3,6 +3,7 @@ import { Item } from '../../types/guild/item';
 import { TemplateItem } from '../../types/guild/missionTemplateItem';
 import { ItemModel } from '../../models/guild/item';
 import * as itemRecordService from './itemRecord';
+import { executeTransaction } from '../../utils/executeTransaction';
 
 export const getAll = async (missionId: number, AdventurerId: number, isAccepted: boolean) => {
   const items = await ItemModel.getAll(missionId);
@@ -14,28 +15,37 @@ export const getAll = async (missionId: number, AdventurerId: number, isAccepted
 };
 
 export const create = async (items: Item[] | TemplateItem[], missionId: number) => {
-  if (items) {
-    await Promise.all(
-      items.map(async ({ content }) => {
-        const newItemId = await ItemModel.create(missionId, content);
-        if (!newItemId) throw new ApplicationError(400);
-      })
-    );
+  if (items?.length) {
+    const contents = items.map(({ content }) => content);
+
+    const newItemId = await ItemModel.createMany(missionId, contents);
+    if (!newItemId) throw new ApplicationError(400);
   }
 };
 
 export const update = async (items: Item[] | TemplateItem[], missionId: number) => {
   if (!items) await ItemModel.deleteAll(missionId);
   else {
+    const updateItemIds: { id: number; content: string }[] = [];
+    const createItemContents: string[] = [];
+    const deleteItemIds: number[] = [];
+
     await Promise.all(
-      items.map(async ({ id: itemId, content }) => {
+      items.map(async ({ id, content }) => {
         if (content) {
-          itemId ? await ItemModel.update(itemId, content) : await ItemModel.create(missionId, content);
+          id ? updateItemIds.push(id, content) : createItemContents.push(content);
         } else {
-          await ItemModel.delete(itemId);
+          deleteItemIds.push(id);
         }
       })
     );
+    await executeTransaction(async () => {
+      const newItemId = await ItemModel.createMany(missionId, createItemContents);
+      if (!newItemId) throw new ApplicationError(400);
+
+      await ItemModel.updateMany(updateItemIds);
+      await ItemModel.deleteManyById(deleteItemIds);
+    });
   }
 };
 

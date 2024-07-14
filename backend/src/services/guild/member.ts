@@ -1,19 +1,10 @@
 import { ApplicationError } from '../../utils/error/applicationError';
-import { User } from '../../types/user/user';
 import { Membership } from '../../types/user/userGuildRelation';
-import { UserModel, UserGuildRelationModel } from '../../models';
+import { UserGuildRelationModel } from '../../models';
 
 export const getAll = async (guildId: number) => {
-  const relations = await UserGuildRelationModel.getAllByGuild(guildId);
-  if (relations?.length) {
-    const guildMembers = await Promise.all(
-      relations.map(async ({ userId, membership }) => {
-        const { id, name, imageUrl, rank } = (await UserModel.getOneById(userId)) as User;
-        return { id, name, imageUrl, rank, membership };
-      })
-    );
-    return guildMembers;
-  }
+  const relations = await UserGuildRelationModel.getAllByGuildId(guildId);
+  return relations;
 };
 
 export const sendInvitation = async (recipientId: number, guildId: number) => {

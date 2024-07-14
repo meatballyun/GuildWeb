@@ -5,6 +5,7 @@
   "scripts": {
     "build": "npm run tsc",
     "dev": "tsc --watch",
+    "check": "tsc --watch",
     "start": "nodemon ./dist/server.js"
   },
   "author": "",

@@ -96,6 +96,19 @@ export class MissionModel {
     });
   }
 
+  static deleteManyById(ids: number[]): Promise<number> {
+    return new Promise((resolve, reject) => {
+      if (ids.length === 0) {
+        return;
+      }
+      const placeholders = ids.join(',');
+      conn.query<ResultSetHeader>(`UPDATE missions SET active = FALSE WHERE id IN (${placeholders})`, function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
+    });
+  }
+
   static checkInitiationTimeEvent(): Promise<number> {
     return new Promise((resolve, reject) => {
       conn.query<ResultSetHeader>(`UPDATE missions SET status = 'in progress' WHERE initiationTime < CURRENT_TIMESTAMP AND status = 'established' AND active = TRUE`, function (err, rows) {

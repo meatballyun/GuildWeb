@@ -23,6 +23,25 @@ export class UserGuildRelationModel {
     });
   }
 
+  static getAllByGuildId(guildId: number): Promise<UserGuildRelation[] | undefined> {
+    return new Promise((resolve, reject) => {
+      connection.query<UserGuildRelation[]>(
+        `
+        SELECT  u.id, u.name, u.imageUrl, u.rank, ugr.membership
+        FROM userGuildRelations ugr 
+        LEFT JOIN users u ON ugr.userId = u.id
+        WHERE guildId = ?;
+        `,
+        [guildId],
+        function (err, rows) {
+          if (err) reject(err);
+          if (rows?.length) resolve(rows);
+          resolve(undefined);
+        }
+      );
+    });
+  }
+
   static getAllByUser(userId: number): Promise<UserGuildRelation[] | undefined> {
     return new Promise((resolve, reject) => {
       connection.query<UserGuildRelation[]>(

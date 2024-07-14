@@ -20,12 +20,9 @@ export const getAll = async (missionTemplateId: number) => {
 
 export const create = async (items: Item[], templateId: number) => {
   if (items) {
-    await Promise.all(
-      items.map(async ({ content }: { content: string }) => {
-        const newTemplateItemId = await MissionTemplateItemModel.create(templateId, content);
-        if (!newTemplateItemId) throw new ApplicationError(400);
-      })
-    );
+    const contents = items.map(({ content }) => content);
+    const newTemplateItemId = await MissionTemplateItemModel.createMany(templateId, contents);
+    if (!newTemplateItemId) throw new ApplicationError(400);
   }
 };
 export const remove = async (missionTemplateId: number) => {

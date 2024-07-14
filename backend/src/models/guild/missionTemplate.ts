@@ -98,4 +98,17 @@ export class MissionTemplateModel {
       });
     });
   }
+
+  static deleteAllByIds(ids: number[]): Promise<number> {
+    return new Promise((resolve, reject) => {
+      if (ids.length === 0) {
+        return;
+      }
+      const placeholders = ids.join(',');
+      conn.query<ResultSetHeader>(`UPDATE missionTemplates SET active = FALSE WHERE id IN (${placeholders})`, function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
+    });
+  }
 }

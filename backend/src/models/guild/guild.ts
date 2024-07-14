@@ -16,7 +16,7 @@ export class GuildModel {
     return new Promise((resolve, reject) => {
       conn.query<ResultSetHeader>('INSERT INTO guilds(leaderId, name, description, imageUrl, cabin) VALUES (?,?,?,?,?)', [leaderId, name, description, imageUrl, false], function (err, rows) {
         if (err) reject(err);
-        resolve(rows.insertId);
+        resolve(rows?.insertId);
       });
     });
   }

@@ -31,6 +31,15 @@ export class ItemRecordModel {
     });
   }
 
+  static getAllByManyItemAndUser(itemIds: number[], userId: number): Promise<ItemRecord[]> {
+    return new Promise((resolve, reject) => {
+      conn.query<ItemRecord[]>('SELECT * FROM itemRecords WHERE itemId IN (?) AND userId = ? AND active = TRUE', [itemIds, userId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows);
+      });
+    });
+  }
+
   static create(itemId: number, content: string, userId: number): Promise<number> {
     return new Promise((resolve, reject) => {
       conn.query<ResultSetHeader>('INSERT INTO itemRecords(itemId , content, userId) VALUES (?,?,?)', [itemId, content, userId], function (err, rows) {
@@ -67,9 +76,31 @@ export class ItemRecordModel {
     });
   }
 
+  static deleteAllByManyItems(itemIds: number[]): Promise<number> {
+    return new Promise((resolve, reject) => {
+      if (itemIds.length === 0) {
+        return;
+      }
+      const placeholders = itemIds.join(',');
+      conn.query<ResultSetHeader>(`UPDATE itemRecords SET active = FALSE WHERE itemId IN (${placeholders})`, function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
+    });
+  }
+
   static deleteAllByItemAndUser(itemId: number, userId: number): Promise<number> {
     return new Promise((resolve, reject) => {
       conn.query<ResultSetHeader>('UPDATE itemRecords SET active = FALSE WHERE itemId = ? AND userId = ?', [itemId, userId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
+    });
+  }
+
+  static deleteAllByManyItemAndUser(itemIds: number[], userId: number): Promise<number> {
+    return new Promise((resolve, reject) => {
+      conn.query<ResultSetHeader>('UPDATE itemRecords SET active = FALSE WHERE itemId IN (?) AND userId = ?', [itemIds, userId], function (err, rows) {
         if (err) reject(err);
         resolve(rows.affectedRows);
       });

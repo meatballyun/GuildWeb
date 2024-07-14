@@ -1,6 +1,5 @@
 import { ApplicationError } from '../../utils/error/applicationError';
-import { User } from '../../types/user/user';
-import { UserModel, AdventurerModel } from '../../models';
+import { AdventurerModel } from '../../models';
 import { userInfoService } from '../../services/user';
 
 export const isAdventurer = async (missionId: number, uid: number) => {
@@ -9,40 +8,33 @@ export const isAdventurer = async (missionId: number, uid: number) => {
 };
 
 export const getAdventurerInfo = async (missionId: number) => {
-  const adventurers = await AdventurerModel.getAllByMission(missionId);
-  if (!adventurers) return;
-  const adventurerInfo = await Promise.all(
-    adventurers.map(async ({ userId, status }) => {
-      const { id, name, imageUrl } = (await UserModel.getOneById(userId)) as User;
-      return { id, name, imageUrl, status };
-    })
-  );
-  return adventurerInfo;
+  const adventurerInfos = await AdventurerModel.getAllByMissionId(missionId);
+  return adventurerInfos;
 };
 
 export const updateStatusByMissionComplete = async (missionId: number) => {
-  const adventurers = await AdventurerModel.getAllByMission(missionId);
-  if (!adventurers) throw new ApplicationError(409);
+  const adventurerInfos = await AdventurerModel.getAllByMissionId(missionId);
+  if (!adventurerInfos) throw new ApplicationError(409);
+
+  const failAdventurerIds: number[] = [];
+  const completedAdventurerIds: number[] = [];
+
   await Promise.all(
-    adventurers.map(async ({ userId }) => {
-      const adventurer = await AdventurerModel.getOne(missionId, userId);
-      if (adventurer?.status != 'completed') {
-        await AdventurerModel.updateStatus(missionId, userId, 'failed');
-        await userInfoService.updateExp(userId, -1);
+    adventurerInfos.map(async ({ id, status }) => {
+      if (status != 'completed') {
+        failAdventurerIds.push(id);
       } else {
-        await userInfoService.updateExp(userId, 1);
+        completedAdventurerIds.push(id);
       }
     })
   );
+  await AdventurerModel.updateStatusByManyUsers(missionId, failAdventurerIds, 'failed');
 };
 
 export const updateStatusByMissionFail = async (missionId: number) => {
-  const adventurers = await AdventurerModel.getAllByMission(missionId);
-  if (!adventurers) throw new ApplicationError(409);
-  await Promise.all(
-    adventurers.map(async ({ userId }) => {
-      await AdventurerModel.updateStatus(missionId, userId, 'failed');
-      await userInfoService.updateExp(userId, -1);
-    })
-  );
+  const adventurerInfos = await AdventurerModel.getAllByMissionId(missionId);
+  if (!adventurerInfos?.length) throw new ApplicationError(409);
+
+  const failAdventurerIds = await Promise.all(adventurerInfos.map(async ({ userId }) => userId));
+  await AdventurerModel.updateStatusByManyUsers(missionId, failAdventurerIds, 'failed');
 };

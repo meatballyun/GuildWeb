@@ -12,9 +12,39 @@ export class ItemModel {
     });
   }
 
+  static getAllByManyMissions(missionIds: number[]): Promise<Item[]> {
+    return new Promise((resolve, reject) => {
+      if (missionIds.length === 0) {
+        return;
+      }
+      const placeholders = missionIds.join(',');
+      conn.query<Item[]>(`SELECT * FROM items WHERE missionId IN (${placeholders}) AND active = TRUE`, function (err, rows) {
+        if (err) reject(err);
+        resolve(rows);
+      });
+    });
+  }
+
   static create(missionId: number, content: string): Promise<number> {
     return new Promise((resolve, reject) => {
       conn.query<ResultSetHeader>('INSERT INTO items(missionId , content) VALUES (?,?)', [missionId, content], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.insertId);
+      });
+    });
+  }
+
+  static createMany(missionId: number, contents: string[]): Promise<number> {
+    return new Promise((resolve, reject) => {
+      const placeholders = new Array(contents.length).fill('(?,?)').join(', ');
+      const values = contents.reduce(
+        (acc, content) => {
+          acc.push(missionId, content);
+          return acc;
+        },
+        [] as (number | string)[]
+      );
+      conn.query<ResultSetHeader>(`INSERT INTO items(missionId , content) VALUES ${placeholders}`, values, function (err, rows) {
         if (err) reject(err);
         resolve(rows.insertId);
       });
@@ -30,6 +60,27 @@ export class ItemModel {
     });
   }
 
+  static updateMany(items: { id: number; content: string }[]): Promise<number> {
+    return new Promise((resolve, reject) => {
+      if (!items.length) return 0;
+
+      const cases = items.map((item) => `WHEN id = ${item.id} THEN ?`).join(' ');
+      const values = items.map((item) => item.content);
+      const ids = items.map((item) => item.id).join(', ');
+
+      conn.query<ResultSetHeader>(
+        ` UPDATE items
+          SET content = CASE ${cases} END
+          WHERE id IN (${ids});`,
+        values,
+        function (err, rows) {
+          if (err) reject(err);
+          resolve(rows.affectedRows);
+        }
+      );
+    });
+  }
+
   static delete(id: number): Promise<number> {
     return new Promise((resolve, reject) => {
       conn.query<ResultSetHeader>('UPDATE items SET active = FALSE WHERE id = ?', [id], function (err, rows) {
@@ -39,9 +90,35 @@ export class ItemModel {
     });
   }
 
+  static deleteManyById(ids: number[]): Promise<number> {
+    return new Promise((resolve, reject) => {
+      if (ids.length === 0) {
+        return;
+      }
+      const placeholders = ids.join(',');
+      conn.query<ResultSetHeader>(`UPDATE items SET active = FALSE WHERE id IN(${placeholders})`, function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
+    });
+  }
+
   static deleteAll(missionId: number): Promise<number> {
     return new Promise((resolve, reject) => {
       conn.query<ResultSetHeader>('UPDATE items SET active = FALSE WHERE missionId = ?', [missionId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
+    });
+  }
+
+  static deleteAllByManyMissions(missionId: number[]): Promise<number> {
+    return new Promise((resolve, reject) => {
+      if (missionId.length === 0) {
+        return;
+      }
+      const placeholders = missionId.join(',');
+      conn.query<ResultSetHeader>(`UPDATE items SET active = FALSE WHERE missionId IN (${placeholders})`, function (err, rows) {
         if (err) reject(err);
         resolve(rows.affectedRows);
       });

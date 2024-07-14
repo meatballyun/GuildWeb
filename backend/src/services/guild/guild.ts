@@ -55,30 +55,23 @@ export const remove = async (guildId: number, uid: number) => {
   const missions = await MissionModel.getAllByGuild(guildId);
 
   if (missions?.length) {
-    missions.map(async (row) => {
-      await AdventurerModel.deleteByMission(row.ID);
-      const items = await ItemModel.getAll(row.ID);
-      if (items && items?.length) {
-        await Promise.all(
-          items.map(async (i) => {
-            const itemRecord = await ItemRecordModel.getAllByItemAndUser(i.id, uid as number);
-            if (itemRecord && itemRecord?.length) {
-              await ItemRecordModel.deleteAllByItem(itemRecord[0].ID);
-            }
-          })
-        );
-      }
-      await ItemModel.deleteAll(row.ID);
-      await MissionModel.delete(row.ID);
-    });
+    const missionIds = missions.map(({ id }) => id);
+    await AdventurerModel.deleteManyByMission(missionIds);
+    const items = await ItemModel.getAllByManyMissions(missionIds);
+    if (items?.length) {
+      const itemIds = items.map(({ id }) => id);
+      await ItemRecordModel.deleteAllByManyItems(itemIds);
+    }
+    await ItemModel.deleteAllByManyMissions(missionIds);
+    await MissionModel.deleteManyById(missionIds);
   }
 
   const missionTemplates = await MissionTemplateModel.getAllByGuild(guildId);
-  if (missionTemplates?.length)
-    missionTemplates.map(async (row) => {
-      await MissionTemplateItemModel.deleteByMissionTemplate(row.ID);
-      await MissionTemplateModel.delete(row.ID);
-    });
+  if (missionTemplates?.length) {
+    const missionTemplateIds = missionTemplates.map(({ id }) => id);
+    await MissionTemplateItemModel.deleteByManyMissionTemplates(missionTemplateIds);
+    await MissionTemplateModel.deleteAllByIds(missionTemplateIds);
+  }
 
   const query = await GuildModel.deleteGuild(guildId);
   return query;

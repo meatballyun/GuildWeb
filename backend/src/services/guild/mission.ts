@@ -16,12 +16,15 @@ interface MissionDetailed extends MissionTime, MissionInfo {
 export const getAll = async ({ gid: guildId }: { gid: number }, { q: query }: { q?: string }, uid: number) => {
   const missions = query ? await MissionModel.getAllByGuildAndName(guildId, query) : await MissionModel.getAllByGuild(guildId);
   if (missions) {
+    const missionIds: number[] = [];
     const data = await Promise.all(
       missions.map(async ({ id, creator, name, type, status, accepted }) => {
-        const isAccepted = await adventurerService.isAdventurer(id, uid);
+        missionIds.push(id);
         return { id, creator, name, type, status, accepted, isAccepted };
       })
     );
+    const isAccepted = await AdventurerModel.getAllByManyMission(missionIds);
+
     return data;
   }
 };
@@ -42,7 +45,7 @@ export const getOne = async ({ tid: missionId }: { tid: number }, uid: number) =
 };
 
 export const create = async ({ initiationTime, deadline, items, ...otherData }: MissionDetailed, guildId: number, uid: number) => {
-  const time = await timeHandle(initiationTime, deadline);
+  const time = timeHandle(initiationTime, deadline);
   const newMissionId = await MissionModel.create(uid, guildId, time, otherData);
   if (newMissionId) {
     itemService.create(items, newMissionId);
@@ -123,7 +126,7 @@ export const update=async({ initiationTime, deadline, items, ...otherData }: Mis
     if (!mission) throw new ApplicationError(404);
     if (membership === 'vice' && uid !== mission.creatorId) throw new ApplicationError(403);
 
-    const time = await timeHandle(initiationTime, deadline);
+    const time = timeHandle(initiationTime, deadline);
 
     const result = await MissionModel.updateDetail(missionId, time, otherData);
     if (!result) throw new ApplicationError(400);

@@ -22,6 +22,32 @@ export class AdventurerModel {
     });
   }
 
+  static getAllByManyMission(missionIds: number[]): Promise<Adventurer[]> {
+    return new Promise((resolve, reject) => {
+      conn.query<Adventurer[]>(`SELECT * FROM adventurers WHERE missionId IN (?)`, missionIds, function (err, rows) {
+        if (err) reject(err);
+        resolve(rows);
+      });
+    });
+  }
+
+  static getAllByMissionId(missionId: number): Promise<Adventurer[]> {
+    return new Promise((resolve, reject) => {
+      conn.query<Adventurer[]>(
+        `
+        SELECT u.id, u.name, u.imageUrl, a.status
+        FROM adventurers a
+        LEFT JOIN users u ON a.userId = u.id
+        WHERE missionId =  ?`,
+        [missionId],
+        function (err, rows) {
+          if (err) reject(err);
+          resolve(rows);
+        }
+      );
+    });
+  }
+
   static getAllByUser(userId: number): Promise<Adventurer[]> {
     return new Promise((resolve, reject) => {
       conn.query<Adventurer[]>(`SELECT * FROM adventurers WHERE userId = ?`, [userId], function (err, rows) {
@@ -58,9 +84,35 @@ export class AdventurerModel {
     });
   }
 
+  static updateStatusByManyUsers(missionId: number, userIds: number[], status: Status): Promise<number> {
+    return new Promise((resolve, reject) => {
+      if (userIds.length === 0) {
+        return;
+      }
+      const placeholders = userIds.join(',');
+      conn.query<ResultSetHeader>(`UPDATE adventurers SET status = ? WHERE missionId = ? AND userId IN (${placeholders})`, [status, missionId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
+    });
+  }
+
   static deleteByMission(missionId: number): Promise<number> {
     return new Promise((resolve, reject) => {
       conn.query<ResultSetHeader>(`DELETE FROM adventurers WHERE missionId = ?`, [missionId], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows.affectedRows);
+      });
+    });
+  }
+
+  static deleteManyByMission(missionIds: number[]): Promise<number> {
+    return new Promise((resolve, reject) => {
+      if (missionIds.length === 0) {
+        return;
+      }
+      const placeholders = missionIds.join(',');
+      conn.query<ResultSetHeader>(`DELETE FROM adventurers WHERE missionId IN (${placeholders});`, function (err, rows) {
         if (err) reject(err);
         resolve(rows.affectedRows);
       });
