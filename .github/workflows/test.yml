@@ -21,8 +21,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Install dependencies
-        run: npm install
+      - name: Enter Backend
+        run: cd ./backend
+
+      - name: RUN
+        run: npm start
 
       - name: RUN
         run: npm start
