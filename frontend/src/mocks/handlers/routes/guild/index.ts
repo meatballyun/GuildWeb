@@ -1,5 +1,5 @@
 import { HttpResponse, http } from 'msw';
-import { GUILD, TASKS, getTaskDetail, getUser } from './constants';
+import { GUILD, TASKS, getMissionDetail, getUser } from './constants';
 import { BASE_API_URL } from '../../../constants';
 
 const BASE_GUILD_URL = `${BASE_API_URL}/guilds`;
@@ -56,7 +56,7 @@ export const guild = [
     return HttpResponse.json({
       success: true,
       message: 'Data retrieval successful.',
-      data: getTaskDetail(+params.tid),
+      data: getMissionDetail(+params.tid),
     });
   }),
 ];

@@ -8,7 +8,7 @@ import {
 } from '../../../components';
 import { classNames } from '../../../utils';
 import { FILTER_LIST, MISSION_STATUS_LIST } from './constants';
-import { TaskStatus, TaskType } from '../../../api/guild/interface';
+import { MissionStatus, MissionType } from '../../../api/guild/interface';
 import { MissionPageMode, Query } from './interface';
 
 interface UnderlineButtonProps {
@@ -187,7 +187,7 @@ export const ManageModeHeaderButton = ({
         <Selector
           value={query.missionType}
           onChange={(missionType) =>
-            onChange({ missionType: missionType as TaskType[] })
+            onChange({ missionType: missionType as MissionType[] })
           }
           textPrefix="Mission Type"
           options={MISSION_TYPE}
@@ -196,7 +196,7 @@ export const ManageModeHeaderButton = ({
         <Selector
           value={query.missionStatus}
           onChange={(missionStatus) =>
-            onChange({ missionStatus: missionStatus as TaskStatus[] })
+            onChange({ missionStatus: missionStatus as MissionStatus[] })
           }
           textPrefix="Mission Status"
           options={MISSION_STATUS}

@@ -1,12 +1,16 @@
 import { api } from '../../../api';
-import { Task, TaskStatus, TaskTemplate } from '../../../api/guild/interface';
+import {
+  Mission,
+  MissionStatus,
+  MissionTemplate,
+} from '../../../api/guild/interface';
 import { ButtonProps, MaterialSymbol } from '../../../components';
 import { COLORS } from '../../../styles';
 import { endOfDate, startOfDate } from '../../../utils';
 import { ModalType } from './MissionPage';
 import { MissionButtonType, MissionPageMode } from './interface';
 
-interface GetBasicMissionBtnPropsParam extends Task {
+interface GetBasicMissionBtnPropsParam extends Mission {
   maxAccept: boolean;
   onBtnClick: (type: MissionButtonType) => void;
   userId?: number;
@@ -96,7 +100,7 @@ const getManageMissionBtnProps = ({
   status,
   onBtnClick,
 }: {
-  status?: TaskStatus;
+  status?: MissionStatus;
   onBtnClick: (type: MissionButtonType) => void;
 }): ButtonProps[] => {
   if (status === 'cancelled')
@@ -169,7 +173,7 @@ const getTemplateMissionBtnProps = ({
 };
 
 interface GetMissionDetailBtnParam {
-  detail: Task | TaskTemplate;
+  detail: Mission | MissionTemplate;
   mode?: MissionPageMode;
   userId?: number;
   onBtnClick: (type: MissionButtonType) => void;
@@ -191,21 +195,26 @@ export const getMissionDetailBtn = ({
     });
   if (mode) return getManageMissionBtnProps({ ...detail, onBtnClick });
   return getBasicMissionBtnProps({
-    ...(detail as Task),
+    ...(detail as Mission),
     userId,
     maxAccept,
     onBtnClick,
   });
 };
 
-interface TaskApiParam {
+interface MissionApiParam {
   type?: ModalType;
   gid?: string;
   selectedId?: number | null;
-  value: Task | TaskTemplate;
+  value: Mission | MissionTemplate;
 }
 
-const taskApi = async ({ type, gid, selectedId, value }: TaskApiParam) => {
+const missionApi = async ({
+  type,
+  gid,
+  selectedId,
+  value,
+}: MissionApiParam) => {
   if ('generationTime' in value) {
     const startDate = startOfDate(value.generationTime).toISOString();
     const endDate = endOfDate(value.deadline).toISOString();
@@ -238,7 +247,7 @@ const taskApi = async ({ type, gid, selectedId, value }: TaskApiParam) => {
     deadline: endDate,
   };
   if (type === ModalType.EDIT) {
-    return api.guild.putGuildsTasks({
+    return api.guild.putGuildsMissions({
       pathParams: { gid, tid: selectedId },
       data: requestBody,
     });
@@ -249,7 +258,7 @@ const taskApi = async ({ type, gid, selectedId, value }: TaskApiParam) => {
   });
 };
 
-export const handleEditTasksFinish = async (param: TaskApiParam) => {
-  const data = await taskApi(param);
+export const handleEditMissionsFinish = async (param: MissionApiParam) => {
+  const data = await missionApi(param);
   return data.id;
 };

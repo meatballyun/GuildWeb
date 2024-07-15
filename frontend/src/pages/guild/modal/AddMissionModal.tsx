@@ -12,7 +12,7 @@ import {
 } from '../../../components';
 import { Modal, ModalProps } from '../../../components/Modal';
 import { TextArea } from '../../../components/Form/TextArea';
-import { Task, TaskTemplate } from '../../../api/guild/interface';
+import { Mission, MissionTemplate } from '../../../api/guild/interface';
 import { MissionPageMode } from '../MissionPage/interface';
 import { ModalStatus } from '../MissionPage';
 
@@ -31,7 +31,7 @@ const CheckListItem = ({ value, onChange, onRemove }: CheckListItemProps) => {
   );
 };
 
-interface ItemType extends Omit<Task['items'][0], 'content' | 'id'> {
+interface ItemType extends Omit<Mission['items'][0], 'content' | 'id'> {
   content: null | string;
   id?: string;
 }
@@ -93,7 +93,7 @@ const validateObject: Record<string, ValidateObj[]> = {
   ],
   initiationTime: [
     validate.required,
-    ({ value }: { value: Task['initiationTime'] }) => {
+    ({ value }: { value: Mission['initiationTime'] }) => {
       if (
         new Date(value).valueOf() -
           new Date(new Date().toDateString()).valueOf() <
@@ -104,7 +104,10 @@ const validateObject: Record<string, ValidateObj[]> = {
   ],
   deadline: [
     validate.required,
-    ({ value }: { value: Task['deadline'] }, { initiationTime }: Task) => {
+    (
+      { value }: { value: Mission['deadline'] },
+      { initiationTime }: Mission
+    ) => {
       if (
         new Date(value).valueOf() -
           new Date(new Date(initiationTime).toDateString()).valueOf() <
@@ -114,7 +117,7 @@ const validateObject: Record<string, ValidateObj[]> = {
     },
   ],
   items: [
-    ({ value }: { value: Task['items'] }) => {
+    ({ value }: { value: Mission['items'] }) => {
       if (value?.some(({ content }) => !content && content !== null))
         throw Error('content should not be empty');
     },
@@ -126,11 +129,11 @@ const defaultValue = {
   deadline: new Date(),
   type: 'Ordinary',
   maxAdventurer: 1,
-} as unknown as Task;
+} as unknown as Mission;
 
 interface AddMissionModalProps extends ModalProps {
   modalStatus: ModalStatus;
-  onFinish?: (value: Task | TaskTemplate) => Promise<void>;
+  onFinish?: (value: Mission | MissionTemplate) => Promise<void>;
   mode?: MissionPageMode;
 }
 
@@ -141,7 +144,7 @@ export const AddMissionModal = ({
   mode,
   ...props
 }: AddMissionModalProps) => {
-  const form = useFormInstance<Task | TaskTemplate>({
+  const form = useFormInstance<Mission | MissionTemplate>({
     validateObject,
     onSubmit: async (formData) => {
       const currentType = Array.isArray(formData.type)

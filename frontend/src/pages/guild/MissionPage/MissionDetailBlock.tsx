@@ -9,7 +9,7 @@ import {
 import { Block } from '../../_layout/components';
 import { MissionPill, MissionStatusWithColor } from '../components';
 import { formateDate } from '../../../utils';
-import { Task, TaskTemplate } from '../../../api/guild/interface';
+import { Mission, MissionTemplate } from '../../../api/guild/interface';
 import { MissionPageMode } from './interface';
 
 interface CheckItemProps {
@@ -50,7 +50,7 @@ export const EmptyMissionDetail = ({ className }: { className: string }) => {
 
 interface MissionDetailBlockProps {
   className?: string;
-  detail: Task | TaskTemplate;
+  detail: Mission | MissionTemplate;
   onCheckItemClick: (id: number) => void;
   headerBtn: React.ReactNode;
   footerBtn: ButtonProps[];
@@ -78,7 +78,7 @@ export const MissionDetailBlock = ({
     isAccepted,
     creator,
     maxAdventurer,
-  } = detail as Task & TaskTemplate;
+  } = detail as Mission & MissionTemplate;
 
   return (
     <Block

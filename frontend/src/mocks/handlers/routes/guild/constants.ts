@@ -130,10 +130,10 @@ export const TASKS = [
   },
 ];
 
-export const getTaskDetail = (tId: number) => {
-  const baseTask = TASKS.find(({ id }) => id === tId);
+export const getMissionDetail = (tId: number) => {
+  const baseMission = TASKS.find(({ id }) => id === tId);
   return {
-    ...(baseTask ?? TASKS[0]),
+    ...(baseMission ?? TASKS[0]),
     guildId: 45,
     initiationTime: '2024-04-15',
     deadline: '2024-04-30',

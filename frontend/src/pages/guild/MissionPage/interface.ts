@@ -1,12 +1,12 @@
-import { TaskStatus, TaskType } from '../../../api/guild/interface';
+import { MissionStatus, MissionType } from '../../../api/guild/interface';
 import { FILTER_LIST } from './constants';
 
 type FilterType = (typeof FILTER_LIST)[number]['name'];
 
 export interface Query {
   filter?: 'mine' | 'established' | FilterType;
-  missionType?: TaskType[];
-  missionStatus?: TaskStatus[];
+  missionType?: MissionType[];
+  missionStatus?: MissionStatus[];
 }
 
 export enum MissionButtonType {

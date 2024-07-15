@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { MissionPill } from '../components';
 import { Button, Dropdown, MaterialSymbol } from '../../../components';
-import { TaskType } from '../../../api/guild/interface';
+import { MissionType } from '../../../api/guild/interface';
 
 interface MissionTypeSelectProps {
-  value: TaskType | '';
-  onChange: (value: TaskType | '') => void;
+  value: MissionType | '';
+  onChange: (value: MissionType | '') => void;
 }
 
 export const MissionTypeSelect = ({
@@ -36,7 +36,7 @@ export const MissionTypeSelect = ({
       {open && (
         <Dropdown
           onItemClick={(v) => {
-            onChange(v as TaskType | '');
+            onChange(v as MissionType | '');
             setOpen(false);
           }}
           menuItem={[
@@ -52,5 +52,3 @@ export const MissionTypeSelect = ({
     </div>
   );
 };
-
-export default buildMissionByMissionTemplates;

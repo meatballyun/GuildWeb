@@ -5,12 +5,12 @@ import { classNames } from '../../utils';
 import {
   GuildsMember,
   Membership,
-  TaskStatus,
-  TaskType,
+  MissionStatus,
+  MissionType,
 } from '../../api/guild/interface';
 
 interface MissionStatusWithColorProps {
-  status?: TaskStatus;
+  status?: MissionStatus;
   className: string;
 }
 
@@ -37,7 +37,7 @@ export const MissionStatusWithColor = ({
 };
 
 interface MissionPillProps {
-  type: TaskType;
+  type: MissionType;
   onClick?: () => void;
   suffix?: React.ReactNode;
 }

@@ -13,9 +13,9 @@ import { useSideBar } from '../../_layout/MainLayout/SideBar';
 import { AddMissionModal } from '../modal';
 import { HeaderButton, ManageModeHeaderButton } from './HeaderButton';
 import { MissionBar } from './MissionBar';
-import { getMissionDetailBtn, handleEditTasksFinish } from './utils';
+import { getMissionDetailBtn, handleEditMissionsFinish } from './utils';
 import { useGuild, useUserMe } from '../../_layout';
-import { Task, TaskTemplate } from '../../../api/guild/interface';
+import { Mission, MissionTemplate } from '../../../api/guild/interface';
 import { MissionButtonType, MissionPageMode, Query } from './interface';
 
 export enum ModalType {
@@ -25,7 +25,7 @@ export enum ModalType {
 
 export interface ModalStatus {
   isOpen?: boolean;
-  formData?: Task | TaskTemplate;
+  formData?: Mission | MissionTemplate;
   type?: ModalType;
 }
 
@@ -40,7 +40,7 @@ export const MissionPage = ({ mode }: { mode?: MissionPageMode }) => {
   const [search, setSearch] = useState('');
   const [isFetched, setIsFetched] = useState(false);
   const [selectedDetail, setSelectedDetail] = useState<
-    Task | TaskTemplate | undefined
+    Mission | MissionTemplate | undefined
   >();
   const { getMyMemberShipInGuild } = useGuild();
 
@@ -101,7 +101,7 @@ export const MissionPage = ({ mode }: { mode?: MissionPageMode }) => {
             pathParams: { gid: params.gid },
             params: { q: search },
           })
-        : await api.guild.getGuildsTasks({
+        : await api.guild.getGuildsMissions({
             pathParams: { gid: params.gid },
             params: { q: search },
           });
@@ -138,7 +138,7 @@ export const MissionPage = ({ mode }: { mode?: MissionPageMode }) => {
           ? await api.guild.getTemplateDetail({
               pathParams: { gid: params.gid, ttid: detailId },
             })
-          : await api.guild.getGuildsTasksDetail({
+          : await api.guild.getGuildsMissionsDetail({
               pathParams: { gid: params.gid, tid: detailId },
             });
       return data;
@@ -156,8 +156,8 @@ export const MissionPage = ({ mode }: { mode?: MissionPageMode }) => {
   const handleMissionClick = (id: string) =>
     setSearchParams({ 'focus-mission-id': id });
 
-  const handleSubmitModal = async (value: Task | TaskTemplate) => {
-    const newDataId = await handleEditTasksFinish({
+  const handleSubmitModal = async (value: Mission | MissionTemplate) => {
+    const newDataId = await handleEditMissionsFinish({
       type: modalStatus.type,
       gid: params.gid,
       selectedId: focusMissionId,
@@ -180,7 +180,7 @@ export const MissionPage = ({ mode }: { mode?: MissionPageMode }) => {
         break;
 
       case MissionButtonType.ACCEPT: {
-        await api.guild.getGuildsTasksAccepted({
+        await api.guild.getGuildsMissionsAccepted({
           pathParams: { gid: params.gid, tid: focusMissionId },
         });
         const data = await fetchMissionDetail();
@@ -189,7 +189,7 @@ export const MissionPage = ({ mode }: { mode?: MissionPageMode }) => {
       }
 
       case MissionButtonType.COMPLETE: {
-        await api.guild.patchGuildsTasksComplete({
+        await api.guild.patchGuildsMissionsComplete({
           pathParams: { gid: params.gid, tid: focusMissionId },
         });
         const data = await fetchMissionDetail();
@@ -198,7 +198,7 @@ export const MissionPage = ({ mode }: { mode?: MissionPageMode }) => {
       }
 
       case MissionButtonType.SUBMIT: {
-        await api.guild.patchGuildsTasksSubmit({
+        await api.guild.patchGuildsMissionsSubmit({
           pathParams: { gid: params.gid, tid: focusMissionId },
         });
         const data = await fetchMissionDetail();
@@ -207,7 +207,7 @@ export const MissionPage = ({ mode }: { mode?: MissionPageMode }) => {
       }
 
       case MissionButtonType.ABANDON: {
-        await api.guild.getGuildsTasksAbandon({
+        await api.guild.getGuildsMissionsAbandon({
           pathParams: { gid: params.gid, tid: focusMissionId },
         });
         const data = await fetchMissionDetail();
@@ -216,7 +216,7 @@ export const MissionPage = ({ mode }: { mode?: MissionPageMode }) => {
       }
 
       case MissionButtonType.RESTORE:
-        await api.guild.patchGuildsTasksRestore({
+        await api.guild.patchGuildsMissionsRestore({
           pathParams: { gid: params.gid, tid: focusMissionId },
         });
         await fetchMissions();
@@ -224,7 +224,7 @@ export const MissionPage = ({ mode }: { mode?: MissionPageMode }) => {
         break;
 
       case MissionButtonType.CANCEL: {
-        await api.guild.patchGuildsTasksCancel({
+        await api.guild.patchGuildsMissionsCancel({
           pathParams: { gid: params.gid, tid: focusMissionId },
         });
         await fetchMissions();
@@ -262,7 +262,7 @@ export const MissionPage = ({ mode }: { mode?: MissionPageMode }) => {
           setSelectedDetail(undefined);
           break;
         }
-        await api.guild.deleteGuildsTasks({
+        await api.guild.deleteGuildsMissions({
           pathParams: { gid: params.gid, tid: focusMissionId },
         });
         await fetchMissions();
@@ -273,7 +273,7 @@ export const MissionPage = ({ mode }: { mode?: MissionPageMode }) => {
   };
 
   const handleCheckboxClick = async (itemRecordId?: number) => {
-    await api.guild.patchTasksCheckbox({
+    await api.guild.patchMissionsCheckbox({
       pathParams: { gid: params.gid },
       data: { itemRecordId },
     });
@@ -439,5 +439,3 @@ export const MissionPage = ({ mode }: { mode?: MissionPageMode }) => {
     </>
   );
 };
-
-export default updateMissionStatus;

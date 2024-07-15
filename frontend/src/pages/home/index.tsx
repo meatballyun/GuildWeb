@@ -11,7 +11,7 @@ import { NutritionalSummaryChart } from '../food/components';
 import { MissionBar } from '../guild/MissionPage/MissionBar';
 import './styles.css';
 import { DailyRecord, FoodNutation } from '../../api/food/interface';
-import { Task } from '../../api/guild/interface';
+import { Mission } from '../../api/guild/interface';
 import { Query } from '../guild/MissionPage/interface';
 
 const RecordBlock = () => {
@@ -79,11 +79,11 @@ const RecordBlock = () => {
 
 const MissionBlock = () => {
   const [isFetched, setIsFetched] = useState(false);
-  const [missionList, setMissionList] = useState<Task[]>([]);
+  const [missionList, setMissionList] = useState<Mission[]>([]);
   const [query, setQuery] = useState<Query>({ filter: 'all' });
 
   const fetchMissions = useCallback(async () => {
-    const data = await api.guild.getAllTasks();
+    const data = await api.guild.getAllMissions();
     if (!Array.isArray(data)) return;
 
     setMissionList(data);

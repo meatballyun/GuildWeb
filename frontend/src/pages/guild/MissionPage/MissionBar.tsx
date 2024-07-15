@@ -1,9 +1,9 @@
-import { TaskStatus, TaskType } from '../../../api/guild/interface';
+import { MissionStatus, MissionType } from '../../../api/guild/interface';
 import { classNames } from '../../../utils';
 import { MissionPill } from '../components';
 import { MISSION_STATUS_LIST } from './constants';
 
-const MissionStatusIcon = ({ status }: { status?: TaskStatus }) => {
+const MissionStatusIcon = ({ status }: { status?: MissionStatus }) => {
   const currentStatus = MISSION_STATUS_LIST.find(({ text }) => text === status);
   const textColor =
     status === 'established' ? 'text-red' : currentStatus?.textColor;
@@ -11,15 +11,15 @@ const MissionStatusIcon = ({ status }: { status?: TaskStatus }) => {
     <div
       className={classNames('border-current rotate-3 border px-1', textColor)}
     >
-      {status === 'Established' ? 'Accepted' : status}
+      {status === 'established' ? 'accepted' : status}
     </div>
   );
 };
 
 interface MissionBarProps {
   name?: string;
-  type: TaskType;
-  status?: TaskStatus;
+  type: MissionType;
+  status?: MissionStatus;
   focus?: boolean;
   isAccepted?: boolean;
   onClick?: () => void;
@@ -29,7 +29,6 @@ export const MissionBar = ({
   name,
   type,
   status,
-  repetitiveTaskType,
   focus,
   isAccepted,
   onClick,
@@ -44,7 +43,7 @@ export const MissionBar = ({
         !focus && isAccepted && 'bg-primary-100/50 hover:bg-primary-100'
       )}
     >
-      <MissionPill type={type} repetitiveTaskType={repetitiveTaskType} />
+      <MissionPill type={type} />
       <div className="w-full flex-1  truncate text-paragraph-p3 text-primary-400">
         {name}
       </div>

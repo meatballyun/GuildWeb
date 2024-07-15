@@ -5,12 +5,12 @@ import {
   Guild,
   GuildsMember,
   Membership,
-  Task,
-  TaskInfo,
-  TaskTemplate,
-  TaskTemplateInfo,
-  TaskTemplateTime,
-  TaskTime,
+  Mission,
+  MissionInfo,
+  MissionTemplate,
+  MissionTemplateInfo,
+  MissionTemplateTime,
+  MissionTime,
 } from './interface';
 
 // ------------- guild ------------- //
@@ -106,116 +106,118 @@ export const deleteGuildsMember = async ({
   return res.data;
 };
 
-// ------------- task -------------//
-export const getGuildsTasks = async ({
+// ------------- mission -------------//
+export const getGuildsMissions = async ({
   pathParams,
   params,
 }: APIRequestConfig<{ q?: string }, never, { gid?: string }>) => {
-  const url = `/guilds/${pathParams?.gid}/tasks`;
-  const res = await baseInstance.get<APIResponseData<Task[]>>(url, { params });
+  const url = `/guilds/${pathParams?.gid}/missions`;
+  const res = await baseInstance.get<APIResponseData<Mission[]>>(url, {
+    params,
+  });
   return res.data;
 };
 
-export const getGuildsTasksDetail = async ({
+export const getGuildsMissionsDetail = async ({
   pathParams,
 }: APIRequestConfig<never, never, { gid?: string; tid: number }>) => {
-  const url = `/guilds/${pathParams?.gid}/tasks/${pathParams?.tid}`;
-  const res = await baseInstance.get<APIResponseData<Task>>(url);
+  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.tid}`;
+  const res = await baseInstance.get<APIResponseData<Mission>>(url);
   return res.data.data;
 };
 
-export const postGuildsTasks = async ({
+export const postGuildsMissions = async ({
   pathParams,
   data,
-}: APIRequestConfig<never, TaskInfo & TaskTime, { gid?: string }>) => {
-  const url = `/guilds/${pathParams?.gid}/tasks`;
-  const res = await baseInstance.post<APIResponseData<Task>>(url, data);
+}: APIRequestConfig<never, MissionInfo & MissionTime, { gid?: string }>) => {
+  const url = `/guilds/${pathParams?.gid}/missions`;
+  const res = await baseInstance.post<APIResponseData<Mission>>(url, data);
   return res.data.data;
 };
 
-export const putGuildsTasks = async ({
+export const putGuildsMissions = async ({
   pathParams,
   data,
 }: APIRequestConfig<
   never,
-  TaskInfo & TaskTime,
+  MissionInfo & MissionTime,
   { gid?: string; tid?: number | null }
 >) => {
-  const url = `/guilds/${pathParams?.gid}/tasks/${pathParams?.tid}`;
-  const res = await baseInstance.post<APIResponseData<Task>>(url, data);
+  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.tid}`;
+  const res = await baseInstance.post<APIResponseData<Mission>>(url, data);
   return res.data.data;
 };
 
-export const deleteGuildsTasks = async ({
+export const deleteGuildsMissions = async ({
   pathParams,
 }: APIRequestConfig<never, never, { gid?: string; tid: number | null }>) => {
-  const url = `/guilds/${pathParams?.gid}/tasks/${pathParams?.tid}`;
-  const res = await baseInstance.delete<APIResponseData<Task>>(url);
+  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.tid}`;
+  const res = await baseInstance.delete<APIResponseData<Mission>>(url);
   return res.data;
 };
 
-// ------------- update task status -------------//
+// ------------- update mission status -------------//
 
-export const getGuildsTasksAccepted = async ({
+export const getGuildsMissionsAccepted = async ({
   pathParams,
 }: APIRequestConfig<never, never, { gid?: string; tid?: number | null }>) => {
-  const url = `/guilds/${pathParams?.gid}/tasks/${pathParams?.tid}/accepted`;
+  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.tid}/accepted`;
   const res = await baseInstance.patch<APIResponseData>(url);
   return res.data;
 };
 
-export const getGuildsTasksAbandon = async ({
+export const getGuildsMissionsAbandon = async ({
   pathParams,
 }: APIRequestConfig<never, never, { gid?: string; tid?: number | null }>) => {
-  const url = `/guilds/${pathParams?.gid}/tasks/${pathParams?.tid}/abandon`;
+  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.tid}/abandon`;
   const res = await baseInstance.patch<APIResponseData>(url);
   return res.data;
 };
 
-export const patchGuildsTasksCancel = async ({
+export const patchGuildsMissionsCancel = async ({
   pathParams,
 }: APIRequestConfig<never, never, { gid?: string; tid?: number | null }>) => {
-  const url = `/guilds/${pathParams?.gid}/tasks/${pathParams?.tid}/cancel`;
+  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.tid}/cancel`;
   const res = await baseInstance.patch<APIResponseData>(url);
   return res.data;
 };
 
-export const patchGuildsTasksRestore = async ({
+export const patchGuildsMissionsRestore = async ({
   pathParams,
 }: APIRequestConfig<never, never, { gid?: string; tid?: number | null }>) => {
-  const url = `/guilds/${pathParams?.gid}/tasks/${pathParams?.tid}/restore`;
+  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.tid}/restore`;
   const res = await baseInstance.patch<APIResponseData>(url);
   return res.data;
 };
 
-export const patchGuildsTasksComplete = async ({
+export const patchGuildsMissionsComplete = async ({
   pathParams,
 }: APIRequestConfig<never, never, { gid?: string; tid?: number | null }>) => {
-  const url = `/guilds/${pathParams?.gid}/tasks/${pathParams?.tid}/complete`;
+  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.tid}/complete`;
   const res = await baseInstance.patch<APIResponseData>(url);
   return res.data;
 };
 
-export const patchGuildsTasksSubmit = async ({
+export const patchGuildsMissionsSubmit = async ({
   pathParams,
 }: APIRequestConfig<never, never, { gid?: string; tid?: number | null }>) => {
-  const url = `/guilds/${pathParams?.gid}/tasks/${pathParams?.tid}/submit`;
+  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.tid}/submit`;
   const res = await baseInstance.patch<APIResponseData>(url);
   return res.data;
 };
 
-export const patchTasksCheckbox = async ({
+export const patchMissionsCheckbox = async ({
   pathParams,
   data,
 }: APIRequestConfig<never, { itemRecordId?: number }, { gid?: string }>) => {
-  const url = `/guilds/${pathParams?.gid}/tasks`;
+  const url = `/guilds/${pathParams?.gid}/missions`;
   const res = await baseInstance.patch<APIResponseData>(url, data);
   return res.data;
 };
 
-export const getAllTasks = async () => {
-  const url = `/guilds/all/tasks`;
-  const res = await baseInstance.get<APIResponseData<Task[]>>(url);
+export const getAllMissions = async () => {
+  const url = `/guilds/all/missions`;
+  const res = await baseInstance.get<APIResponseData<Mission[]>>(url);
   return res.data.data;
 };
 
@@ -223,8 +225,8 @@ export const getTemplate = async ({
   params,
   pathParams,
 }: APIRequestConfig<{ q?: string }, never, { gid?: string }>) => {
-  const url = `/guilds/${pathParams?.gid}/task_templates`;
-  const res = await baseInstance.get<APIResponseData<TaskTemplate[]>>(url, {
+  const url = `/guilds/${pathParams?.gid}/mission_templates`;
+  const res = await baseInstance.get<APIResponseData<MissionTemplate[]>>(url, {
     params,
   });
   return res.data.data;
@@ -233,8 +235,8 @@ export const getTemplate = async ({
 export const getTemplateDetail = async ({
   pathParams,
 }: APIRequestConfig<never, never, { gid?: string; ttid: number }>) => {
-  const url = `/guilds/${pathParams?.gid}/task_templates/${pathParams?.ttid}`;
-  const res = await baseInstance.get<APIResponseData<TaskTemplate>>(url);
+  const url = `/guilds/${pathParams?.gid}/mission_templates/${pathParams?.ttid}`;
+  const res = await baseInstance.get<APIResponseData<MissionTemplate>>(url);
   return res.data.data;
 };
 
@@ -243,11 +245,14 @@ export const postTemplate = async ({
   data,
 }: APIRequestConfig<
   never,
-  TaskTemplateInfo & TaskTemplateTime,
+  MissionTemplateInfo & MissionTemplateTime,
   { gid?: string }
 >) => {
-  const url = `/guilds/${pathParams?.gid}/task_templates`;
-  const res = await baseInstance.post<APIResponseData<TaskTemplate>>(url, data);
+  const url = `/guilds/${pathParams?.gid}/mission_templates`;
+  const res = await baseInstance.post<APIResponseData<MissionTemplate>>(
+    url,
+    data
+  );
   return res.data.data;
 };
 
@@ -256,18 +261,21 @@ export const putTemplate = async ({
   data,
 }: APIRequestConfig<
   never,
-  TaskTemplateInfo & TaskTemplateTime,
+  MissionTemplateInfo & MissionTemplateTime,
   { gid?: string; ttid?: number | null }
 >) => {
-  const url = `/guilds/${pathParams?.gid}/task_templates/${pathParams?.ttid}`;
-  const res = await baseInstance.put<APIResponseData<TaskTemplate>>(url, data);
+  const url = `/guilds/${pathParams?.gid}/mission_templates/${pathParams?.ttid}`;
+  const res = await baseInstance.put<APIResponseData<MissionTemplate>>(
+    url,
+    data
+  );
   return res.data.data;
 };
 
 export const deleteTemplate = async ({
   pathParams,
 }: APIRequestConfig<never, never, { gid?: string; ttid: number | null }>) => {
-  const url = `/guilds/${pathParams?.gid}/task_templates/${pathParams?.ttid}`;
-  const res = await baseInstance.delete<APIResponseData<TaskTemplate>>(url);
+  const url = `/guilds/${pathParams?.gid}/mission_templates/${pathParams?.ttid}`;
+  const res = await baseInstance.delete<APIResponseData<MissionTemplate>>(url);
   return res.data.data;
 };

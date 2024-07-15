@@ -4,7 +4,7 @@ import { User } from '../user/interface';
 export type AdventurerStatus = 'accepted' | 'completed' | 'failed';
 
 export interface Adventurer extends Omit<User, 'status'>, CommonColumn {
-  taskId: number;
+  missionId: number;
   userId: number;
   createTime: Date;
   updateTime: Date;
@@ -32,28 +32,28 @@ export interface GuildsMember
   membership: Membership;
 }
 
-export type TaskTemplateType = 'daily' | 'weekly' | 'monthly';
+export type MissionTemplateType = 'daily' | 'weekly' | 'monthly';
 
-export interface TaskTemplateTime {
+export interface MissionTemplateTime {
   generationTime: Date | string;
   deadline: Date | string;
 }
 
-export interface TaskTemplateInfo {
+export interface MissionTemplateInfo {
   enabled?: boolean;
-  type: TaskTemplateType;
+  type: MissionTemplateType;
   name: string;
   description?: string;
   maxAdventurer: number;
 }
 
-export interface TaskTemplate
-  extends TaskTemplateTime,
-    TaskTemplateInfo,
+export interface MissionTemplate
+  extends MissionTemplateTime,
+    MissionTemplateInfo,
     CommonColumn {}
 
-export type TaskType = TaskTemplateType | 'emergency' | 'ordinary';
-export type TaskStatus =
+export type MissionType = MissionTemplateType | 'emergency' | 'ordinary';
+export type MissionStatus =
   | 'established'
   | 'in progress'
   | 'completed'
@@ -61,22 +61,22 @@ export type TaskStatus =
   | 'cancelled';
 export type Accepted = 'pending acceptance' | 'max accepted';
 
-export interface TaskTime {
+export interface MissionTime {
   initiationTime: Date | string;
   deadline: Date | string;
 }
 
-export interface TaskInfo {
+export interface MissionInfo {
   name: string;
-  type: TaskType;
-  status?: TaskStatus;
+  type: MissionType;
+  status?: MissionStatus;
   description?: string;
   maxAdventurer: number;
   adventurer?: number;
   accepted?: Accepted;
 }
 
-export interface Task extends TaskTime, TaskInfo, CommonColumn {
+export interface Mission extends MissionTime, MissionInfo, CommonColumn {
   items: {
     id: number;
     content: string;
