@@ -24,5 +24,8 @@ jobs:
       - name: Install dependencies
         run: cd ./backend && npm install
 
+      - name: tsc --watch
+        run: cd ./backend && npm run check
+
       - name: Start application
         run: cd ./backend && npm start
