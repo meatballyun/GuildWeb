@@ -10,6 +10,7 @@ import routes from './routes';
 import { awaitHandlerFactory } from './utils/awaitHandlerFactory';
 import { errorHandler } from './utils/error/errorHandler';
 import path from 'path';
+import { FE_PORT, FE_URL, SESSION_SECRET } from './config';
 
 const ONE_DAY_MILLIE_SECEND = 24 * 60 * 60 * 1000;
 
@@ -19,7 +20,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(logger('dev'));
 const corsOptions = {
-  origin: `${process.env.FE_URL}:${process.env.FE_PORT}`,
+  origin: `${FE_URL}:${FE_PORT}`,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
@@ -28,7 +29,7 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json({ limit: '5mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const sessionSecret: string = process.env.SESSION_SECRET || 'defaultSecret';
+const sessionSecret: string = SESSION_SECRET || 'defaultSecret';
 app.use(
   session({
     secret: sessionSecret,

@@ -1,9 +1,10 @@
 import bcrypt from 'bcrypt';
 import { ApplicationError } from '../utils/error/applicationError';
+import { SALT } from '../config';
 
 export const toHash = async (code: string) => {
-  if (code && process.env.SALT) {
-    code = await bcrypt.hash(code, parseInt(process.env.SALT));
+  if (code && SALT) {
+    code = await bcrypt.hash(code, parseInt(SALT));
     return code;
   }
   throw new ApplicationError(500);

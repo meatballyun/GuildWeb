@@ -1,10 +1,11 @@
 import { ApplicationError } from '../../utils/error/applicationError';
 import { BaseGuild, Guild } from '../../types/guild/guild';
 import { UserGuildRelationModel, GuildModel, MissionModel, AdventurerModel, ItemModel, ItemRecordModel, MissionTemplateModel, MissionTemplateItemModel } from '../../models';
+import { FE_URL } from '../../config';
 
 const defaultTitle = 'Personal Cabin';
 const defaultDescription = `In your Personal Cabin, you have the flexibility to select from various mission types like 'Ordinary', 'Emergency', and 'Repetitive', tailoring them to your specific needs. Additionally, you can customize the recurrence frequency, whether it's daily, weekly, or monthly, to suit your schedule. Furthermore, missions can be further broken down into multiple sub-goals, empowering you to gain a comprehensive overview of your pending missions and strategize your approach for more efficient planning and completion.`;
-const defaultImageUrl = `${process.env.API_SERVICE_URL}/uploads/image/system/cabin.png`;
+const defaultImageUrl = `${FE_URL}/uploads/image/system/cabin.png`;
 
 export const getAll = async (uid: number) => {
   const relations = await UserGuildRelationModel.getAllByUser(uid);

@@ -2,8 +2,7 @@ import fs from 'fs';
 import { Response, NextFunction } from 'express';
 import { TypedRequest } from '../../types/TypedRequest';
 import { ApplicationError } from '../../utils/error/applicationError';
-
-const UPLOAD_PATH = process.env.NODE_ENV === 'development' ? process.env.TEST_UPLOAD_PATH : process.env.PI_SERVICE_URL;
+import { FE_URL } from '../../config';
 
 const MaxFileSizeMB = 5;
 export const saveImage = async (req: TypedRequest, res: Response, next: NextFunction) => {
@@ -26,7 +25,7 @@ export const saveImage = async (req: TypedRequest, res: Response, next: NextFunc
       encoding: 'base64',
     });
     await fs.promises.chmod(`public${path}`, 0o644);
-    return res.status(200).json({ data: { imageUrl: `${UPLOAD_PATH}${path}` } });
+    return res.status(200).json({ data: { imageUrl: `${FE_URL}${path}` } });
   } catch (err) {
     throw new ApplicationError(500, err as string);
   }

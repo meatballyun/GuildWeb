@@ -1,11 +1,12 @@
 import dotenv from 'dotenv';
 dotenv.config({ path: '../.env' });
+import { BE_PORT } from './config';
 import debug from 'debug';
 import app from './app';
 
 debug('my-application');
 
-app.set('port', process.env.BE_PORT ?? 3001);
+app.set('port', BE_PORT ?? 3001);
 
 const server = app.listen(app.get('port'), function () {
   const address = server.address();

@@ -27,6 +27,7 @@
     "hot-update": "^0.0.4",
     "http-proxy-middleware": "^3.0.0",
     "https": "^1.0.0",
+    "jest": "^29.7.0",
     "js-sha256": "^0.10.1",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",

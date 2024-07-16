@@ -4,12 +4,13 @@ import { toHash } from '../../utils/hashCode';
 import { ApplicationError } from '../../utils/error/applicationError';
 import { signUpEmail, passwordResetEmail } from './emailTemplate';
 import { UserModel, ConfirmationEmailModel } from '../../models';
+import { MAIL_ADDRESS, MAIL_PASS } from '../../config';
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.MAIL_ADDRESS,
-    pass: process.env.MAIL_PASS,
+    user: MAIL_ADDRESS,
+    pass: MAIL_PASS,
   },
   socketTimeout: 60000,
 });

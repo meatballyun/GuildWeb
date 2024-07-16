@@ -1,10 +1,11 @@
 import mysql from 'mysql2';
+import { DB_DATABASE, DB_HOST, DB_PASS, DB_USER } from '../config';
 
 const connection = mysql.createConnection({
-  host: process.env.DB_HOST,
-  database: process.env.DB_DATABASE,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
+  host: DB_HOST,
+  database: DB_DATABASE,
+  user: DB_USER,
+  password: DB_PASS,
 });
 
 connection.connect(function (error) {
