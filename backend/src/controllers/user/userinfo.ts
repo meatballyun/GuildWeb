@@ -8,7 +8,7 @@ export const login = async (req: TypedRequest, res: Response, next: NextFunction
 };
 
 export const signup = async (req: TypedRequest, res: Response, next: NextFunction) => {
-  const result = await userInfoService.login(req.body);
+  const result = await userInfoService.signup(req.body);
   req.body.uid = result;
   next();
 };

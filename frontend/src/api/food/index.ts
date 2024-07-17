@@ -47,7 +47,7 @@ export const deleteDietRecords = async ({
 export const getIngredients = async ({
   params,
 }: APIRequestConfig<{ q: string; published?: boolean }>) => {
-  const url = `/foods/dietRecords`;
+  const url = `/foods/ingredients`;
   const res = await baseInstance.get<APIResponseData<Ingredient[]>>(url, {
     params,
   });
@@ -57,7 +57,7 @@ export const getIngredients = async ({
 export const postIngredients = async ({
   data,
 }: APIRequestConfig<never, BaseIngredient>) => {
-  const url = `/foods/dietRecords`;
+  const url = `/foods/ingredients`;
   const res = await baseInstance.post<APIResponseData<{ id: number }>>(
     url,
     data
@@ -69,7 +69,7 @@ export const putIngredients = async ({
   pathParams,
   data,
 }: APIRequestConfig<never, BaseIngredient, { id: string }>) => {
-  const url = `/foods/dietRecords/${pathParams?.id}`;
+  const url = `/foods/ingredients/${pathParams?.id}`;
   const res = await baseInstance.put<APIResponseData<{ id: number }>>(
     url,
     data
@@ -80,7 +80,7 @@ export const putIngredients = async ({
 export const getIngredientsDetail = async ({
   pathParams,
 }: APIRequestConfig<never, BaseIngredient, { id: string }>) => {
-  const url = `/foods/dietRecords/${pathParams?.id}`;
+  const url = `/foods/ingredients/${pathParams?.id}`;
   const res = await baseInstance.get<APIResponseData<Ingredient>>(url);
   return res.data.data;
 };
@@ -88,7 +88,7 @@ export const getIngredientsDetail = async ({
 export const deleteIngredients = async ({
   pathParams,
 }: APIRequestConfig<never, never, { id: number }>) => {
-  const url = `/foods/dietRecords/${pathParams?.id}`;
+  const url = `/foods/ingredients/${pathParams?.id}`;
   const res = await baseInstance.delete<APIResponseData<Ingredient>>(url);
   return res.data.data;
 };

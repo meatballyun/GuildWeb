@@ -5,6 +5,6 @@ export const uploadImage = async ({
   data,
 }: APIRequestConfig<never, { type: string; image: any }>) => {
   const url = `/upload/images`;
-  const res = await baseInstance.patch<APIResponseData<string>>(url, data);
+  const res = await baseInstance.post<APIResponseData<string>>(url, data);
   return res.data.data;
 };

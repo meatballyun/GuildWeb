@@ -5,7 +5,7 @@ import { ingredientModel, recipeModel, recipeIngredientRelationModel } from '../
 import { executeTransaction } from '../../utils/executeTransaction';
 
 export const getAll = async ({ q, published }: TypeSearch, uid: number) => {
-  const ingredients = published ? await ingredientModel.getAllByName(q) : await ingredientModel.getAllByUserAndName(uid, q);
+  const ingredients = JSON.parse(published) ? await ingredientModel.getAllByName(q) : await ingredientModel.getAllByUserAndName(uid, q);
   const hasIngredients = ingredients?.length;
   if (hasIngredients) {
     const data = ingredients.map(({ creator, description, ...ingredient }) => ({
@@ -21,7 +21,7 @@ export const getOne = async (IngredientId: number, uid: number) => {
   const ingredient = await ingredientModel.getOne(IngredientId);
   if (!ingredient) throw new ApplicationError(404);
   return {
-    isOwned: ingredient.creator === uid,
+    isOwned: ingredient.creatorId === uid,
     ...ingredient,
   };
 };
