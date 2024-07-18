@@ -1,7 +1,7 @@
 import { ApplicationError } from '../../utils/error/applicationError';
 import { timeHandle } from '../../utils/timeHandler';
 import { Membership } from '../../types/user/userGuildRelation';
-import { Status, MissionTime, MissionInfo } from '../../types/guild/mission';
+import { MissionTime, MissionInfo } from '../../types/guild/mission';
 import { TemplateItem } from '../../types/guild/missionTemplateItem';
 import { Item } from '../../types/guild/item';
 import { UserModel, MissionModel, ItemRecordModel, AdventurerModel } from '../../models';

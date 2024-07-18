@@ -16,7 +16,7 @@ const ONE_DAY_MILLIE_SECEND = 24 * 60 * 60 * 1000;
 
 const app = express();
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../src/public')));
 
 app.use(logger('dev'));
 const corsOptions = {

@@ -27,7 +27,7 @@ export const create = async ({ recipeId, dietDate, category, amount }: Pick<Base
 
 export const remove = async (dietRecordId: number, uid: number) => {
   const dietRecord = await dietRecordModel.getOne(dietRecordId);
-  if (dietRecord?.creator !== uid) throw new ApplicationError(409);
+  if (dietRecord?.creatorId !== uid) throw new ApplicationError(409);
 
   const result = await dietRecordModel.remove(dietRecordId);
   if (!result) throw new ApplicationError(404);

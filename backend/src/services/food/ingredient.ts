@@ -5,12 +5,13 @@ import { ingredientModel, recipeModel, recipeIngredientRelationModel } from '../
 import { executeTransaction } from '../../utils/executeTransaction';
 
 export const getAll = async ({ q, published }: TypeSearch, uid: number) => {
-  const ingredients = JSON.parse(published) ? await ingredientModel.getAllByName(q) : await ingredientModel.getAllByUserAndName(uid, q);
+  const ingredients = published === 'true' ? await ingredientModel.getAllByName(q) : await ingredientModel.getAllByUserAndName(uid, q);
   const hasIngredients = ingredients?.length;
   if (hasIngredients) {
-    const data = ingredients.map(({ creator, description, ...ingredient }) => ({
+    const data = ingredients.map(({ creatorId, description, ...ingredient }) => ({
       ...ingredient,
-      isOwned: creator === uid,
+      creatorId,
+      isOwned: creatorId === uid,
     }));
     return data;
   }
@@ -62,9 +63,9 @@ export const isPublished = async (ingredientId: number, published: boolean, uid:
 
 export const remove = async (ingredientId: number, uid: number) => {
   const { creatorId } = (await ingredientModel.getOne(ingredientId)) ?? {};
-  if (creatorId !== uid) throw new ApplicationError(409);
+  if (creatorId !== uid) throw new ApplicationError(409, 'The ingredient does not belong to the user.');
 
   const relations = await recipeIngredientRelationModel.getAllByIngredient(ingredientId);
-  if (relations) throw new ApplicationError(409);
+  if (relations?.length) throw new ApplicationError(409, 'The ingredient is used.');
   await ingredientModel.remove(ingredientId);
 };

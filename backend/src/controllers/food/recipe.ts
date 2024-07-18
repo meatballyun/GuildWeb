@@ -14,9 +14,9 @@ export const getRecipeDetail = async (req: TypedRequest, res: Response, next: Ne
 };
 
 export const createRecipe = async (req: TypedRequest, res: Response, next: NextFunction) => {
-  const data = await recipeService.create(req.body, req.userId as number);
+  const newRecipeId = await recipeService.create(req.body, req.userId as number);
   await userInfoService.updateExp(req.userId as number, 1);
-  return res.status(200).json({ data });
+  return res.status(200).json({ data: { id: newRecipeId } });
 };
 
 export const updateRecipe = async (req: TypedRequest, res: Response, next: NextFunction) => {

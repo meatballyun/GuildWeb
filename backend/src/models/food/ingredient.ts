@@ -32,7 +32,7 @@ export const getAllByName = async (name: string): Promise<Ingredient[] | undefin
 export const getAllByRecipe = async (id: number): Promise<IngredientWithAmount[] | undefined> => {
   return new Promise((resolve, reject) => {
     conn.query<IngredientWithAmount[]>(
-      `SELECT rir.amount, i.id, i.carbs, i.pro, i.fats, i.kcal, i.imageUrl, i.published, i.unit, i.creatorId
+      `SELECT rir.amount, i.id, i.name, i.carbs, i.pro, i.fats, i.kcal, i.imageUrl, i.published, i.unit, i.creatorId
       FROM recipeIngredientRelations rir
       LEFT JOIN ingredients i ON rir.ingredientId = i.id
       WHERE rir.recipeId = ? AND i.active = true;`,

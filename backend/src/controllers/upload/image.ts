@@ -21,10 +21,10 @@ export const saveImage = async (req: TypedRequest, res: Response, next: NextFunc
   const filename = `${Date.now()}.${imageFormat}`;
   const path = `/uploads/image/${req.body.type}/${filename}`;
   try {
-    await fs.promises.writeFile(`public${path}`, imageUrl.split(';base64,').pop(), {
+    await fs.promises.writeFile(`src/public${path}`, imageUrl.split(';base64,').pop(), {
       encoding: 'base64',
     });
-    await fs.promises.chmod(`public${path}`, 0o644);
+    await fs.promises.chmod(`src/public${path}`, 0o644);
     return res.status(200).json({ data: { imageUrl: `${FE_URL}${path}` } });
   } catch (err) {
     throw new ApplicationError(500, err as string);

@@ -3,7 +3,6 @@ import { ApplicationError } from '../../utils/error/applicationError';
 import { TypeSearch } from '../../types/TypeSearch';
 import { BaseRecipe } from '../../types/food/Recipe';
 import { ingredientModel, recipeModel, dietRecordModel, recipeIngredientRelationModel } from '../../models';
-import * as ingredientService from './ingredient';
 import { executeTransaction } from '../../utils/executeTransaction';
 import { BaseRecipeIngredientRelation } from '../../types/food/RecipeIngredientRelation';
 
@@ -12,13 +11,13 @@ interface RecipeWithIngredients extends BaseRecipe {
 }
 
 export const getAll = async ({ q, published }: TypeSearch, uid: number) => {
-  const recipes = published ? await recipeModel.getAllByName(q) : await recipeModel.getAllByUserAndName(uid, q);
+  const recipes = published === 'true' ? await recipeModel.getAllByName(q) : await recipeModel.getAllByUserAndName(uid, q);
 
   if (recipes) {
-    const data = recipes.map(({ creator, description, ...otherData }) => {
+    const data = recipes.map(({ creatorId, description, ...otherData }) => {
       return {
         ...otherData,
-        isOwned: creator === uid,
+        isOwned: creatorId === uid,
       };
     });
     return data;
@@ -38,7 +37,7 @@ export const getOne = async (recipeId: number, uid: number) => {
   }
 
   const data = {
-    isOwned: recipe.creator === uid,
+    isOwned: recipe.creatorId === uid,
     ...recipe,
     ingredients: ingredients,
   };
@@ -64,13 +63,15 @@ export const create = async ({ published, ingredients, ...data }: RecipeWithIngr
       }
     });
 
-    let firstInsertId = await ingredientModel.copyMany(uid, otherIngredientIds);
-    otherIngredientAmounts.map((amount, index) => {
-      const newIngredientId = firstInsertId + index;
-      ownedIngredients.push({ ingredientId: newIngredientId, recipeId: newRecipeId, amount });
-    });
+    if (otherIngredientIds?.length) {
+      let firstInsertId = await ingredientModel.copyMany(uid, otherIngredientIds);
 
-    await recipeIngredientRelationModel.createMany(ownedIngredients);
+      otherIngredientAmounts.map((amount, index) => {
+        const newIngredientId = firstInsertId + index;
+        ownedIngredients.push({ ingredientId: newIngredientId, recipeId: newRecipeId, amount });
+      });
+    }
+    if (ownedIngredients?.length) await recipeIngredientRelationModel.createMany(ownedIngredients);
 
     if (published) {
       const relations = await recipeIngredientRelationModel.getAllByRecipe(newRecipeId);
@@ -81,6 +82,7 @@ export const create = async ({ published, ingredients, ...data }: RecipeWithIngr
         );
       }
     }
+
     return newRecipeId;
   });
 };
@@ -156,7 +158,7 @@ export const remove = async (recipeId: number, uid: number) => {
   if (creatorId !== uid) throw new ApplicationError(409);
 
   const dietRecord = await dietRecordModel.getAllByRecipe(uid, recipeId);
-  if (dietRecord) throw new ApplicationError(409);
+  if (dietRecord?.length) throw new ApplicationError(409);
   executeTransaction(async () => {
     await recipeModel.remove(recipeId);
     await recipeIngredientRelationModel.deleteByRecipe(recipeId);
