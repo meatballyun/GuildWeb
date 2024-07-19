@@ -24,7 +24,7 @@ export const postDietRecords = async ({
 }: APIRequestConfig<
   never,
   {
-    date: string;
+    dietDate: string;
     category: string;
     recipe: number;
     amount: number;
@@ -38,7 +38,7 @@ export const postDietRecords = async ({
 export const deleteDietRecords = async ({
   pathParams,
 }: APIRequestConfig<never, never, { id: number }>) => {
-  const url = `/foods/dietRecords/${pathParams}`;
+  const url = `/foods/dietRecords/${pathParams?.id}`;
   const res = await baseInstance.delete<APIResponseData>(url);
   return res.data.data;
 };

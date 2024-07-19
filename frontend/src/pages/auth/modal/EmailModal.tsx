@@ -44,7 +44,7 @@ export const EmailModal = ({
 
   const handleResendEmail = async () => {
     setLoading(true);
-    await api.auth.resendEmail({ data: { email } });
+    await api.auth.resendEmail({ data: { email } }).catch(() => {});
     setLoading(false);
     setSendEmailTime(new Date().valueOf());
     setCurrentTime(new Date().valueOf());

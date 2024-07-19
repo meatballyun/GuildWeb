@@ -53,7 +53,7 @@ export const ImageUploader = ({
     }
     const reader = new FileReader();
     reader.onloadend = async () => {
-      const [success, err] = await api.upload
+      const [success] = await api.upload
         .uploadImage({
           data: {
             image: reader.result,
@@ -64,7 +64,7 @@ export const ImageUploader = ({
         .catch((err) => [null, err] as const);
 
       if (success) {
-        onChange?.(success);
+        onChange?.(success.imageUrl);
         promptNotification();
         return;
       }

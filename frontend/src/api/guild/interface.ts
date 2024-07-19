@@ -13,7 +13,7 @@ export interface Adventurer extends Omit<User, 'status'>, CommonColumn {
   status: AdventurerStatus;
 }
 
-export type Membership = 'Master' | 'Vice' | 'Regular' | 'Pending';
+export type Membership = 'master' | 'vice' | 'regular' | 'pending';
 export interface BaseGuild {
   leaderId: number;
   name: string;
@@ -45,6 +45,7 @@ export interface MissionTemplateInfo {
   name: string;
   description?: string;
   maxAdventurer: number;
+  items: [];
 }
 
 export interface MissionTemplate

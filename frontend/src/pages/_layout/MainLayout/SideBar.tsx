@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { api } from '../../../api';
 import { useContext, useEffect, useState } from 'react';
 import { Button, Avatar, ColumnBar, MaterialSymbol } from '../../../components';
 import { classNames } from '../../../utils';
@@ -150,11 +149,11 @@ const MenuItem = ({
         </MenuLabel>
         {showChildren && (
           <div className="menu-container">
-            {children.map(({ name: childName, ...childProp }) => (
+            {children.map(({ name: childName, key, ...childProp }) => (
               <MenuItem
+                {...childProp}
                 key={childName}
                 name={[...currentName, childName]}
-                {...childProp}
               />
             ))}
           </div>
@@ -181,7 +180,6 @@ export const SideBar = () => {
   const { guildList } = useGuild();
 
   const handleLogout = async () => {
-    await api.auth.logout();
     localStorage.removeItem('token');
     navigate('/login');
   };
@@ -195,7 +193,7 @@ export const SideBar = () => {
       </Link>
       <div className="sidebar-main flex flex-col gap-2 overflow-auto">
         {sidebarList.map(({ key, ...props }) => (
-          <MenuItem {...props} key={key} />
+          <MenuItem key={key} {...props} />
         ))}
       </div>
       <div>

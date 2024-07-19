@@ -78,6 +78,7 @@ export const MissionDetailBlock = ({
     isAccepted,
     creator,
     maxAdventurer,
+    enabled,
   } = detail as Mission & MissionTemplate;
 
   return (
@@ -85,7 +86,7 @@ export const MissionDetailBlock = ({
       className={className}
       title={
         <div className="flex items-center justify-center gap-1">
-          {name}
+          <div className="flex-1">{name}</div>
           {headerBtn}
         </div>
       }
@@ -100,6 +101,19 @@ export const MissionDetailBlock = ({
               </div>
             )}
           </Block.Item>
+          {mode === MissionPageMode.TEMPLATE && (
+            <Block.Item label="Status">
+              {enabled ? (
+                <span className="text-green text-paragraph-p3 rounded-full">
+                  Working
+                </span>
+              ) : (
+                <span className="text-red text-paragraph-p3 rounded-full">
+                  Closed
+                </span>
+              )}
+            </Block.Item>
+          )}
           <Block.Item label="Type">
             <MissionPill type={type} />
           </Block.Item>
@@ -111,6 +125,9 @@ export const MissionDetailBlock = ({
             <Block.Item label="Time">
               {formateDate(initiationTime)} ~ {formateDate(deadline)}
             </Block.Item>
+          )}
+          {mode === MissionPageMode.TEMPLATE && (
+            <Block.Item label="Max Adventurer">{maxAdventurer}</Block.Item>
           )}
           {mode !== MissionPageMode.TEMPLATE && (
             <Block.Item label="Status">
@@ -170,7 +187,7 @@ export const MissionDetailBlock = ({
           </Block.Item>
           {!!items?.length && (
             <Block.Item
-              label="Chick List"
+              label="Check List"
               className="mt-2 flex min-h-40 w-full flex-col gap-2 rounded-lg bg-primary-100"
             >
               {items.map(({ id, content, status }) => (
@@ -178,7 +195,7 @@ export const MissionDetailBlock = ({
                   key={id}
                   content={content}
                   disabled={!isAccepted}
-                  showCheckBox={isAccepted}
+                  showCheckBox={isAccepted && !mode}
                   value={status === 1}
                   onChange={() => onCheckItemClick(id)}
                 />

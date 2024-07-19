@@ -17,11 +17,15 @@ import { Query } from '../guild/MissionPage/interface';
 const RecordBlock = () => {
   const [dailyFood, setDailyFood] = useState<DailyRecord>();
 
-  const fetchData = async () => {
-    const data = await api.food.getDietRecords({
-      params: { date: formateIsoDate(new Date()) },
-    });
-    setDailyFood(data);
+  const fetchData = () => {
+    api.food
+      .getDietRecords({
+        params: { date: formateIsoDate(new Date()) },
+      })
+      .then((data) => {
+        setDailyFood(data);
+      })
+      .catch(() => {});
   };
 
   useEffect(() => {
@@ -30,9 +34,7 @@ const RecordBlock = () => {
 
   const foodNutritionSum: Partial<FoodNutation> = useMemo(() => {
     if (!dailyFood) return {};
-    return getNutritionSum(
-      dailyFood.foods.map(({ recipe, amount }) => ({ ...recipe, amount }))
-    );
+    return getNutritionSum(dailyFood.foods);
   }, [dailyFood]);
 
   return (
@@ -83,7 +85,7 @@ const MissionBlock = () => {
   const [query, setQuery] = useState<Query>({ filter: 'all' });
 
   const fetchMissions = useCallback(async () => {
-    const data = await api.guild.getAllMissions();
+    const data = await api.guild.getAllMissions().catch(() => {});
     if (!Array.isArray(data)) return;
 
     setMissionList(data);

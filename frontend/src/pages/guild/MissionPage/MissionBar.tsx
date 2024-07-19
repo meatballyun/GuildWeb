@@ -33,6 +33,7 @@ export const MissionBar = ({
   isAccepted,
   onClick,
 }: MissionBarProps) => {
+  console.log(name, isAccepted);
   return (
     <div
       onClick={onClick}

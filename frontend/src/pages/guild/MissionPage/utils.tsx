@@ -187,10 +187,9 @@ export const getMissionDetailBtn = ({
 }: GetMissionDetailBtnParam): ButtonProps[] => {
   const maxAccept = 'accepted' in detail && detail.accepted === 'max accepted';
 
-  if (mode === MissionPageMode.TEMPLATE)
+  if ('enabled' in detail)
     return getTemplateMissionBtnProps({
-      ...detail,
-      enabled: !maxAccept,
+      enabled: !!detail.enabled,
       onBtnClick,
     });
   if (mode) return getManageMissionBtnProps({ ...detail, onBtnClick });
@@ -248,7 +247,7 @@ const missionApi = async ({
   };
   if (type === ModalType.EDIT) {
     return api.guild.putGuildsMissions({
-      pathParams: { gid, tid: selectedId },
+      pathParams: { gid, mid: selectedId },
       data: requestBody,
     });
   }

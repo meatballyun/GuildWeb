@@ -134,7 +134,8 @@ export const RecipePage = ({ editMode }: { editMode?: boolean }) => {
       setIsFetched(false);
       await api.food
         .getRecipesDetail({ pathParams: { id } })
-        .then((data) => setRecipeDetail(data));
+        .then((data) => setRecipeDetail(data))
+        .catch(() => {});
       setIsFetched(true);
     })();
   }, [id]);
@@ -142,13 +143,6 @@ export const RecipePage = ({ editMode }: { editMode?: boolean }) => {
   const handleSubmit = async (formData: Recipe) => {
     const nutrition = getNutritionSum(formData.ingredients);
     const requestBody = { ...formData, ...nutrition, id };
-    console.log(
-      formData,
-      formData.published,
-      formData.ingredients
-        .filter(({ amount }) => amount > 0)
-        .some(({ published }) => !published)
-    );
     if (
       formData.published &&
       formData.ingredients
@@ -170,13 +164,17 @@ export const RecipePage = ({ editMode }: { editMode?: boolean }) => {
     }
     try {
       if (id === 'new') {
-        const data = await api.food.postRecipes({ data: requestBody });
-        navigate(`/foods/recipes/${data.id}`);
+        const data = await api.food
+          .postRecipes({ data: requestBody })
+          .catch(() => {});
+        navigate(`/foods/recipes/${data?.id}`);
       } else {
-        await api.food.putRecipes({
-          pathParams: { id: +(id ?? 0) },
-          data: requestBody,
-        });
+        await api.food
+          .putRecipes({
+            pathParams: { id: +(id ?? 0) },
+            data: requestBody,
+          })
+          .catch(() => {});
         navigate(`/foods/recipes/${id}`);
       }
     } catch (error) {}
@@ -188,7 +186,9 @@ export const RecipePage = ({ editMode }: { editMode?: boolean }) => {
     onSubmit: handleSubmit,
   });
   const { formData, handleInputChange } = form;
-  const { carbs, pro, fats, kcal } = getNutritionSum(formData.ingredients);
+  const { carbs, pro, fats, kcal } = getNutritionSum(
+    formData.ingredients ?? []
+  );
 
   const handleModalClose = (newItem?: boolean | Ingredient) => {
     setOpenModal(false);

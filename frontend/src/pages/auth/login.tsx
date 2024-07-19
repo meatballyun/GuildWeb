@@ -13,6 +13,7 @@ import { Paper } from '../_layout/components';
 import { useState } from 'react';
 import { EmailModal, ForgotPasswordModal } from './modal';
 import { PasswordInput } from './component';
+import { baseInstance } from '../../api/instance';
 
 const validateObject = {
   email: [validate.required, validate.maxLimit(100), validate.isEmail],
@@ -52,11 +53,13 @@ export const Login = () => {
 
     if (success && !error) {
       localStorage.setItem('token', success.token);
+      baseInstance.defaults.headers.common['Authorization'] =
+        `Bearer ${success.token}`;
       navigate('/');
       return;
     }
 
-    switch (error.status) {
+    switch (error.response?.status) {
       case 403:
         setModalStatus({ isOpen: ModalStatus.EMAIL });
         return;

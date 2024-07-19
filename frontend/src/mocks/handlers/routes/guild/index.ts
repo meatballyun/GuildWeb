@@ -36,13 +36,13 @@ export const guild = [
         success: true,
         message:
           'You have successfully accepted the invitation and joined the guild.',
-        data: getUser({ myMembership: 'Vice', availableUser: [0, 1, 2, 3] }),
+        data: getUser({ myMembership: 'vice', availableUser: [0, 1, 2, 3] }),
       });
     return HttpResponse.json({
       success: true,
       message:
         'You have successfully accepted the invitation and joined the guild.',
-      data: getUser({ myMembership: 'Master', availableUser: [1, 2, 3] }),
+      data: getUser({ myMembership: 'master', availableUser: [1, 2, 3] }),
     });
   }),
   http.get(`${BASE_API_URL}/guild/:id/mission`, () => {
@@ -52,11 +52,11 @@ export const guild = [
       data: TASKS,
     });
   }),
-  http.get(`${BASE_API_URL}/guild/:id/mission/:tid`, ({ params }) => {
+  http.get(`${BASE_API_URL}/guild/:id/mission/:mid`, ({ params }) => {
     return HttpResponse.json({
       success: true,
       message: 'Data retrieval successful.',
-      data: getMissionDetail(+params.tid),
+      data: getMissionDetail(+params.mid),
     });
   }),
 ];

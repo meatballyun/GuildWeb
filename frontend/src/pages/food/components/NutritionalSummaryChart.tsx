@@ -57,9 +57,9 @@ export const NutritionalSummaryChart = ({
         type: 'pie',
         name: 'kcal',
         data: [
-          { name: 'Carbs.', y: carbs, color: COLORS.blue },
-          { name: 'Prot.', y: pro, color: COLORS.green },
-          { name: 'Fat', y: fats, color: COLORS.orange },
+          { name: 'Carbs.', y: +carbs, color: COLORS.blue },
+          { name: 'Prot.', y: +pro, color: COLORS.green },
+          { name: 'Fat', y: +fats, color: COLORS.orange },
         ],
       },
     ],

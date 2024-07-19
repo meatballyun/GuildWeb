@@ -44,7 +44,7 @@ export const DietRecordModal = ({
   const form = useFormInstance({
     validateObject: {
       category: [validate.required],
-      recipe: [validate.required],
+      recipeId: [validate.required],
       amount: [validate.required],
     },
     onSubmit: handleSubmit,
@@ -53,9 +53,12 @@ export const DietRecordModal = ({
   useEffect(() => {
     (async () => {
       setIsFetched(false);
-      await api.food.getRecipes({ params: { q: search } }).then((data) => {
-        setRecipeList(data);
-      });
+      await api.food
+        .getRecipes({ params: { q: search } })
+        .then((data) => {
+          setRecipeList(data);
+        })
+        .catch(() => {});
       setIsFetched(true);
     })();
   }, [search]);
@@ -77,7 +80,11 @@ export const DietRecordModal = ({
           <Form.Item valueKey="date" label="Date">
             <DatePicker />
           </Form.Item>
-          <Form.Item valueKey="category" label="Category">
+          <Form.Item
+            valueKey="category"
+            label="Category"
+            normalize={(v) => v?.[0]}
+          >
             <DropdownSelect
               placeholder="select category"
               renderValue={(_, option) => {
@@ -93,7 +100,12 @@ export const DietRecordModal = ({
             />
           </Form.Item>
           <div className="flex items-end gap-4">
-            <Form.Item valueKey="recipe" className="w-1/2" label="Recipe">
+            <Form.Item
+              valueKey="recipeId"
+              className="w-1/2"
+              label="Recipe"
+              normalize={(v) => v?.[0]}
+            >
               <DropdownSelect
                 placeholder="select recipe"
                 renderValue={(_, option) => {

@@ -28,7 +28,7 @@ export const minLimit =
 
 export const isInt: ValidateObj = ({ fieldName, value }) => {
   const number = Number(value);
-  if (typeof value !== 'number' || isNaN(number) || value % 1 !== 0)
+  if (typeof number !== 'number' || isNaN(number) || value % 1 !== 0)
     throw Error(`${fieldName} should int`);
 };
 

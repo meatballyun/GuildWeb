@@ -11,3 +11,4 @@ export * from './Pill';
 export * from './Loading';
 export * from './Notification';
 export * from './prompt-dialog';
+export * from './Modal';

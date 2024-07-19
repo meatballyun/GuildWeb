@@ -14,7 +14,7 @@ import { Modal, ModalProps } from '../../../components/Modal';
 import { TextArea } from '../../../components/Form/TextArea';
 import { Mission, MissionTemplate } from '../../../api/guild/interface';
 import { MissionPageMode } from '../MissionPage/interface';
-import { ModalStatus } from '../MissionPage';
+import { ModalStatus, ModalType } from '../MissionPage';
 
 interface CheckListItemProps {
   value: string;
@@ -151,7 +151,17 @@ export const AddMissionModal = ({
         ? formData.type[0]
         : formData.type;
 
-      await onFinish?.({ ...formData, type: currentType });
+      if (mode === MissionPageMode.MANAGE) {
+        await onFinish?.({ ...formData, type: currentType });
+      }
+      if (mode === MissionPageMode.TEMPLATE) {
+        await onFinish?.({
+          ...formData,
+          generationTime: (formData as Mission).initiationTime,
+          type: currentType,
+        });
+      }
+
       onClose?.();
     },
     defaultValue,
@@ -169,8 +179,8 @@ export const AddMissionModal = ({
       onClose={onClose}
       header={
         mode === MissionPageMode.TEMPLATE
-          ? `${modalStatus.type ?? 'Add'} Template Mission`
-          : `${modalStatus.type ?? 'Add'} Mission`
+          ? `${modalStatus.type === ModalType.EDIT ? 'Edit' : 'Add'} Template Mission`
+          : `${modalStatus.type === ModalType.EDIT ? 'Edit' : 'Add'} Mission`
       }
       footButton={[{ onClick: form.submit, children: 'Submit' }]}
     >
@@ -186,11 +196,11 @@ export const AddMissionModal = ({
                   placeholder="select type"
                   options={[
                     {
-                      value: 'Ordinary',
+                      value: 'ordinary',
                       label: 'Ordinary',
                     },
                     {
-                      value: 'Emergency',
+                      value: 'emergency',
                       label: 'Emergency',
                     },
                   ]}
@@ -204,15 +214,15 @@ export const AddMissionModal = ({
                   placeholder="select repetitive Mission Type"
                   options={[
                     {
-                      value: 'Daily',
+                      value: 'daily',
                       label: 'Daily',
                     },
                     {
-                      value: 'Weekly',
+                      value: 'weekly',
                       label: 'Weekly',
                     },
                     {
-                      value: 'Monthly',
+                      value: 'monthly',
                       label: 'Monthly',
                     },
                   ]}
@@ -230,11 +240,11 @@ export const AddMissionModal = ({
           </div>
           <div className="flex">
             <Form.Item
-              valueKey="initiationTime"
+              valueKey={'initiationTime'}
               label={
                 mode === MissionPageMode.TEMPLATE
-                  ? 'GenerationTime'
-                  : 'InitiationTime'
+                  ? 'Generation Time'
+                  : 'Initiation Time'
               }
               className="w-full"
             >
@@ -245,7 +255,7 @@ export const AddMissionModal = ({
             </Form.Item>
           </div>
 
-          <Form.Item valueKey="description" label="description">
+          <Form.Item valueKey="description" label="Description">
             <TextArea className="h-[200px]" placeholder="text something..." />
           </Form.Item>
 

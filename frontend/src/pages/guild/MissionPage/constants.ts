@@ -3,7 +3,7 @@ export const MISSION_STATUS_LIST = [
   {
     textColor: 'text-primary-400',
     background: 'bg-primary-400',
-    text: 'In Progress',
+    text: 'in progress',
   },
   { textColor: 'text-green', background: 'bg-green', text: 'completed' },
   { textColor: 'text-orange', background: 'bg-orange', text: 'expired' },

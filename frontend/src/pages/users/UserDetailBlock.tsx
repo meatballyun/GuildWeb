@@ -47,7 +47,7 @@ export const UserDetailBlock = ({
             },
           ],
         };
-      case 'pending confirmation':
+      case 'pending response':
         return {
           message: 'You have sent they a friend invitation',
           button: [
@@ -59,7 +59,7 @@ export const UserDetailBlock = ({
             },
           ],
         };
-      case 'pending response':
+      case 'pending confirmation':
         return {
           message: 'Send you a friend invitation',
           button: [

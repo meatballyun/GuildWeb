@@ -30,9 +30,9 @@ const SummaryChart = ({ carbs, pro, fats }: Omit<FoodNutation, 'kcal'>) => {
       {
         name: 'kcal',
         data: [
-          { name: 'Carbs.', y: carbs, color: COLORS.blue },
-          { name: 'Prot.', y: pro, color: COLORS.green },
-          { name: 'Fat', y: fats, color: COLORS.orange },
+          { name: 'Carbs.', y: +carbs, color: COLORS.blue },
+          { name: 'Prot.', y: +pro, color: COLORS.green },
+          { name: 'Fat', y: +fats, color: COLORS.orange },
         ],
       },
     ],
@@ -53,7 +53,7 @@ interface FoodBarProps extends FoodNutation {
   unit: string;
   amount?: number | React.ReactNode;
   showChart?: boolean;
-  imageUrl?: string;
+  imageUrl?: string | null;
   onClick?: () => void;
   className?: string;
   suffix?: React.ReactNode;
@@ -94,7 +94,7 @@ export const FoodBar = ({
           fill
         />
       )}
-      <Avatar size={28} url={imageUrl} name={name} />
+      <Avatar size={28} url={imageUrl ?? undefined} name={name} />
       <div className="flex flex-[2] justify-between gap-2">
         <div className="flex-1 text-primary-400">{name}</div>
         <div className="flex-1 text-primary-400">{unit}</div>

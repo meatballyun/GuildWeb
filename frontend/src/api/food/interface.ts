@@ -49,10 +49,17 @@ export interface Recipe extends BaseRecipe, CommonColumn {
 }
 
 export interface dietRecipe {
-  id: number;
   amount: number;
+  carbs: number;
   category: Category;
-  recipe: Recipe;
+  fats: number;
+  id: number;
+  imageUrl: null;
+  kcal: number;
+  name: string;
+  pro: number;
+  recipeId: number;
+  unit: string;
 }
 
 export interface DailyRecord {

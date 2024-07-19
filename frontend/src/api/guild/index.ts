@@ -115,13 +115,13 @@ export const getGuildsMissions = async ({
   const res = await baseInstance.get<APIResponseData<Mission[]>>(url, {
     params,
   });
-  return res.data;
+  return res.data.data;
 };
 
 export const getGuildsMissionsDetail = async ({
   pathParams,
-}: APIRequestConfig<never, never, { gid?: string; tid: number }>) => {
-  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.tid}`;
+}: APIRequestConfig<never, never, { gid?: string; mid: number }>) => {
+  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.mid}`;
   const res = await baseInstance.get<APIResponseData<Mission>>(url);
   return res.data.data;
 };
@@ -141,17 +141,17 @@ export const putGuildsMissions = async ({
 }: APIRequestConfig<
   never,
   MissionInfo & MissionTime,
-  { gid?: string; tid?: number | null }
+  { gid?: string; mid?: number | null }
 >) => {
-  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.tid}`;
-  const res = await baseInstance.post<APIResponseData<Mission>>(url, data);
+  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.mid}`;
+  const res = await baseInstance.put<APIResponseData<Mission>>(url, data);
   return res.data.data;
 };
 
 export const deleteGuildsMissions = async ({
   pathParams,
-}: APIRequestConfig<never, never, { gid?: string; tid: number | null }>) => {
-  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.tid}`;
+}: APIRequestConfig<never, never, { gid?: string; mid: number | null }>) => {
+  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.mid}`;
   const res = await baseInstance.delete<APIResponseData<Mission>>(url);
   return res.data;
 };
@@ -160,48 +160,48 @@ export const deleteGuildsMissions = async ({
 
 export const getGuildsMissionsAccepted = async ({
   pathParams,
-}: APIRequestConfig<never, never, { gid?: string; tid?: number | null }>) => {
-  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.tid}/accepted`;
+}: APIRequestConfig<never, never, { gid?: string; mid?: number | null }>) => {
+  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.mid}/accepted`;
   const res = await baseInstance.patch<APIResponseData>(url);
   return res.data;
 };
 
 export const getGuildsMissionsAbandon = async ({
   pathParams,
-}: APIRequestConfig<never, never, { gid?: string; tid?: number | null }>) => {
-  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.tid}/abandon`;
+}: APIRequestConfig<never, never, { gid?: string; mid?: number | null }>) => {
+  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.mid}/abandon`;
   const res = await baseInstance.patch<APIResponseData>(url);
   return res.data;
 };
 
 export const patchGuildsMissionsCancel = async ({
   pathParams,
-}: APIRequestConfig<never, never, { gid?: string; tid?: number | null }>) => {
-  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.tid}/cancel`;
+}: APIRequestConfig<never, never, { gid?: string; mid?: number | null }>) => {
+  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.mid}/cancel`;
   const res = await baseInstance.patch<APIResponseData>(url);
   return res.data;
 };
 
 export const patchGuildsMissionsRestore = async ({
   pathParams,
-}: APIRequestConfig<never, never, { gid?: string; tid?: number | null }>) => {
-  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.tid}/restore`;
+}: APIRequestConfig<never, never, { gid?: string; mid?: number | null }>) => {
+  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.mid}/restore`;
   const res = await baseInstance.patch<APIResponseData>(url);
   return res.data;
 };
 
 export const patchGuildsMissionsComplete = async ({
   pathParams,
-}: APIRequestConfig<never, never, { gid?: string; tid?: number | null }>) => {
-  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.tid}/complete`;
+}: APIRequestConfig<never, never, { gid?: string; mid?: number | null }>) => {
+  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.mid}/complete`;
   const res = await baseInstance.patch<APIResponseData>(url);
   return res.data;
 };
 
 export const patchGuildsMissionsSubmit = async ({
   pathParams,
-}: APIRequestConfig<never, never, { gid?: string; tid?: number | null }>) => {
-  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.tid}/submit`;
+}: APIRequestConfig<never, never, { gid?: string; mid?: number | null }>) => {
+  const url = `/guilds/${pathParams?.gid}/missions/${pathParams?.mid}/submit`;
   const res = await baseInstance.patch<APIResponseData>(url);
   return res.data;
 };
@@ -209,8 +209,12 @@ export const patchGuildsMissionsSubmit = async ({
 export const patchMissionsCheckbox = async ({
   pathParams,
   data,
-}: APIRequestConfig<never, { itemRecordId?: number }, { gid?: string }>) => {
-  const url = `/guilds/${pathParams?.gid}/missions`;
+}: APIRequestConfig<
+  never,
+  never,
+  { gid?: string; mid?: number | null; irid: number }
+>) => {
+  const url = `/guilds/${pathParams?.gid}/missions/checkbox/${pathParams?.irid}`;
   const res = await baseInstance.patch<APIResponseData>(url, data);
   return res.data;
 };

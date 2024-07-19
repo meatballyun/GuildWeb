@@ -62,10 +62,12 @@ export const IngredientPage = ({ editMode = false }) => {
         const data = await api.food.postIngredients({ data: requestBody });
         targetId = data.id;
       } else {
-        await api.food.putIngredients({
-          pathParams: { id: params.id },
-          data: requestBody,
-        });
+        await api.food
+          .putIngredients({
+            pathParams: { id: params.id },
+            data: requestBody,
+          })
+          .catch(() => {});
         targetId = +params.id;
       }
       navigate(`/foods/ingredients/${targetId}`);
@@ -113,9 +115,11 @@ export const IngredientPage = ({ editMode = false }) => {
     }
     (async () => {
       setIsFetched(false);
-      const data = await api.food.getIngredientsDetail({
-        pathParams: { id: params.id as string },
-      });
+      const data = await api.food
+        .getIngredientsDetail({
+          pathParams: { id: params.id as string },
+        })
+        .catch(() => {});
       setIngredientDetail(data);
       setIsFetched(true);
     })();

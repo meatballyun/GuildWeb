@@ -110,7 +110,7 @@ export const OverviewPage = () => {
               Create My Cabin
             </Button>
           )}
-          {hasGuild && (
+          {!!hasGuild && (
             <>
               <Link to={`${guildList[0].id}`}>
                 <Button

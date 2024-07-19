@@ -25,7 +25,8 @@ export const AddIngredientModal = ({
         .getIngredients({
           params: { q: search, published },
         })
-        .then((data) => setFoodList(data));
+        .then((data) => setFoodList(data))
+        .catch(() => {});
       setIsFetched(true);
     })();
   }, [search, published]);
@@ -73,7 +74,7 @@ export const AddIngredientModal = ({
               <FoodBar
                 {...foodItem}
                 key={i}
-                onClick={() => onClose?.(!!foodItem)}
+                onClick={() => onClose?.(foodItem)}
               />
             ))}
           </div>

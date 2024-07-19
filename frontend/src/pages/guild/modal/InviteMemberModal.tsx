@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Input, Loading, MaterialSymbol } from '../../../components';
-import { Modal, ModalProps } from '../../../components/Modal';
+import { Modal, ModalProps } from '../../../components';
 import { api } from '../../../api';
 import { UserItem } from '../components';
 import { User } from '../../../api/user/interface';

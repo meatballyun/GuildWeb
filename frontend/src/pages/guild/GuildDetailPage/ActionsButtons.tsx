@@ -25,7 +25,7 @@ export const ActionsButtons = ({
 }: ActionsButtonsProps) => {
   const navigate = useNavigate();
   const isNewGuild = guildId === 'new';
-  const isGuildMaster = myMemberShip === 'Master';
+  const isGuildMaster = myMemberShip === 'master';
 
   if (editMode)
     return (

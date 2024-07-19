@@ -70,7 +70,7 @@ export const UsersPage = ({ friendsMode = false }) => {
   useEffect(() => {
     (async () => {
       setIsFetched(false);
-      await fetchData();
+      await fetchData().catch(() => {});
       setIsFetched(true);
     })();
   }, [fetchData]);

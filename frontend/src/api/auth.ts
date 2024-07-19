@@ -12,12 +12,6 @@ export const login = async ({
   return res.data.data;
 };
 
-export const logout = async () => {
-  const url = '/users/logout';
-  const res = await baseInstance.get<APIResponseData>(url);
-  return res.data;
-};
-
 export const signUp = async ({
   data,
 }: APIRequestConfig<

@@ -51,14 +51,13 @@ export const RecordPage = () => {
       })
       .then((data) => {
         setDailyFood(data);
-      });
+      })
+      .catch(() => {});
   }, [date]);
 
   const foodNutritionSum = useMemo(() => {
     if (!dailyFood) return;
-    return getNutritionSum(
-      dailyFood.foods.map(({ recipe, amount }) => ({ ...recipe, amount }))
-    );
+    return getNutritionSum(dailyFood.foods);
   }, [dailyFood]);
 
   const foolGroupByCategory = useMemo(
@@ -127,9 +126,9 @@ export const RecordPage = () => {
             return (
               <div className="flex flex-col items-start gap-2" key={category}>
                 <Category category={category} />
-                {foodList.map(({ recipe, amount, id }) => (
+                {foodList.map(({ recipeId, amount, id, ...recipe }) => (
                   <Link
-                    to={`/foods/recipes/${recipe.id}`}
+                    to={`/foods/recipes/${recipeId}`}
                     key={id}
                     className="w-full"
                   >
@@ -142,9 +141,11 @@ export const RecordPage = () => {
                           onClick={async (e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            await api.food.deleteDietRecords({
-                              pathParams: { id },
-                            });
+                            await api.food
+                              .deleteDietRecords({
+                                pathParams: { id },
+                              })
+                              .catch(() => {});
                             fetchData();
                           }}
                           className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full border border-primary-600 text-primary-600 hover:bg-primary-600/20"
@@ -164,13 +165,18 @@ export const RecordPage = () => {
         isOpen={!!showModal}
         value={modalValue}
         onClose={() => setShowModal(false)}
-        onFinish={async (formData?: DietRecordModalFormData) => {
-          await api.food.postDietRecords({
-            data: {
-              ...(formData as Required<DietRecordModalFormData>),
-              date: formateIsoDate(formData?.date ?? new Date()),
-            },
-          });
+        onFinish={async ({
+          date,
+          ...formData
+        }: DietRecordModalFormData = {}) => {
+          await api.food
+            .postDietRecords({
+              data: {
+                ...(formData as Required<DietRecordModalFormData>),
+                dietDate: formateIsoDate(date ?? new Date()),
+              },
+            })
+            .catch(() => {});
           await fetchData();
         }}
       />

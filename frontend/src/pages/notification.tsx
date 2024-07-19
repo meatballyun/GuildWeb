@@ -46,9 +46,9 @@ export const EmptyNotificationDetail = ({
   className?: string;
 }) => {
   return (
-    <Block className={className} title="Mission Detail">
+    <Block className={className} title="Notification Detail">
       <div className="flex w-full items-center justify-center text-paragraph-p1 text-primary-300">
-        select a mission
+        select a notification
       </div>
     </Block>
   );
@@ -112,12 +112,10 @@ export const NotificationDetailBlock = ({
       className={className}
       title={
         <div className="flex items-center justify-center gap-1">
-          {title}
-          <MaterialSymbol
-            onClick={onDelete}
-            icon="delete"
-            className="float-right cursor-pointer rounded-full p-2 hover:bg-primary-300/50"
-          />
+          <div className="flex-1 text-center">{title}</div>
+          <div className="p-1 flex cursor-pointer rounded-full hover:bg-primary-300/50">
+            <MaterialSymbol onClick={onDelete} icon="delete" />
+          </div>
         </div>
       }
     >
@@ -228,6 +226,7 @@ export const NotificationPage = () => {
                     await api.notification.deleteNotification({
                       pathParams: { nid: selectedDetail.id },
                     });
+                    setSelectedDetail(undefined);
                     fetchNotifications();
                   }}
                 />

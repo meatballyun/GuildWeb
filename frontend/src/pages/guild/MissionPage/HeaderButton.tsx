@@ -77,13 +77,17 @@ const getOption = (className: string, label: string, value: string) => ({
   value,
 });
 
-const MISSION_TYPE = [
+const TEMPLATE_MISSION_TYPE = [
   { label: 'All', value: 'all' },
-  getOption('bg-primary-200', 'Ordinary', 'Ordinary'),
-  getOption('bg-red', 'Emergency', 'Emergency'),
-  getOption('bg-green', 'Daily', 'Daily'),
-  getOption('bg-blue', 'Weekly', 'Weekly'),
-  getOption('bg-orange', 'Monthly', 'Monthly'),
+  getOption('bg-green', 'Daily', 'daily'),
+  getOption('bg-blue', 'Weekly', 'weekly'),
+  getOption('bg-orange', 'Monthly', 'monthly'),
+];
+
+const MISSION_TYPE = [
+  ...TEMPLATE_MISSION_TYPE,
+  getOption('bg-primary-200', 'Ordinary', 'ordinary'),
+  getOption('bg-red', 'Emergency', 'emergency'),
 ];
 
 const MISSION_STATUS = [
@@ -190,18 +194,24 @@ export const ManageModeHeaderButton = ({
             onChange({ missionType: missionType as MissionType[] })
           }
           textPrefix="Mission Type"
-          options={MISSION_TYPE}
+          options={
+            mode === MissionPageMode.TEMPLATE
+              ? TEMPLATE_MISSION_TYPE
+              : MISSION_TYPE
+          }
           placeholder="Filter with MissionType"
         />
-        <Selector
-          value={query.missionStatus}
-          onChange={(missionStatus) =>
-            onChange({ missionStatus: missionStatus as MissionStatus[] })
-          }
-          textPrefix="Mission Status"
-          options={MISSION_STATUS}
-          placeholder="Filter with MissionStatus"
-        />
+        {mode === MissionPageMode.MANAGE && (
+          <Selector
+            value={query.missionStatus}
+            onChange={(missionStatus) =>
+              onChange({ missionStatus: missionStatus as MissionStatus[] })
+            }
+            textPrefix="Mission Status"
+            options={MISSION_STATUS}
+            placeholder="Filter with MissionStatus"
+          />
+        )}
         {mode === MissionPageMode.TEMPLATE ? (
           <Link to={`${baseUrl}/manage`}>
             <Button className="ml-1">Mission List</Button>

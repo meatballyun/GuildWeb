@@ -44,10 +44,10 @@ export const GuildDetailPage = ({ editMode }: { editMode?: boolean }) => {
   const fetchGuildDetail = useCallback(async () => {
     try {
       setIsGuildDetailFetched(false);
-      const data = await api.guild.getGuildsDetail({
-        pathParams: { gid: params.id },
-      });
-      setGuildDetail(data);
+      await api.guild
+        .getGuildsDetail({ pathParams: { gid: params.id } })
+        .then((data) => setGuildDetail(data))
+        .catch(() => {});
       setIsGuildDetailFetched(true);
     } catch {
       navigate('/');
@@ -71,9 +71,9 @@ export const GuildDetailPage = ({ editMode }: { editMode?: boolean }) => {
     const data = await apiUtil({
       data: { ...formData },
       pathParams: { gid: params.id },
-    });
+    }).catch(() => {});
     await getGuildList();
-    navigate(`/guilds/${data.id ?? params.id}`);
+    navigate(`/guilds/${data?.id ?? params.id}`);
   };
 
   const form = useFormInstance({
@@ -85,22 +85,28 @@ export const GuildDetailPage = ({ editMode }: { editMode?: boolean }) => {
   const handleModalClose = (user?: User | boolean) => {
     setOpenModal(false);
     if (typeof user !== 'object') return;
-    api.guild.postGuildsInvitation({
-      pathParams: { gid: params.id },
-      data: { uid: user.id },
-    });
+    api.guild
+      .postGuildsInvitation({
+        pathParams: { gid: params.id },
+        data: { uid: user.id },
+      })
+      .catch(() => {});
   };
 
   const handleDelete = async () => {
-    await api.guild.deleteGuilds({ pathParams: { gid: params.id } });
+    await api.guild
+      .deleteGuilds({ pathParams: { gid: params.id } })
+      .catch(() => {});
     await getGuildList();
     navigate('..');
   };
 
   const handleLeave = async () => {
-    await api.guild.deleteGuildsMember({
-      pathParams: { gid: params.id, uid: userMe?.id },
-    });
+    await api.guild
+      .deleteGuildsMember({
+        pathParams: { gid: params.id, uid: userMe?.id },
+      })
+      .catch(() => {});
     getGuildList();
     navigate('/guilds');
   };
@@ -116,7 +122,7 @@ export const GuildDetailPage = ({ editMode }: { editMode?: boolean }) => {
           name: userMe.name,
           imageUrl: userMe.imageUrl,
           rank: userMe.rank,
-          membership: 'Master',
+          membership: 'master',
         },
       ]);
       return;
@@ -126,21 +132,25 @@ export const GuildDetailPage = ({ editMode }: { editMode?: boolean }) => {
   }, [fetchGuildDetail, fetchGuildMember, params.id, userMe]);
 
   const handleMemberClick = async (
-    value: Membership | 'Delete',
+    value: Membership | 'delete',
     uid: number
   ) => {
     switch (value) {
-      case 'Vice':
-      case 'Regular':
-        api.guild.patchGuildsMember({
-          pathParams: { gid: params.id, uid },
-          data: { membership: value },
-        });
+      case 'vice':
+      case 'regular':
+        api.guild
+          .patchGuildsMember({
+            pathParams: { gid: params.id, uid },
+            data: { membership: value },
+          })
+          .catch(() => {});
         break;
-      case 'Delete':
-        api.guild.deleteGuildsMember({
-          pathParams: { gid: params.id, uid },
-        });
+      case 'delete':
+        api.guild
+          .deleteGuildsMember({
+            pathParams: { gid: params.id, uid },
+          })
+          .catch(() => {});
         break;
       default:
     }
@@ -149,7 +159,7 @@ export const GuildDetailPage = ({ editMode }: { editMode?: boolean }) => {
 
   const currentGuildMember = useMemo(() => {
     if (editMode) return guildMember;
-    return guildMember.filter(({ membership }) => membership !== 'Pending');
+    return guildMember.filter(({ membership }) => membership !== 'pending');
   }, [editMode, guildMember]);
 
   if (!isGuildDetailFetched)
@@ -200,7 +210,7 @@ export const GuildDetailPage = ({ editMode }: { editMode?: boolean }) => {
                   <div>
                     Member
                     {myMemberShip &&
-                      ['Master', 'Vice'].includes(myMemberShip) &&
+                      ['master', 'vice'].includes(myMemberShip) &&
                       !editMode && (
                         <Button
                           className="float-right"
@@ -225,8 +235,8 @@ export const GuildDetailPage = ({ editMode }: { editMode?: boolean }) => {
                       {currentGuildMember.map((data) => (
                         <UserItem
                           editAble={
-                            data.membership !== 'Master' &&
-                            myMemberShip === 'Master' &&
+                            data.membership !== 'master' &&
+                            myMemberShip === 'master' &&
                             editMode
                           }
                           key={data.id}
