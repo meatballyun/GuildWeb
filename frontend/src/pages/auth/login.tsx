@@ -135,7 +135,7 @@ export const Login = () => {
       <ForgotPasswordModal
         key={modalStatus.isOpen ? 'forgotPassword' : 'forgotPasswordClose'}
         onClose={() => setModalStatus({ isOpen: false })}
-        isOpen={modalStatus.isOpen === ModalStatus.EMAIL}
+        isOpen={modalStatus.isOpen === ModalStatus.FORGET_PASSWORD}
       />
     </>
   );

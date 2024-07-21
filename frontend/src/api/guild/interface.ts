@@ -86,7 +86,7 @@ export interface Mission extends MissionTime, MissionInfo, CommonColumn {
   adventurers: Adventurer[];
   creator: User;
   guild: Guild;
-  gid: string;
+  guildId: string;
   isAccepted?: boolean;
   templateId?: number;
 }

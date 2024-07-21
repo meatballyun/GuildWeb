@@ -51,7 +51,7 @@ const CheckList = ({ value = [], onChange }: CheckListProps) => {
   const handleItemRemove = (index: number) => {
     const newValue = [...value];
     newValue[index].content = null;
-    onChange?.(newValue);
+    onChange?.(newValue.filter(({ content }) => content));
   };
 
   return (

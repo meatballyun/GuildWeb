@@ -157,11 +157,11 @@ const MissionBlock = () => {
               );
             return (
               <div className="mt-4 flex h-full w-full flex-col items-start gap-2">
-                {filteredMission.map(({ id, gid, ...data }) => (
+                {filteredMission.map(({ id, guildId, ...data }) => (
                   <Link
                     className="w-full"
                     key={id}
-                    to={`guilds/${gid}/missions?focus-mission-id=${id}`}
+                    to={`guilds/${guildId}/missions?focus-mission-id=${id}`}
                   >
                     <MissionBar {...data} />
                   </Link>

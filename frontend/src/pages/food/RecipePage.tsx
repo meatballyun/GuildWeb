@@ -24,12 +24,7 @@ import { getNutritionSum } from '../../utils';
 import { AddIngredientModal } from './modal';
 import { Link } from 'react-router-dom';
 import { useSideBar } from '../_layout/MainLayout/SideBar';
-import {
-  Ingredient,
-  Recipe,
-  RecipeIngredient,
-  dietRecipe,
-} from '../../api/food/interface';
+import { Ingredient, Recipe, RecipeIngredient } from '../../api/food/interface';
 
 interface IngredientListProps {
   error?: string[];
@@ -286,7 +281,7 @@ export const RecipePage = ({ editMode }: { editMode?: boolean }) => {
                   <PublicButton />
                 </Form.Item>
               </div>
-              {editMode ? (
+              {editMode && (
                 <>
                   <Button onClick={() => navigate(-1)} type="hollow" size="md">
                     Cancel
@@ -295,28 +290,26 @@ export const RecipePage = ({ editMode }: { editMode?: boolean }) => {
                     Save
                   </Button>
                 </>
-              ) : (
-                <>
-                  <Link to="/foods/recipes/edit/new" state={recipeDetail}>
-                    <Button
-                      type="hollow"
-                      size="md"
-                      className="flex items-center gap-1"
-                    >
-                      <MaterialSymbol icon="file_copy" fill />
-                      Copy
-                    </Button>
-                  </Link>
-                  <Link to={`/foods/recipes/edit/${id}`}>
-                    <Button
-                      size="md"
-                      className="flex h-full items-center gap-1"
-                    >
-                      <MaterialSymbol icon="edit" fill />
-                      Edit
-                    </Button>
-                  </Link>
-                </>
+              )}
+              {!editMode && (
+                <Link to="/foods/recipes/edit/new" state={recipeDetail}>
+                  <Button
+                    type="hollow"
+                    size="md"
+                    className="flex items-center gap-1"
+                  >
+                    <MaterialSymbol icon="file_copy" fill />
+                    Copy
+                  </Button>
+                </Link>
+              )}
+              {!editMode && recipeDetail.isOwned && (
+                <Link to={`/foods/recipes/edit/${id}`}>
+                  <Button size="md" className="flex h-full items-center gap-1">
+                    <MaterialSymbol icon="edit" fill />
+                    Edit
+                  </Button>
+                </Link>
               )}
             </div>
           </div>

@@ -92,7 +92,6 @@ export const MissionPage = ({ mode }: { mode?: MissionPageMode }) => {
       const isCurrentStatus =
         !query.missionStatus?.length ||
         (status && query.missionStatus.includes(status));
-      console.log(query.missionStatus, status, isCurrentStatus);
       return isCurrentType && isCurrentStatus;
     });
   }, [missionList, mode, query, userMe]);
@@ -174,7 +173,6 @@ export const MissionPage = ({ mode }: { mode?: MissionPageMode }) => {
       value,
     });
     await fetchMissions();
-    console.log(newDataId);
     if (!newDataId) return;
     const detail = await fetchMissionDetail(newDataId);
     detail && setSelectedDetail(detail);
@@ -249,7 +247,6 @@ export const MissionPage = ({ mode }: { mode?: MissionPageMode }) => {
 
       case MissionButtonType.DISABLE:
       case MissionButtonType.ENABLE: {
-        console.log(selectedDetail);
         if (!selectedDetail || 'initiationTime' in selectedDetail) return;
         await api.guild.putTemplate({
           pathParams: { gid: params.gid, ttid: focusMissionId ?? undefined },
