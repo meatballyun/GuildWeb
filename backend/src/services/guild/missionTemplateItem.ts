@@ -19,7 +19,7 @@ export const getAll = async (missionTemplateId: number) => {
 };
 
 export const create = async (items: Item[], templateId: number) => {
-  if (items) {
+  if (items?.length) {
     const contents = items.map(({ content }) => content);
     const newTemplateItemId = await MissionTemplateItemModel.createMany(templateId, contents);
     if (!newTemplateItemId) throw new ApplicationError(400);

@@ -7,6 +7,8 @@ import session from 'express-session';
 import passport from 'passport';
 import cookieParser from 'cookie-parser';
 import routes from './routes';
+import { TypedRequest } from './types/TypedRequest';
+import { Response, NextFunction } from 'express';
 import { awaitHandlerFactory } from './utils/awaitHandlerFactory';
 import { errorHandler } from './utils/error/errorHandler';
 import path from 'path';
@@ -49,5 +51,9 @@ app.use(cookieParser());
 app.use('/api', awaitHandlerFactory(routes));
 
 app.use(errorHandler as any);
+
+app.use((err: any, req: TypedRequest, res: Response, next: NextFunction) => {
+  res.status(500).send('Error: The server could not understand the request due to invalid syntax or missing parameters.');
+});
 
 export default app;

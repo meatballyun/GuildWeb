@@ -12,11 +12,12 @@ interface RecipeWithIngredients extends BaseRecipe {
 
 export const getAll = async ({ q, published }: TypeSearch, uid: number) => {
   const recipes = published === 'true' ? await recipeModel.getAllByName(q) : await recipeModel.getAllByUserAndName(uid, q);
-
-  if (recipes) {
+  const hasRecipes = recipes?.length;
+  if (hasRecipes) {
     const data = recipes.map(({ creatorId, description, ...otherData }) => {
       return {
         ...otherData,
+        creatorId,
         isOwned: creatorId === uid,
       };
     });
@@ -87,7 +88,7 @@ export const create = async ({ published, ingredients, ...data }: RecipeWithIngr
   });
 };
 
-export const update = async (recipeId: number, { published, ingredients, ...data }: RecipeWithIngredients, uid: number) => {
+export const update = async (recipeId: number, { ingredients, ...data }: RecipeWithIngredients, uid: number) => {
   if (!ingredients) throw new ApplicationError(400);
   const recipe = await recipeModel.getOne(recipeId);
   if (recipe?.creatorId !== uid) throw new ApplicationError(409);
@@ -139,7 +140,7 @@ export const update = async (recipeId: number, { published, ingredients, ...data
 
     if (newIngredients?.length) await recipeIngredientRelationModel.createMany(newIngredients);
 
-    if (published) {
+    if (data.published) {
       const relations = await recipeIngredientRelationModel.getAllByRecipe(recipeId);
       if (relations?.length) {
         await ingredientModel.isPublished(

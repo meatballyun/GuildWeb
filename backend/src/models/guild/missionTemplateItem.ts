@@ -23,6 +23,7 @@ export class MissionTemplateItemModel {
 
   static createMany(templateId: number, contents: string[]): Promise<number> {
     return new Promise((resolve, reject) => {
+      if (!contents?.length) return;
       const placeholders = new Array(contents.length).fill('(?,?)').join(', ');
       const values = contents.reduce(
         (acc, content) => {
@@ -31,8 +32,12 @@ export class MissionTemplateItemModel {
         },
         [] as (number | string)[]
       );
-      conn.query<ResultSetHeader>(`INSERT INTO templateItems(missionId , content) VALUES ${placeholders}`, values, function (err, rows) {
-        if (err) reject(err);
+      conn.query<ResultSetHeader>(`INSERT INTO templateItems(templateId , content) VALUES ${placeholders}`, values, function (err, rows) {
+        if (err) {
+          console.log(err);
+          reject(err);
+        }
+        console.log(rows);
         resolve(rows.insertId);
       });
     });

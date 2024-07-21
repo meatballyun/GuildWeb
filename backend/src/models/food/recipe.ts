@@ -22,7 +22,7 @@ export const getAllByUserAndName = async (creatorId: number, name: string): Prom
 
 export const getAllByName = async (name: string): Promise<Recipe[] | undefined> => {
   return new Promise((resolve, reject) => {
-    conn.query<Recipe[]>('SELECT * FROM recipes WHERE name LIKE ? AND active = TRUE', ['%' + name + '%'], function (err, rows) {
+    conn.query<Recipe[]>('SELECT * FROM recipes WHERE name LIKE ?AND published = true  AND active = true', ['%' + name + '%'], function (err, rows) {
       if (err) reject(err);
       resolve(rows);
     });

@@ -44,7 +44,7 @@ export const create = async ({ generationTime, deadline, items, ...otherData }: 
   const id = await executeTransaction(async () => {
     const newTemplateId = await MissionTemplateModel.create(uid, guildId, time, otherData);
     if (!newTemplateId) throw new ApplicationError(400);
-    if (!items?.length) await missionTemplateItemService.create(items, newTemplateId);
+    if (items?.length) await missionTemplateItemService.create(items, newTemplateId);
     return newTemplateId;
   });
   return id;

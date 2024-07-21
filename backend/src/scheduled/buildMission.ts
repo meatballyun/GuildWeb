@@ -10,7 +10,7 @@ export const buildMissionByMissionTemplates = async () => {
   missionTemplates.map(async ({ creatorId: uid, guildId, generationTime: initiationTime, deadline, ...otherData }) => {
     if (new Date(initiationTime) < currentTime) {
       const items = await MissionTemplateItemModel.getAll(otherData.id);
-      if (items.length) await missionService.create({ initiationTime, deadline, items, ...otherData }, guildId, uid);
+      if (items?.length) await missionService.create({ initiationTime, deadline, items, ...otherData }, guildId, uid);
 
       let unit;
       if (otherData.type === 'daily') unit = 'DAY';
