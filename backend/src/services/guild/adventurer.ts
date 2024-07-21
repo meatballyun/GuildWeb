@@ -14,7 +14,7 @@ export const getAdventurerInfo = async (missionId: number) => {
 
 export const updateStatusByMissionComplete = async (missionId: number) => {
   const adventurerInfos = await AdventurerModel.getAllByMissionId(missionId);
-  if (!adventurerInfos) throw new ApplicationError(409);
+  if (!adventurerInfos?.length) throw new ApplicationError(409);
 
   const failAdventurerIds: number[] = [];
   const completedAdventurerIds: number[] = [];
@@ -28,7 +28,7 @@ export const updateStatusByMissionComplete = async (missionId: number) => {
       }
     })
   );
-  await AdventurerModel.updateStatusByManyUsers(missionId, failAdventurerIds, 'failed');
+  if (failAdventurerIds?.length) await AdventurerModel.updateStatusByManyUsers(missionId, failAdventurerIds, 'failed');
 };
 
 export const updateStatusByMissionFail = async (missionId: number) => {

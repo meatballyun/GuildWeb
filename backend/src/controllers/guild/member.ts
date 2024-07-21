@@ -20,7 +20,7 @@ export const sendGuildInvitation = async (req: TypedRequest, res: Response, next
   await memberService.sendInvitation(req.body.uid, req.params.gid);
   req.body.senderId = req.params.gid;
   req.body.recipientId = req.body.uid;
-  req.body.type = 'Guild';
+  req.body.type = 'guild';
   await notificationService.create(req.body);
   await userInfoService.updateExp(req.userId as number, 1);
   return res.status(200).json({ data: 'OK' });

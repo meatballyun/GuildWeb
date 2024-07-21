@@ -9,7 +9,7 @@ export const getMissionTemplates = async (req: TypedRequest, res: Response, next
 };
 
 export const getMissionTemplateDetail = async (req: TypedRequest, res: Response, next: NextFunction) => {
-  const data = await missionTemplateService.getOne(req.params.ttid);
+  const data = await missionTemplateService.getOne(req.params.mtid);
   return res.status(200).json({ data });
 };
 
@@ -19,11 +19,11 @@ export const addMissionTemplate = async (req: TypedRequest, res: Response, next:
 };
 
 export const updateMissionTemplate = async (req: TypedRequest, res: Response, next: NextFunction) => {
-  const data = await missionTemplateService.update(req.body, req.params.ttid, req.member?.membership as Membership, req.userId as number);
+  const data = await missionTemplateService.update(req.body, req.params.mtid, req.member?.membership as Membership, req.userId as number);
   return res.status(200).json({ data });
 };
 
 export const deleteMissionTemplate = async (req: TypedRequest, res: Response, next: NextFunction) => {
-  await missionTemplateService.remove(req.params.ttid, req.member?.membership as Membership, req.userId as number);
+  await missionTemplateService.remove(req.params.mtid, req.member?.membership as Membership, req.userId as number);
   return res.status(200).json({ data: 'OK' });
 };

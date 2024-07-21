@@ -3,12 +3,13 @@ import { RowDataPacket, ResultSetHeader } from 'mysql2';
 import { MissionTemplateTime, MissionTemplateInfo, MissionTemplate } from '../../types/guild/missionTemplate';
 
 export class MissionTemplateModel {
-  static DATE_ADD(current: Date, interval: number, unit: string): Promise<string> {
-    const query = 'SELECT DATE_ADD(?, interval ? ' + unit + ');';
+  static DATE_ADD(current: string | Date, interval: number, unit: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      conn.query<RowDataPacket[]>(query, [current, interval], function (err, rows) {
-        if (err) reject(err);
-        resolve(rows[0].newDate);
+      const query = `SELECT DATE_ADD(?, INTERVAL ? ${unit}) AS resultDate;`;
+      conn.query<RowDataPacket[]>(query, [current, interval], (err, rows) => {
+        if (err) return reject(err);
+        if (rows && rows.length > 0) resolve(rows[0]['resultDate']);
+        reject(new Error('No result found'));
       });
     });
   }
@@ -58,11 +59,11 @@ export class MissionTemplateModel {
   ): Promise<number> {
     return new Promise((resolve, reject) => {
       conn.query<ResultSetHeader>(
-        'INSERT INTO missionTemplates(creatorId, guildId,  generationTime, deadline, name, DESCRIPTION, TYPE, MAX_ADVENTURER) VALUES (?,?,?,?,?,?,?,?)',
+        'INSERT INTO missionTemplates(creatorId, guildId,  generationTime, deadline, name, description, type, maxAdventurer) VALUES (?,?,?,?,?,?,?,?)',
         [creatorId, guildId, generationTime, deadline, name, description, type, maxAdventurer],
         function (err, rows) {
           if (err) reject(err);
-          resolve(rows.affectedRows);
+          resolve(rows.insertId);
         }
       );
     });
@@ -71,7 +72,7 @@ export class MissionTemplateModel {
   static update(id: number, { generationTime, deadline }: MissionTemplateTime, { enabled, name, description, type, maxAdventurer }: MissionTemplateInfo): Promise<number> {
     return new Promise((resolve, reject) => {
       conn.query<ResultSetHeader>(
-        'UPDATE missionTemplates SET  enabled = ?, name = ?, DESCRIPTION = ?,  generationTime = ?, deadline = ?, TYPE = ?, MAX_ADVENTURER = ? WHERE id = ?',
+        'UPDATE missionTemplates SET  enabled = ?, name = ?, description = ?,  generationTime = ?, deadline = ?, type = ?, maxAdventurer = ? WHERE id = ?',
         [enabled, name, description, generationTime, deadline, type, maxAdventurer, id],
         function (err, rows) {
           if (err) reject(err);

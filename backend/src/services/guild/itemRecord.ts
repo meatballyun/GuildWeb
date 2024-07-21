@@ -1,19 +1,23 @@
 import { Item } from '../../types/guild/item';
 import { ItemModel, ItemRecordModel } from '../../models';
+import { ItemRecord } from '../../types/guild/itemRecord';
 
 export const getAll = async (items: Item[], AdventurerId: number) => {
-  if (!items) return;
-  const itemIds = items.map(({ id: itemId }) => {
-    return itemId;
-  });
+  if (!items?.length) return;
+  const itemIds = items.map(({ id }) => id);
   const data = await ItemRecordModel.getAllByManyItemAndUser(itemIds, AdventurerId);
-
   return data;
+};
+
+export const create = async (items: Item[], AdventurerId: number) => {
+  if (!items?.length) return;
+  const itemIds = items.map(({ id }) => id);
+  await ItemRecordModel.createMany(itemIds, AdventurerId);
 };
 
 export const deleteAllByMission = async (missionId: number) => {
   const items = await ItemModel.getAll(missionId);
-  if (!items) return;
+  if (!items?.length) return;
   const itemIds = items.map(({ id: itemId }) => {
     return itemId;
   });
@@ -22,7 +26,7 @@ export const deleteAllByMission = async (missionId: number) => {
 
 export const deleteAllByMissionAndUser = async (missionId: number, AdventurerId: number) => {
   const items = await ItemModel.getAll(missionId);
-  if (!items) return;
+  if (!items?.length) return;
   const itemIds = items.map(({ id: itemId }) => {
     return itemId;
   });

@@ -18,6 +18,7 @@ router.put('/me', verifyToken, updateUserInfo);
 router.post('/reset-password', verifyToken, resetPassword);
 
 // Friend
+// uid: User ID
 router.get('/', verifyToken, getUsers);
 router.get('/friends', verifyToken, getFriends);
 router.post('/invitation', verifyToken, sendFriendInvitation, createNotification);

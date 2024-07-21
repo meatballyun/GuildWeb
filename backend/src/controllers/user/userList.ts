@@ -1,7 +1,6 @@
 import { Response, NextFunction } from 'express';
 import { userInfoService, userListService } from '../../services';
 import { TypedRequest } from '../../types/TypedRequest';
-import { Status } from '../../types/user/userFriend';
 
 export const getUsers = async (req: TypedRequest<never, { q: string }, never>, res: Response, next: NextFunction) => {
   const data = await userListService.getAllUser(req.userId as number, req.query.q);
@@ -15,7 +14,7 @@ export const getFriends = async (req: TypedRequest<never, { q: string }, never>,
 
 export const sendFriendInvitation = async (req: TypedRequest<{ uid: number; type: string; senderId: number; recipientId: number }, never, never>, res: Response, next: NextFunction) => {
   await userListService.sendInvitation(req.userId as number, req.body.uid);
-  req.body.type = 'User';
+  req.body.type = 'user';
   req.body.senderId = req.userId as number;
   req.body.recipientId = req.body.uid;
   next();

@@ -36,6 +36,7 @@ export class ItemModel {
 
   static createMany(missionId: number, contents: string[]): Promise<number> {
     return new Promise((resolve, reject) => {
+      if (contents.length === 0) return;
       const placeholders = new Array(contents.length).fill('(?,?)').join(', ');
       const values = contents.reduce(
         (acc, content) => {
@@ -62,12 +63,10 @@ export class ItemModel {
 
   static updateMany(items: { id: number; content: string }[]): Promise<number> {
     return new Promise((resolve, reject) => {
-      if (!items.length) return 0;
-
-      const cases = items.map((item) => `WHEN id = ${item.id} THEN ?`).join(' ');
-      const values = items.map((item) => item.content);
-      const ids = items.map((item) => item.id).join(', ');
-
+      if (!items.length) return;
+      const cases = items.map(({ id }) => `WHEN id = ${id} THEN ?`).join(' ');
+      const values = items.map(({ content }) => content);
+      const ids = items.map(({ id }) => id).join(', ');
       conn.query<ResultSetHeader>(
         ` UPDATE items
           SET content = CASE ${cases} END

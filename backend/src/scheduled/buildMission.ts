@@ -1,7 +1,9 @@
 import { MissionTemplateModel, MissionTemplateItemModel } from '../models';
 import { missionService } from '../services/guild';
+import { ApplicationError } from '../utils/error/applicationError';
+import { formatTimestamp } from '../utils/timeHandler';
 
-const buildMissionByMissionTemplates = async () => {
+export const buildMissionByMissionTemplates = async () => {
   const missionTemplates = await MissionTemplateModel.getAll();
   if (!missionTemplates) return;
   const currentTime = new Date();
@@ -13,12 +15,11 @@ const buildMissionByMissionTemplates = async () => {
       let unit;
       if (otherData.type === 'daily') unit = 'DAY';
       else if (otherData.type === 'weekly') unit = 'WEEK';
-      else unit = 'MONTH';
-      const generationTime = await MissionTemplateModel.DATE_ADD(otherData.GENERATION_TIME, 1, unit);
-      const newDeadline = await MissionTemplateModel.DATE_ADD(otherData.DEADLINE, 1, unit);
-      await MissionTemplateModel.updateTime(otherData.id, Object.values(generationTime[0])[0], Object.values(newDeadline[0])[0]);
+      else if (otherData.type === 'monthly') unit = 'MONTH';
+      else throw new ApplicationError(400);
+      const generationTime = await MissionTemplateModel.DATE_ADD(formatTimestamp(initiationTime), 1, unit);
+      const newDeadline = await MissionTemplateModel.DATE_ADD(formatTimestamp(deadline), 1, unit);
+      await MissionTemplateModel.updateTime(otherData.id, generationTime, newDeadline);
     }
   });
 };
-
-export default buildMissionByMissionTemplates;

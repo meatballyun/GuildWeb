@@ -16,12 +16,13 @@ export const getAll = async (guildId: number, query?: string) => {
   const missionTemplates = query ? await MissionTemplateModel.getAllByGuildAndName(guildId, query) : await MissionTemplateModel.getAllByGuild(guildId);
   if (missionTemplates?.length) {
     const data = await Promise.all(
-      missionTemplates.map(async ({ id, enabled, creator, name, type }) => {
-        return { id, enabled, creator, name, type };
+      missionTemplates.map(async ({ id, enabled, creatorId, name, type }) => {
+        return { id, enabled: !!enabled, creatorId, name, type };
       })
     );
     return data;
   }
+  return [];
 };
 
 export const getOne = async (missionTemplateId: number) => {
@@ -43,8 +44,7 @@ export const create = async ({ generationTime, deadline, items, ...otherData }: 
   const id = await executeTransaction(async () => {
     const newTemplateId = await MissionTemplateModel.create(uid, guildId, time, otherData);
     if (!newTemplateId) throw new ApplicationError(400);
-
-    await missionTemplateItemService.create(items, newTemplateId);
+    if (!items?.length) await missionTemplateItemService.create(items, newTemplateId);
     return newTemplateId;
   });
   return id;
@@ -74,6 +74,7 @@ export const update = async ({ generationTime, deadline, items, ...otherData }: 
       if (deleteIds?.length) await MissionTemplateItemModel.deleteManyById(deleteIds);
     } else await missionTemplateItemService.remove(missionTemplateId);
   });
+  return { id: missionTemplateId };
 };
 
 export const remove = async (missionTemplateId: number, membership: Membership, uid: number) => {
@@ -82,7 +83,7 @@ export const remove = async (missionTemplateId: number, membership: Membership, 
   if (membership === 'vice' && uid !== missionTemplate.creatorId) throw new ApplicationError(403);
   executeTransaction(async () => {
     await missionTemplateItemService.remove(missionTemplateId);
-    const deleteMissionTemplate = await MissionTemplateItemModel.delete(missionTemplateId);
+    const deleteMissionTemplate = await MissionTemplateModel.delete(missionTemplateId);
     if (!deleteMissionTemplate) throw new ApplicationError(400);
   });
 };

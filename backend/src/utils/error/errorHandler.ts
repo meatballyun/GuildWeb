@@ -7,7 +7,6 @@ export const errorHandler = (err: any, req: TypedRequest, res: Response, next: N
   err.statusCode = err.statusCode ?? 500;
   err.status = err.status ?? 'Error';
   err.message = (NODE_ENV === 'development' ? err.message : CommonError[err.statusCode]?.message) || 'Error';
-
   if (NODE_ENV === 'development') {
     console.log(err.stack);
   }

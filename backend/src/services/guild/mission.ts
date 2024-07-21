@@ -8,6 +8,8 @@ import { UserModel, MissionModel, ItemRecordModel, AdventurerModel } from '../..
 import * as itemService from './item';
 import * as itemRecordService from './itemRecord';
 import * as adventurerService from './adventurer';
+import { executeTransaction } from '../../utils/executeTransaction';
+import moment from 'moment';
 
 interface MissionDetailed extends MissionTime, MissionInfo {
   items: Item[] | TemplateItem[];
@@ -15,21 +17,23 @@ interface MissionDetailed extends MissionTime, MissionInfo {
 
 export const getAll = async ({ gid: guildId }: { gid: number }, { q: query }: { q?: string }, uid: number) => {
   const missions = query ? await MissionModel.getAllByGuildAndName(guildId, query) : await MissionModel.getAllByGuild(guildId);
-  if (missions) {
-    const missionIds: number[] = [];
-    const data = await Promise.all(
-      missions.map(async ({ id, creator, name, type, status, accepted }) => {
-        missionIds.push(id);
-        return { id, creator, name, type, status, accepted, isAccepted };
-      })
-    );
-    const isAccepted = await AdventurerModel.getAllByManyMission(missionIds);
+  if (missions?.length) {
+    const missionIds = missions.map(({ id }) => id);
+    const adventurers = await AdventurerModel.getAllByManyMission(missionIds);
+    const data = missions.map(({ id, creatorId, name, type, status, accepted }) => {
+      let isAccepted = false;
+      adventurers?.map(({ missionId, userId }) => {
+        if (missionId === id && userId === uid) isAccepted = true;
+      });
+      return { id, creatorId, name, type, status, accepted, isAccepted };
+    });
 
     return data;
   }
+  return;
 };
 
-export const getOne = async ({ tid: missionId }: { tid: number }, uid: number) => {
+export const getOne = async ({ mid: missionId }: { mid: number }, uid: number) => {
   const mission = await MissionModel.getOne(missionId);
   if (mission) {
     const user = await UserModel.getOneById(mission.creatorId);
@@ -44,27 +48,37 @@ export const getOne = async ({ tid: missionId }: { tid: number }, uid: number) =
   throw new ApplicationError(409);
 };
 
-export const create = async ({ initiationTime, deadline, items, ...otherData }: MissionDetailed, guildId: number, uid: number) => {
-  const time = timeHandle(initiationTime, deadline);
-  const newMissionId = await MissionModel.create(uid, guildId, time, otherData);
-  if (newMissionId) {
-    itemService.create(items, newMissionId);
-    return { id: newMissionId };
-  }
-  throw new ApplicationError(400);
+export const getUserMissions = async (uid: number) => {
+  const missions = await MissionModel.getAllByUser(uid);
+  return missions;
 };
 
-export const accept = async ({ tid: missionId }: { tid: number }, uid: number) => {
+export const create = async ({ initiationTime, deadline, items, ...otherData }: MissionDetailed, guildId: number, uid: number) => {
+  const time = timeHandle(initiationTime, deadline);
+  const newMissionId = await executeTransaction(async () => {
+    const missionId = await MissionModel.create(uid, guildId, time, otherData);
+    if (!missionId) throw new ApplicationError(400);
+    await itemService.create(items, missionId);
+    return missionId;
+  });
+  return newMissionId;
+};
+
+export const accept = async ({ mid: missionId }: { mid: number }, uid: number) => {
   const mission = await MissionModel.getOne(missionId);
   if (!mission) throw new ApplicationError(404);
   const isAccepted = await adventurerService.isAdventurer(missionId, uid);
   if (isAccepted) throw new ApplicationError(409);
   if (mission.accepted === 'max accepted') throw new ApplicationError(409);
+
   const adventurer = await AdventurerModel.create(missionId, uid);
   if (!adventurer) throw new ApplicationError(400);
+
+  const items = await itemService.getAll(missionId, uid, false);
+  if (items?.length) await itemRecordService.create(items as Item[], uid);
 };
 
-export const submit = async ({ tid: missionId }: { tid: number }, uid: number) => {
+export const submit = async ({ mid: missionId }: { mid: number }, uid: number) => {
   const mission = await MissionModel.getOne(missionId);
   if (!mission) throw new ApplicationError(404);
   const adventurer = await AdventurerModel.getOne(missionId, uid);
@@ -79,7 +93,7 @@ export const submit = async ({ tid: missionId }: { tid: number }, uid: number) =
   if (!result) throw new ApplicationError(400);
 };
 
-export const abandon = async ({ tid: missionId }: { tid: number }, uid: number) => {
+export const abandon = async ({ mid: missionId }: { mid: number }, uid: number) => {
   const mission = await MissionModel.getOne(missionId);
   if (!mission) throw new ApplicationError(404);
   const isAccepted = await adventurerService.isAdventurer(missionId, uid);
@@ -89,7 +103,7 @@ export const abandon = async ({ tid: missionId }: { tid: number }, uid: number) 
   await itemRecordService.deleteAllByMissionAndUser(missionId, uid);
 };
 
-export const complete = async ({ tid: missionId }: { tid: number }, membership: Membership, uid: number) => {
+export const complete = async ({ mid: missionId }: { mid: number }, membership: Membership, uid: number) => {
   const mission = await MissionModel.getOne(missionId);
   if (!mission) throw new ApplicationError(404);
   if (membership === 'vice' && uid !== mission.creatorId) throw new ApplicationError(403);
@@ -99,7 +113,7 @@ export const complete = async ({ tid: missionId }: { tid: number }, membership: 
   if (!result) throw new ApplicationError(400);
 };
 
-export const fail = async ({ tid: missionId }: { tid: number }, membership: Membership, uid: number) => {
+export const fail = async ({ mid: missionId }: { mid: number }, membership: Membership, uid: number) => {
   const mission = await MissionModel.getOne(missionId);
   if (!mission) throw new ApplicationError(404);
   if (membership === 'vice' && uid !== mission.creatorId) throw new ApplicationError(403);
@@ -120,25 +134,23 @@ export const clickCheckboxForItemRecord = async (itemRecordId: number) => {
   } else throw new ApplicationError(404);
 };
 
-// prettier-ignore
-export const update=async({ initiationTime, deadline, items, ...otherData }: MissionDetailed, { tid: missionId }:{ tid: number }, membership: Membership, uid: number) =>{
-    const mission = await MissionModel.getOne(missionId);
-    if (!mission) throw new ApplicationError(404);
-    if (membership === 'vice' && uid !== mission.creatorId) throw new ApplicationError(403);
+export const update = async ({ initiationTime, deadline, items, ...otherData }: MissionDetailed, { mid: missionId }: { mid: number }, membership: Membership, uid: number) => {
+  const mission = await MissionModel.getOne(missionId);
+  if (!mission) throw new ApplicationError(404);
+  if (membership === 'vice' && uid !== mission.creatorId) throw new ApplicationError(403);
 
-    const time = timeHandle(initiationTime, deadline);
+  const time = timeHandle(initiationTime, deadline);
+  const result = await MissionModel.updateDetail(missionId, time, otherData);
+  if (!result) throw new ApplicationError(400);
 
-    const result = await MissionModel.updateDetail(missionId, time, otherData);
-    if (!result) throw new ApplicationError(400);
+  await AdventurerModel.deleteByMission(missionId);
+  await itemRecordService.deleteAllByMission(missionId);
+  await itemService.update(items, missionId);
 
-    await AdventurerModel.deleteByMission(missionId);
-    await itemRecordService.deleteAllByMission(missionId);
-    await itemService.update(items, missionId);
+  return { id: missionId };
+};
 
-    return { id: missionId };
-  }
-
-export const cancel = async ({ tid: missionId }: { tid: number }, membership: Membership, uid: number) => {
+export const cancel = async ({ mid: missionId }: { mid: number }, membership: Membership, uid: number) => {
   const mission = await MissionModel.getOne(missionId);
   if (!mission) throw new ApplicationError(404);
   if (membership === 'vice' && uid !== mission.creatorId) throw new ApplicationError(403);
@@ -150,20 +162,20 @@ export const cancel = async ({ tid: missionId }: { tid: number }, membership: Me
   if (!result) throw new ApplicationError(400);
 };
 
-export const restore = async ({ tid: missionId }: { tid: number }, membership: Membership, uid: number) => {
+export const restore = async ({ mid: missionId }: { mid: number }, membership: Membership, uid: number) => {
   const mission = await MissionModel.getOne(missionId);
   if (!mission) throw new ApplicationError(404);
   if (membership === 'vice' && uid !== mission.creatorId) throw new ApplicationError(403);
 
   const currentTime = new Date();
-  const initiationTime = new Date(mission.initiationTime);
-  if (currentTime > initiationTime) throw new ApplicationError(409);
+  const deadline = new Date(mission.deadline);
+  if (currentTime > deadline) throw new ApplicationError(409);
 
   const result = await MissionModel.updateStatus(missionId, 'established');
   if (!result) throw new ApplicationError(400);
 };
 
-export const remove = async ({ tid: missionId }: { tid: number }, membership: Membership, uid: number) => {
+export const remove = async ({ mid: missionId }: { mid: number }, membership: Membership, uid: number) => {
   const mission = await MissionModel.getOne(missionId);
   if (!mission) throw new ApplicationError(404);
   if (membership === 'vice' && uid !== mission.creatorId) throw new ApplicationError(403);

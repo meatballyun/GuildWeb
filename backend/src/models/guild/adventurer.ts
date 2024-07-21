@@ -24,7 +24,8 @@ export class AdventurerModel {
 
   static getAllByManyMission(missionIds: number[]): Promise<Adventurer[]> {
     return new Promise((resolve, reject) => {
-      conn.query<Adventurer[]>(`SELECT * FROM adventurers WHERE missionId IN (?)`, missionIds, function (err, rows) {
+      const placeholders = missionIds.map(() => '?').join(',');
+      conn.query<Adventurer[]>(`SELECT * FROM adventurers WHERE missionId IN (${placeholders}) ORDER BY missionId ASC`, missionIds, function (err, rows) {
         if (err) reject(err);
         resolve(rows);
       });
@@ -57,11 +58,11 @@ export class AdventurerModel {
     });
   }
 
-  static create(missionId: number, userId: number): Promise<number> {
+  static create(missionId: number, userId: number): Promise<ResultSetHeader> {
     return new Promise((resolve, reject) => {
-      conn.query<ResultSetHeader>(`INSERT INTO adventurers(missionId , userId, acceptanceTime, status) VALUES (?, ?, CURDATE(), 'Accepted')`, [missionId, userId], function (err, rows) {
+      conn.query<ResultSetHeader>(`INSERT INTO adventurers(missionId , userId, acceptanceTime, status) VALUES (?, ?, CURDATE(), 'accepted')`, [missionId, userId], function (err, rows) {
         if (err) reject(err);
-        resolve(rows.insertId);
+        resolve(rows);
       });
     });
   }

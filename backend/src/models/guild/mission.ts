@@ -12,9 +12,18 @@ export class MissionModel {
     });
   }
 
+  static getAllByUser(uid: number): Promise<Mission[]> {
+    return new Promise((resolve, reject) => {
+      conn.query<Mission[]>('SELECT m.* from adventurers a LEFT JOIN missions m ON a.missionId = m.id WHERE userId = ?;', [uid], function (err, rows) {
+        if (err) reject(err);
+        resolve(rows);
+      });
+    });
+  }
+
   static getAllByGuild(guildId: number): Promise<Mission[]> {
     return new Promise((resolve, reject) => {
-      conn.query<Mission[]>('SELECT * FROM missions WHERE guildId = ? AND active = TRUE', [guildId], function (err, rows) {
+      conn.query<Mission[]>('SELECT * FROM missions WHERE guildId = ? AND active = TRUE ', [guildId], function (err, rows) {
         if (err) reject(err);
         resolve(rows);
       });
@@ -23,7 +32,7 @@ export class MissionModel {
 
   static getAllByGuildAndName(guildId: number, name: string): Promise<Mission[]> {
     return new Promise((resolve, reject) => {
-      conn.query<Mission[]>('SELECT * FROM missions WHERE guildId = ? AND name LIKE ? AND active = TRUE', [guildId, '%' + name + '%'], function (err, rows) {
+      conn.query<Mission[]>('SELECT * FROM missions WHERE guildId = ? AND name LIKE ? AND active = TRUE ORDER BY id ASC', [guildId, '%' + name + '%'], function (err, rows) {
         if (err) reject(err);
         resolve(rows);
       });
@@ -32,7 +41,7 @@ export class MissionModel {
 
   static create(creatorId: number, guildId: number, { initiationTime, deadline }: MissionTime, { name, description, type, maxAdventurer }: MissionInfo): Promise<number> {
     const currentTime = new Date().getTime();
-    const status = currentTime >= new Date(initiationTime).getTime() ? 'In Progress' : 'Established';
+    const status = currentTime >= new Date(initiationTime).getTime() ? 'in progress' : 'established';
     return new Promise((resolve, reject) => {
       conn.query<ResultSetHeader>(
         'INSERT INTO missions(creatorId , guildId, initiationTime, deadline, name, description, type, maxAdventurer, status) VALUES (?,?,?,?,?,?,?,?,?)',
@@ -47,7 +56,7 @@ export class MissionModel {
 
   static updateDetail(id: number, { initiationTime, deadline }: MissionTime, { name, description, type, maxAdventurer }: MissionInfo): Promise<number> {
     const currentTime = new Date().getTime();
-    const status = currentTime >= new Date(initiationTime).getTime() ? 'In Progress' : 'Established';
+    const status = currentTime >= new Date(initiationTime).getTime() ? 'in progress' : 'established';
     return new Promise((resolve, reject) => {
       conn.query<ResultSetHeader>(
         'UPDATE missions SET initiationTime = ?, deadline = ?, name = ?, description = ?, type = ?, maxAdventurer = ?, status = ? WHERE id = ?',

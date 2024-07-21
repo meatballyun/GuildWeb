@@ -33,7 +33,11 @@ export class ItemRecordModel {
 
   static getAllByManyItemAndUser(itemIds: number[], userId: number): Promise<ItemRecord[]> {
     return new Promise((resolve, reject) => {
-      conn.query<ItemRecord[]>('SELECT * FROM itemRecords WHERE itemId IN (?) AND userId = ? AND active = TRUE', [itemIds, userId], function (err, rows) {
+      if (itemIds.length === 0) {
+        return;
+      }
+      const placeholders = itemIds.join(',');
+      conn.query<ItemRecord[]>(`SELECT * FROM itemRecords WHERE itemId IN (${placeholders}) AND userId = ? AND active = TRUE`, [userId], function (err, rows) {
         if (err) reject(err);
         resolve(rows);
       });
@@ -46,6 +50,27 @@ export class ItemRecordModel {
         if (err) reject(err);
         resolve(rows.insertId);
       });
+    });
+  }
+
+  static createMany(itemIds: number[], AdventurerId: number): Promise<number> {
+    return new Promise((resolve, reject) => {
+      if (itemIds.length === 0) {
+        return;
+      }
+      const placeholders = itemIds.join(',');
+      conn.query<ResultSetHeader>(
+        `
+        INSERT INTO itemRecords (itemId, content, userId)
+        SELECT id, content, ?
+        FROM items
+        WHERE id in (${placeholders});`,
+        [AdventurerId],
+        function (err, rows) {
+          if (err) reject(err);
+          resolve(rows.insertId);
+        }
+      );
     });
   }
 

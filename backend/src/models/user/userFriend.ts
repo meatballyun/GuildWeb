@@ -16,7 +16,7 @@ export class UserFriendModel {
   static getAllByIdAndName(userId: number, name: string): Promise<UserFriend[] | undefined> {
     return new Promise((resolve, reject) => {
       connection.query<UserFriend[]>(
-        `SELECT u.id, u.name, u.imageUrl, u.RANK FROM users u INNER JOIN userFriends uf ON (u.id = uf.user1Id OR u.id = uf.user2Id) WHERE uf.status = 'confirmed' AND (uf.user1Id = ? OR uf.user2Id = ?) AND u.name LIKE ?`,
+        `SELECT u.id, u.name, u.imageUrl, u.rank FROM users u INNER JOIN userFriends uf ON (u.id = uf.user1Id OR u.id = uf.user2Id) WHERE uf.status = 'confirmed' AND (uf.user1Id = ? OR uf.user2Id = ?) AND u.name LIKE ?`,
         [userId, userId, '%' + name + '%'],
         function (err, rows) {
           if (err) reject(err);

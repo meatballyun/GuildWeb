@@ -15,7 +15,7 @@ export class NotificationModel {
 
   static getAll(recipientId: number): Promise<Notification[] | undefined> {
     return new Promise((resolve, reject) => {
-      conn.query<Notification[]>('SELECT * FROM notifications WHERE recipientId = ? AND active = TRUE ORDER BY CREATE_TIME DESC', [recipientId], function (err, rows) {
+      conn.query<Notification[]>('SELECT * FROM notifications WHERE recipientId = ? AND active = TRUE ORDER BY createTime DESC', [recipientId], function (err, rows) {
         if (err) reject(err);
         if (rows?.length) resolve(rows);
         resolve(undefined);

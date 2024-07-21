@@ -41,7 +41,7 @@ export const getAllUser = async (uid: number, query: string) => {
 
 export const getAllFriend = async (uid: number, query: string) => {
   const friends = await UserFriendModel.getAllByIdAndName(uid, query);
-  if (friends) {
+  if (friends?.length) {
     const users = friends.map(({ id, name, imageUrl, rank }) => {
       return { id, name, imageUrl, rank };
     });

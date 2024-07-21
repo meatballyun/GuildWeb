@@ -54,19 +54,27 @@ export const create = async ({ senderId, recipientId, type }: Pick<BaseNotificat
       const notificationContent = new DEFAULT_NOTIFICATION_CONTENT(sender.name, recipient.name);
       const content = notificationContent.guild();
       resolve(content);
+      return;
     }
+
     if (type === 'user') {
       const sender = await UserModel.getOneById(senderId);
       if (!sender) throw new ApplicationError(400);
       const notificationContent = new DEFAULT_NOTIFICATION_CONTENT(sender.name, recipient.name);
       const content = notificationContent.user();
       resolve(content);
+      return;
     }
-    const sender = await UserModel.getOneById(senderId);
-    if (!sender) throw new ApplicationError(400);
-    const notificationContent = new DEFAULT_NOTIFICATION_CONTENT(sender.name, recipient.name);
-    const content = notificationContent.system();
-    resolve(content);
+
+    if (type === 'system') {
+      const sender = await UserModel.getOneById(senderId);
+      if (!sender) throw new ApplicationError(400);
+      const notificationContent = new DEFAULT_NOTIFICATION_CONTENT(sender.name, recipient.name);
+      const content = notificationContent.system();
+      resolve(content);
+      return;
+    }
+    reject('Notification type error');
   });
 
   const newNotification = await NotificationModel.create(senderId, recipientId, defaultContent.title, defaultContent.description, type);
