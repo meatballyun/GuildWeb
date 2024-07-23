@@ -57,7 +57,7 @@ jobs:
           export NODE_ENV=development
           export DB_HOST=localhost
           export DB_USER=yun
-          export DB_PASSWORD=123456
-          export DB_NAME=GuildWeb
+          export DB_PASS=123456
+          export DB_DATABASE=GuildWeb
           export BE_PORT=3010
           cd ./backend && timeout 10s npm start
