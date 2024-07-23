@@ -60,4 +60,17 @@ jobs:
           export DB_PASS=123456
           export DB_DATABASE=GuildWeb
           export BE_PORT=3010
-          cd ./backend && npm run dev
+          cd ./backend && nohup npm run dev &
+
+      - name: Wait for application to be ready
+        run: |
+          for i in {30..0}; do
+            if curl --silent --fail http://localhost:3010/health; then
+              echo 'Application is up and running'
+              exit 0
+            fi
+            echo 'Waiting for application to be ready...'
+            sleep 1
+          done
+          echo 'Application did not become ready in time'
+          exit 1
