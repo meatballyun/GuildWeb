@@ -58,4 +58,9 @@ jobs:
         run: cd ./backend && npm run check
 
       - name: Start application
+        env:
+          DB_HOST: 127.0.0.1
+          DB_USER: yun
+          DB_PASSWORD: 123456
+          DB_NAME: GuildWeb
         run: cd ./backend && npm start
