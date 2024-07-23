@@ -14,10 +14,10 @@ jobs:
       mysql:
         image: meatball0225/guildweb_db:v1.1
         env:
-          MYSQL_ROOT_PASSWORD: 123456
-          MYSQL_DATABASE: GuildWeb
-          MYSQL_USER: yun
-          MYSQL_PASSWORD: 123456
+          MYSQL_ROOT_PASSWORD: '123456'
+          MYSQL_DATABASE: 'GuildWeb'
+          MYSQL_USER: 'yun'
+          MYSQL_PASSWORD: '123456'
         ports:
           - 3306:3306
         options: >-
@@ -59,8 +59,8 @@ jobs:
 
       - name: Start application
         env:
-          DB_HOST: 127.0.0.1
-          DB_USER: yun
-          DB_PASSWORD: 123456
-          DB_NAME: GuildWeb
+          DB_HOST: 'localhost'
+          DB_USER: 'yun'
+          DB_PASSWORD: '123456'
+          DB_NAME: 'GuildWeb'
         run: cd ./backend && npm start
