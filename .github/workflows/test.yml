@@ -14,10 +14,7 @@ jobs:
       mysql:
         image: meatball0225/guildweb_db:v1.1
         env:
-          MYSQL_ROOT_PASSWORD: '123456'
-          MYSQL_DATABASE: 'GuildWeb'
-          MYSQL_USER: 'yun'
-          MYSQL_PASSWORD: '123456'
+          MYSQL_ROOT_PASSWORD: 123456
         ports:
           - 3306:3306
         options: >-
