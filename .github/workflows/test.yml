@@ -60,4 +60,4 @@ jobs:
           export DB_PASS=123456
           export DB_DATABASE=GuildWeb
           export BE_PORT=3010
-          cd ./backend && timeout 10s npm start
+          cd ./backend && timeout 30s npm start
