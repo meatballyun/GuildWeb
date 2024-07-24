@@ -4,7 +4,7 @@
   "main": "server.js",
   "scripts": {
     "build": "npm run tsc",
-    "dev": "tsc --watch",
+    "dev": "node ./dist/server.js ",
     "check": "tsc",
     "watchTS": "tsc --watch",
     "start": "nodemon ./dist/server.js"
