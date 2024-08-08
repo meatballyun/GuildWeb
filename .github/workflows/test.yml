@@ -1,10 +1,9 @@
-name: NodeJS with Webpack
+name: Build and Deploy Backend
 
 on:
   push:
-    branches: ['fix']
-  pull_request:
-    branches: ['develop']
+    branches:
+      - develop
 
 jobs:
   build:
@@ -21,56 +20,30 @@ jobs:
           --health-timeout=5s
           --health-retries=3
 
-    strategy:
-      matrix:
-        node-version: [20.x]
-
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Wait for MySQL to be ready
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          tags: meatball0225/guildweb_be:latest
+          push: true
+
+      - name: Deploy to VPS
         run: |
-          for i in {30..0}; do
-            if mysqladmin ping -h"127.0.0.1" --silent; then
-              break
-            fi
-            echo 'Waiting for MySQL to be ready...'
-            sleep 1
-          done
-          if [ "$i" = 0 ]; then
-            echo 'MySQL did not become ready in time'
-            exit 1
-          fi
-
-      - name: Install dependencies
-        run: cd ./backend && npm install
-
-      - name: tsc --watch
-        run: cd ./backend && npm run check
-
-      - name: Start application
-        run: |
-          export NODE_ENV=development
-          export DB_HOST=localhost
-          export DB_USER=yun
-          export DB_PASS=123456
-          export DB_DATABASE=GuildWeb
-          export BE_PORT=3010
-          cd ./backend && nohup npm run dev &
-
-      - name: Wait for application to be ready
-        run: |
-          for i in {30..0}; do
-            if curl --silent --fail http://localhost:3010/health; then
-              echo 'Application is up and running'
-              exit 0
-            fi
-            echo 'Waiting for application to be ready...'
-            sleep 1
-          done
-          echo 'Application did not become ready in time'
-          exit 1
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+            docker pull meatball0225/guildweb_be:latest
+            docker stop backend || true
+            docker rm backend || true
+            docker run -d --name backend --env-file /path/to/.env -p 3010:3010 meatball0225/guildweb_be:latest
+          EOF
