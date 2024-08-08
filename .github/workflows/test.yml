@@ -39,11 +39,16 @@ jobs:
           tags: meatball0225/guildweb_be:latest
           push: true
 
+      - name: Add SSH key
+        uses: webfactory/ssh-agent@v1
+        with:
+          ssh-private-key: ${{ secrets.VPS_PRIVATE_KEY }}
+
       - name: Deploy to VPS
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
-            docker pull meatball0225/guildweb_be:latest
+            docker pull your-dockerhub-username/backend:latest
             docker stop backend || true
             docker rm backend || true
-            docker run -d --name backend --env-file /path/to/.env -p 3010:3010 meatball0225/guildweb_be:latest
+            docker run -d --name backend --env-file /path/to/.env -p 3010:3010 your-dockerhub-username/backend:latest
           EOF
