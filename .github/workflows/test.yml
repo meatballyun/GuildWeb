@@ -44,11 +44,11 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.VPS_PRIVATE_KEY }}
 
-      - name: Deploy to VPS
+      - name: Debug SSH Connection
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
-            docker pull your-dockerhub-username/backend:latest
+          ssh -v -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+            docker pull meatball0225/guildweb_be:latest
             docker stop backend || true
             docker rm backend || true
-            docker run -d --name backend --env-file /path/to/.env -p 3010:3010 your-dockerhub-username/backend:latest
+            docker run -d --name backend --env-file /home/ubuntu/yun/env/.env -p 3010:3010 meatball0225/guildweb_be:latest
           EOF
